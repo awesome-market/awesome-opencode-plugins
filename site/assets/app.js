@@ -519,10 +519,8 @@ function renderHero() {
       + `<span class="hv-cap-sub">${t('hv.cap', { n: top1.series.length })}</span>`;
   } else {
     chart.innerHTML = `<svg class="hv-radar" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <circle cx="24" cy="24" r="20" stroke="url(#sparkStroke)" stroke-width="1.5" opacity="0.4"/>
-      <circle cx="24" cy="24" r="12" stroke="url(#sparkStroke)" stroke-width="1" opacity="0.3"/>
-      <circle cx="24" cy="24" r="4" fill="url(#sparkStroke)"/>
-      <g class="radar-sweep"><line x1="24" y1="24" x2="38" y2="10" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/></g>
+      <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5" opacity="0.7"/>
+      <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     </svg>`;
     cap.textContent = '';
   }

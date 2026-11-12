@@ -21,8 +21,8 @@
   --text-dim: #a1a1aa;
   --text-faint: #8e8e96;
   --blue: #7dd3fc;
-  --link: #2dd4bf;
-  --grad: linear-gradient(90deg, #2dd4bf, #5eead4);
+  --link: #e4e4e7;
+  --grad: linear-gradient(90deg, #aeaeae, #eeeeee);
   --green: #34d399;
   --warn: #f87171;
   --gold: #fbbf24;
@@ -32,14 +32,14 @@
   --tab-on-bg: var(--accent-bg);
   --tab-on-bd: var(--accent-bd);
   --tab-on-glow: none;
-  --accent: #2dd4bf;
-  --accent-fg: #2dd4bf;
-  --accent-bg: rgba(45, 212, 191, 0.10);
-  --accent-bd: rgba(45, 212, 191, 0.32);
-  --accent-hover-bg: rgba(45, 212, 191, 0.18);
-  --accent-hover-fg: #5eead4;
-  --accent-solid: #14b8a6;
-  --accent-solid-fg: #04211d;
+  --accent: #eeeeee;
+  --accent-fg: #eeeeee;
+  --accent-bg: rgba(238, 238, 238, 0.08);
+  --accent-bd: rgba(238, 238, 238, 0.28);
+  --accent-hover-bg: rgba(238, 238, 238, 0.14);
+  --accent-hover-fg: #ffffff;
+  --accent-solid: #eeeeee;
+  --accent-solid-fg: #0b0b0b;
   --pill-bg: rgba(52, 211, 153, 0.10);
   --pill-bd: rgba(52, 211, 153, 0.28);
   --pill-hot-bg: rgba(52, 211, 153, 0.16);
@@ -72,21 +72,21 @@
   --text-dim: #52525b;
   --text-faint: #71717a;
   --blue: #0284c7;
-  --link: #0f766e;
-  --grad: linear-gradient(90deg, #0f766e, #14b8a6);
+  --link: #18181b;
+  --grad: linear-gradient(90deg, #626262, #1f1f1f);
   --green: #059669;
   --warn: #dc2626;
   --gold: #b45309;
   --silver: #71717a;
   --bronze: #b45309;
   --tab-on-glow: none;
-  --accent: #0f766e;
-  --accent-fg: #0f766e;
-  --accent-bg: rgba(15, 118, 110, 0.09);
-  --accent-bd: rgba(15, 118, 110, 0.38);
-  --accent-hover-bg: rgba(15, 118, 110, 0.16);
-  --accent-hover-fg: #115e59;
-  --accent-solid: #0f766e;
+  --accent: #1f1f1f;
+  --accent-fg: #1f1f1f;
+  --accent-bg: rgba(31, 31, 31, 0.06);
+  --accent-bd: rgba(31, 31, 31, 0.30);
+  --accent-hover-bg: rgba(31, 31, 31, 0.10);
+  --accent-hover-fg: #000000;
+  --accent-solid: #1f1f1f;
   --accent-solid-fg: #ffffff;
   --pill-bg: rgba(5, 150, 105, 0.08);
   --pill-bd: rgba(5, 150, 105, 0.3);
@@ -117,7 +117,7 @@ body {
 .container, .footer { position: relative; z-index: 1; }
 .hero { position: relative; z-index: 2; }
 
-a { color: var(--link); text-decoration: none; }
+a { color: var(--link); text-decoration: none; text-underline-offset: 3px; }
 a:hover { text-decoration: underline; }
 
 :focus-visible {
