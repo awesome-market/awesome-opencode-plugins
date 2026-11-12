@@ -71,13 +71,15 @@ jobs:
       # site/data/* 以单文件 sqlite blob 推给 api（部署文件数上限约束，
       # 上传必须先于站点发布——失败则中止，不让页面上线后水合不到数据）。
       - name: Pack + upload data store to api
+        # 后端未上线前容错——静态 data/ 已随站发布，社交功能随后端启用
+        continue-on-error: true
         env:
           DATA_UPLOAD_TOKEN: ${{ secrets.DATA_UPLOAD_TOKEN }}
         run: |
           python3 scripts/pack_data.py
           gzip -9 -c site-data.db > site-data.db.gz
           SHA=$(sha256sum site-data.db.gz | cut -d' ' -f1)
-          RESP=$(curl -fsS -X POST "https://api.oplugin.com/data-upload" \
+          RESP=$(curl -fsS -X POST "https://api-openplugins.zhuikan.com/data-upload" \
             -H "Authorization: Bearer $DATA_UPLOAD_TOKEN" \
             -H "Content-Type: application/octet-stream" \
             --data-binary @site-data.db.gz)
@@ -88,6 +90,7 @@ jobs:
       # ~万级文件超出 actions/deploy-pages 同步预算；推 gh-pages 分支由
       # Pages 服务端构建，同时 Cloudflare Pages 作主发布。
       - name: Publish site to gh-pages
+        if: always()
         run: |
           rm -rf /tmp/ghp-site
           cp -a site /tmp/ghp-site
@@ -112,6 +115,6 @@ jobs:
         run: |
           test -f /tmp/ghp-site/index.html || { echo "site payload missing; skipping deploy"; exit 1; }
           rm -rf /tmp/cfp-site && mkdir -p /tmp/cfp-site
-          rsync -a --exclude 'data/' /tmp/ghp-site/ /tmp/cfp-site/
+          rsync -a /tmp/ghp-site/ /tmp/cfp-site/   # 载荷含 data/（~10.5k < 2万上限），后端上线后可剔除
           echo "deploy payload: $(find /tmp/cfp-site -type f | wc -l) files"
           npx -y wrangler@3 pages deploy /tmp/cfp-site --project-name=opencode-plugins --branch=main

@@ -31,7 +31,9 @@ const HOME = DB || './';
 // The gh-pages mirror keeps its own full data/ tree — fetch it relatively
 // there (CORS would block api-site from *.github.io origins anyway).
 const DATA = (['localhost', '127.0.0.1'].includes(location.hostname)
-  || location.hostname.endsWith('.github.io'))
+  || location.hostname.endsWith('.github.io')
+  || location.hostname.endsWith('.zhuikan.com')
+  || location.hostname.endsWith('.oplugin.com'))
   ? `${DB}data/` : 'https://api-openplugins.zhuikan.com/data/';
 
 function deltaSpan(label) {
