@@ -556,7 +556,8 @@ def _ssr_row(e: dict) -> str:
     foot = ('<div class="row-foot"><div class="row-soc"></div>'
             + (f'<div class="row-tags">{pills}</div>' if pills else "") + "</div>")
     return (f'<div class="rank-row" data-fn="{_esc(e.get("full_name") or "")}"><span class="row-rank{" top" if rank <= 3 else ""}">{rank}</span>'
-            f'<a class="row-avatar" href="{href}"><img src="{_esc(e.get("avatar") or _initial_avatar(name))}" alt="" loading="lazy" width="48" height="48"></a>'
+            f'<a class="row-avatar" href="{href}"><img src="{_esc(e.get("avatar") or _initial_avatar(name))}" alt="" loading="lazy" width="48" height="48"'
+            f" onerror=\"this.outerHTML='<i class=\\'av-fb\\'>{_esc((name or '?')[0].upper())}</i>'\"></a>"
             f'<div class="row-body"><div class="row-name"><a class="row-link" href="{href}">'
             f'<span class="row-owner">{_esc(owner)}</span><span class="row-sep">/</span>'
             f'<span class="row-repo">{_esc(name)}</span></a></div>'

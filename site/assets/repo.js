@@ -74,7 +74,7 @@ function sameOwnerHTML(d) {
   if (!list.length) return '<div class="rp-same"></div>';
   const av = esc(d.avatar || '');
   const links = list.slice(0, 20).map(x =>
-    `<a class="rp-same-link" href="${HOME}repos/${esc(x.full_name.replace('/', '__'))}"><img class="rp-same-av" src="${av}" alt="" loading="lazy" onerror="this.remove()">${esc(x.name)}</a>`).join('');
+    `<a class="rp-same-link" href="${HOME}repos/${esc(x.full_name.replace('/', '__'))}"><img class="rp-same-av" src="${av}" alt="" loading="lazy" onerror="this.outerHTML='<i class=\\'rp-same-av-fb av-fb\\'>${esc((x.name || '?')[0].toUpperCase())}</i>'">${esc(x.name)}</a>`).join('');
   return `<div class="rp-same"><div class="rp-same-label">${t('rp.same')}</div><div class="rp-same-row">${links}</div></div>`;
 }
 
@@ -98,7 +98,7 @@ function topHTML(d) {
   ].filter(Boolean).join('');
   return `<div class="rp-top">
   <aside class="rp-side">
-    <a href="${HOME}repos/${esc(d.full_name.replace('/', '__'))}"><img class="rp-side-av" src="${esc(avBig)}" alt="${esc(d.owner)} avatar" width="300" height="300" onerror="this.style.visibility='hidden'"></a>
+    <a href="${HOME}repos/${esc(d.full_name.replace('/', '__'))}"><img class="rp-side-av" src="${esc(avBig)}" alt="${esc(d.owner)} avatar" width="300" height="300" onerror="this.outerHTML='<div class=\\'rp-side-av-fb av-fb\\'>${esc((d.name || '?')[0].toUpperCase())}</div>'"></a>
     <div class="rp-side-body card">
       <div class="rp-side-name">${esc(d.name)}</div>
       <a class="rp-side-owner" href="https://github.com/${esc(d.owner)}" target="_blank" rel="noopener">${esc(d.owner)}</a>
@@ -191,7 +191,7 @@ function trendHTML(d) {
     `<button class="rp-mtab${repo.metric === k ? ' active' : ''}" data-metric="${k}">${gi(ic, 13)} ${t('units.' + k)}</button>`).join('');
   return `<section class="rp-trend card">
     <div class="rp-trend-head">
-      <a href="${HOME}repos/${esc(d.full_name.replace('/', '__'))}"><img class="rp-th-av" src="${esc(avSm)}" alt="" width="34" height="34" onerror="this.style.visibility='hidden'"></a>
+      <a href="${HOME}repos/${esc(d.full_name.replace('/', '__'))}"><img class="rp-th-av" src="${esc(avSm)}" alt="" width="34" height="34" onerror="this.outerHTML='<i class=\\'rp-th-av-fb av-fb\\'>${esc((d.name || '?')[0].toUpperCase())}</i>'"></a>
       <div class="rp-th-txt">
         <div class="rp-th-name">${esc(d.full_name)}</div>
         <div class="rp-th-sub">${t('rp.subtitle')}</div>
@@ -1024,7 +1024,7 @@ async function initRepo() {
   bindChrome(() => { if (repo.data) renderAllRepo(); });
   zkLoadUser().then(renderAuthChip);
   const fn = new URLSearchParams(location.search).get('r') || document.body.dataset.repo || '';
-  if (!/^[\w.-]+\/[\w.-]+$/.test(fn)) {
+  if (!/^[\w.@-]+\/[\w.@-]+$/.test(fn)) {
     $('#repoContent').innerHTML = `<div class="rp-err card"><h2>${t('rp.notfound')}</h2><p>${t('rp.notfound.hint')}</p><a class="rp-back" href="${HOME}">${t('rp.back')}</a></div>`;
     return;
   }

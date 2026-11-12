@@ -113,7 +113,7 @@ function rowHTML(e, dispRank = e.rank) {
     : '';
   return `<div class="rank-row" data-fn="${esc(e.full_name)}" style="animation-delay:${Math.min(dispRank * 12, 400)}ms">
     <span class="row-rank${dispRank <= 3 ? ' top' : ''}"${dispRank !== e.rank ? ` title="${esc(t('rank.prerank', { n: e.rank }))}"` : ''}>${dispRank}</span>
-    <a class="row-avatar" href="${DB}repos/${encodeURIComponent(e.owner)}__${encodeURIComponent(e.name)}"><img src="${esc(e.avatar || `https://github.com/${e.owner}.png?size=96`)}" alt="" loading="lazy" width="48" height="48" onerror="this.style.visibility='hidden'"></a>
+    <a class="row-avatar" href="${DB}repos/${encodeURIComponent(e.owner)}__${encodeURIComponent(e.name)}"><img src="${esc(e.avatar || `https://github.com/${e.owner}.png?size=96`)}" alt="" loading="lazy" width="48" height="48" onerror="this.outerHTML='<i class=\\'av-fb\\'>${esc((e.name || '?')[0].toUpperCase())}</i>'"></a>
     <div class="row-body">
       <div class="row-name">
         ${nameLinkHTML(e)}${badges(e)}${ageChip}
@@ -144,7 +144,7 @@ function podiumHTML(e, idx) {
   const rate = e.rate != null ? `<span class="rate-pill${e.rate >= 100 ? ' hot' : ''}">${fmtPct(e.rate)}</span>` : '';
   return `<div class="podium-card p${idx + 1}" data-fn="${esc(e.full_name)}">
     <div class="podium-rank">${medal}</div>
-    <a class="podium-avatar" href="${DB}repos/${encodeURIComponent(e.owner)}__${encodeURIComponent(e.name)}"><img src="${esc(e.avatar || `https://github.com/${e.owner}.png?size=128`)}" alt="" loading="lazy"></a>
+    <a class="podium-avatar" href="${DB}repos/${encodeURIComponent(e.owner)}__${encodeURIComponent(e.name)}"><img src="${esc(e.avatar || `https://github.com/${e.owner}.png?size=128`)}" alt="" loading="lazy" onerror="this.outerHTML='<i class=\\'av-fb\\'>${esc((e.name || '?')[0].toUpperCase())}</i>'"></a>
     <div class="podium-name">${nameLinkHTML(e)}${badges(e)}</div>
     <div class="podium-desc">${esc(e.description || '—')}</div>
     <div class="podium-metric" style="color:${e.growth != null ? 'var(--green)' : 'var(--text)'}">${metric}${unit ? ` <span class="unit">${unit}</span>` : ''}</div>
@@ -403,7 +403,8 @@ async function loadView() {
       return;
     }
     const pct = state.index ? Math.min(100, state.index.snapshot_days / 31 * 100) : 0;
-    setEmpty(t('empty.acc'), pct, emptyCtx);
+    if (pct >= 100) setEmpty(t('empty.win'), null, { ...emptyCtx, title: t('empty.win.title') });
+    else setEmpty(t('empty.acc'), pct, emptyCtx);
     return;
   }
   state.shown = PAGE;
@@ -567,7 +568,7 @@ function mark(text, q) {
 function searchRow(e, q, i) {
   const sub = e.description ? `<span class="sr-sub">${esc(e.description)}</span>` : '';
   return `<a class="sr-row${i === search.active ? ' on' : ''}" href="${esc(repoUrl(e.item_id))}">
-    <img class="sr-av" src="https://github.com/${esc(e.owner)}.png?size=64" alt="" loading="lazy" width="30" height="30">
+    <img class="sr-av" src="https://github.com/${esc(e.owner)}.png?size=64" alt="" loading="lazy" width="30" height="30" onerror="this.outerHTML='<i class=\\'sr-av-fb av-fb\\'>${esc(((e.name || e.item_id || '?').split('/').pop())[0].toUpperCase())}</i>'">
     <span class="sr-main">
       <span class="sr-name">${mark(e.item_id, q)}</span>
       ${sub}
