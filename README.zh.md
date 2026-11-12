@@ -17,6 +17,7 @@
 
 <h3>🔥 新星榜 · Top 20</h3>
 
+<!-- BOARD:TOP20 -->
 > 近 90 天内上架、按当前 Star 排序（≥10★）。完整榜单与历史曲线见<a href="https://opencode-plugins.zhuikan.com">在线榜单</a>。
 
 | 插件 | Stars | 简介 |
@@ -41,6 +42,7 @@
 | [**tiger-zzz/mini-trellis**](https://github.com/Tiger-zzZ/mini-trellis) | 434 | Minimal memory layer for AI coding agents: spec, research, journal, and… |
 | [**fishbottle7/opencode2dsh**](https://github.com/FishBottle7/opencode2dsh) | 389 | Free OpenCode Zen models for DeepSeek Harness (DSH): native dsh-llm adapter… |
 | [**useagenthq/useagent**](https://github.com/useagenthq/useagent) | 381 | The open-source Devin alternative. Run Claude Code, Codex or OpenCode in… |
+<!-- /BOARD:TOP20 -->
 
 ## 榜单
 

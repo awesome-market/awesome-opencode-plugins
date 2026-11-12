@@ -17,6 +17,7 @@
 
 <h3>🔥 New Arrivals · Top 20</h3>
 
+<!-- BOARD:TOP20 -->
 > Plugins listed in the last 90 days, ranked by current stars (≥10★). Full boards and history curves on the <a href="https://opencode-plugins.zhuikan.com">live site</a>.
 
 | Plugin | Stars | Description |
@@ -41,6 +42,7 @@
 | [**tiger-zzz/mini-trellis**](https://github.com/Tiger-zzZ/mini-trellis) | 434 | Minimal memory layer for AI coding agents: spec, research, journal, and… |
 | [**fishbottle7/opencode2dsh**](https://github.com/FishBottle7/opencode2dsh) | 389 | Free OpenCode Zen models for DeepSeek Harness (DSH): native dsh-llm adapter… |
 | [**useagenthq/useagent**](https://github.com/useagenthq/useagent) | 381 | The open-source Devin alternative. Run Claude Code, Codex or OpenCode in… |
+<!-- /BOARD:TOP20 -->
 
 ## Boards
 
