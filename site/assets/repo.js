@@ -256,7 +256,7 @@ function fmtAx(v) {
 }
 
 async function shareCanvas(d) {
-  const W = 1080, H = 1440, ACC = '#0969da', ACC2 = '#3380e0';
+  const W = 1080, H = 1440, ACC = '#1f1f1f', ACC2 = '#626262';
   const cv = document.createElement('canvas');
   cv.width = W; cv.height = H;
   const c = cv.getContext('2d');
@@ -379,7 +379,7 @@ async function shareCanvas(d) {
   lg.addColorStop(0, ACC); lg.addColorStop(1, ACC2);
   c.fillStyle = lg; c.beginPath(); c.roundRect(72, fy + 60, 84, 84, 20); c.fill();
   c.font = '44px system-ui'; c.textAlign = 'center'; c.textBaseline = 'middle';
-  c.fillStyle = '#fff'; c.fillText('📡', 114, fy + 106);
+  c.fillStyle = '#fff'; c.fillText('🧩', 114, fy + 106);
   c.restore();
   c.fillStyle = '#1f2328'; c.font = F(700, 34);
   c.fillText(fitText(c, `OpenCode Plugins · ${t('rp.share.slogan')}`, W - 72 - 170 - 182 - 20), 182, fy + 108);
