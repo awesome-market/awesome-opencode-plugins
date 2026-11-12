@@ -3,7 +3,7 @@
 OpenCode 插件 / 技能目录的开源趋势榜单 —— **数据每日自动同步、全部开放下载**。
 
 🌐 **在线榜单**: https://opencode-plugins.zhuikan.com
-（镜像：https://awesome-market.github.io/awesome-opencode-plugins/ · API：https://api-openplugins.zhuikan.com）
+（镜像：https://awesome-market.github.io/awesome-opencode-plugins/）
 
 ## 榜单
 
@@ -63,7 +63,7 @@ data/snapshots/*.json  data/repos/*.json   data/dlhist/*.json
 - **零依赖 Python 3**：采集 / 计算只用标准库
 - **纯静态前端**：原生 HTML/CSS/JS，无构建工具
 - **数据即档案**：快照与下载历史提交进 git，仓库本身就是可下载的历史数据库
-- **API 后端**（独立私有仓库）：FastAPI + SQLite，`api-openplugins.zhuikan.com`；站点数据以 `site-data.db` 单 blob 上传，社交 / 搜索 / 审核走 API
+- **API 后端**（独立私有仓库）：FastAPI + SQLite，私有仓库部署；站点数据以 `site-data.db` 单 blob 上传，社交 / 搜索 / 审核走 API
 
 ## 口径说明
 
