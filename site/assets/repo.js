@@ -531,11 +531,18 @@ function downloadRowHTML(d) {
     <span class="rp-dl-date">${esc((r.published_at || '').slice(0, 10))}</span></div>`;
 }
 
+const GH_KEYS = ['watchers', 'open_prs', 'open_issues', 'releases', 'forks'];
 function overviewPanel(d) {
   const m = d.metrics || {};
   const growth = ['day', 'week', 'month'].map(k => growthCell(d, k)).join('');
   const grid = METRIC_KEYS.map(k => {
     const v = m[k];
+    if (v == null) return '';
+    return `<div class="rp-metric"><div class="rp-metric-num">${fmtFull(v)}</div>
+      <div class="rp-metric-label">${t('units.' + k)}</div></div>`;
+  }).join('')
+  + GH_KEYS.map(k => {
+    const v = (d.gh || {})[k];
     if (v == null) return '';
     return `<div class="rp-metric"><div class="rp-metric-num">${fmtFull(v)}</div>
       <div class="rp-metric-label">${t('units.' + k)}</div></div>`;

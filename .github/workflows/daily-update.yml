@@ -57,6 +57,13 @@ jobs:
         env:
           OCM_README_LIMIT: "3000"
 
+      # 上游无 GitHub 仓统计（watchers/PR/issues/releases）——GraphQL 自采
+      - name: Fetch GitHub repo meta
+        if: ${{ !inputs.deploy_only }}
+        run: python scripts/sync_github_meta.py
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Rebuild rankings & site data
         run: python scripts/rank.py --site-base "${{ vars.SITE_BASE }}"
 

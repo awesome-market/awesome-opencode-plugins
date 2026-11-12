@@ -327,6 +327,14 @@ def _ssr_repo(p: dict) -> str:
         f'<div class="rp-metric"><div class="rp-metric-num">{num(m[k])}</div>'
         f'<div class="rp-metric-label">{k}</div>'
         + '</div>' for k in met_keys if k in m)
+    gh = p.get("gh") or {}
+    _gh_lbl = {"watchers": "watchers", "open_prs": "prs",
+               "open_issues": "issues", "releases": "releases",
+               "forks": "forks"}
+    mets += "".join(
+        f'<div class="rp-metric"><div class="rp-metric-num">{num(gh[k])}</div>'
+        f'<div class="rp-metric-label">{_gh_lbl[k]}</div></div>'
+        for k in _gh_lbl if gh.get(k) is not None)
 
     def lst(items, base):
         return "".join(
@@ -1397,6 +1405,13 @@ def main() -> int:
     repo_tpl = re.sub(r'\.(js|css)\?v=\d+', rf'.\1?v={asset_v}', repo_tpl)
     base = args.site_base.rstrip("/")
     cm_map = _fetch_comments()
+    gh_meta: dict = {}
+    gh_path = DATA_DIR / "ghmeta.json"
+    if gh_path.exists():
+        try:
+            gh_meta = json.loads(gh_path.read_text(encoding="utf-8"))
+        except Exception:
+            gh_meta = {}
     detail_count = 0
     search_idx: list[dict] = []
     for name, cur in detail_repos.items():
@@ -1473,6 +1488,8 @@ def main() -> int:
                  for n in owner_map.get(owner, []) if n != name),
                 key=lambda x: (x["boards"].get("total") or 9999, x["name"]))[:20],
             "latest_release": det.get("latest_release"),
+            "gh": {k: v for k, v in (gh_meta.get(name) or {}).items()
+                   if k != "checked"} or None,
             "readme": bool(readme_txt),
             "readme_zh": bool(readme_zh_txt),
             "stale": stale,
