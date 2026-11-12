@@ -1,0 +1,456 @@
+<div align="center">
+
+<img src="assets/konrad-1024.png" alt="konrad" width="140">
+
+# konrad
+
+<strong>the sandboxed coworking agent</strong>
+
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![version](https://img.shields.io/badge/dynamic/yaml?url=https://gitlab.git.nrw/jbauss2/konrad/-/raw/main/VERSION&query=$&label=version&color=informational)](CHANGELOG.md)
+[![status](https://img.shields.io/badge/status-in--house%20tool-lightgrey)](#status)
+[![image](https://img.shields.io/badge/image-ghcr.io%2Fjlbauss%2Fkonrad-blue)](https://github.com/users/jlbauss/packages/container/package/konrad)
+
+</div>
+
+konrad is a coworking agent that lives on your computer. Like cloud coworking agents it reads, writes, and acts on real files for you — but it runs **your** models (a trustworthy API, or fully local) against your files inside a sandboxed container, so your most private data never leaves machines you trust. That opens up work the cloud agents can't touch: filling forms with sensitive personal details, processing private notes, handling regulated data.
+
+Under the hood it's a thin wrapper around [opencode](https://github.com/sst/opencode): one container image with the agent and all its tools inside, and a small `konrad` CLI to run it.
+
+## Why konrad
+
+- **Your data stays yours.** Run local models or a trustworthy API — handle the forms, private notes, and regulated data you'd never paste into a cloud chatbot.
+- **Sandboxed by default.** The agent works inside a container that can't touch anything outside the workspace — nor plant code your host later runs from it, like a git hook ([workspace guard](#workspace-guard)) — and an egress firewall (on by default) restricts its network to an allow-list — your model providers plus a small trusted set — so a prompt-injected agent can't quietly ship your data off the box.
+- **Your models, your choice.** Local engines (LM Studio / Ollama / llama.cpp) or any opencode-supported API provider — never locked to one vendor.
+- **Batteries included.** One container image ships the agent's tools (ripgrep, fd, jq, pandoc, poppler, Python 3 + a system venv, Typst, LibreOffice) and a curated skill set already wired together: no venv, no pip, no host setup.
+- **Fully open source.** AGPL-3.0, no telemetry, nothing proprietary.
+- **Always current.** A bot tracks every upstream and CI rebuilds the image as they move; a throttled background refresh then keeps your image and org layers fresh automatically (`konrad update` forces it now). See [Staying current](#staying-current) and [build & reproducibility](ARCHITECTURE.md#build--reproducibility).
+
+What ships in the box:
+
+- **Document skills**, loaded via opencode's `skill` tool: `pdf` (extract / edit / annotate / fill / generate), `xlsx` (Excel and CSV: reading, editing, creation; taken unchanged from [hermes-agent](https://github.com/NousResearch/hermes-agent)), and `image-editing` (resize, crop, convert, watermark, …).
+- **Skills that keep results trustworthy:** `quality-assurance` (a verification cycle every producer skill runs before reporting a result) and `do-it-manually` (hands structured-but-irregular data to a careful manual-transformation subagent instead of debugging the Nth regex).
+- **Helper skills:** `frontend-design` (polished web pages and components), `grill-me` (stress-tests your plan by interviewing you), and `write-a-skill` (scaffold your own skills).
+- **A planning contract** baked into the agent prompt: a single `.agent/task.md` per task with side effects, plus aggressive use of opencode's `todowrite` for live progress. Rationale in [the planning contract](ARCHITECTURE.md#the-planning-contract).
+- **A curated font palette** — seven SIL OFL families (Inter, Source Serif 4, Fraunces, JetBrains Mono, EB Garamond, IBM Plex Sans, Atkinson Hyperlegible) plus Debian's Noto core for broad non-Latin coverage, so generated PDFs / slides / typeset docs look intentional out of the box. Drop your own into `~/.config/konrad/user/fonts/` to extend.
+
+## Who it's for
+
+konrad is for someone who wants an AI agent to work on **their own files, on their own machine, with their own models** — especially when the data is too sensitive to send to a hosted service.
+
+**It's probably not for you if you want:**
+
+- **Coding / software development** — use Claude Code, Cursor, and the like; konrad isn't tuned as a coding agent. (konrad can still *host* one: [`konrad code`](#coding-agents-konrad-code) runs Claude Code sealed off from your machine.)
+- **Research or web-heavy work** — deep-research and browsing agents do this better. konrad has no browsing stack, and its default-on egress firewall deliberately narrows network access — it's built to stay on a leash, not to roam.
+- **Production, hosted, or multi-user deployment** — it's a single-user local sandbox, not a deployable service.
+- **A zero-config cloud agent** — if you just want a hosted frontier model with no setup, a first-party app is less friction. konrad's payoff is local + your-files + sandbox.
+
+## Quick start
+
+Prerequisites once, then three steps: install, connect a model, run.
+
+### Prerequisites
+
+You need a container engine — konrad auto-selects the right one for your OS:
+
+| OS | Engine | One-time setup |
+| --- | --- | --- |
+| Linux | [Podman](https://podman.io/) | — |
+| Apple-Silicon macOS 26+ | Apple's [`container`](https://github.com/apple/container) | `container system start` |
+
+These two are the supported platforms, and every change is tested on each one it can affect. Intel Macs and macOS before 26 can't run Apple's `container`, so konrad doesn't run there.
+
+Optional: `git`, needed only for org-layer subscriptions — see [For organizations](#for-organizations).
+
+(Docker isn't supported; Windows/WSL2 is untested and at your own discretion.)
+
+### Install
+
+Just paste this one-liner to your terminal:
+
+```sh
+curl -fsSL https://gitlab.git.nrw/jbauss2/konrad/-/raw/main/scripts/install.sh | sh
+```
+
+This drops `konrad` into `~/.local/bin/`, pre-pulls the container image, and warns if a prerequisite is missing or your `PATH` needs fixing. Re-run any time to upgrade in place.
+
+### Connect a model
+
+Any opencode-supported API provider (OpenRouter, Anthropic, OpenAI, Gemini, …) works out of the box — pick one and paste a key (or do the browser login):
+
+```sh
+konrad connect
+```
+
+Prefer a **local model**? [LM Studio](https://lmstudio.ai/) (`:1234`), [Ollama](https://ollama.com/) (`:11434`), and [llama.cpp](https://github.com/ggerganov/llama.cpp) (`:8080`) are pre-wired at their default ports — start the server, and konrad discovers the loaded models into the picker automatically. Recipe in [Set up a model provider](#set-up-a-model-provider).
+
+**Recommended model class.** konrad's skills and prompts are tuned for a **30B-class open-weight model with strong agentic ability** — we test against [`qwen/qwen3.6-27b`](https://huggingface.co/Qwen). Models should have **native vision**, a context window **≥ 256k**, and agentic strength at least on par with Qwen3.6 27B ([Artificial Analysis Agentic Index](https://artificialanalysis.ai/models/capabilities/agentic)); stronger models only help.
+
+### Run it
+
+```sh
+cd ~/wherever-you-keep-the-files-the-agent-will-touch
+konrad
+```
+
+That's the whole UX: the current directory is mounted at `/workspace` inside the container, opencode starts pointing at your configured model, and you go.
+
+Working on konrad itself? See [CONTRIBUTING.md](CONTRIBUTING.md) for the parallel `konrad-dev` CLI that tracks your checkout.
+
+## Everyday use
+
+### Subcommands
+
+The action verbs are subcommands; `konrad` with no subcommand launches the TUI.
+
+| Subcommand             | What it does                                                            |
+| ---------------------- | ----------------------------------------------------------------------- |
+| *(none)*               | Default. Launch the opencode TUI against the current directory.         |
+| `run <args…>`          | Non-interactive: `opencode run <args…>` — one prompt, answer on stdout (pipeable). |
+| `opencode <args…>`     | Pass-through to `opencode <args…>` in the sandbox — the escape hatch for opencode subcommands konrad doesn't wrap (`opencode models`, `agent list`, `session list`, …). |
+| `shell`                | Open a bash shell in the container instead of the TUI.                  |
+| `scratch`              | Launch the TUI in a fresh throwaway workspace under `~/.local/state/konrad/scratch/` — for when you want a clean space, not a specific folder. (Running `konrad` straight from your home folder does this automatically instead of refusing.) |
+| `open`                 | Reveal the newest scratch workspace in your file manager (`open` / `xdg-open`). |
+| `install-desktop`      | Add a clickable launcher — a Linux application-menu entry or a macOS `~/Applications/Konrad.app` (Dock / Launchpad / Spotlight) — that opens a scratch session. User-scope, no root; `install-desktop --remove` deletes it (also swept by `uninstall`). The installer offers this on a first install only. |
+| `connect [args…]`      | Authenticate a provider (`opencode auth login`) — agent-free, firewall off. `connect <id>` asks just for the key of a provider your config declares; `connect --custom [id]` declares a self-hosted endpoint first. |
+| `mcp-auth <server>`    | Authenticate a remote MCP server's OAuth; the browser callback is forwarded into the sandbox. |
+| `code [--shell] [--no-nested] [--kvm] [--session <name>] <git-url> [args…]` | *Preview.* Run Claude Code on a clone of a forge repo, with open internet but no access to your machine — see [Coding agents](#coding-agents-konrad-code). |
+| `code up [--no-nested] [--kvm] [--capacity <n>] <git-url>` / `code down <git-url>` / `code ls` | *Preview.* Keep a repo up in the background for sessions you start from the Claude app or claude.ai/code; stop it; list the repos that are up. |
+| `org add` / `list` / `sync` / `remove` | Manage org config-layer subscriptions — see [For organizations](#for-organizations). |
+| `update`               | Refresh the CLI itself, pull the latest image from `ghcr.io/jlbauss/konrad:latest`, and re-sync subscribed org layers. |
+| `reset`                | Wipe shared volumes + log dir. Prompts `[y/N]`; affects all workspaces. |
+| `uninstall`            | Remove the CLI binary + the image. Prompts `[y/N]`. Leaves user config, shared volumes, and log dir alone. |
+
+### Flags
+
+Modifiers — pass them **before** the subcommand.
+
+| Flag                     | What it does                                                            |
+| ------------------------ | ----------------------------------------------------------------------- |
+| `--no-firewall`          | Disable the egress firewall for this run (default ON). Restores unrestricted network access. |
+| `--allow-host <host>`    | Add a host to the egress allow-list for this run (repeatable). Permanent entries go in `~/.config/konrad/user/allowed_hosts`. |
+| `--profile <name>`       | Use throwaway state + cache volumes suffixed with `<name>` (credentials stay shared). |
+| `-v`, `--verbose`        | Per-phase timestamps + a pointer to the opencode log file. Useful for chasing slow startup. |
+| `--version`              | Print CLI + image versions, plus the immutable pin (short-sha), local tag, and build date. |
+| `-h`, `--help`           | Show usage.                                                             |
+
+`konrad-dev` is the contributor binary — same surface, except the `rebuild` subcommand replaces `update`. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Desktop launcher
+
+Prefer a clickable icon over the terminal? `konrad install-desktop` adds a user-scope launcher that opens a fresh scratch session (a GUI launch has no project folder, so a throwaway workspace is the sensible landing spot):
+
+- **Linux** — a `konrad.desktop` entry in your application menu (opens your terminal via `Terminal=true`).
+- **macOS** — a `~/Applications/Konrad.app` for the Dock, Launchpad, and Spotlight.
+
+No root, nothing system-wide; `konrad install-desktop --remove` deletes it, and `konrad uninstall` sweeps it too. If the launcher is ever clicked on a machine where the `konrad` CLI is missing, it offers to install it first.
+
+The `curl | sh` installer offers to create it **on a first install only** — never again on an update, since `konrad update` re-runs that same installer. If you already have a launcher, an update quietly re-generates it in place (the wrapper and the macOS bundle are generated code, so fixes have to reach launchers already on disk) and keeps your settings; if you declined, or removed it, an update leaves you alone and you can add one later with `konrad install-desktop`. `KONRAD_DESKTOP=1` opts in non-interactively at any time, `0` never asks.
+
+On **macOS**, the app opens Terminal.app by default; point it at another terminal with `KONRAD_TERMINAL` (`ghostty`, `alacritty`, or `iterm`) when you create it — e.g. `KONRAD_TERMINAL=ghostty konrad install-desktop` (the terminal must be installed). **The choice sticks**: the launcher records it, so updates and later `konrad install-desktop` re-runs keep your terminal unless you pass `KONRAD_TERMINAL` again to change it. On **Linux** the entry uses your desktop's own default terminal, so there's nothing to set.
+
+### Coding agents (`konrad code`)
+
+*Preview since 0.30: the behaviour may still change, and IPv6 networks aren't probe-verified yet.*
+
+`konrad` gives its agent your files and keeps it off the internet. `konrad code` is the opposite trade-off for software work: the agent gets the internet and **nothing from your machine** — an agent gets your data or the internet, never both.
+
+```sh
+konrad code https://gitlab.example.com/you/project
+```
+
+- **No host mounts.** Only the URL crosses into the container (plus, if you create it, your own instructions folder, read-only — next bullet). The repo is cloned into a volume of its own (`konrad-code-<host>-<path>`) on the first run and fetched on later runs; the agent sees only what's pushed, and nothing it writes lands on your disk.
+- **Your own instructions, skills and agents, for every repo.** `~/.config/konrad/code/user/` is your `~/.claude` for `konrad code`, read-only: a `CLAUDE.md` there is loaded as your user-level instructions, on top of the repo's own `CLAUDE.md` / `AGENTS.md`, and `skills/`, `agents/`, `commands/` and `rules/` work as they do in `~/.claude` — you can copy yours over. The folder is bound in only when it exists, and its pieces win over ones of the same name inside the session; edits apply from the next session. Because the agent has open internet access, keep it to coding preferences — **nothing secret goes in there**. It must be a real folder (konrad refuses a symlinked one, which could expose far more than you meant), symlinks *inside* it don't resolve in the container (copy the files in), and on Podman its files must be world-readable (`chmod -R o+rX`); konrad warns about both.
+- **Git is the only way back.** On the first run konrad asks for a GitLab **project access token** (role Developer, scopes `read_repository` + `write_repository`), typed inside the container and stored in that repo's volume; each run asks GitLab whether it's still valid, asks again for a revoked or expired one, and warns before it expires. Protect the default branch on the forge — recommended under Settings → Repository → Protected branches: *Allowed to merge* and *Allowed to push and merge* set to Maintainers (or No one), *Allowed to force push* off; GitLab usually sets this up for `main` already, and it holds only while the token stays role Developer (a Maintainer token passes the protection). The agent then pushes a feature branch and opens a merge request, you review it in the web UI, CI runs, you merge, and only then does the code reach your machine — through a normal `git pull`.
+- **Open internet, sealed host and LAN.** Package registries, docs, and APIs just work (the agent installs what the project needs at runtime with `uv`, `npm`, …), but your computer, your local network, and link-local addresses (cloud metadata) are unreachable. There's no allow-list to maintain.
+- **Claude Code is installed on first use, never shipped.** konrad asks, then runs Anthropic's official installer into a shared volume — installing it means you accept Anthropic's terms. Log in once inside the container (Claude prints a URL, you paste the code back); a subscription login works as well as an API key. It runs as `claude --dangerously-skip-permissions`, with a short note about the git workflow added to its prompt; the repo's own `CLAUDE.md` / `AGENTS.md` apply as usual (Claude Code reads a repo's `AGENTS.md` when it has no `CLAUDE.md`).
+- **Containers inside, by default.** The agent gets rootless Podman, so it can build and run images (a project's own container build, its tests in a container) — still behind the same seal: nested containers reach the internet but not your machine or LAN. Images are kept in a volume of the repo's own (`konrad-code-<host>-<path>-containers`, often several GB once the agent builds something), so later builds are warm. `konrad code --no-nested <git-url>` turns it off for a run; the old `--nested` flag still works but is deprecated. What nesting costs: it loosens some container hardening (on Podman, `no-new-privileges` and the `/proc` and `/sys` masks; on Apple's `container` only the `/proc` masks). In practice a hijacked agent can see a little more about your machine (for example the names of running programs, but not your files), and breaking out of the container onto your computer gets somewhat less hard — it still takes an unpatched Linux kernel bug, and SELinux, where your system has it, still keeps an escaped agent away from your files (the agent runs as `container_engine_t`). Your files, your network and your `main` branch are protected the same way either way, and on a Mac everything runs inside a VM, so none of this reaches the Mac itself. Use `--no-nested` for a repo that never needs containers. The first nested run after updating resets a repo's image store that an older konrad filled, once.
+- **Virtual machines at full speed, on request: `--kvm`.** `konrad code --kvm <git-url>` (or `code up --kvm`) passes your machine's `/dev/kvm` into the session, so VMs the agent starts there (QEMU, VM-based tests) run hardware-accelerated instead of many times slower in emulation. Their networking stays behind the same seal. Nested containers get KVM with `podman run -v /dev:/dev`; `--device /dev/kvm` is refused there (the agent is told). It's off by default because it hands the agent your Linux kernel's KVM code, a part of the kernel where bugs have let a VM break out onto the host before; use it for repos that need VMs. Linux with Podman only for now, and `/dev/kvm` must be world read-writable (mode `0666`, systemd's default); konrad says so when it isn't.
+- **Several agents on one repo, in parallel.** Run `konrad code` on the same repo again from another terminal and that session gets its own git worktree of the clone (in the repo's volume, under `/workspace/.sessions/`), named `s2`, `s3`, … — konrad prints the name, and `konrad code --session <name> <git-url>` resumes it later or picks a name up front. The first session keeps working in the clone itself, as before. Each agent works on its own branch and opens its own merge request; git refuses to check out one branch in two sessions. The sessions share the repo's images, so builds stay warm, while each keeps its own containers; on Apple's `container` (where only one VM can attach a store) a second session gets an image store of its own, cold on its first build. Each session takes its own `KONRAD_MEMORY` share, so several nested builds at once may want a lower cap.
+- **Sessions from your phone or a browser: `konrad code up`.** `konrad code up <git-url>` keeps the repo up in the background: Claude Code's server mode in a container of its own, with the same seal, token and nested containers as a terminal session. You start sessions in the Claude app or at claude.ai/code, and each gets its own git worktree and branch in the clone (under `.claude/worktrees/`). The first `up` runs in your terminal once, for the token, the install and the login: Claude Code opens with its first-run questions: log in if it asks, choose "Yes, I trust this folder" and "Yes, I accept" bypass-permissions mode (both default to "No"), and type `/exit`. Remote Control then asks once whether to enable it: answer `y`. konrad then starts the repo in the background, and it shows up as the device `owner/repo` in the Code tab of the Claude app and at claude.ai/code. `--capacity <n>` sets how many sessions run at once (default 4, the repo's own session included); they share one memory cap, by default half your RAM up to 16 GB (`KONRAD_MEMORY` pins it). `konrad code down <git-url>` stops it (a session's worktree with commits or changes stays), and `konrad code ls` lists the repos that are up. The device always has one session titled `<owner>/<repo>`: the repo's own session, which Claude Code's server mode starts by itself. It works in a worktree of its own rather than in the clone; use it like any other session (for example to ask what the other sessions are up to, or to have it start one), or archive it, and it stays archived. The repo's own session survives a restart, a `down` and `up` included, for up to about four hours; after a longer stop it starts fresh. Sessions you started in the app carry on after a crash, but a `down` ends them: their history stays in the app, and you start a new one to go on. A host restart ends it: `konrad code ls` and `konrad code <git-url>` say so, and `konrad code up --all` starts it again (next bullet). Anyone holding your claude.ai login can now start sessions that push branches with the repo's token, so protect that account (Trusted Devices); "Push when Claude decides" in Claude's `/config` notifies you when a session needs you.
+- **Back up after a restart: `konrad code up --all`.** It starts every repo that should be up and isn't (the ones `konrad code ls` lists), each with the flags it was started with, `KONRAD_MEMORY` and `KONRAD_CPUS` included; a repo that's already up is left alone, and one that fails doesn't stop the others. It needs no terminal once a repo's first `up` has asked its questions, so on a machine that restarts on its own (a server's scheduled reboot) run it at boot. On Linux, as a systemd user unit, with lingering on so it starts without you logging in (`loginctl enable-linger` may ask for your password):
+
+  ```ini
+  # ~/.config/systemd/user/konrad-code-up.service
+  [Unit]
+  Description=konrad code up --all
+
+  [Service]
+  Type=oneshot
+  RemainAfterExit=yes
+  ExecStart=%h/.local/bin/konrad code up --all
+
+  [Install]
+  WantedBy=default.target
+  ```
+
+  ```sh
+  loginctl enable-linger
+  systemctl --user enable konrad-code-up.service
+  ```
+
+  On a Mac, a launch agent does the same at login, so for a scheduled restart pair it with automatic login. Save this as `~/Library/LaunchAgents/konrad.code-up.plist`, then run `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/konrad.code-up.plist` once:
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+  <dict>
+    <key>Label</key><string>konrad.code-up</string>
+    <key>ProgramArguments</key>
+    <array><string>/bin/sh</string><string>-c</string><string>exec "$HOME/.local/bin/konrad" code up --all</string></array>
+    <key>EnvironmentVariables</key>
+    <dict><key>PATH</key><string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string></dict>
+    <key>RunAtLoad</key><true/>
+    <key>StandardErrorPath</key><string>/tmp/konrad-code-up.log</string>
+  </dict>
+  </plist>
+  ```
+
+  Adjust the path if you installed konrad elsewhere (`command -v konrad`). A lost login doesn't show up as a failure: the repo starts, and its server mode retries in the background until you run `konrad code down` and `konrad code up` in a terminal. The repo's own session comes back only within its four hours, so after a night's reboot it starts fresh.
+- `konrad code --shell <git-url>` opens bash in the same sealed clone instead (e.g. to add, replace or delete the token: `rm /workspace/.git-credentials`, and the next run asks again). Arguments after the URL go to `claude`. `konrad --profile <name> code …` uses a separate set of volumes — clone, install and login — for a throwaway run.
+
+**What it can't protect.** The agent can read the repo and the token, and the internet is open, so both can leak — fine for your own code with a single-project, revocable token and a protected `main`; **don't use it on repos that contain secrets.** All repos share the agent's install and login volumes, so a compromised session could tamper with them for the next repo's session. "LAN" means private address space (`10/8`, `172.16/12`, `192.168/16`, CGNAT, link-local), the container's own subnet, and your machine's own networks (so a university LAN on public addresses is covered too) — a forge inside one of those is unreachable. GitLab first; GitHub (fine-grained tokens) and running it from a local checkout come later. Design: [ARCHITECTURE.md → konrad code](ARCHITECTURE.md#konrad-code).
+
+### Staying current
+
+konrad keeps the **image** and your subscribed **org layers** fresh on its own: at launch, at most once a day, it fires a background refresh (a `:latest` pull + an org-layer sync) that runs detached — it never blocks or delays a run, and a fresh image is picked up on the *next* launch (you'll see a one-line note when that happens). Offline? The refresh silently gives up and the run proceeds on what you already have. Tune or disable it with `KONRAD_REFRESH_INTERVAL` / `KONRAD_NO_AUTO_REFRESH` (see [Environment variables](#environment-variables-advanced)); read the last run's log at `~/.local/state/konrad/refresh.log`.
+
+`konrad update` still does the same refresh **now**, synchronously, *and* updates the CLI itself — the one piece the background refresh deliberately leaves alone (the CLI updates through its install channel, never by a background process rewriting the running script).
+
+## Status
+
+**An in-house tool, developed in the open.** One person builds and maintains konrad for their own work and their team's, and publishes it in case it's useful to you too. It works day-to-day, but there's no plan for 1.0 and no promise of support, response times or platforms beyond the two below to anyone outside that team; issues, merge requests and [security reports](SECURITY.md) are welcome and handled as time allows. The agent edits real files, so keep backups of anything irreplaceable. What that means today:
+
+- **Supported: Linux with Podman, and Apple-Silicon macOS 26+ with Apple's [`container`](https://github.com/apple/container).** Other Macs aren't supported, nor is Docker. No Windows support — WSL is at your own discretion and untested.
+- **Versioned, not stable.** konrad uses [semantic versioning](CONTRIBUTING.md#versioning) as `0.X.Y` (`X`/minor = new functionality or any user-visible change, `Y`/patch = fixes). The leading `0.` means config shapes, flags, and image internals can change without a migration path. `konrad update` follows `main`, so you get a merged change before the release that names it.
+- **Tested, not exhaustively.** Every published image passes a CI smoke gate (binaries, Python deps, baked content, a docling round-trip), the CLI's host-side logic has unit tests, and contributors rehearse the update path and run an end-to-end self-test, but less-traveled paths can still slip through.
+- **Local-model UX is rough.** Tool-call parsing, context overflow, and model switching have known edges.
+
+## Configuration
+
+konrad composes opencode's runtime config from up to four layers at container start. **You only override what you want to change**; everything else stays inherited.
+
+```text
+Layer 1 — Baked defaults     /etc/konrad/opencode-defaults.jsonc   (in the image)
+Layer 2 — Org layers         ~/.config/konrad/org/<name>/          (on the host, 0 or more)
+Layer 3 — Your overrides     ~/.config/konrad/user/                (on the host)
+Layer 4 — Per-project        <workspace>/.opencode/opencode.json   (opencode-native)
+```
+
+Each org layer and your user layer are symmetric — a directory with up to six optional pieces:
+
+```text
+~/.config/konrad/
+├── org/                Optional. Subscribed org layers, one subdir each
+│   └── <name>/         (see "For organizations") — same pieces as user/.
+├── user/               Your personal layer.
+│   ├── opencode.jsonc  Deep-merged with the baked default (and any org layer) at start.
+│   ├── agents/         Your own primary agents, layered in.
+│   ├── skills/         Your own opencode skills, layered in.
+│   ├── instructions/   Any *.md here loads on top of konrad's base instructions.
+│   ├── AGENTS.md       Personal model instructions, loaded on top of konrad's base.
+│   ├── fonts/          .ttf / .otf / .ttc dropped here load on top of the baked palette.
+│   └── allowed_hosts   Extra egress-firewall hosts, one per line (see Egress firewall).
+├── context/            Optional. Read-only reference material (see "Reference material").
+└── code/user/          Optional. konrad code's layer, not the coworking agent's
+    └── CLAUDE.md, skills/, agents/, commands/, rules/   (see "Coding agents")
+```
+
+(The first five are opencode config, deep-merged at start. `allowed_hosts` is the one konrad-specific extra — it feeds the egress firewall, not opencode. `context/` is separate again — not config, just files the agent reads; see [Reference material](#reference-material-the-context-mount).)
+
+The merge of `opencode.jsonc` is deep and ordered **baked < org₁ < … < user** (org layers in alphabetical name order; last writer wins): **objects merge recursively, the later layer's keys win on conflict, new keys from any layer come through, arrays replace.** That last one matters — see [the AGENTS.md convention](#adding-your-own-model-instructions).
+
+### Set up a model provider
+
+**The standard way is `/connect`.** Launch `konrad`, run `/connect` in the TUI, pick your provider (OpenRouter, Anthropic, OpenAI, Gemini, …) and paste a key — or do the browser login. opencode stores the credential in the `konrad-secrets` volume (`auth.json`), never in your config or host environment; it lists that provider's models in the picker (from the bundled [models.dev](https://models.dev) catalog — nothing to declare); and the egress firewall allows the provider automatically, live-reloading mid-session. No file editing.
+
+Prefer to authenticate without launching the TUI — or doing an **OAuth** login (Claude Pro/Max, Copilot)? Run **`konrad connect`** (`konrad connect -p <provider>` to skip the picker). It runs `opencode auth login` with no agent in the loop and the firewall off, so even an OAuth first-connect needs no `--allow-host` (see [Egress firewall](#egress-firewall)).
+
+konrad **discovers models automatically** for any provider with a `baseURL` — the pre-wired local engines (LM Studio / Ollama / llama.cpp) and your own OpenAI-compatible endpoints alike: at session start it probes each one's `/models` list and fills the picker with what's loaded, so a running local server usually needs no config at all. It's a bounded, parallel probe through the same egress firewall (so authenticated remote endpoints are covered too); tune it with `KONRAD_DISCOVERY_TIMEOUT` or turn it off with `KONRAD_NO_DISCOVERY=1`.
+
+It also sets each model's **context window** when the server can report one — which is what opencode's automatic history compaction needs to fire before you overflow. vLLM and llama.cpp expose it on `/v1/models`; for LM Studio and Ollama, konrad reads it from their native endpoints too, so all four are covered. Only a server that exposes it nowhere leaves a model without one — konrad won't guess a window (a wrong one compacts at the wrong time), so declare `limit.context` yourself there. (opencode requires an output limit alongside context, and no server advertises one, so discovered models get a `limit.output` of `context/6` — opencode reserves that much of the window for replies — which you can override by declaring the model.)
+
+Editing `opencode.jsonc` is then only needed to:
+
+- **pin a model's options** (or its `limit.context`) — a model you *declare* always wins over the discovered copy, so declare one when you need custom settings or a context window discovery couldn't get (recipe below).
+- **add a custom / self-hosted endpoint** — anything not in the models.dev catalog needs an explicit `baseURL` (recipe below); once it has one, its models are discovered like any other.
+
+opencode Zen — the upstream's paid hosted gateway — is **disabled by default** (`disabled_providers: ["opencode"]`). Override `disabled_providers` to re-enable.
+
+### Egress firewall
+
+The agent runs on an isolated container network with **no direct route to the internet** — a filtering proxy sidecar is the only way out, and it forwards traffic only to an allow-list, refusing everything else (default-deny). This shrinks the blast radius if the agent is prompt-injected: it can't quietly ship your workspace or credentials to an arbitrary host. The boundary covers your own machine too — host services are reachable only through the proxy, which is exactly how a **local model** at `host.containers.internal` stays reachable while nothing else on the host is.
+
+The allow-list maintains itself: it's derived from your model providers — declared in config and connected via `/connect` alike, live-reloading when you connect mid-session — plus `registry.npmjs.org` (opencode fetches some provider SDKs on demand). Extend it with hosts listed in `~/.config/konrad/user/allowed_hosts` (one per line; org layers have the same file) or `--allow-host <host>` for a single run. PyPI and the open web are deliberately blocked by default — add what your task needs; when the agent reports a host is blocked, that's the firewall doing its job.
+
+It's **on by default**; `konrad --no-firewall` turns it off for a run. Full design (why a hostname proxy, how the derivation works, the per-engine plumbing): [ARCHITECTURE.md](ARCHITECTURE.md#egress-firewall).
+
+**The firewall is the containment boundary — not a secret read-gate.** Your provider credential lives on-disk in the `konrad-secrets` volume, and a prompt-injected agent can read it or copy it into `/workspace`; what stops it *leaving the box* is this default-deny firewall, not a read restriction. So `--no-firewall` (or opening `--allow-host` to a host you don't trust) removes that containment for the run — use it only when you trust the agent and the task.
+
+### Workspace guard
+
+The agent can't reach your host — but your host runs things *from* the workspace after the agent is done: `git status` can run a command configured in `.git/config`, a git hook fires on commit or fetch, VS Code runs `.vscode` tasks in a trusted folder, Claude Code reads `.claude/` and `.mcp.json`. So konrad mounts those entries **read-only** inside the sandbox: `.git`, `.githooks`, `.husky`, `.vscode`, `.devcontainer`, `.claude`, and `.mcp.json`, whichever exist at the top of the workspace. The agent still edits your files normally and can read git history (`git status`, `log`, `diff`), but it can't commit or change git config. Need a commit from the agent? Run `KONRAD_WORKSPACE_GUARD=0 konrad` for that session.
+
+What it can't cover: an entry that doesn't exist yet when you launch (the agent could create a `.vscode/` or `git init` a folder that had no repo), a nested repository below the top level, single files like `.mcp.json` on Apple's `container` engine (it can only protect folders), and anything you run yourself — a `Makefile`, a script, `npm run`. **Review what the agent changed before you run it.** Rationale: [ARCHITECTURE.md → State, secrets & isolation](ARCHITECTURE.md#state-secrets--isolation).
+
+### Resource limits
+
+Each run caps the agent container's RAM and CPU at a ceiling **auto-scaled to your machine** (up to `8 GB` / `8` cores) — bounding a runaway agent and leaving headroom for a co-resident local model. `konrad --help` prints the values computed for your host. Pin explicit values (or opt out with `0`) per run:
+
+```sh
+KONRAD_MEMORY=8G konrad        # pin the RAM cap (heavy docling / OCR on large scans)
+KONRAD_CPUS=8 konrad           # pin the CPU-core cap (also docling/torch's thread count)
+KONRAD_MEMORY=0 konrad         # no RAM cap (Podman's previous unbounded behaviour)
+KONRAD_PIDS_LIMIT=4096 konrad  # raise the task/thread cap (Podman; 0 disables, default 1024)
+```
+
+Rationale and the further kernel hardening on the Podman path (capabilities dropped, `no-new-privileges`, task-count cap): [ARCHITECTURE.md → State, secrets & isolation](ARCHITECTURE.md#state-secrets--isolation).
+
+### Edit your override
+
+```sh
+# 1. Start from the baked default.
+podman run --rm --entrypoint cat ghcr.io/jlbauss/konrad:latest \
+  /etc/konrad/opencode-defaults.jsonc > ~/.config/konrad/user/opencode.jsonc
+
+# 2. Edit it.
+$EDITOR ~/.config/konrad/user/opencode.jsonc
+
+# 3. Diff against the baked default to see what you changed.
+diff -u <(podman run --rm --entrypoint cat ghcr.io/jlbauss/konrad:latest \
+            /etc/konrad/opencode-defaults.jsonc) \
+        ~/.config/konrad/user/opencode.jsonc
+```
+
+(On Apple `container`, the `podman run` one-liners don't apply — open `konrad shell` and copy `/etc/konrad/opencode-defaults.jsonc` from inside.)
+
+### Recipes
+
+For a **catalog provider** (OpenRouter, Anthropic, OpenAI, …) you don't need a recipe — just `/connect` (above). These two cases are the reason to edit `opencode.jsonc`:
+
+**Declare a local model** (the engine is pre-wired — register the model you've loaded and make it the default):
+
+```jsonc
+// ~/.config/konrad/user/opencode.jsonc — Ollama shown; swap in lmstudio or llamacpp
+{
+  "provider": { "ollama": { "models": { "qwen3:30b": { "name": "Qwen 3 30B" } } } },
+  "model": "ollama/qwen3:30b"
+}
+```
+
+All three local engines are pre-wired at their default ports (LM Studio `:1234`, Ollama `:11434`, llama.cpp `:8080`); you only declare the model.
+
+**Add a custom / self-hosted endpoint** (any OpenAI-compatible URL not in the models.dev catalog): run **`konrad connect --custom`** — it prompts for the id, base URL, and a model, writes the declaration into your user layer for you, then asks for the key. If your org layer already declares the provider, `konrad connect <id>` (e.g. `konrad connect acme-llm`) asks for the key and nothing else: paste it, and it's stored in the `konrad-secrets` volume like any other credential.
+
+### Adding your own model instructions
+
+Two additive ways, both loaded *on top of* konrad's base:
+
+- **`AGENTS.md`** — auto-discovered: `~/.config/konrad/user/AGENTS.md` (your rules, global) or `<workspace>/AGENTS.md` (per-project).
+- **`~/.config/konrad/user/instructions/*.md`** — every `.md` here is appended to the system instructions (org layers have the same `instructions/` slot).
+
+Don't set the `instructions` array in your `opencode.jsonc` — arrays **replace** on merge, so it would wipe the layered defaults instead of adding to them. Drop a file in `instructions/` instead.
+
+### Reference material (the `context/` mount)
+
+Drop reference material — a mirrored wiki, internal docs, lookup tables — into `~/.config/konrad/context/<name>/` and konrad bind-mounts `context/` **read-only** at `/context` inside the sandbox: the agent can `grep` it while it works, with no network and no stored secret. It's not a config layer, just files the agent reads; the mount appears only when the directory exists, and `konrad reset`/`uninstall` leave it alone. To make the agent actually *reach* for a corpus, name it in your `AGENTS.md` ("ASG processes are documented in `/context/asg-wiki/`").
+
+### For organizations
+
+If you run a fleet of konrad installs, an **org layer** lets you ship defaults every user inherits — model declarations, an internal provider endpoint, house skills and instructions — without forking the image or hand-editing each user's config. An org layer is simply **a git repository whose tree is the layer** (the same pieces as `user/`, merging between the baked defaults and each user's own overrides); each member subscribes once:
+
+```sh
+konrad org add https://git.example.com/acme/konrad-org
+```
+
+konrad re-syncs it in the background (fetch + hard reset — **local edits inside the layer are clobbered**; personal overrides belong in `user/`, which always merges on top), or on demand with `konrad org sync`, so shipping a change to the fleet is just `git push`. Two things to know before subscribing:
+
+- **Subscribing is trusting.** A layer may ship a `hooks/post-sync` script that konrad runs *on your machine* after every sync (the escape hatch for jobs plain config can't express, like mirroring a wiki into `context/`). Only subscribe to repos you trust, exactly as with any `curl | sh` internal tooling. The hook can also reach its own members through konrad's **notice queue** — the background sync is unwatched, so a hook that drops a `key: value` file into `$KONRAD_NOTICE_DIR` gets it rendered (attributed to the layer, sanitized) at the member's next launch; see [ARCHITECTURE.md → Configuration & instructions](ARCHITECTURE.md#configuration--instructions).
+- **It's a defaults mechanism, not policy enforcement.** The layer is files in the user's own home directory — users can stack overrides on top or unsubscribe.
+
+A ready-to-publish starter repo — sample config, instructions, a house skill, an example hook — lives in [`examples/org-package/`](examples/org-package/). The full mechanics (multiple layers and precedence, tag pinning, private repos via your host `git`, the instructions channel) and the design rationale are in [ARCHITECTURE.md → Configuration & instructions](ARCHITECTURE.md#configuration--instructions).
+
+### Environment variables (advanced)
+
+Rarely needed — the flags cover day-to-day use. Collected here so the rest of the docs stays clean:
+
+| Variable | Effect |
+| --- | --- |
+| `KONRAD_ENGINE` | Pin the container engine (`podman` or `container`) instead of the per-OS auto-selection. |
+| `KONRAD_FIREWALL=0` | Disable the egress firewall (same as `--no-firewall`). |
+| `KONRAD_IMAGE` | Run a specific image tag (e.g. a PR test build) instead of the default. |
+| `KONRAD_REGISTRY_IMAGE` | Advanced: override the pull *source* for updates/refresh (vs. `KONRAD_IMAGE`, which sets what *runs*) — e.g. rehearse a `:pr-<num>` candidate or a local registry. |
+| `KONRAD_MEMORY` / `KONRAD_CPUS` / `KONRAD_PIDS_LIMIT` | Pin or disable the resource caps — see [Resource limits](#resource-limits). |
+| `KONRAD_WORKSPACE_GUARD=0` | Make `.git`, `.vscode`, `.claude`, … writable to the agent for this run (e.g. to let it commit) — see [Workspace guard](#workspace-guard). |
+| `KONRAD_INSTALL_DIR` | Installer: where to put the CLI (default `~/.local/bin`). |
+| `KONRAD_NO_PULL=1` | Installer: skip the image pre-pull. |
+| `KONRAD_DESKTOP` | Installer: `1` creates the desktop launcher without asking, `0` skips it. Unset → the installer asks on a **first install** (on a terminal), else prints a hint; an update never asks. See [Desktop launcher](#desktop-launcher). |
+| `KONRAD_TERMINAL` | macOS only: which terminal `konrad install-desktop` makes the launcher open — `terminal` (default), `ghostty`, `alacritty`, or `iterm`. A non-default choice must be installed. Remembered by the launcher, so you only pass it when you want to change it. |
+| `KONRAD_NO_AUTO_REFRESH=1` | Disable the throttled background refresh (image pull + org sync — see [Staying current](#staying-current)). |
+| `KONRAD_REFRESH_INTERVAL` | Seconds between background refreshes (`0` disables). Default `86400` (daily). |
+| `KONRAD_RETENTION_DAYS` | Days konrad keeps its own growing state — the log dir and scratch workspaces — before pruning untouched entries at launch. `0` disables pruning (keep everything). Default `30`. |
+| `KONRAD_NO_NOTICES=1` | Suppress the launch-time notice queue (background-refresh / org-hook news). For automation — a suppressed notice waits for a later interactive launch rather than being lost. |
+| `KONRAD_HOOK_TIMEOUT` | Seconds an org layer's `post-sync` hook may run before it's killed. Default `120`. |
+| `KONRAD_ENGINE_TIMEOUT` | Seconds a short engine call may take before konrad gives up on it: the firewall's network create, and on Apple `container` also the service status, network delete and container removal. Default `30`. |
+| `KONRAD_DEBUG=1` / `KONRAD_TRACE_FETCH=1` | Verbose launch / raw HTTP trace — see [Debugging opencode](#debugging-opencode). |
+
+## State
+
+One rule: **`.agent/` belongs to the agent.** Framework state (opencode sessions, conversation DB, logs) lives outside the workspace so your project stays pristine.
+
+| Where | What | Lifetime |
+|---|---|---|
+| `<workspace>/.agent/task.md` | Current task's plan + outcome | Overwritten next task; committable. |
+| `<workspace>/.agent/artifacts/` | Durable mid-task outputs | Hands-off; committable. |
+| `<workspace>/.agent/scratch/`, `.agent/quality-assurance/` | Agent scripts; verification evidence | Created by the agent on demand; konrad neither creates, prunes, nor gitignores them — they're yours to manage. |
+| `~/.local/state/konrad/log/` | opencode logs | Auto-pruned after `KONRAD_RETENTION_DAYS` (default 30); `ls -t` / `tail -f`. |
+| `~/.local/state/konrad/scratch/` | Throwaway workspaces from `konrad scratch` / a bare-`$HOME` launch | Same prune; `konrad open` reveals the newest; wiped by `konrad reset`. |
+| Named volumes `konrad-secrets` / `-cache` / `-state` | Auth, cache, last-model + UI state | Shared across projects; wiped by `konrad reset`. |
+| `~/.local/state/konrad/code-up/` | Which repos `konrad code up` started and with which flags, so a restart that ended one is noticed and `konrad code up --all` starts it again | Removed by `konrad code down`. |
+| Named volumes `konrad-code-<host>-<path>` / `konrad-code-tools` / `konrad-code-config` / `konrad-code-<host>-<path>-containers` | `konrad code`: each repo's clone + token; the coding agent's install; its login + settings; the repo's nested image store (an engine volume on Apple `container` too, where a parallel session gets its own `…-containers-<session>`) | Kept until you remove them (`podman volume rm …`; on Apple `container` they're folders under `~/.local/state/konrad/store/`) — a repo volume can hold unpushed work, so `konrad reset` leaves them alone. |
+
+opencode's sessions and conversation DB are **ephemeral** — gone on container exit. Durable task memory is `.agent/task.md`, not the framework's history. Full rationale and the exact mount topology in [state isolation](ARCHITECTURE.md#state-secrets--isolation).
+
+## Troubleshooting
+
+> **These docs are deliberately short — your AI assistant fills the gap.** For any question they don't answer, ask your regular web-enabled assistant (Claude, ChatGPT, …) and point it at this repository (`https://gitlab.git.nrw/jbauss2/konrad`): the README, [ARCHITECTURE.md](ARCHITECTURE.md), and the source together answer most setup, configuration, and behavior questions. Don't ask konrad's own agent about konrad — it's firewalled off the web and tuned for document work, not self-support.
+
+| Symptom                                                          | Likely cause                                | Fix                                                                                       |
+| ---------------------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `cannot reach Apple's container service`                         | Apple `container` not started (macOS)       | `container system start`                                                                  |
+| `Apple's container service is out of date`, or a launch hangs at the firewall or `Starting container` | `brew upgrade container` ran while the service was running; the old service can't start containers or networks any more | `container system stop && container system start` (this stops running containers, other konrad sessions included). To avoid it, `brew pin container` and upgrade when nothing runs. |
+| A local model errors or never answers                            | Engine not serving, or model not declared   | Start the engine's server on its default port (LM Studio `:1234` via Developer → Start Server, Ollama `:11434`, llama.cpp `:8080`) and declare the loaded model — see [Configuration](#configuration). |
+| Agent can't find the file you mentioned                          | You ran `konrad` in the wrong directory     | The cwd is what gets mounted at `/workspace`. Always `cd` first.                          |
+| `refusing to run with your home directory as the workspace`      | You ran `konrad shell`/`konrad run` from `$HOME` | `cd` into a project directory, or use `konrad scratch` for a throwaway workspace. (`$HOME` can't be the workspace — it exposes everything and won't mount on SELinux / macOS. The bare `konrad` TUI now auto-redirects to a scratch workspace instead of erroring.) |
+| A command (e.g. `docling`) prints `Killed` with no error         | Container hit its RAM cap (out-of-memory)   | Raise it for the run: `KONRAD_MEMORY=8G konrad` (see [Resource limits](#resource-limits)). |
+| `merge-config: failed to parse …/konrad/user/opencode.jsonc`     | Syntax error in your user override          | `cat` it and check the JSONC syntax. Comments are fine. (Same applies to an org layer's `org/<name>/opencode.jsonc`.) |
+| Clicking a link in the TUI does nothing                          | The TUI captures the mouse, so the click never reaches your terminal | Hold the terminal's bypass modifier: **Shift+Cmd+click** in Ghostty. In Terminal.app, turn off View → Allow Mouse Reporting (⌘R), then Cmd+click. |
+| Want to wipe and start over                                      | —                                           | `konrad reset` (prompts `[y/N]`), then `konrad update`                                |
+
+If a problem isn't listed here, run `konrad shell` to poke around inside the container with the same mounts opencode would see.
+
+### Debugging opencode
+
+opencode writes a fresh, timestamped log on every launch; konrad bind-mounts it to **`~/.local/state/konrad/log/`** (standard XDG state).
+
+```sh
+ls -t ~/.local/state/konrad/log/                                  # newest first
+tail -f ~/.local/state/konrad/log/$(ls -t ~/.local/state/konrad/log/*.log | head -1)
+```
+
+For deeper digging, pass `-v` / `--verbose`: per-phase timestamps plus a pointer to the log file. `KONRAD_TRACE_FETCH=1` additionally traces every HTTP call into the same log.
+
+## Internals
+
+How konrad is built and why — the design and its rationale live in [ARCHITECTURE.md](ARCHITECTURE.md); repo layout, dev loop, versioning, and how to contribute in [CONTRIBUTING.md](CONTRIBUTING.md). Development happens at [gitlab.git.nrw/jbauss2/konrad](https://gitlab.git.nrw/jbauss2/konrad) — the GitHub repo is a public mirror (CI + releases); issues and contributions go to GitLab. Found a security issue? Please report it privately, as described in [SECURITY.md](SECURITY.md).
+
+## License and attribution
+
+konrad is released under the [GNU Affero General Public License v3.0 or later](LICENSE). The combined work is AGPL-3.0-or-later; bundled third-party components keep their own (AGPL-compatible) licenses, declared per file following the [REUSE](https://reuse.software) specification — see [`REUSE.toml`](REUSE.toml) and [`LICENSES/`](LICENSES/) (`reuse lint`-verified).
+
+**Acknowledgements.** konrad is built on [opencode](https://github.com/sst/opencode) (MIT) and tuned for [Qwen3.6](https://huggingface.co/Qwen) (used via your provider, not bundled here). The agent prompt adapts patterns from [OpenAgentsControl](https://github.com/darrenhinde/OpenAgentsControl) and [opencode-froggy](https://github.com/smartfrog/opencode-froggy); the `pdf` skill's EXTRACT route builds on [docling](https://github.com/docling-project/docling); the bundled skills adapt work by [Anthropic](https://github.com/anthropics/skills) and [Matt Pocock](https://github.com/mattpocock) (see each skill's header for its license), and `xlsx` is [Nous Research](https://github.com/NousResearch/hermes-agent)'s, unchanged, with its MIT license beside it in the image.
+
+---
+
+<sub>konrad is always written lowercase — the name, the command, the image, the paths — the way `opencode` and `npm` style themselves. The one exception is the macOS `Konrad.app` bundle, which follows the Dock/Launchpad convention.</sub>

@@ -1,0 +1,302 @@
+# Subagent Monitor
+
+![Subagents Monitor banner](https://raw.githubusercontent.com/Joaquinvesapa/sub-agent-statusline/main/assets/subagents_monitor_banner.webp)
+
+See delegated work without leaving OpenCode. **Subagent Monitor** is an MIT-licensed OpenCode TUI sidebar plugin that keeps running, completed, and failed subagents visible, with elapsed time and token/context usage when OpenCode provides it.
+
+[![npm version](https://img.shields.io/npm/v/opencode-subagent-statusline?style=flat-square)](https://www.npmjs.com/package/opencode-subagent-statusline)
+[![monthly npm downloads](https://img.shields.io/npm/dm/opencode-subagent-statusline?style=flat-square)](https://www.npmjs.com/package/opencode-subagent-statusline)
+[![GitHub stars](https://img.shields.io/github/stars/Joaquinvesapa/sub-agent-statusline?style=flat-square)](https://github.com/Joaquinvesapa/sub-agent-statusline)
+[![license](https://img.shields.io/github/license/Joaquinvesapa/sub-agent-statusline?style=flat-square)](LICENSE)
+
+## Install
+
+Plugin 2.x supports **OpenCode 2 only**. OpenCode 1 users must stay on the 1.x line.
+
+| OpenCode | Plugin entry | Config file |
+| --- | --- | --- |
+| 2.x | `opencode-subagent-statusline` | `~/.config/opencode/cli.json` |
+| 1.x | `opencode-subagent-statusline@1.3.1` (or `@legacy`) | `~/.config/opencode/tui.json` |
+
+The package requires Node `>=22.13`. Restart OpenCode after saving the configuration.
+
+### OpenCode 2
+
+Add the package to the `plugins` array in `~/.config/opencode/cli.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["opencode-subagent-statusline"]
+}
+```
+
+In OpenCode 2, terminal plugins are configured in `cli.json`; entries in `tui.json` are not used. Do not install it with `opencode plugin add`: that command also registers the package as a server plugin in `opencode.json`, where it fails because the package ships only a terminal plugin.
+
+### OpenCode 1
+
+Plugin 2.x does not load on OpenCode 1. Pin the last 1.x release in `~/.config/opencode/tui.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": ["opencode-subagent-statusline@1.3.1"]
+}
+```
+
+`opencode-subagent-statusline@legacy` points to the same 1.x line. An exact pin does not update automatically.
+
+### Release lines and support
+
+| Line | npm dist-tag | Source branch | Support |
+| --- | --- | --- | --- |
+| 2.x | `latest` | `main` | Active development: features and fixes. |
+| 1.x | `legacy` | `v1` | Maintenance only: critical fixes (security, load failures). No new features. |
+
+Issues reported against 1.x that do not reproduce on 2.x may be closed as won't fix.
+
+### Migrating from 1.x
+
+> **Warning:** an unversioned `opencode-subagent-statusline` entry follows the `latest` npm tag, which now installs 2.x. If you are still on OpenCode 1, change the entry to `opencode-subagent-statusline@1.3.1`, or the plugin will fail to load.
+
+When you upgrade to OpenCode 2, remove the entry from `tui.json` and add the unversioned package to `cli.json` as shown above. See the OpenCode [V1 to V2 migration guide](https://opencode.ai/v2/docs/build/plugins/migrate-v1) for details.
+
+## Why Subagent Monitor?
+
+Delegating work is powerful, but child sessions can disappear into the background. Without a visible status surface, you have to guess:
+
+- Is the review agent still running?
+- Did the test agent finish?
+- Which child session failed?
+- How much context did a subagent use?
+
+Subagent Monitor restores that visibility inside OpenCode, so you can keep working while still knowing what your delegated agents are doing.
+
+## What you get
+
+The sidebar shows:
+
+- running subagents;
+- recent completed subagents;
+- failed subagents;
+- elapsed time;
+- token/context usage when available;
+- the model each subagent runs on, with its variant when one is set (for example `Claude Opus · high`).
+
+When subagent activity is active, the plugin also adds a compact summary to the home/footer area.
+
+## Built with Gentle AI
+
+Subagent Monitor was built with [Gentle AI](https://github.com/Gentleman-Programming/gentle-ai#built-with-gentle-ai).
+
+<a href="https://github.com/Gentleman-Programming/gentle-ai">
+  <img width="220" src="https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/docs/assets/brand/built-with-gentle-ai.png" alt="Built with Gentle-AI" />
+</a>
+
+## Screenshots
+
+Full OpenCode context with demo content in Spanish:
+
+![Subagent Monitor in the full OpenCode view](https://raw.githubusercontent.com/Joaquinvesapa/sub-agent-statusline/main/assets/opencode_full.webp)
+
+Focused sidebar view:
+
+![Subagent Monitor focused sidebar](https://raw.githubusercontent.com/Joaquinvesapa/sub-agent-statusline/main/assets/opencode_sidebar.webp)
+
+## Keyboard navigation
+
+Run `Toggle subagent list focus` from the OpenCode command palette, or press `<leader>z`, to focus the subagent sidebar list without using the mouse. List navigation shortcuts are handled only while the sidebar list is focused, and never while a dialog such as the command palette is open.
+
+| Shortcut | Action |
+| --- | --- |
+| `<leader>z` | Toggle focus between the subagent sidebar list and the prompt. |
+| `j` | Move selection to the next visible subagent. |
+| `k` | Move selection to the previous visible subagent. |
+| `Enter` | Open the selected subagent session. |
+| `c` | Toggle retained completed history in the sidebar. |
+| `h` | Collapse the subagent section. |
+| `l` | Expand the subagent section. |
+| `Esc` | Leave list focus mode and return to the prompt. |
+
+`<leader>z` means your configured OpenCode leader followed by `z`. `Alt+B`, `Alt+Left` (macOS `Option+Left`), and `Ctrl+Left` remain available for prompt word navigation. The list layer is disabled while the prompt has focus; its bare keys do not intercept prompt typing.
+
+Opening a selected session is a no-op when there is no visible or navigable subagent.
+
+## Command palette
+
+These entries work without focusing the list first:
+
+| Palette entry | Action |
+| --- | --- |
+| `Toggle subagent list focus` | Same as `<leader>z`. |
+| `Subagents: Toggle completed history` | Show or hide completed subagents beyond the most recent ones. |
+| `Subagents: Toggle monitor` | Collapse or expand the subagent list, like clicking its header. |
+
+The entries are available on the session screen, where the sidebar is mounted.
+
+## Mouse
+
+- Click a subagent row to open its session.
+- Hovering a row highlights it; the `›` cursor marker stays on the keyboard selection.
+- Click the `Subagents` header to collapse or expand the list.
+
+Mouse support is on by default in OpenCode 2; no `cli.json` setting is needed. Terminals only deliver mouse events while their window has focus, so hover does not react over an unfocused window. Clicking still works, because the click focuses the window first.
+
+When a child session is opened from the sidebar, returning with OpenCode `Up` (`session_parent`) moves keyboard focus to the parent prompt so you can type immediately.
+
+<details>
+<summary>Stable 2.x public contract</summary>
+
+For 2.x releases, the stable user-facing contract is:
+
+- npm package name: `opencode-subagent-statusline`;
+- OpenCode 2 TUI plugin entrypoints: `opencode-subagent-statusline` and `opencode-subagent-statusline/tui`;
+- OpenCode 2 `cli.json` plugin configuration;
+- visible sidebar and home/footer behavior;
+- command palette entry, `<leader>z`, and focused-list navigation;
+- local privacy and persistence behavior described in this README;
+- Node, peer dependency, and install contract declared in `package.json`.
+
+Experimental or internal surfaces may change in 2.x without a SemVer-major bump:
+
+- `opencode-subagent-statusline/runtime`, intended for diagnostics and file-based runtime experiments;
+- diagnostic environment variables;
+- exact `state.json` schema and `status.txt` format;
+- internal source modules and source-level exports.
+
+Use the TUI plugin entrypoints for normal OpenCode usage.
+
+</details>
+
+## Documentation
+
+For deeper installation, architecture, event-flow, state, rendering, TUI, configuration, testing, and troubleshooting details:
+
+- [English documentation](docs/en/00-index.md)
+- [Documentación en español](docs/es/00-indice.md)
+- [Testing strategy](docs/testing.md)
+
+## Troubleshooting
+
+### The plugin does not show up
+
+Check OpenCode logs:
+
+```sh
+grep -n "subagent-statusline\|failed to load tui plugin" ~/.local/share/opencode/log/*.log
+```
+
+Then restart OpenCode after changing `cli.json`. If you are on OpenCode 1, make sure the entry is pinned to `opencode-subagent-statusline@1.3.1` in `tui.json`; 2.x does not load there.
+
+### I installed a new version but OpenCode still behaves like the old one
+
+OpenCode may be using a cached package. Try clearing the cached package directory under:
+
+```txt
+~/.cache/opencode/packages/
+```
+
+Then restart OpenCode.
+
+### Token/context usage is missing
+
+OpenCode event payloads can vary by version and by event type. The plugin shows token/context usage when it is available and safely omits it when it is not.
+
+## Local privacy and persistence
+
+The plugin persists a local JSON state file and `status.txt` snapshot under `XDG_RUNTIME_DIR` or the system temp directory by default. Those files can include OpenCode-derived subagent titles and summaries, which may contain short fragments derived from prompts or task descriptions. Files are written best-effort with owner-only permissions and atomic temp-file replacement where Node and the host filesystem support them.
+
+`OPENCODE_SUBAGENT_STATUSLINE_STATE` overrides the state file path. Treat that environment variable as trusted local configuration because the plugin will write status data to the configured path.
+
+<details>
+<summary>Development and testing</summary>
+
+Install dependencies with lifecycle scripts disabled by default:
+
+```sh
+pnpm install --ignore-scripts
+```
+
+Build the plugin:
+
+```sh
+pnpm build
+```
+
+`opencode plugin add` accepts only npm registry or Git specifiers, so test a local build on
+OpenCode 2 with a directory entry. OpenCode resolves `<directory>/tui`, so create a directory with a
+`tui.js` that re-exports the build:
+
+```sh
+pnpm build
+mkdir -p /tmp/subagent-monitor-dev
+echo 'export { default } from "/absolute/path/to/sub-agent-statusline/dist/tui.js";' \
+  > /tmp/subagent-monitor-dev/tui.js
+```
+
+Then add the directory to `~/.config/opencode/cli.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["/tmp/subagent-monitor-dev"]
+}
+```
+
+This project ships the native OpenCode 2 plugin from `src/v2/`, built with `tsup` and
+`esbuild-plugin-solid` in Solid `universal` mode for OpenTUI compatibility. The OpenCode 1 plugin
+lives on the `v1` branch.
+
+Package entrypoints:
+
+```txt
+opencode-subagent-statusline          -> OpenCode 2 TUI plugin
+opencode-subagent-statusline/tui      -> OpenCode 2 TUI plugin (same entry)
+opencode-subagent-statusline/runtime  -> experimental/diagnostic runtime mode
+```
+
+Useful commands:
+
+```sh
+pnpm build
+pnpm typecheck
+pnpm test
+pnpm test:watch
+pnpm test:coverage
+pnpm pack --dry-run
+```
+
+Automated tests use Vitest with `@vitest/coverage-v8`. For the testing strategy, file map, examples, and current TUI/e2e boundaries, see [`docs/testing.md`](docs/testing.md).
+
+</details>
+
+<details>
+<summary>Security hardening for maintainers</summary>
+
+Recommended local npm/pnpm hygiene, following guidance from Gentle AI and Liran Tal:
+
+- install project dependencies with lifecycle scripts disabled when possible, for example `pnpm install --ignore-scripts`;
+- consider setting user-level `ignore-scripts=true` for npm/pnpm and temporarily opt in only when a trusted package needs scripts;
+- enable dependency age/cooldown policies where supported, for example `npm config set min-release-age 3` or equivalent Renovate/Dependabot cooldowns;
+- block or review git, tarball, URL, and other exotic dependency specs, for example `npm config set allow-git none` where supported;
+- optionally screen new packages with tools such as `npq` or Socket Firewall before adding them.
+
+These are maintainer/developer controls, not runtime enforcement by this plugin.
+
+Release maintainers should keep the repository `NPM_TOKEN` secret restricted, retain npm provenance, require npm 2FA on maintainer accounts, and protect the release branch in GitHub. See the [release process](docs/releasing.md) for the tag and recovery gates.
+
+</details>
+
+## Community and releases
+
+- [npm package](https://www.npmjs.com/package/opencode-subagent-statusline)
+- [GitHub repository](https://github.com/Joaquinvesapa/sub-agent-statusline)
+- [Releases](https://github.com/Joaquinvesapa/sub-agent-statusline/releases)
+- [Issues](https://github.com/Joaquinvesapa/sub-agent-statusline/issues)
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
+
+## License
+
+[MIT](LICENSE)

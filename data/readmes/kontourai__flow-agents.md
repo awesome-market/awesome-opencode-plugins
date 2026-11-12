@@ -1,0 +1,338 @@
+<div align="center">
+
+# Kontour Flow Agents
+
+**Give your coding agent a repeatable path from a request to a change you can inspect.**
+
+Ask it to plan a change, carry out the work, run checks, and collect review findings. Flow Agents records progress, evidence and next actions so you can inspect the result or resume the work. Start with a [local note capture](docs/getting-started.md#save-your-first-note), or opt into the Builder workflow for software delivery. Completion blocking depends on the host and configuration; installed files alone do not establish enforcement.
+
+[![npm version](https://img.shields.io/npm/v/%40kontourai%2Fflow-agents)](https://www.npmjs.com/package/@kontourai/flow-agents)
+[![CI](https://github.com/kontourai/flow-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/kontourai/flow-agents/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-kontourai.github.io-blue)](https://kontourai.github.io/flow-agents/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Node >= 22](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](package.json)
+
+[Documentation](https://kontourai.github.io/flow-agents/) · [Workflow Guide](docs/workflow-usage-guide.md) · [System Guidebook](docs/agent-system-guidebook.md) · [Runtime Hook Spec](docs/spec/runtime-hook-surface.md) · [Kontour Flow](https://kontourai.github.io/flow/) · [kontourai.io/flow-agents](https://kontourai.io/flow-agents/)
+
+</div>
+
+---
+
+Flow Agents installs reusable procedures and runtime hooks into the agent tools
+you already use. You receive local workflow records, check results and explicit
+gaps to inspect. It does not establish that a claim is true merely because an
+agent recorded it, or that a review was independent merely because it names a
+reviewer.
+
+The **engine** handles runtime adapters, kit activation, continuation and evidence
+mechanics using [Kontour Flow](https://kontourai.github.io/flow/) for process and
+gate semantics. **Kits** supply the procedures: Builder for delivery, Knowledge
+for capture and curation, and other installed kits for their own domains. The
+same kit can run across hosts, with the [completion-check limits](docs/getting-started.md#completion-checks-by-runtime)
+of each host. See [Engine and Kits](docs/architecture-engine-and-kits.md) for the
+architecture.
+
+## What you get
+
+- **One workflow across runtimes** — the same `idea → backlog → plan → build → review → verify → evidence → release → learning` path installs into Claude Code, Codex, Kiro, opencode, and pi without rewriting it per tool.
+- **Workflow skills** — `idea-to-backlog`, `pull-work`, `plan-work`, `execute-plan`, `review-work`, `verify-work`, `evidence-gate`, `release-readiness`, `learning-review`, and orchestrators like `deliver` and `fix-bug` that chain them.
+- **Resumable workflow state** — schema-validated sidecars under `.kontourai/flow-agents/` record acceptance criteria, evidence, critique, handoff, and learning, so any session can resume from recorded state instead of chat memory.
+- **Four canonical policies** — workflow steering (phase reminders at each turn), quality gate (per-file checks after edits), stop-goal-fit (evidence check before the agent stops), and config protection (veto writes to linter/formatter configs). Each policy class has a canonical script under `scripts/hooks/` and compiles to the host's native hook format.
+- **Evidence over confidence** — important work ends with tests, browser checks, CI results, review findings, governance reports, or an explicit `NOT_VERIFIED` gap. Optional [Veritas](docs/veritas-integration.md) integration attaches repo-governance evidence without making it mandatory.
+- **Repository checks remain separate** — the local runtime gate is advisory and best-effort; the repository's own required CI checks, re-run on the exact pull request head, remain the authoritative boundary, and `merge-change` waits on them. See [Verifiable Trust — why "done" actually means done](docs/verifiable-trust.md).
+- **Engine plus opt-in kits** — `kits/catalog.json` lists discoverable kits, each `kit.json` declares its flows and assets, and bring-your-own-kit follows the same validation and activation path. See [Engine and Kits](docs/architecture-engine-and-kits.md).
+- **Evals that keep the bundle honest** — dozens of integration scripts and a full static-suite layer (`bash evals/run.sh`) validate the skills, contracts, fixtures, and hook influence as the bundle evolves.
+- **A runnable reviewed-grounding example** — the [credential-free reference workflow](evals/reference/reviewed-grounding-workflow/README.md) acquires a source, performs exact provenance-bearing extraction, routes semantic changes through review, and refuses action until evidence and source-currency requirements are satisfied. A provider adapter can be supplied for optional live execution.
+
+<a id="flow-agents-as-a-process-discipline-layer"></a>
+
+## Runtime policies
+
+The four canonical policy classes are defined in the [Runtime Hook Surface spec](docs/spec/runtime-hook-surface.md) using a runtime-neutral vocabulary. Adapters translate them to whatever hook surface a host exposes:
+
+| Policy Class | What it does | Hook trigger |
+| --- | --- | --- |
+| Workflow steering | Injects phase-transition reminders so the agent does not lose track of where it is in the delivery pipeline | `userPromptSubmit` |
+| Quality gate | Runs format and lint checks immediately after edit tool calls | `postToolUse` |
+| Stop-goal-fit | Warns (or blocks) when the agent is about to stop but required evidence is missing | `stop` |
+| Config protection | Vetoes writes to linter and formatter configuration files | `preToolUse` |
+
+The spec defines three conformance levels: **L0** (telemetry only), **L1** (steering + stop-goal-fit warning), and **L2** (all four policies with blocking). Claude Code and Codex are the current L2 reference implementations.
+
+## Runtime and support matrix
+
+L2 requires all four policy classes with blocking. L1 describes a lower conformance
+baseline; it does not mean an adapter ships no additional tool-level policies. The [Runtime Hook Surface spec](docs/spec/runtime-hook-surface.md) defines the levels and names every hook-surface gap explicitly.
+
+These tiers describe supported wiring, not evidence that a particular host loaded
+its hooks or selected blocking mode. See the [mode defaults and limits](docs/getting-started.md#completion-checks-by-runtime).
+
+**Full support — L2 (all four policies, blocking)**
+
+| Runtime | Ships | Tested |
+| --- | --- | --- |
+| Claude Code | install + hooks + bundle | full integration + static eval layer (`bash evals/run.sh`) — reference implementation |
+| Codex | install + hooks + bundle | full integration + static eval layer (`bash evals/run.sh`) — reference implementation |
+| Kiro | install + hooks + bundle | included in bundle assertions |
+
+**Partial support — L1 (completion remains advisory)**
+
+| Runtime | Ships | Gap | Tested |
+| --- | --- | --- | --- |
+| opencode | Agents, skills and plugin; session-start steering, tool-level config-protection refusal, post-tool quality/evidence callbacks | No prompt-submit hook; `session.idle` invokes stop-goal-fit but ignores its decision, so it cannot block completion. | included in bundle assertions |
+| pi | Extension, skills and `AGENTS.md`; agent-start steering, tool-call config-protection block, post-tool quality/evidence callbacks | No native Stop trigger; `session_shutdown` invokes stop-goal-fit but ignores its decision, so it cannot block completion. | included in bundle assertions |
+
+**Other**
+
+| Tier | Runtime | Ships | Tested |
+| --- | --- | --- | --- |
+| Preview framework adapter | AWS Strands (Python) | `integrations/strands/` — `flow-agents-strands` PyPI package | 76 unit tests (no Strands SDK required) — spike/preview, see [integrations/strands/README.md](integrations/strands/README.md) |
+| Preview framework adapter | AWS Strands (TypeScript) | `integrations/strands-ts/` — `@kontourai/flow-agents-strands` native-import package | shipped telemetry + native config-protection hot path; workflow-steering/quality-gate/stop-goal-fit are conformance-shim-only — preview, see [integrations/strands-ts/README.md](integrations/strands-ts/README.md) |
+| Conformance-certified | Community / third-party | Self-certify using the conformance kit | Conformance kit in development; not yet shipped |
+
+## Install
+
+Requires Node.js 22 or newer.
+
+```bash
+# guided install into your workspace (auto-detects runtime)
+npx @kontourai/flow-agents init --dest /path/to/workspace
+
+# headless, for CI or scripts
+npx @kontourai/flow-agents init --dest /path/to/workspace --telemetry-sink local-files --yes
+
+# runtime-specific wiring
+npx @kontourai/flow-agents init --runtime claude-code --dest /path/to/workspace --yes
+npx @kontourai/flow-agents init --runtime codex --dest /path/to/workspace --activate-kit builder --yes
+npx @kontourai/flow-agents init --runtime opencode --dest /path/to/workspace --yes
+npx @kontourai/flow-agents init --runtime pi --dest /path/to/workspace --yes
+```
+
+To establish the repository's backlog, assignment, and change-provider bindings
+as one coherent setup step, add provider configuration:
+
+```bash
+npx @kontourai/flow-agents init --runtime codex --dest . \
+  --configure-providers --online --yes
+```
+
+Interactive init offers the same setup. Headless/offline setup must name the
+GitHub Project explicitly with `--provider-project NUMBER`; it writes the
+settings and prints exact `gh` authentication and label verification commands.
+Use `--provider-scope global` to add a repository-specific entry under
+`~/.config/flow-agents` instead of writing project-local settings. Universal
+bundles intentionally contain no repository-specific provider defaults.
+
+For Codex global installs, omit `--dest` and use `--global`: Flow Agents installs into `CODEX_HOME` when it is set, otherwise `~/.codex`. Pass `--dest` only when you intentionally want an isolated or test-specific Codex home.
+
+OpenCode also supports a global install. Flow Agents merges `opencode.json`, installs its plugin and agents, and exposes core skills plus only the selected kits (including their transitive kit dependencies) under OpenCode's global config root:
+
+```bash
+npx @kontourai/flow-agents init --runtime opencode --global --activate-kit builder --yes
+```
+
+The default root is `${XDG_CONFIG_HOME:-$HOME/.config}/opencode`. Managed support files and their content manifest live under `.flow-agents/`; unrelated user config, plugins, agents, and skills are preserved. Versions that produced only an install stamp did not complete a usable global OpenCode installation. Re-run the command above after upgrading; no legacy compatibility layer is required.
+
+Runtime auto-detection is best-effort: it first checks environment markers set by the invoking coding agent (e.g. `CLAUDECODE`, Codex's preferred `CODEX_THREAD_ID`, the backward-compatible `CODEX_SESSION_ID`, or `OPENCODE_SESSION_ID`), then falls back to checking whether exactly one of `~/.claude`, `~/.codex` (or `$CODEX_HOME`), or opencode's global config dir already exists. If neither signal is unambiguous, it defaults to `base`. Pass `--runtime` explicitly to override the detected default at any time. Codex thread identifiers are never written into actor keys verbatim; Flow Agents derives a stable, domain-separated opaque token instead.
+
+Working from a checkout (for contributors): `pnpm install && npm run build`, then `node build/src/cli.js init --dest /path/to/workspace`. The pnpm version is pinned in `package.json` (`packageManager`); scripts still run with `npm run`, which only invokes `package.json` scripts and does not depend on which tool installed `node_modules`.
+
+The installer copies the bundled agents, skills, context, scripts, evals, the kit catalog, and the Flow Agents-owned `console.telemetry.json` descriptor into the target workspace. Kit activation defaults depend on the runtime. With no explicit selection, Claude Code installs built-in kit skills and records every catalog kit as active; other runtimes record no active catalog kits by default. Use `--activate-kit <kit-id>` to declare a specific selection, or `--activate-kits` for every catalog kit. Claude Code copies built-in kit skills unconditionally, including when an explicit selection is recorded. Telemetry writes to local files by default; optional sinks mirror it to a local, hosted, or self-hosted Kontour Console (`--telemetry-sink local-kontour-console | kontour-hosted-console | user-hosted-console --console-url …`). `init --global` for `claude-code` and `opencode` refuses these Console flags and writes nothing, because those installs do not write Console settings; use the operator config below instead (the refusal prints the command that writes it). A trusted operator Console config, such as `~/.flow-agents/telemetry-console.conf`, replaces the installed telemetry config at runtime, so an install that only defaults to `local-files` still mirrors to that Console. Typing `--telemetry-sink local-files` pins the install local-only instead; see [scripts/README.md](scripts/README.md#telemetry) for the resolution order and what still applies to a pinned install.
+
+`bash install.sh` is the low-level option for CI pipelines or scripts that already have a generated bundle checkout (e.g. from a pinned `git clone` of this repo). Prefer `npx @kontourai/flow-agents init` for normal workspace setup — it fetches the latest published bundle and auto-detects the runtime:
+
+```bash
+bash install.sh /path/to/workspace --telemetry-sink local-kontour-console
+```
+
+## Use it
+
+After installing, ask the agent for the workflow you want — in plain language.
+
+### Builder Kit quick start
+
+After activating Builder, start with `builder.shape` to turn an idea into work items, or `builder.build` for a selected work item. These are the starter pair; the [complete catalog](docs/getting-started.md#2-what-the-builder-kit-gives-you) also includes existing-change review/delivery, closeout extensions, and an experiment-only ablation.
+
+Shape an idea:
+
+```text
+Use Builder Kit shape. I want to add a progress indicator to the CLI output
+so users can see what step the installer is on. Shape this into an executable
+work item and stop at the backlog gate.
+```
+
+Build it:
+
+```text
+Use deliver for the issue you just filed. Pull it, probe the design, plan it,
+implement it, verify it, and stop if any evidence is missing.
+```
+
+Flow evaluates evidence expectations when a transition is requested; a missing expectation can block advancement or route back. Whether the host can prevent the turn from ending depends on its loaded hooks and mode. Local session records under `.kontourai/flow-agents/<slug>/` preserve evidence and handoff state across context loss; keep durable run/evidence records when cleaning caches.
+
+For the local first task, optional Builder walkthrough and runtime limits, read [Getting Started](docs/getting-started.md).
+
+For bugs:
+
+```text
+Use fix-bug. Reproduce the problem, diagnose root cause, implement the fix, and verify the regression path.
+```
+
+The [Workflow Usage Guide](docs/workflow-usage-guide.md) has example prompts and expected behavior for every stage — `pull-work`, `plan-work`, `execute-plan`, `review-work`, `verify-work`, `fix-bug`, `release-readiness`, and more. The [Agent System Guidebook](docs/agent-system-guidebook.md) is the plain-language map of how the pieces fit.
+
+## Engine and Flow Kits
+
+Flow Agents is not the Builder Kit. The engine is kit-neutral: every kit, built-in or third-party, declares its flows and assets in `kit.json` and is discovered through a catalog. Runtime steering comes from structured `workflow_triggers` rendered through the same engine path; `first_party` or "official" status is marketplace/catalog metadata only and grants no runtime privilege.
+
+Read [Engine and Kits](docs/architecture-engine-and-kits.md) for the canonical split, including the built-in catalog, the manifest model, and the bring-your-own-kit extension point.
+
+A Flow Kit bundles a workflow AND its opinionated output shape into a single validated unit: a `kit.json` manifest (schema version 1.0), one or more Flow Definitions, and optional skills, docs, adapters, evals, and assets. Authoring a kit means deciding not just _what_ an agent does but _how the result is rendered_ — the same pipeline produces different representations depending on which store adapter is active. Kits are the extension model for Flow Agents: validated and installed through the `flow-agents kit` CLI, and activatable into any workspace that runs Flow Agents.
+
+**Builder Kit** — ships with `builder.shape` (shape a problem into slices and fileable work items), `builder.build` (pull ready work through design probing, planning, execution, verification, PR readiness, merge readiness, and learning), and `builder.publish-learn` (publish, provider/CI merge readiness, and learning feedback gates).
+
+**Knowledge Kit** — a Flow Kit for durable, gated knowledge storage. It ships a store contract with five record types (`raw`, `compiled`, `concept`, `snapshot`, `person`), five pipeline flows (`ingest`, `compile`, `synthesize`, `consolidate`, `retire`), and a mutation policy of propose→evidence-gate→apply/reject with supersede-not-delete. Mutations require process provenance and operation-specific evidence. Source ids are optional at the adapter boundary; provenance and links retain supplied context rather than validating truth. The contract requires supersede/retire history retention; the bundled Obsidian adapter has a known archive filename collision gap that can overwrite predecessors (see the current adapter contract below). Ships with an extensive automated test suite.
+
+The output-shape story is the core reason kits matter. The Knowledge Kit store contract is representation-neutral: two adapters ship today. The **default adapter** stores records as flat markdown files with YAML frontmatter and a JSON graph index. The **Obsidian adapter** renders the same workflow into the shape a human already thinks in — one canonical note per record, category→folder hierarchy, configurable frontmatter dimensions (e.g. territory/customer/initiative as filterable fields; names colliding with envelope fields can currently overwrite canonical id, status or provenance), living overview notes with sources nested below, and superseded records moved to an `archive/` folder. Archive path reuse can overwrite earlier retained bytes; the contract's retention requirement is not universally met by this implementation. Same flows, same mutation gates, different rendering layer. The Obsidian adapter ships person records, vault-global `people/` routing, and `Appears In` / `People` card sections; see the [current adapter contract](kits/knowledge/docs/store-contract.md#bundled-adapter-variations).
+
+The Knowledge Kit is also LIVE-proven: the default adapter passes the parameterized contract suite; keyless operation is validated via a Strands agent + local ollama acceptance harness; vector similarity clustering uses ollama embeddings (`nomic-embed-text`) with a pluggable detector interface.
+
+Install a local kit:
+
+```bash
+# default Codex/global kit destination: CODEX_HOME, or ~/.codex when CODEX_HOME is unset
+npx @kontourai/flow-agents kit install path/to/my-kit
+
+# explicit override for workspace or test installs
+npx @kontourai/flow-agents kit install path/to/my-kit --dest /path/to/workspace
+```
+
+For a local source that may move between machines or worktrees, add
+`--record-source <locator>` to record caller-declared logical provenance. The
+registry remains portable by storing the copied Kit as
+`kits/local/repositories/<kit-id>`; the recorded `sha256:` hash, not source
+metadata, verifies the installed bytes. Git installs continue to record their
+URL/ref and reject `--record-source`.
+
+- [Kit Authoring Guide](docs/kit-authoring-guide.md) — build your own kit from scratch: directory layout, `kit.json`, a flow file, validation, install, and activation.
+- [Flow Kit Repository Contract](docs/flow-kit-repository-contract.md) — the full validation rules, registry schema, and activation diagnostics.
+- [Knowledge Kit docs](kits/knowledge/docs/README.md) — store contract, record types, mutation ops, similarity detectors, and the Obsidian adapter.
+- [Builder Codex PR review](docs/codex-pr-review-adoption.md) — advisory exact-head Codex review at publish-learn merge readiness, inline PR findings, route-back, and Station dogfood guidance.
+
+**Release Evidence Kit** — a minimal flows-only kit that proves agentless gate evaluation over trusted `release.evidence` claims in CI.
+
+**Veritas Governance Kit** — maintained with the Veritas product in its own root-valid kit repository. Install it directly from a pinned Git ref; it gates the canonical trust bundle emitted by `veritas readiness` and helps set up the standalone engine without giving Flow Agents any Veritas-specific runtime branch:
+
+```bash
+npx @kontourai/flow-agents kit install \
+  https://github.com/kontourai/veritas.git#v1.7.2 --dest .
+npx @kontourai/flow-agents kit activate --dest . --format json
+npx @kontourai/flow-agents kit provision veritas-governance --target .
+```
+
+The provision merges the Veritas pre-edit command into the existing Codex
+`PreToolUse` hooks through Conduit and records an installation receipt. Codex
+must separately trust the changed project hooks before they execute; the
+receipt does not claim hook execution. Run `npx --no @kontourai/veritas readiness` after changes.
+
+**Direction**: domain kits that compose this substrate — a Sales Kit (territory/customer/initiative schema with side-effect adapters for CRM logging), a Research Kit (transcript capture→compile→recall), and community-contributed kits discovered through a marketplace. Marketplace labels such as official or first-party describe provenance; they do not grant runtime privilege.
+
+## Framework adapters
+
+The same canonical policies that wire into coding-agent harnesses via file-based hook scripts can also wire into agent frameworks as in-process language-native packages.
+
+`integrations/strands/` contains `flow-agents-strands`, a Python package implementing a Strands `HookProvider` that:
+- emits the canonical telemetry taxonomy (`agentSpawn`, `preToolUse`, `postToolUse`, `stop`, etc.) to the same JSONL format as the harness adapters
+- enforces config protection via `BeforeToolCallEvent` cancellation (the Strands equivalent of a blocking `preToolUse` hook)
+- injects workflow steering context at agent construction via `steering_context()`
+
+This is a spike/preview — 76 unit tests pass without requiring the Strands SDK, and the README documents 8 limitations honestly. It demonstrates that the policy engine is not harness-specific.
+
+The [Runtime Hook Surface spec](docs/spec/runtime-hook-surface.md) documents the full framework adapter mapping, including VoltAgent, LangGraph, and OpenAI Agents SDK hook surfaces, and the minimum viable adapter pseudocode.
+
+## Where Flow Agents fits
+
+Kontour AI shows the work behind AI. Each product stands alone; together they cohere:
+
+| Product | Owns |
+| --- | --- |
+| **[Survey](https://kontourai.io/survey)** | Producer evidence: source → extraction → candidate → review → claim |
+| **[Surface](https://kontourai.io/surface)** | Portable trust state: claims, evidence, policies, trust snapshots |
+| **[Flow](https://kontourai.io/flow)** | Process transparency: steps, gates, transitions, runs, exceptions, reports |
+| **[Veritas](https://kontourai.io/veritas)** | Code/change transparency: repo standards, merge readiness |
+| **Flow Agents** | Agent-facing distribution: skills, kits, runtime adapters, hooks, telemetry |
+
+Flow Agents owns the glue — discovery, just-in-time guidance, scoped delegation, Flow-backed state inside harnesses, evidence-backed completion, and feedback loops. It deliberately does not own the model, the runtime, the workflow engine, or repo governance. The [North Star](docs/north-star.md) records the direction and design principles.
+
+## Developer commands
+
+```bash
+npm run setup:repo-hooks        # enable the tracked .githooks pre-push lane
+npm run validate:source --      # source-tree and contract validation
+bash evals/run.sh static        # static eval suite
+```
+
+For release-readiness or repo-shape changes, run the split CI baseline locally:
+
+```bash
+bash evals/ci/run-baseline.sh --lane source-and-static
+bash evals/ci/run-baseline.sh --lane workflow-contracts
+bash evals/ci/run-baseline.sh --lane runtime-and-kit
+```
+
+`setup:repo-hooks` is a repo Git hook for local developer checks, not a Flow Agents runtime hook — runtime hooks live under `scripts/hooks/`; see [docs/developer-hook-setup.md](docs/developer-hook-setup.md) for the boundary.
+
+## Human-review gate integration
+
+Library hosts can compose Flow gates with Survey review sessions without adding
+a new gate kind or trusting browser-authored decisions. Use
+`discoverSurveyGateReviewWork` to read explicitly classified missing review
+expectations from an exact, persisted Flow Run head. A producer then creates the
+canonical candidate-bearing `ReviewItem`; `bindSurveyGateReviewItem` validates
+its claim targets and adds immutable workflow correlation, while
+`publishSurveyGateReviewWork` publishes it through a host-owned queue.
+
+After the server-owned review session is complete,
+`continuePausedFlowGateFromSurvey` resolves the opaque session reference,
+derives the canonical outcome, asks Survey to project the complete reviewed
+trust input from its authoritative `ReviewItem`s and results, and delegates the
+atomic attach/evaluate/resume transaction to Flow. Candidate construction,
+queue persistence, review authority, and lifecycle authority remain separate
+capabilities. See the [Survey transport guide](docs/survey-review-transports.md)
+for the optional CLI, MCP App, browser application callback and host authentication
+contract.
+
+## Portable host integration
+
+Flow Agents consumes `@kontourai/conduit` for the host-facing lifecycle and
+portable-asset boundary. Application policy still runs in Flow Agents; its
+model-visible context and deny outcomes are projected unchanged through a
+configured host adapter. Skills, agents, hooks, prompts, commands, and context
+assets use Conduit installation receipts, while Flow definitions, kits, gates,
+sidecars, and evidence remain Flow Agents contracts.
+
+`npm run host-conformance` executes Conduit's external probe against one local
+harness binding and one in-process framework binding, then generates the
+[host integration matrix](docs/specs/host-integration-conformance.md) and its
+machine-readable report. These are adapter-contract results; an actual
+deployment records separate host-bound evidence before runtime selection.
+
+## Repository layout
+
+See [Repository Structure](docs/repository-structure.md) for the canonical map. In short:
+
+- `agents/`, `agent-cards/`, `skills/`, `context/`, `powers/`, and `prompts/` are canonical bundle source.
+- `src/` and `scripts/` are product, tooling, validation, installer, hook, telemetry, and compatibility source; see [scripts/README.md](scripts/README.md).
+- `kits/`, `schemas/`, `packaging/`, `evals/`, `docs/`, and `integrations/` hold Flow Kit assets, contracts, package metadata, evals, durable docs, and optional integrations.
+- `dist/`, `build/`, and `_site/` are generated output. Local `.kontourai/`, `.flow-agents/`, `.codex/`, `.claude/`, telemetry, promptfoo, Veritas, and cache directories stay ignored; durable outcomes belong in docs, source, schemas, or provider records.
+
+## Graph provider (opt-in)
+
+The Knowledge Kit ships an optional `neo4j` graph provider — the owner's opt-in personal default, while the file providers remain the portfolio default. It is a queryable **materialized view** synced from the file/work-item stores (which stay the source of truth), with Cypher-backed health/query verbs when selected. `selectKnowledgeProvider` probes reachability and uses the caller-supplied file-provider factory when graph selection is unavailable; direct driver-backed queries propagate errors and do not automatically fail over. Opt in with `KNOWLEDGE_PROVIDER=neo4j` and see [Graph provider (opt-in)](kits/knowledge/docs/README.md#graph-provider-opt-in) for the `docker run` one-liner, env vars, sync command, and an example Cypher session.
+
+## Documentation
+
+The [GitHub Pages site](https://kontourai.github.io/flow-agents/) is the product overview and quickstart. The repository docs are the developer reference for contracts, workflow behavior, evals, and integration boundaries. For the gate semantics underneath — definitions, runs, evidence, route-back — read the [Kontour Flow documentation](https://kontourai.github.io/flow/).
+
+## License
+
+[Apache-2.0](LICENSE) © Kontour AI

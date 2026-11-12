@@ -1,0 +1,97 @@
+# @adonis-agora/agent
+
+[![npm version](https://img.shields.io/npm/v/@adonis-agora/agent)](https://www.npmjs.com/package/@adonis-agora/agent) [![npm downloads](https://img.shields.io/npm/dm/@adonis-agora/agent)](https://www.npmjs.com/package/@adonis-agora/agent) [![CI](https://github.com/DavideCarvalho/adonis-agora-agent/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/DavideCarvalho/adonis-agora-agent/actions/workflows/ci.yml) [![license](https://img.shields.io/npm/l/@adonis-agora/agent)](https://www.npmjs.com/package/@adonis-agora/agent)
+
+Governed, durable-backed AI agent (chat + tool-calling + governance) for AdonisJS — part of the
+[Agora](https://github.com/DavideCarvalho) ecosystem.
+
+> **Status: Wave 1 — framework-agnostic core.** This package currently ships the provider-agnostic
+> agent runtime only: the agent loop, the SPIs (model / store / quota / roles / sink / runner /
+> governance), the tool registry, personas/agent registries, the Vercel AI SDK adapter, and
+> in-memory testing doubles. The AdonisJS provider, HTTP routes, and Lucid store land in Wave 2.
+
+## Component registries and server rendering
+
+Tools support a `present` hook in both functional and decorated class forms. Register custom components per app, share React renderers between web screens and static exports, and generate paginated PNG/PDF tables and charts for your own delivery adapters.
+
+See the [component rendering guide](packages/adonis/docs/authoring/component-rendering.mdx) for complete examples, schemas, text fallbacks, and capture configuration.
+
+
+## Install
+
+```sh
+pnpm add @adonis-agora/agent
+```
+
+### Peer dependencies
+
+Every peer is **optional** — install only the ones the features you use need. Nothing here is
+pulled in for you, so a core-only install stays small.
+
+| Peer | Range | Needed for |
+| --- | --- | --- |
+| `zod` | `^4.0.0` | Tool input/output schemas |
+| `ai` | `^7.0.0` | The Vercel AI SDK adapter (`/ai-sdk`) |
+| `@adonisjs/core` | `^7.3.0` | The AdonisJS provider / HTTP surface |
+| `@adonisjs/lucid` | `^22.4.0` | The Lucid-backed store |
+| `@adonisjs/redis` | `^9.2.0 \|\| ^10.0.0 \|\| ^11.0.0` | Redis-backed quota / rate limiting |
+| `@adonis-agora/durable` | `>=0.8.0 <1.0.0` | Running the agent loop as a durable workflow |
+| `@adonis-agora/authz`, `@adonis-agora/telescope`, `@adonis-agora/diagnostics` | `>=…<1.0.0` | Governance roles, telemetry, the diagnostics bus |
+| `@qdrant/js-client-rest`, `node-sql-parser`, `react` | see `package.json` | Vector search, the SQL data tool, the React bindings |
+
+**zod 4 is required** (since `@adonis-agora/agent@0.31.0`). The previous `^3.23.0 || ^4.0.0` range
+was a promise this package could not keep: `@adonis-agora/durable` types its public step API with
+zod 4, and a zod 3 schema does not satisfy zod 4's `ZodType` — an app on zod 3 was already broken
+against the published ecosystem, it just failed later and less clearly. The surface agent uses
+(`z.object` / `z.string()` / `z.infer`) is unchanged across the major, so upgrading is mechanical.
+
+## Entry points
+
+| Import                        | What it exposes                                                        |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `@adonis-agora/agent`         | `runAgentLoop`, SPIs, `ToolRegistry`, `AgentRegistry`, personas, types |
+| `@adonis-agora/agent/ai-sdk`  | `aiSdkModel` — adapts a Vercel AI SDK v7 `LanguageModel` to `ModelProvider` |
+| `@adonis-agora/agent/testing` | `FakeModelProvider`, in-memory store / sink / quota / governance doubles |
+| `@adonis-agora/agent/types`   | The public type surface                                               |
+
+## The agent loop
+
+`runAgentLoop(deps, input, hooks)` drives one provider-agnostic agent turn (model → tools → model).
+The `hooks` seam (`step` / `awaitApproval` / `openSink` / `runAgent`) lets the same loop body run
+either in-process or as a replay-safe durable workflow. `read` tools auto-execute, `action` tools
+gate on human approval, and `agent` tools delegate to another named agent.
+
+A call's kind is resolved *inside* its `persist:toolcall:<callId>` checkpoint and returned from it,
+so a replay reads the recorded kind out of the journal rather than asking its own `ToolRegistry` —
+the branch cannot change with the process that resumes the run. A turn whose calls are all `read`
+runs their invocations concurrently, so the turn costs the slowest call rather than their sum, while
+the checkpoints on either side stay sequential in call order.
+
+`historyWindow` bounds how much of a thread rides into a turn — a message count, a token budget, or
+both, optionally folding what it left out into a leading summary.
+
+## Independent approvals
+
+Pending actions can release the chat turn, accept authenticated decisions by button, text or
+operator channel, and deliver their durable results into history. Approval policy, per-call
+preflight, expiration, remembered approval and pending replacement share the same runtime.
+The component catalog negotiates client renderer support and preserves text fallbacks.
+See [setup, behavior and database rollout](docs/independent-approvals.md).
+
+## Testing against real databases
+
+`pnpm test` runs everything on in-memory SQLite. `pnpm test:db` runs it again with the Lucid store
+suites on **Postgres 16 and MySQL 8.4** as well: testcontainers starts one container per dialect for
+the run (each spec gets its own throwaway database) and removes them at the end, so all it needs is
+Docker. Without Docker the Postgres/MySQL cases are reported as skipped and SQLite still runs; under CI
+(or `AGENT_TEST_REQUIRE_REAL_DB=1`) a missing Docker fails the run instead. `AGENT_TEST_PG_URL` /
+`AGENT_TEST_MYSQL_URL` point the suites at servers you already run (a user that may `CREATE DATABASE`).
+
+## Sponsors
+
+Every Agora library is MIT and stays free. The work is funded by partners and
+sponsors — [become one](https://davidecarvalho.github.io/agora/partners).
+
+## License
+
+MIT

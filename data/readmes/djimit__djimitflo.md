@@ -1,0 +1,297 @@
+# DjimFlo
+
+**Research-grade agentic governance laboratory for AI-assisted engineering**
+
+[![Tests](https://img.shields.io/badge/tests-CI%20gated-brightgreen)]()
+[![Version](https://img.shields.io/badge/version-0.5.8-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/typescript-strict-3178c6)]()
+[![Security](https://img.shields.io/badge/security-hardened-success)]()
+
+DjimFlo is a TypeScript monorepo backend + React dashboard for orchestrating AI coding agents, managing tasks across multiple runtimes, and governing agent behavior with approval workflows, policy enforcement, and audit trails.
+
+**Status**: Research prototype. Not production-ready for sensitive data. See [Security Status](#security-status) and the [Security Model](docs/security.md).
+
+---
+
+## Table of Contents
+
+- [Status](#status)
+- [What runs in production](#what-runs-in-production)
+- [What DjimFlo Does](#what-djimflo-does)
+- [Architecture](#architecture)
+- [Security Status](#security-status)
+- [Getting Started](#getting-started)
+- [Development](#development)
+- [License](#license)
+
+---
+
+## Status
+
+| Metric | Value |
+|--------|-------|
+| **Version** | 0.5.8 (all packages) |
+| **Tests** | Full workspace suite + targeted mutation gate |
+| **API Contract** | Source-derived route inventory; runtime behavior verified separately |
+| **Database Tables** | 165 in the audited local schema; deployment schemas may differ |
+| **Agent Runtimes** | 8 default adapters (OpenCode, Codex, Claude, Hermes, Gemini, Pi, Editor, Mock); Deep Agents opt-in |
+| **Packages** | 7 npm workspaces + knowledge runtime directory |
+| **Node** | >= 22 and < 25 |
+| **TypeScript** | 6.x strict mode |
+| **Production** | Single VPS container, auto-deployed from green `main` ([deployment](docs/deployment.md)) |
+| **Last Updated** | 2026-09-25 |
+
+Current operating state, flags and procedures: the
+[self-improvement loop runbook](docs/runbooks/self-improvement-loop-operations.md) and the ADRs in [`docs/adr/`](docs/adr/).
+The 2026-09-09 audit ([verification report](reports/autonomous-audit-20260909/VERIFICATION_REPORT.md),
+[gap register](reports/autonomous-audit-20260909/GAP_REGISTER.md)) is kept as a historical baseline.
+Adapter registration, rendered screens and passing unit tests do not establish production readiness.
+
+---
+
+## What runs in production
+
+Djimitflo is the work control plane of the Djimit ecosystem (Paperclip was retired on 2026-09-21,
+[ADR 0001](docs/adr/0001-djimitflo-core-retire-paperclip.md)). What is live today, each behind its own flag:
+
+- **Self-improvement loop** — proposal → expert panel → goal → approval → maker in a disposable worktree →
+  deterministic checks (`test:changed`, lint, type-check, grounded mutation score) → checker and security review →
+  verification → draft PR. Humans merge; gates, auth and deploy are never evolved by the loop.
+- **Grounded lanes** — test-gap, exports and mutation-gap proposals with objective fitness; low-risk lanes are
+  auto-approved within a scope gate. Fitness, lineage and failure causes land in `skill_outcomes`.
+- **Evolution** — competing maker species per goal ([evolve loop](docs/design/evolve-loop.md)), an
+  [evolution gym](docs/design/evolution-gym.md) that replays past fix commits as scored tasks, memory rules and skill
+  cards under selection, and typed judgments in shadow ([ADR 0002](docs/adr/0002-typesafe-judgment-layer.md),
+  [ADR 0003](docs/adr/0003-closing-the-learning-cycle.md)).
+- **Frontier Experts** — a governed registry of people, papers and repositories (DISCOVERED → … → ACTIVE, two humans
+  for promotion), technique cards with contradictions, and paper/repository discoveries from fleet agents
+  (`discovery.*` events).
+- **Agent Commons** — resident model perspectives, a grounding guild, and invitations for agents on other hosts.
+- **Native intake** — the Djimit event bus feeds roborev findings, fleet discoveries, board handoffs and outcomes into
+  work items; GitHub pull requests get an automated review status.
+
+---
+
+## What DjimFlo Does
+
+### Task & Agent Management
+- Create, assign, and track tasks across multiple AI coding agents
+- Agent registry with capability tracking, status monitoring, and retirement workflows
+- Multi-runtime execution engine with optional Docker sandbox isolation
+- Real-time task output streaming via WebSocket
+
+### Loop Execution Engine
+- **Doc Drift Loop** — Scans repositories for documentation drift, TODO/FIXME markers
+- **Self-Improvement Loop** — Code improvement via maker/checker workflow in disposable worktrees
+- **GitHub Issue Loop** — Processes GitHub issues through maker/checker pipeline
+- Each loop creates git worktrees for isolation, dispatches maker workers, then checker workers
+
+### Approval & Governance
+- Risk-classified approval workflow (low/medium/high/critical) with policy enforcement
+- **ToolBroker** — policy evaluation and durable scoped tokens. CLI-internal tools are not currently mediated through this service; task-level execution policy is enforced separately.
+- **Self-approval prevention** — maker cannot approve their own requests (data-layer invariant)
+- **Maker-checker-approver separation** — seven defined roles with granular permissions
+- Compliance audit trail with cryptographic chain hashing and append-only enforcement
+- SBOM generation (CycloneDX 1.6)
+
+### Multi-Channel
+- **REST API** — generated OpenAPI metadata from the registered Express routes
+- **WebSocket** — Real-time event streaming to dashboard (token via subprotocol, not URL)
+- **MCP Server** — Tools for Claude Code / Cursor / VS Code integration
+- **Telegram Bot** — Mobile task creation and approval
+
+### Dashboard
+- React 19 + Vite 8 + Tailwind CSS frontend
+- Real-time agent status, task progress, and loop visualization
+
+---
+
+## Architecture
+
+### Package Structure
+
+```
+djimitflo/
+├── packages/
+│   ├── shared/             # Shared types, role definitions, auth
+│   ├── server/             # Express + SQLite backend (main package)
+│   ├── dashboard/          # React + Vite frontend
+│   ├── mcp-server/         # MCP server (stdio + HTTP transports)
+│   ├── telegram/           # Telegram bot gateway (grammy)
+│   ├── agent-catalog/      # Agent import from catalog files
+│   ├── ransomware-module/  # Anti-ransomware detection (private)
+│   └── knowledge/          # Knowledge storage (runtime-generated)
+├── docs/                   # ADRs, design notes, runbooks
+├── openspec/               # Specs and change proposals (finished ones in changes/archive)
+├── scripts/                # Deploy, probes, fleet publishers
+├── Dockerfile              # Reproducible multi-stage build
+└── docker-entrypoint.sh    # Container entrypoint
+```
+
+### Security Architecture
+
+See the [Security Model](docs/security.md) and the [security risk register](docs/security-risk-register.md). A complete current STRIDE assessment is not claimed.
+
+**Trust Boundaries**:
+1. External Internet → API Server (TLS 1.3, JWT 15min, CSP)
+2. API Server → Database (append-only audit triggers, hash chain)
+3. Execution Sandbox (Docker: non-root, cap-drop ALL, no-new-privileges, digest-pinned)
+4. LLM Providers (per-task scoped credentials, classification-aware routing)
+
+**Security Invariants** (all tested):
+- Default deny for unknown tool calls
+- Self-approval forbidden at data layer
+- Audit log append-only via SQLite triggers
+- Docker sandbox: non-root, read-only root, network isolated
+- Plugins disabled by default, signature required
+- Background workers only in operator/autonomous profile
+
+### Role Model
+
+| Role | Permissions |
+|------|------------|
+| **admin** | Full access |
+| **platform_admin** | Config, users, backups, tokens (no execute) |
+| **approver** | Approve tasks, read-only access |
+| **maker** | Create tasks, write evidence/agents/skills |
+| **checker** | Read-only + write evidence |
+| **auditor** | Read audit trail, evidence, repositories |
+| **viewer** | Read-only |
+
+---
+
+## Security Status
+
+### Implemented
+- [x] Docker container isolation (non-root, cap-drop, no-new-privileges, read-only root)
+- [x] Image digest pinning (`@sha256:` required)
+- [x] JWT 15-minute default TTL; browser login/refresh/logout use rotating HttpOnly refresh cookies and revocable session-bound access tokens (legacy bearer clients remain stateless)
+- [x] WebSocket token via subprotocol (not URL)
+- [x] CSP headers (strict, frame-ancestors none)
+- [x] Self-approval prevention (data-layer invariant)
+- [x] Audit log append-only (SQLite triggers)
+- [x] ToolBroker default-deny decisions and durable token revocation (service-level tests; universal executor mediation remains incomplete)
+- [x] Plugin signature verification (default disabled)
+- [x] SBOM generation (CycloneDX)
+- [x] Data classification model (4 levels)
+- [x] Maker-checker-approver separation
+- [x] Threat model (STRIDE)
+- [x] Path traversal guards in worktree operations
+
+### Planned (Not Yet Implemented)
+- [ ] OIDC/MFA integration
+- [ ] PostgreSQL for production (SQLite is dev/demo only)
+- [ ] External audit anchoring (Merkle root → WORM/SIEM)
+- [ ] Step-up authentication for critical actions
+- [x] Container image scanning in CI
+- [x] GitHub Actions SHA pinning
+- [x] OpenAPI contract tests in CI
+- [ ] Breaking-change detection for API
+- [ ] DPIA for relevant use cases
+- [ ] Backup encryption at rest
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js >= 22 and < 25
+- npm >= 9
+- Docker (for sandboxed execution)
+
+### Installation
+
+```bash
+git clone <repo>
+cd djimitflo
+npm install
+```
+
+### Development
+
+```bash
+# Start server + dashboard
+npm run dev
+
+# Server only
+npm run dev:server
+
+# Dashboard only
+npm run dev:dashboard
+```
+
+### Build
+
+```bash
+# Build all workspaces
+npm run build
+
+# Build and run via Docker
+docker build -t djimitflo:latest .
+docker run -p 3001:3001 -v djimitflo-data:/data djimitflo:latest
+```
+
+### Testing
+
+```bash
+# All tests
+npm run test
+
+# Lint
+npm run lint
+
+# Type check
+npm run type-check
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JWT_SECRET` | (required in prod) | JWT signing secret |
+| `JWT_EXPIRES_IN` | `15m` | Access token lifetime |
+| `NODE_ENV` | `development` | Environment |
+| `DB_PATH` | `./data/djimitflo.sqlite` | SQLite database path |
+| `DJIMITFLO_DB` | auto-detected | MCP SQLite database path |
+| `DJIMITFLO_DATA_MODE` | `snapshot` | Set to `live` only when MCP points at the operational database; mutating MCP tools reject snapshots |
+| `DJIMITFLO_CODEX_MODEL` | CLI default | Codex model, including `gpt-6-astra`; task metadata `model` overrides it |
+| `DJIMITFLO_CODEX_REASONING_EFFORT` | CLI default | Codex low/medium/high/xhigh/max; task metadata `reasoningEffort` overrides it |
+| `DJIMITFLO_INSTANCE_ID` | (unset) | Stable runtime identifier reported by MCP doctor |
+| `DJIMITFLO_EXPECTED_DATABASE_INSTANCE_ID` | (unset) | Expected DB identity for `assurance:live` remote provenance; local DB identity and integrity gate only loopback targets |
+| `DJIMITFLO_RUNTIME_HOST` | OS hostname | Explicit runtime host reported by MCP doctor |
+| `OKF_BASE` | repository `knowledge` | Actual OKF data bundle for runtime health, capability sync and MCP tools |
+| `OKF_VALIDATOR_PATH` | `tools/validate_okf.py` beside the bundle | Optional absolute path to the existing trusted operator-managed Python validator; validates the actual `OKF_BASE`. Missing or failed validation blocks sync apply; structural acceptance is not certification |
+| `DOCKER_SANDBOX_IMAGE` | `djimitflo-runner:latest` | Sandbox image (must be digest-pinned) |
+| `DOCKER_SANDBOX_SKIP_DIGEST_CHECK` | `false` | Skip digest check (NOT recommended) |
+| `PLUGIN_TRUST_KEYS` | (empty) | Comma-separated trusted Ed25519 public keys |
+
+---
+
+## Epistemic Discipline
+
+This project uses precise terminology:
+
+| Term | Meaning |
+|------|---------|
+| "Immutable" | Append-only at SQLite trigger level; not externally anchored |
+| "Compliant" | Control evidence exists; not certified by external auditor |
+| "Sandboxed" | Docker container with isolation flags; not gVisor/Kata |
+| "Policy-enforced" | ToolBroker evaluates; runtime enforcement limited to pre-execution |
+| "Production-grade" | Research prototype; not validated for enterprise production |
+
+Claims are falsifiable via the test suite. Green tests are necessary but not sufficient for production assurance.
+
+---
+
+## License
+
+MIT (root repository). Sub-packages: MIT unless noted otherwise.
+
+The `ransomware-module` package is marked `private: true` and is licensed MIT.
+
+---
+
+## Author
+
+**Dennis Landman** — DjimIT Consulting — 2026

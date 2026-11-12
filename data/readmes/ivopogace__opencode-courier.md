@@ -1,0 +1,169 @@
+# opencode-courier
+
+**Your OpenCode session hands work to other sessions, ends its turn, and is woken when they
+report.** Multi-session orchestration for OpenCode V2: spawn child sessions, be woken by them. No
+polling.
+
+[![CI](https://github.com/ivopogace/opencode-courier/actions/workflows/ci.yml/badge.svg)](https://github.com/ivopogace/opencode-courier/actions/workflows/ci.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ivopogace_opencode-courier&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ivopogace_opencode-courier)
+[![npm](https://img.shields.io/npm/v/opencode-courier)](https://www.npmjs.com/package/opencode-courier)
+[![Socket Badge](https://badge.socket.dev/npm/package/opencode-courier)](https://socket.dev/npm/package/opencode-courier)
+[![License: MIT](https://img.shields.io/npm/l/opencode-courier)](LICENSE)
+[![Supported OpenCode V2 version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fivopogace%2Fopencode-courier%2Fmain%2Fpackage.json&query=%24.peerDependencies%5B%27%40opencode%2Fplugin%27%5D&label=opencode&color=blue)](#supported-opencode-version)
+
+![An orchestrator fixes two issues in parallel: a worker's finding wakes its lead mid-run, the lead passes it on, and the sibling rewrites its test, followed in the tree panel](https://raw.githubusercontent.com/ivopogace/opencode-courier/main/docs/demo.gif)
+
+The main case in the `/courier tree` panel: two issues, a lead per issue, two workers under each. A
+worker's finding wakes its lead as it comes, the lead passes it on, and the sibling rewrites its
+test. The leads are a join group: the orchestrator needs only both results.
+
+https://github.com/user-attachments/assets/d7cf74f8-15b3-4cc1-866e-b75ba0ac3f8a
+
+A narrated tour of the terminal UI: the tree panel, the asks inbox, failing children and memory.
+
+## Quickstart
+
+```bash
+npm install -g @opencode/cli@2.2.7   # OpenCode V2, the version courier is tested on
+opencode plugin add opencode-courier
+opencode
+```
+
+Paste this prompt:
+
+> Start two helper sessions with courier_spawn and have each report back to you. One runs
+> `` `sleep 20; echo $((17 * 23))` ``, the other `` `sleep 40; echo $((2 ** 10))` ``. Do not run the
+> commands yourself. When both have reported, reply with one line: RESULTS \<first\> \<second\>
+
+The parent starts both children and ends its turn. Each report wakes it, and it replies
+`RESULTS 391 1024`. Free models sometimes stall; if nothing moves for a few minutes, send the
+prompt again.
+
+## Why courier
+
+OpenCode's own [`subagent` tool](https://opencode.ai/docs/agents) hands back a child's final
+answer. Use it when one result is all you need. Use courier for more:
+
+- **Messages mid-run.** A child sends its parent a finding or a question at any time, and each
+  report wakes the parent as it comes. The parent passes a finding on to the children it affects,
+  into their running turns. A join group, its children's reports in one message, is a choice.
+- **Waking an idle session.** A message or a schedule starts a new turn.
+- **Parallel edits.** `isolate: true` gives a child its own git worktree and branch to merge.
+- **Asks reach you.** A child's permission requests and questions come to you through the top
+  session. Only you approve a request, in OpenCode's own prompt.
+- **Trees.** A child may split its part again, within limits you set.
+
+## How it works
+
+A parent calls `courier_spawn`, gets the child's session id at once, and ends its turn. When done
+or stuck, the child calls `courier_send` with a status (`done`, `partial`, `blocked` or `failed`).
+The message lands in the parent's inbox and starts a new turn if the parent is idle.
+
+Each report wakes the parent as it comes. Children started with the same `group`, a choice for a
+pure fan-in, report together, in one message. A child that fails (a rate or quota limit with when it
+lifts) is reported to its parent. One about to end its turn without reporting is reminded once, in
+the same turn, and its parent is told only if it still does not report. A message that does not wake
+its session is sent once more, then shown as `stalled`. On OpenCode 2.2.0 a parent's system prompt
+carries one line per child with its state, kept current, so it need not look. Children, held reports
+and scheduled messages survive a restart. The `courier-orchestrate` skill, listed in every session,
+tells a model when to split a task and how to check and merge the parts; how to plan and review them
+is left to your own skills. Every detail: [the reference](docs/reference.md).
+
+## Install
+
+Requires OpenCode V2: the `opencode` command from `@opencode/cli`. Each release is tested against
+one OpenCode version; this one is tested on **OpenCode 2.2.7** (check with `opencode --version`).
+
+```bash
+npm install -g @opencode/cli@2.2.7
+opencode plugin add opencode-courier
+```
+
+This adds `"opencode-courier"` to `plugins` in `~/.config/opencode/opencode.json`. Install it by
+name, without a version: OpenCode offers updates only for an entry without an exact version
+([updating](docs/reference.md#updating-the-plugin)).
+
+### Supported OpenCode version
+
+<!-- compat-table:start rows=3: generated by script/compat-table.ts from the release tags -->
+| opencode-courier | OpenCode V2 (`opencode` and `@opencode/plugin`) |
+|---|---|
+| 0.16.1 | 2.2.7 |
+| 0.14.0, 0.15.0, 0.16.0 | 2.2.6 |
+| 0.13.7, 0.13.8 | 2.2.5 |
+<!-- compat-table:end -->
+
+Every release: [the full table](docs/reference.md#the-opencode-version). The server part loads on
+any V2 host from 2.0.4 on. The terminal part is tested on OpenCode 2.2.7 only.
+
+## Options
+
+Set the server options on the plugin's entry in the **global** config,
+`~/.config/opencode/opencode.json`:
+
+```jsonc
+{
+  "plugins": [{ "package": "opencode-courier", "options": { "maxDepth": 2, "maxChildren": 3 } }]
+}
+```
+
+| Option | Default | |
+|---|---|---|
+| `maxDepth` | `5` | How deep a tree goes. Your session is depth 0. A session at `maxDepth` cannot start sessions. |
+| `maxChildren` | `5` | Live children one session may have. |
+| `maxTotal` | `30` | Live spawned sessions in one tree. |
+| `memory` | `true` | Keep a record of each session tree for later orchestrators ([memory](docs/reference.md#memory)). |
+| `nativeChildren` | `false` | The default for a spawn that does not set `native`: `true` creates non-isolated children as OpenCode subagents ([native children](docs/reference.md#native-child-sessions)). |
+
+The terminal part reads its options only from `~/.config/opencode/cli.json`, in the same entry
+form. Its one option, `"animations": false`, keeps the tree panel still.
+
+## Tools
+
+| Tool | Does |
+|---|---|
+| `courier_spawn` | Starts a child session with a task and returns at once. `isolate`, `group`, `agent`, `model`, `variant`, `native`, `title`. |
+| `courier_send` | Messages a session, waking it if idle. With a `status`, it is a child's report. |
+| `courier_children` / `courier_tree` | One look at the sessions a session started, or at its whole tree. |
+| `courier_stop` | Stops a session below you and everything under it. |
+| `courier_cleanup` | Removes an isolated child's worktree and forgets the child. |
+| `courier_answer` | Proposes an answer to a child's permission request, or passes on your answer to its question. |
+| `courier_later` / `courier_cancel` | Schedules a message for a session, or drops one. |
+| `courier_recall` / `courier_note` | Reads what earlier trees in this project did, or writes this tree's one-line lesson. |
+
+Parameters and behaviour: [the reference](docs/reference.md#the-tools).
+
+## In the terminal
+
+- **Footer:** `courier 1 waiting on you · 2 running · group pair 1/2`.
+- **`/courier tree`:** a panel with the tree, the session it was opened in as its first row. `enter` opens a session, `s` stops it, `q` closes.
+- **`/courier stop <session>`:** stops a session and everything under it.
+- **`ctrl+x k`** or **`/asks`:** every ask waiting on you in the tree, answered in a dialog.
+- **`/courier memory`:** the project's tree records. `p` pins one, `x` forgets one.
+
+More: [in the terminal](docs/reference.md#in-the-terminal).
+
+## Tips
+
+- Keep `opencode service start` running, so sessions can be woken while you are away. Run one
+  OpenCode server per data directory ([why](docs/reference.md#two-servers-on-one-data-directory)).
+- Allow up front what the work needs, and the `question` tool if children should ask you. A
+  child's approval prompt waits for you, and the top session's own prompts stall the whole tree
+  (allow `bun run *` or `npm run *` and `git`).
+- Choose a web search provider before children search, or the first one shows you a form.
+- Use `isolate: true` when children edit files in parallel. The worktree starts from the last
+  commit, so keep providers in the global config or commit `opencode.json`.
+- To steer a running tree, open a child from the `/courier tree` panel and type: courier passes
+  what you write to the sessions above it, and a parent with the skill passes it to the parts it
+  changes ([details](docs/reference.md#steering-a-running-tree)).
+- For a long-running child, schedule a `courier_later` check-in, in case the server stops.
+
+## Contributing
+
+Questions go to [Discussions](https://github.com/ivopogace/opencode-courier/discussions), bugs to
+[issues](https://github.com/ivopogace/opencode-courier/issues). Pull requests are welcome; start with
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT, see [LICENSE](LICENSE).

@@ -1,0 +1,400 @@
+<div align="center">
+
+# ozali
+
+[![npm version](https://img.shields.io/npm/v/ozali.svg)](https://www.npmjs.com/package/ozali)
+
+**Bootstrap de IA por equipo — calibra tus proyectos, genera una skill de ejecución con TDD/SDD, y mantiene memoria de equipo (Engram) con histórico aislado.**
+
+</div>
+
+---
+
+## 🗞️ Novedades
+
+| Versión | Novedad |
+|---------|---------|
+| **v0.27.0** | **Catálogo de UI afinado tras evaluarlo contra un catálogo real**: el blueprint y la Fase 2.6 definen "uso" (por plantilla y por código, con patrón que acepta etiquetas multilínea), añaden los estados `por código` e `interno` y la columna *No confundir con*, y piden tabla *del diseño al componente*, esqueleto de página con regla de desborde, directivas/pipes y librería base. Criterio de directorio compartido, modo no interactivo y migración opcional en `--ui` (modo actualizar). Pendiente P-014 con los huecos que quedan. |
+| **v0.26.0** | **`ozali usage`: tokens por hito de cdk sin plugins y bitácora de pendientes (contrato cdk v11)**: mide lo consumido dentro de cada hito leyendo los transcripts de Claude Code (entrada, salida, caché, total y duración; **costo siempre `N/A`**) y alimenta `06-uso-tokens.md` y `token-metrics.json`. Admite **varios hitos a la vez** (cambiar de hito pausa el anterior y lo deja pendiente), pausas y reanudación entre sesiones o días, y sesiones en paralelo sin mezclarse. `init`/`update` instalan hooks que arrancan al invocar `cdk` y pausan al cerrar la sesión; `ozali usage pending` y `doctor` listan los pendientes y marcan los olvidados (7 días). **`doctor`**: el Engram MCP de opencode es opcional cuando Claude Code también es agente (ya no sale en rojo) y se corrigió el falso positivo de *Configuración modificada después de generar los subagentes*. Una `cdk` v10 aparece como desactualizada y se migra con `ozali update`. |
+| **v0.25.0** | **`install-skill`: skill independiente `python-utilitario`**: `ozali install-skill python-utilitario` (o el flag `--python`, alias `python`) instala la skill que fabrica utilitarios Python autocontenidos (un solo `run_<nombre>.sh` con su propio `venv/`, log por corrida, `--dry-run` y códigos de salida estándar). Vive en `skill-python-utilitario/`, fuera del pool de grill (el alias `grill` no la instala); `--list` la muestra aparte. 3 tests nuevos y guía `docs/instalar-python-utilitario.md` para instalarla sin ozali. |
+| **v0.24.0** | **Revisor de UI solo para proyectos web + catálogo de componentes (contrato cdk v10)**: si el repo es web (Angular, React, Vue, Svelte, Next, Vite con UI), `cdk` genera el subagente opcional **`project-ui-reviewer`** (solo lectura: colores fijos fuera del tema, componentes duplicados frente al catálogo y textos sin i18n); en backend siguen los 8 roles. Nueva **Fase 2.6** y modo **`/ozali --ui`** generan o actualizan `.ai/context/ui-components.md` (selector, módulo, entradas/salidas y usos con conteo ejecutado; preserva lo escrito por el equipo). Al regenerar `cdk` se **conserva el contexto manual** de `.ai/context/`. `doctor` gana la fila *Revisor de UI* (solo web con cdk v10). Guía en [ui-catalog-blueprint.md](skill/references/ui-catalog-blueprint.md); una `cdk` v9 se migra sola con la skill `ozali`. |
+| **v0.23.0** | **Huella de autoría en todos los documentos**: los 6 docs por hito (`01-prompt-entrada` … `06-uso-tokens`) y los 3 de `ozali.log` llevan ahora encabezado con `Autor` (nombre y correo), **`GitHub: @login`** (vía `gh api user`, correo noreply o `git config github.user`; `N/A` si no se puede resolver), `Sesión`, `Rama`, `Commit` y `Creado`. **Contrato cdk v9**: una `cdk` v8 aparece como desactualizada en `doctor` y se migra sola con la skill `ozali` (solo hitos nuevos; no reescribe planes congelados). |
+| **v0.22.0** | **Cierre de hito sin abrir `rm` (P-008..P-011)**: nuevos comandos **`ozali state`** (`read` / `clear` / `write --hito --fase`) y **`ozali clean --hito <slug>`** (dry-run por defecto; borra `.ozali/tmp/<hito>/` y lo registrado en el `manifest.json`, con `realpath`, allowlist y rechazo de archivos rastreados por git). `init`/`update` suman `Write`/`Edit(.ozali/docs/**)` y `Write(.ozali/.session-state.json)` y ignoran `.ozali/tmp/`; **`doctor`** gana las filas *Permisos de cierre* y *Desechables de hitos*. **Contrato cdk v8**: el cierre usa Write (no heredocs), un comando por acción, `ozali state clear` + `ozali clean --yes` y fallbacks para CLI anterior; una `cdk` v7 aparece como desactualizada y se migra sola con la skill `ozali`. 28 tests nuevos. |
+| **v0.21.0** | **`install-skill`: pool de grill (Matt Pocock) integrado al paquete**: nuevo comando **`ozali install-skill`** instala las skills de *grilling* de Matt Pocock —`grill-me`, `grilling`, `grill-with-docs`, `domain-modeling`— para afinar **alcance, detalle y visión** del proyecto antes de escribir código (entrevistan el plan en rondas; `grill-with-docs` además escribe `CONTEXT.md` y ADRs). El pool vive en `skill-grill/` del paquete y se incluye en el tarball npm. El comando respeta `--scope` (global por defecto, project) y `--agent` (claude-code / opencode / both), instala en `~/.claude/skills/` y `~/.config/opencode/skills/`, con `--list` para ver el pool y el alias `grill` para el set completo. README documenta el uso; 3 tests nuevos en el smoke suite. |
+| **v0.20.0** | **Verificador de citas por contenido + `doctor` avisa la deriva de `business/`**: cierre de P-004..P-007 del POC de reglas de negocio. El verificador de la Fase 2.5 ya no comprueba solo que `archivo:línea` exista: cada afirmación debe tener un **identificador real** (clase, método, campo, literal) en el rango citado, y las **ausencias** ("no valida", "no se llama") exigen el comando de búsqueda que las respalda. **Regla dura anti-cuantificadores**: "ninguno/siempre/en ningún" solo con conteo ejecutado citado (sin él, forma acotada). Nuevas **fuentes de extracción** en el blueprint: anotaciones de entidad (`updatable`, `nullable`, `@Convert`), utilidades de asignación (`Values.getValue`, patch) y olores con efecto de negocio (`setStatus` fijo que reactiva, `save()` duplicado). El modo **actualizar** (`ozali --business`) reporta el **% de citas vivas** y la lista de rotas como primer paso, y **`ozali doctor`** gana la fila **`Reglas de negocio`**: compara el commit base del pie del `README.md` de `business/` contra `HEAD` y, con deriva >20% de archivos fuente, sugiere `ozali --business`. |
+| **v0.19.0** | **Reglas de negocio en la fuente de verdad (`.ai/business/`) + contrato `cdk` v7**: nueva **Fase 2.5** de la skill `ozali` que, si el repo no tiene `business/`, **pregunta** si extraerla: dominio y estados, reglas codificadas en servicios, mapa de validaciones, políticas de acceso, glosario y flujos del dominio. Nuevo modo **`/ozali --business`** para correrla a mano o **actualizarla** (revalida cada cita `archivo:línea` contra el código, extrae solo el delta y preserva lo que escribió negocio), sin regenerar `cdk`. Regla anti-inferencia: el extractor documenta lo que el código **hace** y marca como `PROVISIONAL` —con una pregunta para negocio— lo que no está confirmado. Con el **contrato v7**, los 8 subagentes de `cdk` consumen `business/` si existe (el analyzer lista las *reglas de negocio afectadas*, los executioners respetan el mapa de validaciones, el documenter la mantiene al día); `ozali update` + la skill `ozali` migran los `cdk` existentes de forma automática. Guía en [business-blueprint.md](skill/references/business-blueprint.md). |
+| **v0.18.1** | **`doctor` valida los `model:` y el registro real del MCP de Engram + política de `.gitignore`**: nueva fila **`Frontmatters \`model:\``** que detecta skills y subagentes con el nivel cognitivo (`low`/`medium`/`high`) en vez del modelo real — un fallo **silencioso hasta la invocación**, que Claude Code rechaza con *"There's an issue with the selected model"*; `doctor --fix` los resuelve contra `.ozali/config.json`. Nueva fila **`Engram MCP servidor`**: que el plugin figure *Enabled* no garantiza que el MCP se levante (hubo versiones publicadas sin `mcpServers` ni `.mcp.json`), así que ahora se comprueba el registro **efectivo** y se entrega el comando exacto (`claude mcp add engram -s user -- engram mcp --tools=agent`); el aviso sale también al cerrar `init` e `install-engram`. **`.gitignore`**: los docs por hito (`.ozali/docs/`) **se versionan** en el repo principal y `init`/`update` retiran esa regla si una corrida vieja la escribió; `.ozali/metrics/` pasa a ignorarse por ser caché derivado, avisando cómo destrackearla. Fixes: `installed_plugins.json` en formato **v2** ya no da un falso *"plugin no registrado"*; `doctor --fix` **ya no degrada** `strict_tdd` a `false` por un parseo fallido del markdown; y `doctor` lee la calibración de `.ozali/config.json` → `testing` como primera fuente, según el contrato. |
+| **v0.18.0** | **Workspace multi-root: el `.code-workspace` manda + referencias Maven**: `ozali workspace` toma como miembros los folders del `*.code-workspace` de VSCode/Antigravity, que pasa a ser la lista **cerrada** (los repos en disco sin declarar se reportan pero quedan fuera; `--scan-all` los incluye, `--no-code-workspace` vuelve al escaneo puro). Los miembros pueden vivir **fuera** de la raíz. Correrlo **dentro** de un repo ya no falla: sube hasta 3 niveles buscando la carpeta que agrupa y ofrece usarla como raíz. Nueva referencia **`maven-dep`**: parsea `pom.xml` (raíz + módulos de primer nivel) y cruza por `groupId:artifactId`, así que la carpeta puede llamarse distinto que el artefacto. Las referencias **escritas a mano** ya no se borran al re-correr: lo detectado se marca `"source": "auto"` y lo tuyo se conserva como `"manual"`. Fix: `ReferenceError: root is not defined` al inicializar un miembro `sin init` fuera de `--dry-run`. |
+| **v0.17.1** | **Fix: modelos de Claude como alias**: `.ozali/config.json` guardaba IDs con versión (`claude-opus-4`, `claude-sonnet-4-5`), que envejecen y contradicen el contrato CDK v6. Ahora `init` escribe los alias `haiku`/`sonnet`/`opus` y `ozali update` **migra** los configs existentes avisando del cambio (un modelo custom se respeta). Los modelos de opencode no cambian. |
+| **v0.17.0** | **Descarga de Engram verificada + contrato CDK v6**: la instalación del binario precompilado de Engram (ruta por defecto en Linux) ahora valida el **origen** de la URL (solo assets de release del repo oficial por HTTPS, sin degradar en redirects) y verifica el **SHA-256** contra el `checksums.txt` del mismo release — *fail-closed*: si no coincide, no se instala nada. Extracción acotada (`--no-same-owner`, chequeo de path traversal) y limpieza del temporal. Nuevo **caché de releases de 6h** en `~/.ozali/cache/` compartido por `doctor`/`init`/`install-engram`, con soporte de `gh` o `GITHUB_TOKEN` para no toparse con el límite de 60 req/h de la API de GitHub. **Contrato CDK v6**: el `model:` del frontmatter estampa el modelo real (`haiku`/`sonnet`/`opus`) en vez del nivel abstracto, que Claude Code rechazaba. **`.gitignore`**: `.ozali/` pasa a ser commiteable (config del equipo y docs por hito); solo se ignoran `.ozali/backups/` y `.ozali/.session-state.json`. `ozali update` migra los `.gitignore` de repos previos. |
+| **v0.16.3** | **`install-skills` + `needsNode` + Opción B + fix copsis-commit**: Nuevo comando `install-skills` instala skills globales sin `init`. `ozali update` detecta Engram faltante y skills ausentes. `ozali doctor` solo valida Node ≥ 16 cuando el proyecto lo usa (detecta `package.json` o archivos `.js/.ts`); en backends Java/Go/Python muestra "no aplica" en vez de warning. `ozali init` defaultea a `global` cuando ya existe skill global (Opción B, evita duplicados). Fix de falso positivo de `copsis-commit` en `doctor`. |
+| **v0.16.0** | **Verificación real del plugin Engram MCP + fix de corrupción de `knowledgeRepo`**: `ozali doctor`/`init`/`update`/`install-engram` ahora leen `~/.claude/plugins/installed_plugins.json` y distinguen entre "plugin no instalado" y "instalado pero deshabilitado", con mensajes explícitos y pasos exactos para habilitarlo (`/plugin install engram@engram`). Fix en `toPortablePath` para expandir `~` antes de `path.resolve`, preferir `base-relative` sobre `home-relative`, y defenderse de paths corruptos con `~` interno. Handshake Engram en `ozali-jarvis` y skill `ozali` para detectar MCP inactivo al inicio de cada sesión. |
+| v0.15.0 | Clasificación cognitiva de agentes: cada subagente CDK tiene un `model:` (`low`/`medium`/`high`) que se resuelve a modelo real de Claude u opencode vía `.ozali/config.json`. Reglas híbridas para `project-documenter` (técnico vs sencillo) y `tester` (ejecución vs diagnóstico). Configuración local `.ozali/config.local.json`. `ozali doctor` detecta si el config fue editado después de generar los subagentes. |
+| v0.14.0 | Dashboard `ozali dashboard`, checkpoints obligatorios entre fases CDK, reanudación automática de hitos, micro-checkpoints intra-fase. Co-authored-by automático en `ozali-commit`. |
+| v0.13.0 | Cloud sync auto (`ozali sync --auto`), workspace multi-repo, `ozali audit --tui`, Engram Cloud con enrolamiento, deploy guides VPS y GCloud. |
+| v0.12.0 | Skill `skill-generator`, CDK contrato v2 (seguridad PII + integración skill-generator), `ozali doctor --fix`, `ozali init --knowledge-only`. |
+| v0.11.0 | Memoria híbrida (Engram + docs), recall-first, telemetría de tokens, `ozali-jarvis` always-on. |
+
+---
+
+## Qué es
+
+`ozali` lleva a cualquier repositorio existente a un flujo de desarrollo asistido por IA,
+**disciplinado y trazable**, pensado para equipos. No es un chatbot: es un método.
+
+- **Diagnostica y calibra** el proyecto: detecta stack, arquitectura, convenciones, capacidades de
+  testing y resuelve **Strict TDD** (test-first sí/no) contra lo que el proyecto realmente soporta.
+- **Fuente de verdad** legible: `AI.md` + `.ai/` (el "Project Brain") — generado evaluando el
+  código real, nunca inventado.
+- **Genera `cdk`**, la skill de ejecución con **8 subagentes** (owner, manager, analyzer,
+  orchestrator, executioners, proposer, documenter, tester), **GATE de aprobación** y plan
+  congelado inmutable.
+- **Memoria híbrida**: documentos legibles por humanos **+** Engram buscable/acumulable, para que
+  la herramienta **aprenda de lo que el equipo va haciendo**.
+- **Histórico aislado**: el registro que crece vive en un repo de conocimiento aparte, sin
+  sobrecargar el repo principal.
+
+## Dos piezas
+
+1. **Proyecto completo** (este repo): la skill `ozali`, las `references/`, el harness, el CLI y los docs.
+2. **Plug-n-play CLI**: instala y arranca el método en cualquier repo, de forma interogativa.
+
+## Instalación (segura por diseño)
+
+CLI **Node de cero dependencias y sin lifecycle scripts** → sin vector de supply-chain.
+Detalle en [docs/security.md](docs/security.md).
+
+```bash
+# Recomendado (pnpm 10 deshabilita postinstall de deps por defecto)
+pnpm dlx ozali@<versión> init
+
+# npm con scripts desactivados
+npx --ignore-scripts ozali@<versión> init
+
+# Máxima auditabilidad
+git clone <repo> && node ozali/cli/bin/ozali.mjs init
+```
+
+> **`dlx`/`npx` son efímeros:** ejecutan `init` pero **no dejan `ozali` en tu PATH**. Para usar
+> `ozali doctor`/`update`/`sync` después, instala globalmente (el propio `init` te lo recuerda):
+>
+> ```bash
+> pnpm add -g ozali@<versión>      # recomendado
+> npm install -g ozali@<versión>
+> ```
+
+### Uso del CLI
+
+```bash
+ozali init           # detecta agente, instala skills ozali + ozali-commit, aísla histórico, configura Engram
+ozali install-skills # instala skills globales cuando el repo ya está calibrado y solo faltan las skills
+ozali install-skill  # instala skills del pool de grill (Matt Pocock) en el scope indicado
+ozali workspace      # multi-repo: escanea la carpeta raíz, remedia init/calibración y cablea la config conjunta
+ozali doctor         # health-check read-only (fuente de verdad, Engram, Cloud, versión de cdk, Strict TDD, frontmatters model:…)
+ozali update         # actualiza skills + permisos; avisa si cdk quedó atrás; detecta Engram y skills globales
+ozali sync           # lleva el histórico (docs + Engram) al repo de conocimiento de equipo
+ozali audit          # navega/audita la memoria de Engram del proyecto (o general)
+ozali state          # estado de sesión de un hito cdk: read | clear | write --hito <slug> --fase <fase>
+ozali clean          # borra los desechables de un hito (dry-run por defecto; --yes aplica)
+```
+
+### `ozali state` y `ozali clean` — cerrar un hito sin abrir `rm`
+
+Un `deny: Bash(rm *)` en tus permisos rechaza el cierre de un hito si incluye un `rm`, y un `allow`
+no le gana a un `deny`. En vez de aflojar `rm`, el permiso se da sobre el CLI (`Bash(ozali *)`, que
+`init`/`update` ya agregan):
+
+```bash
+ozali state write --hito mi-hito --fase execution_done   # persiste la fase (con rama y last_updated)
+ozali state read                                         # JSON del estado, o null si no hay
+ozali state clear                                        # borra SOLO .ozali/.session-state.json
+ozali clean --hito mi-hito                               # dry-run: lista lo que borraría
+ozali clean --hito mi-hito --yes                         # borra .ozali/tmp/mi-hito/ + lo del manifiesto
+```
+
+`clean` borra únicamente `.ozali/tmp/<hito>/` y los archivos que el hito registró en su
+`manifest.json` (`{"hito": "…", "files": ["ruta/relativa"]}`). Rechaza rutas con `..`, symlinks que
+salgan del repo, archivos rastreados por git y todo lo que no esté bajo la allowlist
+(`.ozali/tmp/` y `src/test/`; amplíala con `clean.allow` en `.ozali/config.json`); con rechazos sale
+distinto de cero. `ozali doctor` avisa de desechables pendientes y de un deny de `rm` sin `ozali`
+permitido.
+
+`ozali audit` recorre lo que el equipo ha acumulado en Engram: dentro de un repo propone auditar
+**ese proyecto** o **general** (todos los proyectos); fuera de un repo va directo a general. Usa
+`--tui` para el navegador interactivo, `--search "<texto>"` para buscar y `--general` para forzar el
+alcance. Sin Engram, audita el histórico local de `.ozali/docs/`.
+
+### `ozali install-skill` — pool de grill
+
+`ozali` trae en su paquete un pool de skills de **grilling** de Matt Pocock
+([mattpocock/skills](https://github.com/mattpocock/skills)) para afinar el **alcance, detalle y
+visión** de un proyecto antes de escribir código: entrevistan el plan en rondas hasta cerrar todas
+las ramas del árbol de decisiones, y `grill-with-docs` además materializa el modelo de dominio en
+`CONTEXT.md` y ADRs.
+
+```bash
+ozali install-skill --list                # lista el pool
+ozali install-skill grill                 # instala el set completo (global, ambos agentes)
+ozali install-skill grill-with-docs       # una skill puntual
+ozali install-skill grill --scope project # en el repo actual (en vez de global)
+ozali install-skill grill --agent opencode
+```
+
+Pool: `grill-me` (entrevista de planes/decisiones), `grilling` (primitiva reutilizable),
+`grill-with-docs` (entrevista + `CONTEXT.md` y ADRs), `domain-modeling` (glosario y ADRs inline).
+Instala en `~/.claude/skills/` (Claude Code) y `~/.config/opencode/skills/` (opencode) cuando el
+agente aplica. Reinicia tu agente después de instalar.
+
+**Skill independiente: `python-utilitario`.** Fabrica utilitarios Python autocontenidos (un solo
+`run_<nombre>.sh` con su propio `venv/`, log por corrida, `--dry-run` y códigos de salida
+estándar). No forma parte del pool de grill ni del alias `grill`; se instala aparte:
+
+```bash
+ozali install-skill python-utilitario     # por nombre
+ozali install-skill --python              # flag equivalente (alias: "python")
+ozali install-skill --python --scope project --agent claude-code
+```
+
+### Workspaces multi-repo
+
+Cuando abres en tu editor (VSCode, **Antigravity**) una **carpeta raíz con varios repos** que se
+referencian entre sí, corre **una vez** en esa raíz:
+
+```bash
+ozali workspace           # escanea repos hijos, remedia los que faltan y escribe la config conjunta
+ozali workspace --dry-run # solo muestra el inventario y el plan, sin escribir
+ozali workspace --yes     # no interactivo: acepta defaults y todas las referencias detectadas
+ozali workspace --depth 2 # busca repos hasta 2 niveles (para raíces con subcarpetas de grupo)
+ozali workspace --scan-all # incluye repos en disco que no estén declarados en el .code-workspace
+ozali workspace --doctor  # health-check de TODOS los repos miembros + resumen (solo CLI)
+ozali workspace --update  # actualiza skills/permisos/jarvis de TODOS los repos miembros (solo CLI)
+```
+
+Si ya tenías armado el **multi-root** del editor (`*.code-workspace`), **manda él**: sus carpetas son
+la lista de miembros —aunque vivan fuera de la raíz— y los repos que estén en disco sin declarar se
+reportan pero quedan fuera (`--scan-all` los incluye). Y si corres el comando **parado dentro de uno de
+los repos**, sube solo hasta la carpeta que los agrupa y te pregunta si la usa como raíz.
+
+Qué hace, en orden: (1) **escanea** los miembros y reporta su estado —`✔ listo`, `⚠ sin calibrar`
+(falta `cdk`) o `✖ sin init`—; (2) **remedia** con `ozali init` los que no lo tienen y te **guía** para
+calibrar (correr la skill `ozali` en cada repo — eso lo hace el agente, no el CLI); (3) **infiere las
+referencias** entre repos (dependencias npm y **Maven** cruzadas, submódulos git, `docker-compose`) y
+las confirma contigo — las que no se pueden inferir las agregas a mano al manifiesto y **se preservan**;
+y (4) escribe la config para **trabajar en conjunto**:
+
+- `ozali-workspace.json` — manifiesto de miembros, estado y referencias.
+- `<carpeta>.code-workspace` — workspace multi-root que abre todos los repos juntos.
+- Orquestador **`ozali-workspace-jarvis`** en `CLAUDE.md`/`AGENTS.md` de la raíz: coordina los repos
+  según el manifiesto y delega la ejecución en el `cdk` de cada uno.
+- La skill **`ozali`** en la raíz (`.claude/skills/ozali/`) para **calibrar los miembros desde el
+  workspace** (modo target), sin abrir cada proyecto.
+
+**Operar todo desde la raíz:** `ozali workspace --doctor` y `--update` corren el health-check y la
+actualización sobre **todos** los repos miembros (solo CLI). Y para calibrar los `⚠ sin calibrar`,
+abre el agente en la raíz y pídele a `ozali-workspace-jarvis` que *"calibre los repos pendientes"*: los
+recorre uno por uno (con su GATE) sin que cambies de proyecto.
+
+Es **idempotente**: re-córrelo cuando agregues repos o cambien las referencias. Detalle completo en
+[`docs/workspaces.md`](docs/workspaces.md).
+
+### Actualizar a una versión nueva
+
+```bash
+pnpm add -g ozali@<versión>   # actualiza el CLI global (pinea la versión por el cooldown de pnpm)
+ozali update                  # en cada repo: refresca skill ozali + ozali-jarvis + permisos
+```
+
+`ozali update` también **crea ozali-jarvis** y **instala la skill `ozali-commit`** en repos
+inicializados con versiones anteriores. Ahora también **detecta si Engram falta** y ofrece instalarlo,
+y **avisa si las skills globales no están presentes**. La skill `cdk` la **regenera/migra tu agente**
+(no el CLI): `ozali update` **detecta la versión de contrato** de `cdk` y, si quedó atrás (o aún
+referencia activa `copsis-commit` de versiones viejas), te avisa y te da los pasos manuales. Tras
+`ozali update`, abre el agente y vuelve a correr la skill `ozali`: su **pre-flight** detecta el `cdk`
+existente, lo **migra automáticamente** al contrato vigente (eliminando `copsis-commit` y cableando
+`ozali-commit`) y estampa la versión — tus docs por hito y el plan congelado se conservan.
+
+> **Repo ya calibrado, solo faltan las skills?** Si el proyecto ya tiene `cdk` generado y `.ozali/config.json`,
+> pero no tienes las skills en el agente, usa `ozali install-skills` para instalar `ozali`, `ozali-commit`
+> y `skill-generator` globalmente sin pasar por `init`.
+
+> **Commit del hito (`ozali-commit`):** `init`/`update` instalan la skill `ozali-commit`
+> (`.claude/skills/ozali-commit/`). `cdk` la invoca al cerrar cada hito
+> para generar el commit convencional (feat/fix/hotfix/refactor + scope) tras tu aprobación.
+
+`init` también escribe un **perfil base de permisos** (`.claude/settings.json` para Claude Code,
+`opencode.json` para opencode) para reducir confirmaciones: deja libres comandos seguros y bloquea
+los destructivos. Es un template — tus reglas se conservan al re-correr `init`. Como Claude Code
+**ignora** los permisos de un proyecto hasta confiar en él, `init` ofrece marcar el workspace como
+confiable (`hasTrustDialogAccepted` en `~/.claude.json`); usa `--no-trust` para omitirlo.
+
+`init` también **instala Engram** y registra su MCP con `engram setup <agente>`: en modo
+interactivo te pregunta (default sí), y con `--yes` lo instala automáticamente. En **Linux**
+descarga el **binario precompilado** correcto según tu arquitectura (amd64/arm64) a `~/.local/bin`
+(sin sudo); en **macOS** usa brew → `go install` con el binario como fallback; en **Windows**
+usa `go install`. Si algún paso falla, imprime instrucciones específicas de tu SO. Si prefieres no
+instalarlo, pasa `--no-engram` (arranca en modo `docs`). Más tarde puedes instalarlo con
+`ozali install-engram` bajo demanda. Opcionalmente habilita **Engram Cloud**
+(réplica de equipo opt-in) además del git-sync.
+
+> **Gotcha conocido (Engram MCP):** a veces el binario `engram` está en PATH y el marketplace está
+> añadido, pero el plugin `engram@engram` no aparece en `/mcp`. Hay **dos causas distintas** con el
+> mismo síntoma: (1) el plugin está **deshabilitado** en Claude Code (`/plugin`), o (2) el plugin
+> está habilitado pero **no registra ningún servidor MCP** —hubo versiones publicadas sin
+> `mcpServers` ni `.mcp.json`—, que se arregla con
+> `claude mcp add engram -s user -- engram mcp --tools=agent`. `ozali doctor` distingue las dos
+> (filas **`Engram MCP plugin`** y **`Engram MCP servidor`**) y da el paso exacto; el detalle está en
+> [`docs/troubleshooting/engram-mcp-no-carga.md`](docs/troubleshooting/engram-mcp-no-carga.md).
+
+`init` también crea **ozali-jarvis**, un **orquestador always-on**: persona en `CLAUDE.md`/`AGENTS.md`
++ subagente + hooks de recordatorio que hace que el agente, **en toda sesión y sin necesidad de
+`/cdk`**, recupere contexto de Engram, registre el trabajo del equipo (memoria en contexto) y delegue
+la ejecución disciplinada en `cdk`. Fija el proyecto en `.engram/config.json` para memoria
+determinista. Con Engram en línea, jarvis y `cdk` operan **recall-first** (reusan memoria en vez de
+releer) para gastar menos tokens/contexto. Omítelo con `--no-jarvis`.
+
+Flags útiles: `--yes` (no interactivo), `--dry-run` (init sin escribir), `--no-engram`, `--no-trust`,
+`--no-jarvis`, `--agent`, `--scope`, `--knowledge-repo`, `--import`/`--push`/`--cloud` (sync). Modelo
+mental completo en [docs/intended-usage.md](docs/intended-usage.md).
+
+## Agentes soportados
+
+Claude Code y opencode (perfiles de permisos para ambos en
+[skill/references/permissions-bypass.md](skill/references/permissions-bypass.md)).
+
+## Documentación
+
+| Tema | Doc |
+|---|---|
+| Guía de uso (usuarios generales) | [docs/guia-de-uso.md](docs/guia-de-uso.md) |
+| Uso previsto (modelo mental) | [docs/intended-usage.md](docs/intended-usage.md) |
+| Compilado y uso local (repo clonado) | [docs/compilado-local.md](docs/compilado-local.md) |
+| Seguridad del instalador (npx/pnpm) | [docs/security.md](docs/security.md) |
+| Histórico aislado y memoria de equipo | [docs/team-history.md](docs/team-history.md) |
+| Desplegar Engram Cloud (VPS) | [docs/deploy-cloud-vps.md](docs/deploy-cloud-vps.md) |
+| Desplegar Engram Cloud (Google Cloud) | [docs/deploy-cloud-gcloud.md](docs/deploy-cloud-gcloud.md) |
+| Integración con Obsidian | [docs/obsidian-integration.md](docs/obsidian-integration.md) |
+| Troubleshooting: Engram MCP no carga | [docs/troubleshooting/engram-mcp-no-carga.md](docs/troubleshooting/engram-mcp-no-carga.md) |
+| POC reglas de negocio: extractor vs. manual | [docs/poc-reglas-negocio-a-vs-b.md](docs/poc-reglas-negocio-a-vs-b.md) |
+| Pendientes (backlog corto) | [docs/pendientes.md](docs/pendientes.md) |
+| Skill bootstrap | [skill/SKILL.md](skill/SKILL.md) |
+| Calibración de testing + TDD | [skill/references/calibration-blueprint.md](skill/references/calibration-blueprint.md) |
+| Contrato y versión de `cdk` | [skill/references/cdk-contract.md](skill/references/cdk-contract.md) |
+| Blueprint de agentes | [skill/references/agents-blueprint.md](skill/references/agents-blueprint.md) |
+| Reglas de negocio (`.ai/business/`) | [skill/references/business-blueprint.md](skill/references/business-blueprint.md) |
+| Memoria híbrida (docs + Engram) | [skill/references/engram-convention.md](skill/references/engram-convention.md) |
+
+### Agentes y Modelos
+
+Cada agente del ecosistema `ozali` / `cdk` se clasifica por **categoría cognitiva** y se le asigna un **nivel de modelo** (`low` / `medium` / `high`). El modelo real (Claude u opencode) se resuelve consultando `.ozali/config.json` → `agents.models.{claude\|opencode}.{low\|medium\|high}`.
+
+| # | Agente / Skill | Categoría | Nivel | Modelo Claude | Modelo Opencode |
+|---|---------------|-----------|-------|---------------|-----------------|
+| 1 | `project-analyzer` | A — Análisis Profundo | **High** | `claude-opus-4` | `mimo-v2.5` |
+| 2 | `project-owner` | A — Análisis Profundo | **High** | `claude-opus-4` | `mimo-v2.5` |
+| 3 | `ozali` | A — Análisis Profundo | **High** | `claude-opus-4` | `mimo-v2.5` |
+| 4 | `executioners` | C — Escritura Código | **High** | `claude-opus-4` | `mimo-v2.5` |
+| 5 | `project-orchestrator` | B — Orquestación | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 6 | `ozali-jarvis` | B — Orquestación | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 7 | `cdk` | B — Orquestación | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 8 | `project-manager` | E — Lectura/Propuesta | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 9 | `project-proposer` | E — Lectura/Propuesta | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 10 | `skill-generator` | E — Lectura/Propuesta | **Medium** | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 11 | `tester` | D — Validación | **Medium** (híbrido) | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 12 | `project-documenter` | C — Escritura Docs | **Medium** (híbrido) | `claude-sonnet-4-5` | `deepseek-v4-pro` |
+| 13 | `ozali-commit` | D — Validación | **Low** | `claude-haiku-4-5` | `kimi-k3` |
+
+> **Reglas híbridas:**
+> - `project-documenter`: usa **High** para docs técnicos (`03-resumen-tecnico.md`, `05-bitacora-ejecucion.md`), **Medium** para docs sencillas (`01-prompt-entrada.md`, `04-resumen-usuario.md`).
+> - `tester`: usa **Low** para ejecución mecánica de tests (pass/fail), **Medium** para diagnóstico de fallos.
+>
+> **Configuración local:** `.ozali/config.local.json` hace shallow merge sobre `.ozali/config.json` (igual que `.claude/settings.local.json`). Úsalo para ajustar modelos sin tocar el config compartido del equipo.
+
+### Formato canónico de `.ozali/config.json`
+
+`ozali init` genera este archivo con la siguiente estructura mínima (v0.16.2+):
+
+```json
+{
+  "version": "0.16.2",
+  "knowledgeRepo": "~/.ozali/knowledge",
+  "project": "nombre-repo",
+  "mode": "hybrid",
+  "docsPath": ".ozali/docs",
+  "metricsPath": ".ozali/metrics",
+  "sessionState": ".ozali/.session-state.json",
+  "createdAt": "2026-...",
+  "agents": {
+    "models": {
+      "claude": {
+        "low": "claude-haiku-4-5",
+        "medium": "claude-sonnet-4-5",
+        "high": "claude-opus-4"
+      },
+      "opencode": {
+        "low": "kimi-k3",
+        "medium": "deepseek-v4-pro",
+        "high": "mimo-v2.5"
+      },
+      "mapping": { ... },
+      "hybridRules": { ... }
+    }
+  },
+  "testing": {
+    "strict_tdd": false,
+    "runner": null,
+    "greenCommand": null,
+    "singleTestCommand": null
+  }
+}
+```
+
+- `version` — versión del CLI que generó el config.
+- `knowledgeRepo` — ruta portable al repo de conocimiento aislado.
+- `project` — nombre del proyecto (derivado de la carpeta git).
+- `mode` — modo de memoria: `hybrid` (docs + Engram) o `docs` (sin Engram). Se genera automáticamente desde v0.16.2.
+- `docsPath` — ruta del histórico aislado de documentación por hito.
+- `metricsPath` — ruta de métricas (tokens, telemetría).
+- `sessionState` — ruta del archivo de estado de sesión para reanudación de hitos.
+- `agents` — configuración de modelos para cada subagente; se genera automáticamente desde v0.16.2.
+- `testing` — calibración de testing y TDD; se genera automáticamente con defaults y se
+  calibra en Fase 3.5 del bootstrap. El flujo de llenado es:
+  1. **`ozali init`** genera `testing` con valores nulos (`strict_tdd: false`, runners nulos).
+  2. **Skill `ozali` (Fase 3.5)** detecta el stack real y escribe `.ozali/config.json` → `testing`.
+  3. **Skill `cdk`** lee `testing` del config como primera fuente; si está vacío, recurre a
+     `.ai/context/tech-stack.md` o Engram.
+  4. **CLI `ozali doctor`/`update`** sincronizan inversamente desde `.ai/context/tech-stack.md`
+     si ya existe (para repos calibrados antes de v0.16.2).
+
+- `frozen` — **red de seguridad** (v0.16.3+): si es `true`, `ozali update` no toca las skills
+  (`ozali`, `ozali-commit`, `skill-generator`). Solo actualiza el config JSON, permisos y jarvis.
+  Útil para repos en producción que no quieren breaking changes por un update global accidental.
+  Para forzar: `ozali update --skills`.
+
+### Red de seguridad de `ozali update` (v0.16.3+)
+
+Como ozali está en desarrollo activo, `ozali update` puede traer cambios breaking. El CLI
+implementa **3 capas de protección**:
+
+1. **Semver Guard** (Capa 1): antes de copiar skills, compara la versión del config con la del
+   CLI. Si hay un **bump mayor** (ej. 0.16.x → 0.17.0), pide confirmación interactiva.
+   En modo `--yes` permite el update pero muestra un warning.
+2. **Backup automático** (Capa 2): antes de sobreescribir cada skill, el CLI copia la versión
+   anterior a `.ozali/backups/skills/v{version}/{skill}/`. Si algo se rompe, recuperás con:
+   ```bash
+   ozali update --rollback
+   ```
+3. **Modo frozen** (Capa 3): agregá `"frozen": true` a `.ozali/config.json` y `ozali update`
+   **nunca** tocará skills (solo config, permisos y jarvis). Para forzar el update de skills:
+   ```bash
+   ozali update --skills
+   ```
+
+> **Nota:** repos inicializados antes de v0.16.2 pueden tener `memoryMode` (legacy) en vez de `mode`. Corre `ozali update` o `ozali doctor --fix` para migrar al formato canónico completo.
+
+> Linaje: `ozali` se nutre de conceptos de
+> [gentle-ai](https://github.com/Gentleman-Programming/gentle-ai) (Engram, calibración SDD/TDD,
+> distribución plug-n-play).
+
+## Licencia
+
+MIT

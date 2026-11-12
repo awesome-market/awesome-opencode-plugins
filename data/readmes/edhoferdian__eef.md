@@ -1,0 +1,687 @@
+# Ekosistem Edho Ferdian (EEF)
+
+A native Claude Code skill ecosystem — 38 skills covering engineering
+(backend, frontend, API design, data layer, security, performance, testing),
+operations (deployment, containers, networking, git/release), and
+cross-cutting practices (code review, spec mining, marketing, research,
+counterparty communications, legal ops, video style).
+
+Standalone by design — no external harness install, no dependency on
+another project's paths or infrastructure.
+
+**Looking for what's actually in here?** [CATALOG.md](CATALOG.md) is the
+full table of every skill and agent with a one-line purpose and a "use
+when" — generated from source, kept in sync the same way every adapter
+below is.
+
+## Install
+
+Four ways to get these skills, pick whichever fits:
+
+### Option A — npm (works for every harness this repo supports, no git needed)
+
+```bash
+npx eef-install                            # Claude Code, all 38 skills
+npx eef-install code-review-edho-ferdian    # Claude Code, specific skills only
+npx eef-install --target cursor             # Cursor, into ./.cursor/rules/
+npx eef-install --target windsurf           # Windsurf + Devin
+npx eef-install --target cline              # Cline
+npx eef-install --target copilot            # GitHub Copilot
+npx eef-install --target kiro                # Kiro (add --global for ~/.kiro)
+npx eef-install --target hermes              # Hermes Agent (add --global for ~/.hermes)
+npx eef-install --target openclaw            # OpenClaw (add --global for ~/.agents)
+npx eef-install --target zcode                # ZCode (add --global for ~/.zcode)
+npx eef-install --target agents-md          # AGENTS.md into the current project
+npx eef-install --target gemini-md          # GEMINI.md into the current project
+npx eef-install --target claude-hooks       # Claude Code hooks into ~/.claude/hooks/, registered in ~/.claude/settings.json
+npx eef-install doctor                      # read-only: what's installed for Claude Code, and is it current?
+npx eef-install update                      # bring that install up to this version (--dry-run first to see the plan)
+npx eef-install --list                      # list all skill names
+npx eef-install --help
+```
+
+`--target claude-hooks` installs the ready-made hooks — `fs-guard`
+(`PreToolUse`, blocks recursive searches from `/`, `~` or a drive root and
+asks before destructive commands), `telemetry` (`PostToolUse` on `Agent`,
+logs each subagent run locally for re-tiering) and `statusline` (plan quota,
+context and subagent count, set only when no `statusLine` exists);
+`--only <name>` picks one. It adds a registration to
+`settings.json` and leaves every other key alone: a hook already registered
+(even by hand) is never added twice, an unparsable file is refused rather
+than rewritten, and the previous file is kept as `settings.json.eef-backup`.
+`$CLAUDE_HOOKS_DIR` and `$CLAUDE_SETTINGS_FILE` override both locations.
+
+`eef-install doctor` reports which Claude Code targets (skills, agents,
+rules, hooks) are installed and where, which files differ from this package
+version, whether each hook is registered, and which model profile the
+installed agents match, plus whether the optional Salak CLI is on PATH (and
+whether it predates 0.3, the version the skills' Salak contract was verified
+on). It changes nothing, and exits non-zero only on real
+breakage (an unparsable `settings.json`, or a registered hook whose file is
+gone). It reads the same `CLAUDE_*_DIR` overrides as the installs.
+
+`eef-install update` acts on what doctor reports: skills, agents and rules
+that are installed but differ from this version are replaced, items new in
+this version join a group that is already installed, and installed hook
+files are refreshed. It never installs a group from scratch and never
+writes `settings.json`. Each agent keeps the `model`/`effort` it has now, so
+a `--profile` or `--models` choice survives; a new agent takes the profile
+most installed agents match. A file you edited locally also counts as
+"differs" and is overwritten — run `update --dry-run` first to see the plan.
+
+`eef-install stats` summarizes the log the `telemetry` hook writes
+(`~/.claude/eef/subagent-runs.jsonl`): runs per agent, the models they ran
+on, median tokens and duration, and a re-tiering suggestion once an agent
+has enough runs. It is read-only, and every suggestion is a prompt for a
+human decision. Records from the older `SubagentStop` hook carry no model
+or tokens, so they are left out unless you pass `--include-legacy`.
+
+The package bundles the actual skill content (see
+[`package.json`](package.json)'s `files` list) — no separate git clone, no
+network access after the initial `npx` download. Source:
+[`bin/eef.js`](bin/eef.js), zero runtime dependencies.
+
+### Option B — Manual `.skill` upload
+
+Each skill is pre-packaged as a `.skill` archive under [`dist/`](dist/).
+Download the one(s) you want and upload through the Skills UI in Claude.ai,
+Claude Desktop, or Claude Code. Good for trying a single skill without
+touching your local `~/.claude` setup.
+
+### Option C — Install script (copies into `~/.claude/skills/`)
+
+Clone this repo, then run the installer for your platform:
+
+```bash
+# macOS / Linux / Git Bash
+git clone https://github.com/edhoferdian/EEF.git
+cd EEF
+./install.sh                 # installs all 38 skills
+./install.sh code-review-edho-ferdian dev-kickoff-edho-ferdian   # only specific ones
+./install.sh --list          # see all installable skill names
+```
+
+```powershell
+# Windows PowerShell
+git clone https://github.com/edhoferdian/EEF.git
+cd EEF
+.\install.ps1                                    # installs all 38 skills
+.\install.ps1 -Only code-review-edho-ferdian,dev-kickoff-edho-ferdian
+.\install.ps1 -ListOnly
+```
+
+Set `CLAUDE_SKILLS_DIR` (env var, both platforms) to install somewhere other
+than `~/.claude/skills`.
+
+### Option D — Claude Code plugin marketplace
+
+```
+/plugin marketplace add edhoferdian/EEF
+/plugin install ekosistem-edho-ferdian@eef-marketplace
+```
+
+This tracks the repo directly — updates land when the plugin/marketplace
+`version` fields are bumped in [`.claude-plugin/`](.claude-plugin/).
+
+> **Note:** this GitHub repo is public, and `eef-install` is published on
+> npm — all four install options above work for anyone, no special access
+> needed.
+
+## Other harnesses (not just Claude Code)
+
+These skills are plain Markdown with no Claude-specific syntax, so they
+port to other coding agents with light, generated adapters — no manual
+duplication, no drift, since every adapter is generated from `skills/` and
+checked in CI (`export-targets-sync` job):
+
+- **[AGENTS.md](AGENTS.md)** — the cross-vendor project-instructions file
+  read automatically by Codex, OpenCode, Meta's Muse Code, and others that
+  have converged on this convention. A compact router table, not a full
+  copy — each row points at the matching `SKILL.md` to read on demand.
+  Regenerate: `python scripts/export_agents_md.py`.
+- **[.cursor/rules/](.cursor/rules/)** — one `.mdc` file per skill, Cursor's
+  own multi-file rules format. Each carries the skill's `description` for
+  Cursor's "Apply Intelligently" auto-matching, the same trigger semantics
+  Claude Code uses. Regenerate: `python scripts/export_cursor.py`.
+- **[.windsurf/rules/](.windsurf/rules/) and [.devin/rules/](.devin/rules/)**
+  — one file per skill for Windsurf (Cascade) and Devin, which share an
+  identical rules schema post-acquisition. `trigger: model_decision` gives
+  the same relevance-based auto-loading as Cursor's `description` matching.
+  Six skills exceed Windsurf's 12,000-character-per-file limit and are
+  truncated with a pointer back to the full `SKILL.md` — a documented
+  limitation, not silent data loss. Regenerate: `python scripts/export_windsurf.py`.
+- **[.clinerules/](.clinerules/)** — a single always-on router file for
+  Cline, matching AGENTS.md's shape (Cline's `paths:` frontmatter only
+  supports file-glob scoping, not relevance-based matching, so 33 always-on
+  full-body files would reinject every skill into every request; a small
+  router avoids that). Cline also reads `AGENTS.md` automatically — this
+  adapter mainly gives EEF its own toggleable entry in Cline's Rules panel.
+  Regenerate: `python scripts/export_cline.py`.
+- **[.github/copilot-instructions.md](.github/copilot-instructions.md)** —
+  a router in the same shape as AGENTS.md, for GitHub Copilot (Chat, CLI,
+  code review, cloud agent) — the single largest coding-agent user base by
+  market share. Copilot's newer path-scoped `.github/instructions/*.md`
+  mechanism was deliberately not used: this ecosystem's skills are
+  workflow-triggered, not file-type-triggered, so a glob-based `applyTo`
+  wouldn't fire reliably. Regenerate: `python scripts/export_copilot.py`.
+
+- **[.kiro/skills/](.kiro/skills/)** — a generated copy for
+  [Kiro](https://kiro.dev) (AWS's agentic IDE), which has no equivalent of
+  Claude's Skill-loading mechanism and expects skill folders physically
+  present under its own `.kiro/skills/`. See [.kiro/README.md](.kiro/README.md)
+  for the install command. Regenerate: `python scripts/export_kiro.py`.
+
+- **[GEMINI.md](GEMINI.md)** — byte-identical to `AGENTS.md`, generated
+  from it (`scripts/export_gemini_md.py`), because Gemini CLI looks for
+  this specific filename by default and doesn't fall back to `AGENTS.md`.
+
+- **[.hermes/skills/](.hermes/skills/)** — a generated copy for
+  [Hermes Agent](https://hermes-agent.nousresearch.com) (Nous Research).
+  Regenerate: `python scripts/export_hermes.py` (`--global` for
+  `~/.hermes/skills/` instead of project-local).
+- **[.agents/skills/](.agents/skills/)** — a generated copy for
+  [OpenClaw](https://openclaw.ai). Regenerate:
+  `python scripts/export_openclaw.py` (`--global` for `~/.agents/skills/`).
+- **[.zcode/skills/](.zcode/skills/)** — a generated copy for
+  [ZCode](https://z.ai) (Z.ai's desktop coding agent, GLM Coding Plan).
+  Confirmed directly against the installed app's own resources, not
+  assumed: its packed source checks for a `/.zcode/skills/` path when
+  classifying skill sources, and its onboarding flow migrates an existing
+  `CLAUDE.md` into `AGENTS.md` — so this ecosystem's own `AGENTS.md` export
+  already covers ZCode's project-instructions half too. Regenerate:
+  `python scripts/export_zcode.py` (`--global` for `~/.zcode/skills/`).
+
+Hermes, Kiro, OpenClaw, and ZCode's copy-based adapters all work the same
+way for the same reason: their skill format is
+[agentskills.io](https://agentskills.io)'s open standard — the same
+`SKILL.md` + `name`/`description` frontmatter format this ecosystem
+already uses, originally developed by Anthropic and now adopted by dozens
+of agent products. No content transform is needed for any tool on that
+list; only a correctly-shaped copy in the right directory.
+
+Every adapter above is generated, never hand-maintained, and CI fails if
+any of them drifts from `skills/`. Several harnesses need no adapter at
+all — confirmed via each tool's own docs, not assumed: `AGENTS.md` alone
+already covers Codex, OpenCode, Muse Code (Meta), Cline, Zed, Google
+Antigravity, and ZCode, and [Pi](https://github.com/earendil-works/pi-coding-agent)
+resolves a standard `skills/` folder directly
+(`pi install git:edhoferdian/EEF`) with no generated files at all.
+
+## Agent orchestration (experimental)
+
+A second, newer layer alongside `skills/` — for the harnesses that support
+*sub-agent delegation* (a scoped-down persona with its own tool access,
+callable mid-task) rather than only single-agent instructions:
+
+- **[`agents/`](agents/)** — canonical agent definitions (`AGENT.md`:
+  `name`/`description`/`tools`/`skills`/`tier`/`effort` frontmatter + a
+  system-prompt body).
+  Each agent stays thin on purpose — it delegates to the matching
+  `-edho-ferdian` skill for actual review/task criteria rather than
+  duplicating them, so the two layers can't drift apart.
+- **[`workflows/`](workflows/)** — named multi-agent recipes (pipeline /
+  parallel shape) referencing agents by name, generalized from patterns
+  already used inline in skills like `gan-harness-edho-ferdian` and
+  `code-review-edho-ferdian`'s Critique-Correction Loop. Three exist today:
+  [`review-then-verify-edho-ferdian`](workflows/review-then-verify-edho-ferdian.md)
+  (review, then independently re-check each finding before it counts as
+  confirmed — the generalized shape of `code-review-edho-ferdian`'s own
+  Reflection/Critique-Correction Loop), and the two fan-outs referenced
+  below (`research-fanout`, `production-readiness-fanout`).
+
+**Model routing: each agent declares a tier, not a model.** An agent's
+`tier:` is `light`, `standard` or `deep`, chosen by one question: *if this
+agent is wrong, is the mistake loud or quiet?* Loud mistakes (a broken
+link, a linter that won't run) tolerate a cheap model; quiet ones (a review
+that misses a bug, a plausible-but-wrong synthesis) do not. `effort:`
+(`low`…`xhigh`) tunes depth inside a tier, often a cheaper lever than a
+bigger model. [`agents/model-profiles.json`](agents/model-profiles.json)
+maps tiers to each harness's models under three cost profiles:
+
+| Profile | deep | standard | light |
+|---|---|---|---|
+| `hemat` | Sonnet / gpt-6.1-sol | Sonnet / gpt-6.1-sol, effort −1 | Haiku / gpt-6-luna |
+| `seimbang` (default) | Opus / gpt-6-astra | Sonnet / gpt-6.1-sol | Haiku / gpt-6-luna |
+| `maksimal` | Opus / gpt-6-astra, effort +1 | Sonnet / gpt-6.1-sol, effort +1 | Sonnet / gpt-6.1-sol |
+
+(Claude Code / Codex.) Claude Code and Codex get model names from the
+profile; OpenCode and ZCode model IDs are provider-specific, so those get
+none unless you pass your own per tier with `--models` — a guessed alias
+is what once made ZCode fail to load an agent. `--models` works on Claude
+Code and Codex too, overriding the profile's model per tier: Claude's
+aliases (`haiku`/`sonnet`/`opus`) always point at the newest model, but
+Codex names change, so a renamed model can be swapped in without waiting
+for an EEF release. CI fails if any agent lacks
+a valid tier/effort, names a harness model directly, or a checker agent
+(critic, evaluator, fact-checker, sanitizer) ranks below the agent it
+checks.
+
+Sub-agent delegation is **not** a cross-tool standard the way `SKILL.md` is
+— every harness that has it defines the format itself, so this layer is
+generated per harness like `skills/` is, not copied verbatim. Install with
+`eef-install` the same way as the skills layer:
+
+```bash
+npx eef-install --target claude-agents      # ~/.claude/agents/ (or $CLAUDE_AGENTS_DIR)
+npx eef-install --target codex-agents       # ./.codex/agents/ (--global for ~/.codex/agents)
+npx eef-install --target opencode-agents    # merges into ./opencode.json ($schema/mcp/etc untouched, --global for ~/.config/opencode)
+npx eef-install --target zcode-agents       # adds to ~/.zcode/agents/, your own agents there untouched
+
+npx eef-install --target claude-agents --profile hemat              # pick a cost profile (Claude Code, Codex)
+npx eef-install --target claude-agents --roster inti                # only the isolation agents; skill wrappers removed (Claude Code)
+npx eef-install --target opencode-agents --models ./eef-models.json # your own model ID per tier (required for OpenCode/ZCode, optional override elsewhere)
+```
+
+- **[dist/agents/claude/](dist/agents/claude/)** — Claude Code's own native
+  subagent format; a straight 1:1 mapping since `AGENT.md` already *is*
+  that format. Regenerate: `python scripts/export_agents_claude.py`.
+- **dist/agents/codex/** — one `.toml` per agent in Codex's custom-agent
+  format (`name`, `description`, `model`, `model_reasoning_effort`,
+  `sandbox_mode`, `developer_instructions`). Codex rejects a file with any
+  key it doesn't know, so only those keys are emitted; agents with no
+  write tools get `sandbox_mode = "read-only"`. The wrapped skills come
+  from `eef-install --target openclaw` (`.agents/skills/`, which Codex
+  reads). Regenerate: `python scripts/export_agents_codex.py`.
+- **dist/agents/opencode/** — a `{name}.agent.json` fragment + prompt file
+  per agent, for OpenCode's `agent.<name>` block in `opencode.json`.
+  `eef-install --target opencode-agents` merges the `"agent"` key in
+  without touching any other key in that file (a consumer's own MCP
+  servers and other config live in the same file) — verified against a
+  live `opencode.json` that already had its own `mcp` block and an
+  unrelated agent before the merge, both intact after. Regenerate:
+  `python scripts/export_agents_opencode.py`.
+- **[.hermes/skills/agent-delegation-edho-ferdian/](.hermes/skills/agent-delegation-edho-ferdian/)**
+  — Hermes has no static per-agent file format at all (confirmed against
+  its own `tools/delegate_tool.py` source: `delegate_task` is dynamic and
+  goal-based, and its only persistent named-agent primitive, Bot Mode
+  profiles, is a full provisioned directory this script has no business
+  generating). Instead this is a generated **skill** — a delegate_task()
+  call template per canonical agent, so Hermes' primary agent has a ready
+  roster instead of improvising a persona each time. Regenerate:
+  `python scripts/export_agents_hermes.py` (`--global` for
+  `~/.hermes/skills/`).
+- **dist/agents/zcode/** — one `.md` per agent in ZCode's own native
+  Subagent format (`name`/`description`/`injectAgentsMd` frontmatter +
+  system-prompt body), confirmed against a real file ZCode itself wrote
+  through its "New Agent" dialog, not guessed. `eef-install --target
+  zcode-agents` copies these into `~/.zcode/agents/` alongside — never
+  over — anything already there (no confirmed project-local equivalent
+  exists, unlike `.zcode/skills/`). Regenerate:
+  `python scripts/export_agents_zcode.py`.
+
+**Every skill has an agent counterpart** (`python
+scripts/generate_agent_stubs.py`, 33/33) — not because every task needs
+delegation, but because *whether* a given task needs it is a runtime call
+(a small task stays in the main thread with the skill; a substantial,
+multi-file, or context-isolation-worthy task delegates to the agent), not
+a fixed split baked into which skills exist in agent form. Most stubs are
+deliberately thin wrappers that delegate straight back to their skill for
+actual criteria — `code-reviewer-edho-ferdian` is the one hand-tuned
+exception, kept as the pilot. A small allowlist of pure review/audit/lens
+agents (`code-reviewer-edho-ferdian`, `security-review-edho-ferdian`,
+`language-code-review-edho-ferdian`, `skill-audit-edho-ferdian`,
+`click-path-audit-edho-ferdian`) gets read-only tools instead of the
+default full set — a delegated reviewer that structurally *can't* write
+anything is a stronger isolation guarantee than one that merely shouldn't.
+**Nested delegation is confirmed working on Claude Code**, verified against
+Claude Code's own docs rather than assumed: a subagent can delegate
+further (up to 3 layers below the main conversation by default, tunable
+via `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`) as long as `Agent` is in its
+`tools:` list — omit it (or add `Agent` to `disallowedTools`) to keep an
+agent leaf-only. `code-reviewer-edho-ferdian`, `gan-harness-edho-ferdian`,
+and `opensource-release-edho-ferdian` all carry `Agent` in their `tools:`
+for exactly this reason — each delegates its own isolation-critical
+sub-phase (Critic, Generate/Evaluate, the sanitize audit) directly rather
+than routing through whatever called it.
+
+**Hermes supports nested delegation too, but it's opt-in, not automatic** —
+confirmed against `tools/delegate_tool.py`'s own source, not the docs (which
+don't cover this detail): `delegate_task(role="orchestrator")` only actually
+nests when `delegation.max_spawn_depth` is set to 2+ in Hermes' own config;
+at the default of 1 ("flat by default: parent (0) -> child (1); grandchild
+rejected unless max_spawn_depth raised"), Hermes silently downgrades
+`"orchestrator"` back to `"leaf"` — no error, just quietly less isolation
+than requested. `scripts/export_agents_hermes.py` marks the same 9 agents
+that carry `Agent` in Claude Code (`click-path-audit-edho-ferdian`,
+`code-reviewer-edho-ferdian`, `deployment-ops-edho-ferdian`,
+`gan-harness-edho-ferdian`, `opensource-release-edho-ferdian`,
+`research-ops-edho-ferdian`, `security-review-edho-ferdian`,
+`seo-audit-edho-ferdian`, `spec-mining-edho-ferdian`) with
+`role="orchestrator"` in their generated Hermes templates, and adds the
+`hermes config get delegation.max_spawn_depth` check inline so a user finds
+out *before* relying on it, not after silently getting weaker isolation.
+
+**OpenCode is confirmed too — live, not static inspection.**
+`opencode debug agent <name>` shows the exact resolved tool set a running
+agent gets, no LLM call needed. Checked directly: every subagent got
+`"task": true` by default, **including ones this ecosystem deliberately
+built leaf-only** (`backend-engineering-edho-ferdian` has no `Agent` in its
+Claude Code `tools:` and got `task: true` anyway) — OpenCode is *more*
+permissive than this ecosystem's own leaf/orchestrator design, not less.
+Left alone, every one of the 43 agents could nest-delegate on OpenCode
+regardless of what Claude Code allows it to do. Fixed:
+`export_agents_opencode.py` now sets `permission.task` explicitly per
+agent (`{"*": "allow"}` for the same 9 orchestrator agents, `{"*": "deny"}`
+for the other 32) so OpenCode's actual behavior matches the documented
+design instead of silently exceeding it. Re-verified after the fix with
+the same `opencode debug agent` command: `backend-engineering-edho-ferdian`
+now resolves to `task: false`, `code-reviewer-edho-ferdian` stays
+`task: true`.
+
+**ZCode has a real headless CLI** (`zcode.cjs --prompt`, found in the
+installed app's own `resources/glm/` — this ecosystem previously only knew
+about the GUI), so a live test is possible in principle, but it has no free
+introspection command the way OpenCode's `debug agent` does — confirming
+nested delegation there means an actual model call against the
+account's Z.AI credits. Deferred rather than spent without asking; the
+`spawn_agent`-tool and no-depth-limit-found static evidence from before
+still stands as the best available signal, and the fallback instructions
+stay as documented until someone opts into that cost.
+
+**Some skills split into more than one agent, hand-tuned rather than
+generated**, when an internal phase's own instructions demand real context
+isolation from another phase — a same-context "pretend you don't remember"
+instruction isn't the same guarantee as a genuinely separate delegate:
+
+- `gan-harness-edho-ferdian`'s Generate and Evaluate phases →
+  `gan-generator-edho-ferdian` / `gan-evaluator-edho-ferdian`, because the
+  Evaluator must score the Generator's work without having seen the
+  Generator's own reasoning about it.
+- `opensource-release-edho-ferdian`'s Phase 2 audit →
+  `opensource-sanitizer-edho-ferdian`, because that phase's own rule is
+  "never open FORK_REPORT.md" — only enforceable if the phase never shared
+  a context with the report's author in the first place.
+- `research-ops-edho-ferdian`'s Phase 2 decomposition →
+  `research-worker-edho-ferdian`, one per sub-question run **in
+  parallel** — the isolation value here is throughput, not adversarial
+  trust: 3-5 sub-questions are independent by construction, so
+  researching them in one context wastes that independence. Its Phase 5
+  reflection gate also gets `research-fact-checker-edho-ferdian`, an
+  independent citation audit — same adversarial reasoning as the
+  Critique-Correction split below, because the skill's own stated failure
+  mode ("a confident paragraph where the reader cannot tell which
+  sentence came from a source") is exactly the kind of self-deception a
+  self-check struggles to catch. New workflow doc:
+  `workflows/research-fanout-edho-ferdian.md`.
+- `deployment-ops-edho-ferdian`'s Step 4 production-readiness verdict fans
+  out to **four already-existing agents** in parallel instead of getting
+  a new one — `security-review-edho-ferdian`, `data-layer-patterns-edho-ferdian`,
+  `e2e-testing-edho-ferdian`, `performance-audit-edho-ferdian` — since
+  that step's own reference file already says it "does not re-run the
+  other skills' analyses — it consumes them," and the four risk lenses
+  are independent of each other. New workflow doc:
+  `workflows/production-readiness-fanout-edho-ferdian.md`. (Checked
+  `skill-audit-edho-ferdian` for the same pattern first and found it
+  didn't qualify — its categories are either too cheap to be worth agent
+  overhead, or explicitly want shared context rather than isolation from
+  each other.)
+- `seo-audit-edho-ferdian`'s existing single hand-off to
+  `performance-audit-edho-ferdian` (for real performance investigation
+  beyond citing Core Web Vitals as a ranking signal) is now a literal
+  agent delegation on Claude Code, not just skill-to-skill prose — no new
+  agent, reusing the existing one, same as deployment-ops's fan-out but
+  for one lens instead of four. (Checked `dead-code-cleanup-edho-ferdian`
+  for a split too and found it didn't qualify either — its four removal
+  categories are intentionally sequential for safety, not parallelizable,
+  and its Salak cross-check is ground-truth data, not an adversarial
+  second opinion.)
+- `click-path-audit-edho-ferdian`'s whole-app tier → `click-path-tracer-edho-ferdian`,
+  one per screen/module run **in parallel**, all consuming the same
+  Step 1 side-effect map (which must complete first and stay a single
+  source of truth — the skill's own rules already said "never let each
+  agent build its own partial map" before this agent existed to make that
+  concrete). Smaller scopes (one control/screen/store) stay inline; the
+  fan-out only pays for itself at whole-app scale.
+- `spec-mining-edho-ferdian`'s Phase 2 → `spec-mining-worker-edho-ferdian`,
+  one per selected capability run **in parallel** — the simplest fan-out
+  in this ecosystem so far, since each capability reads different modules
+  and writes its own independent output file, with no aggregation step
+  needed afterward.
+- `security-review-edho-ferdian`'s Mode A (standalone security-only pass)
+  reuses `code-critic-edho-ferdian` — generalized rather than forked —
+  for an adversarial check after its own Reflection pass. Mode A
+  previously only self-reflected, which was backwards for its own
+  highest-stakes use case ("is this safe to ship security-wise"); Mode B
+  (running inside a full code review) was already covered by the host
+  review's own Critique-Correction pass. This closes the full sweep of all
+  33 skills for this criterion (skill count at the time of this sweep —
+  see the Status line below for the running total) — see below for what
+  was checked and correctly left alone.
+- `code-review-edho-ferdian`'s Phase 4 Critique-Correction Loop →
+  `code-reviewer-edho-ferdian` (Agent A, already the pilot) and
+  `code-critic-edho-ferdian` (Agent B) — B gets only the code and A's
+  draft report, never A's Phase 1-3 reasoning, so the critique is a real
+  adversarial check instead of the same model agreeing with itself. Both
+  delegations are made by whatever orchestrates the review (dev-kickoff,
+  another agent, or the user) — **not** A delegating to B directly, since
+  nested agent-to-agent delegation isn't a verified capability on every
+  harness yet (see the note above).
+
+The skill still keeps its own whole-pipeline agent too (delegating the
+*entire* run as one unit, e.g. several gan-harness loops in parallel) —
+the phase-specific agents are for the isolation guarantee *within* one
+run, not a replacement for the whole-pipeline form.
+
+**Status (as of this sweep): all 34 skills have been checked against this
+criterion** (not just the ones with a split — every skill was read
+end-to-end and evaluated for context-isolation or parallelism value).
+Point-in-time snapshot — later skill/agent additions aren't retroactively
+folded into these counts; see `skills/` and `dist/agents/` for the current
+totals. 42 agents and 5 workflows existed at the time: 33 generic
+thin-wrapper stubs, 9 hand-tuned agents — 8 from a genuine split
+(`code-critic`, `gan-generator`/`gan-evaluator`,
+`opensource-sanitizer`, `research-worker`/`research-fact-checker`,
+`click-path-tracer`, `spec-mining-worker`) plus the original pilot,
+`code-reviewer-edho-ferdian`. Two skills gained a wired
+hand-off to an *existing* agent instead of a new one
+(`deployment-ops-edho-ferdian`'s four-lens fan-out,
+`seo-audit-edho-ferdian`'s single hand-off to `performance-audit-edho-ferdian`),
+and one gained a *reused* agent across two different skills
+(`code-critic-edho-ferdian`, generalized to also serve
+`security-review-edho-ferdian`'s Mode A).
+
+The remaining skills were checked and correctly left as skill-only
+(generic agent stub, no internal split) — most because they're
+collaborative/authoring/design-time work that isolation doesn't help, a
+few for a specific documented reason:
+
+- `skill-audit-edho-ferdian`, `config-hygiene-edho-ferdian` — mechanical
+  checks too cheap to be worth agent-spawn overhead, or explicitly want
+  shared context between sub-checks rather than isolation from them.
+- `dead-code-cleanup-edho-ferdian`, `build-fix-edho-ferdian` — internally
+  sequential *by design* for safety (test after each category/fix; a
+  regression must surface at the smallest blast radius), not
+  parallelizable without defeating that purpose.
+- `safe-execution-edho-ferdian` — a cross-cutting policy other
+  orchestrators follow, not a task with its own splittable phases.
+- `e2e-testing-edho-ferdian` — journeys could parallelize, but workers may
+  share a Page Object file for the same screen; declined rather than
+  design around an unresolved write-conflict risk the skill's own text
+  doesn't address.
+- `docs-sync-edho-ferdian` — per-area codemaps could parallelize in
+  principle, but nothing in the skill signals many areas processed in one
+  run the way `spec-mining-edho-ferdian`'s multi-capability selection
+  does; too speculative to build against.
+- `performance-audit-edho-ferdian` — its own text explicitly declines
+  `gan-harness-edho-ferdian`'s heavier generator/evaluator machinery for
+  its bounded optimization-loop pattern.
+
+## Always-on rules (Claude Code)
+
+Skills load only when a task triggers them. A few baselines should hold in
+every session regardless — read before editing, surgical changes, verify
+before claiming done, no destructive or outward-facing action without a yes,
+no filesystem-wide searches. Those live as four short files in
+[rules/](rules/), each pointing into the skill that carries the detail:
+
+```bash
+npx eef-install --target claude-rules       # ~/.claude/rules/eef/ (or $CLAUDE_RULES_DIR)
+```
+
+`scripts/validate_skills.py` keeps them small (≤ 2.5 KB each) and checks
+that every skill they point at exists. The matching mechanical guard for the
+search rule — which also makes every destructive command (`rm -rf`,
+`Remove-Item -Recurse`, `git reset --hard`, …) wait for your approval — is a
+Claude Code hook shipped with
+`safe-execution-edho-ferdian` (`hooks/block-fs-wide-search.js`) — install
+it with `npx eef-install --target claude-hooks --only fs-guard`, or by hand
+per that skill's appendix.
+
+## Usage
+
+Installing gets the skills onto disk; **using** them day to day depends on
+the harness, and mostly needs no explicit invocation:
+
+- **Claude Code, Cursor, Windsurf/Devin** — these support relevance-based
+  auto-loading. Just describe the task normally ("review this PR", "set up
+  a Vite project", "audit SEO on this page"). The harness matches your
+  request against each skill's `description` and loads the matching one's
+  full `SKILL.md` on its own; you don't type a skill name. In Claude Code
+  specifically, you can also force one explicitly with `/skill-name` (e.g.
+  `/code-review-edho-ferdian`) when you want a specific skill rather than
+  whatever the harness picks.
+- **Everything else (AGENTS.md-style harnesses, Copilot, Cline, Kiro,
+  Hermes, ZCode, OpenClaw)** — these read a router file (or a folder of
+  files) in full on every turn and decide from there which `SKILL.md` to
+  open before acting, per the "Other harnesses" section above. Same
+  end result, different mechanism: no manual invocation needed either.
+- **Not sure which skill fits a task, or want to browse what's available
+  first?** [CATALOG.md](CATALOG.md) lists all of them with a one-line
+  purpose and a "use when" — skim it instead of guessing from a folder
+  name in `skills/`.
+- **Agents** (the `agents/`/`dist/agents/claude/` layer) are for delegation,
+  not day-to-day use directly — see "Agent orchestration" above for when a
+  task is substantial enough to hand off to one instead of just using the
+  skill inline.
+- Most skills are self-contained; a few (`dev-kickoff-edho-ferdian`
+  especially) auto-invoke several others mid-task per their own PLAN →
+  IMPLEMENT → REVIEW → VERIFY loop — that's expected, not a sign you
+  triggered the wrong one.
+- **Known limit — SEO audit from pasted snippets.** `seo-audit-edho-ferdian`
+  loads when the site's repo is open or you give it a URL. With the HTML
+  pasted straight into the chat, Claude answers in one turn without
+  loading the skill, and four rewordings of its description have not
+  changed that (`evals/triggers/RESULTS.md`, runs 5–7). For a real audit,
+  open the repo or share the URL, or force it with
+  `/seo-audit-edho-ferdian`.
+
+## Skills
+
+See [`skills/`](skills/) — one folder per skill, each a `SKILL.md` plus a
+`references/` directory. Skill names ending in `-edho-ferdian` are this
+ecosystem's own naming convention, so they don't collide with a
+similarly-scoped skill from any other package you have installed. For a
+browsable index with descriptions and "use when" guidance instead of
+opening each folder, see [CATALOG.md](CATALOG.md).
+
+## Repo layout
+
+```
+.claude-plugin/     plugin.json + marketplace.json (Option D)
+.github/            CI workflow, npm-publish-on-release workflow, FUNDING.yml
+.cursor/, .windsurf/, .devin/, .clinerules/, .kiro/, .zcode/
+                     generated per-harness adapters, see scripts/export_*.py
+AGENTS.md, GEMINI.md generated cross-vendor router files
+CATALOG.md           generated skill+agent index, see scripts/generate_catalog.py
+skills/              source of truth — 38 skill folders
+rules/               always-on baseline rules for Claude Code (claude-rules target)
+agents/, workflows/  canonical sub-agent + multi-agent-workflow definitions (experimental)
+dist/                packaged .skill archives (Option B), one per skill; also dist/agents/opencode/
+bin/eef.js           npm CLI entry point (Option A)
+scripts/             packaging + validation + cross-harness export scripts
+install.sh           installer (macOS/Linux/Git Bash, Option C)
+install.ps1          installer (Windows PowerShell, Option C)
+package.json         npm package manifest (Option A)
+CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md
+```
+
+## Sponsors
+
+EEF is free — sponsoring funds the time to keep porting stacks and closing
+gaps. See [SPONSORS.md](SPONSORS.md) for tiers, or sponsor directly via
+[GitHub Sponsors](https://github.com/sponsors/edhoferdian).
+
+## Enterprise inquiry
+
+Need a custom skill for your team's internal stack, faster response than a
+GitHub issue, or help rolling this out to more than a couple of engineers?
+Open an issue titled "Enterprise inquiry" or email
+edhoferdian31@gmail.com — no fixed package, we figure out what actually
+fits your team.
+
+## Releasing
+
+For maintainers cutting a new version: `python scripts/release.py X.Y.Z
+--summary "..."` runs every step below in order — the bump and the
+CHANGELOG each through their own PR — and stops at the first failure
+(`--dry-run` runs only the preconditions and checks). The steps, if you
+need to do one by hand:
+
+1. Bump `version` in `package.json` (SemVer — MINOR for a new skill/feature,
+   PATCH for a fix, per this ecosystem's own bump rules).
+2. `python scripts/sync_metadata.py` — rewrites the skill/agent count
+   wherever it's quoted in `package.json`, `bin/eef.js`, and both
+   `.claude-plugin/*.json` manifests, so a version bump can't leave one of
+   them stale (a real bug found and fixed 2026-09-16).
+3. Commit on a branch (`release/vX.Y.Z`), open a PR to `main`, let CI go
+   green and merge it — never tag a commit CI hasn't verified.
+4. `git fetch origin` and tag the commit that landed on `main` — with a
+   squash or rebase merge that is a new commit, not the one on the PR
+   branch (`git log origin/main -1`): `git tag vX.Y.Z <commit>` (matching
+   `package.json`'s version exactly) and `git push origin vX.Y.Z`.
+5. `python scripts/generate_changelog.py --notes > notes.md` writes the
+   release notes from the conventional commits since the previous tag;
+   edit them if a summary helps, then
+   `gh release create vX.Y.Z --notes-file notes.md`. Publishing the GitHub
+   Release automatically triggers **[.github/workflows/publish.yml](.github/workflows/publish.yml)**,
+   which runs the CI checks and `npm publish` for you (it also refuses to
+   publish if the tag and `package.json` version don't match, as a
+   last-resort guard).
+6. `python scripts/generate_changelog.py` regenerates `CHANGELOG.md` with
+   the new tag; commit it on a branch and land it through a PR like step 3.
+
+   **Authentication: npm trusted publishing (OIDC) only.** The trusted
+   publisher is configured on npmjs.com (package settings → Trusted
+   Publisher → GitHub Actions: `edhoferdian` / `EEF` / `publish.yml`), the
+   package's Publishing access disallows tokens, and there is no
+   `NPM_TOKEN` secret. If `publish.yml` fails to authenticate, check that
+   trusted-publisher entry (workflow file name, repository) and the job's
+   `id-token: write` permission — do not add a token back.
+
+**Branch protection (active since 2026-10-09).**
+[`.github/rulesets/main.json`](.github/rulesets/main.json) is applied to
+`main` as ruleset "main: CI green, no force push": no force pushes or
+deletion of `main`, and every CI job must pass on a commit that is up to
+date with `main` before it lands. It has no bypass actors on purpose —
+every Claude Code session pushes with the maintainer's own credentials, so
+a maintainer bypass would be a bypass for all of them. To re-create it
+(e.g. on a fork), run
+`gh api --method POST repos/edhoferdian/EEF/rulesets --input .github/rulesets/main.json`.
+In effect:
+
+- A direct `git push origin main` is rejected, because CI only runs on
+  pushes to `main` and on PRs, so a commit can only pass the required
+  checks through a PR. Steps 3 and 6 above already go through PRs.
+- A PR whose branch is behind `main` must be updated (merge or rebase
+  `main` into it) and pass CI again before it can merge, so two sessions
+  cannot land changes that were each tested only against an older `main`.
+- Tags, `gh release create` and
+  [publish.yml](.github/workflows/publish.yml) are unaffected: the
+  ruleset covers the `main` branch only, and publishing runs on the
+  release event against the tagged commit.
+- A required check renamed or added in `ci.yml` must be updated in the
+  ruleset too (`gh api --method PUT repos/edhoferdian/EEF/rulesets/<id> --input .github/rulesets/main.json`),
+  or every PR waits forever for a check that no longer reports.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and required
+checks, including how parallel agent sessions share this repo (each on its
+own branch, landing through a PR). Everyone participating is expected to follow the
+[Code of Conduct](CODE_OF_CONDUCT.md). Found a security issue? See
+[SECURITY.md](SECURITY.md) instead of opening a public issue.
+
+## License
+
+[MIT](LICENSE).
+

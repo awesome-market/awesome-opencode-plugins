@@ -1,0 +1,967 @@
+# Neural Context Protocol
+
+[![CI](https://github.com/kulkarni2u/neural-context-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/kulkarni2u/neural-context-protocol/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![PyPI](https://img.shields.io/pypi/v/neural-context-protocol)
+
+**Bounded, trust-weighted memory for multi-agent systems.**
+MCP-native. Agents share context without replaying full transcripts. Fewer tokens than replaying history: about 1.44x fewer than a sliding window and about 13x fewer than raw replay in the 4-agent coding benchmark. The raw-replay figure is a worst-case floor that grows with turn count — see [Benchmarks](#benchmarks).
+
+-----
+
+## The problem
+
+Most agent memory systems treat context like an append-only log.
+
+Six months of stored memory can cost more tokens on the first message than a brand-new user costs all week. Everything gets re-read at the same weight — a casual remark and a hard compliance rule fight for the same slot. There's little real consolidation, almost no decay, and retrieval usually means "search everything" instead of "pick the few things that matter right now."
+
+The store turns into a landfill. Dilution starts to feel like forgetting.
+
+NCP was built to stop that.
+
+-----
+
+## What NCP is
+
+NCP is an **agent-to-agent communication protocol** for multi-agent systems — and, underneath it, a **memory bus over MCP**. It lets agents talk to each other, hand off work, and build on prior results without replaying transcripts or stuffing prompts.
+
+MCP standardized how a single agent talks to its tools. NCP standardizes how **agents talk to each other**. It exposes one MCP endpoint that every host — Claude, Codex, OpenCode, Copilot, n8n, LangGraph, any Agent Plugins-compliant client, or a custom orchestrator — connects to as a peer. Each agent reads bounded, trust-weighted context, writes durable memory, and sends bounded signals (whispers) to other agents, all through the same protocol.
+
+NCP is a bus, not an orchestrator. The orchestrator still decides *who runs when*; the bus owns *what they know and share*.
+
+| Problem | What NCP does |
+|---------|---------------|
+| No shared channel between turns | One MCP memory bus every host can join |
+| Transcripts grow and get re-read at equal weight | Bounded, scored context per turn |
+| Good work disappears after a turn | Durable memory and decision traces |
+| Multi-agent handoff is brittle | Whispers and shared pipeline memory |
+| All context looks equally credible | Trust scores, drift markers, dissent, calibration |
+| Memory becomes a landfill | Consolidation, feedback calibration, and decay |
+| Token spend does not compound | Reusable, ranked memory across runs and agents |
+| Teams want to use smaller models safely | Better engineered context for cheaper model calls |
+
+-----
+
+## Why a memory bus
+
+In a multi-agent system, the hard problem is not any single model — it is the channel between agents. Without one, every agent is an island: it re-reads context, re-discovers prior decisions, and leaves no reusable signal behind. Handoffs degrade into pasting full transcripts forward.
+
+NCP is that channel. It is a bus, not just a store. Three properties make it one:
+
+- **Bounded reads.** Every agent gets a budget-bounded working context, not the whole history — so the channel scales as turns and agents grow.
+- **Directed signals.** Agents emit whispers to specific peers (handoffs, dissent, drift reports) without broadcasting full state.
+- **Trust-aware transport.** Every message on the bus carries a trust score and drift marker — self-reported, advisory inputs, not runtime-verified truth — so a receiving agent knows how much to believe what it reads. Calibration boosts what actually got used or produced good outcomes, lowers what drew dissent, and lets weak or outdated memory fade.
+
+The payoff compounds at the organization level as **token capital efficiency** — the business value captured per dollar spent on model reasoning. Because work persists as reusable, trusted state instead of being thrown away at the end of each turn, token spend accrues into shared organizational memory rather than resetting: decisions, evidence, outcomes, trust signals, and cost records that future runs, teams, and pipelines draw on. Future agents — including cheaper or smaller models — stand on prior work without replaying the whole history. That does not make NCP a model router or eval platform; it is the context substrate those loops need. The [Benchmarks](#benchmarks) section quantifies the effect.
+
+-----
+
+## Full feature set
+
+Bounded retrieval is the entry point, not the whole story. The mechanisms below work together to keep shared memory small, trustworthy, and self-improving instead of turning into a landfill. Each links to the deeper section further down.
+
+### Token bloat
+
+- **Bounded context assembly** — every turn gets a budget-capped slice of context (conscious + retrieved + whispers), never the full history. See [How agents talk over the bus](#how-agents-talk-over-the-bus).
+- **Write-time noise filtering** — strips ANSI codes, dedups repeated lines, and prunes boilerplate and empty fields before anything is stored. **33% aggregate token reduction** on a fixed noisy-payload benchmark. See [Signal filtering at write time](#signal-filtering-at-write-time).
+- **Fan-in reduction** — dedups near-duplicate claims across parallel workers before they reach a synthesis agent. **13% token reduction** against an unbounded raw dump. See [Fan-in reduction](#fan-in-reduction).
+- **Consolidation** — merges repeated or near-duplicate memory into fewer, stronger entries instead of leaving competing rows. See [Retrieval and self-improving memory](#retrieval-and-self-improving-memory).
+
+### Context quality
+
+- **Trust-weighted retrieval** — blends lexical relevance (BM25), recency, and trust into one score, with penalties for drift and heavily re-derived generations. See [Retrieval and self-improving memory](#retrieval-and-self-improving-memory).
+- **Layered memory** — every chunk is tagged `episodic`, `procedural`, `semantic`, `social`, or `reasoning_trace`, so retrieval can target the kind of memory a turn actually needs. See [Memory layers](#memory-layers).
+- **Graph-aware retrieval and trust propagation** — typed edges (`caused_by`, `supersedes`, `supports`, `contradicts`, `refines`, `derived_from`) let retrieval expand along relationships and let trust credit or debit a cause for what it produced. See [Graph engineering](#graph-engineering).
+- **Domain ontology** (opt-in) — an evidence-backed graph of services, databases, APIs, topics and teams; `ncp_get_context` can append verified, evidence-cited dependency paths, and `ncp_ontology_*` tools answer explicit graph questions. See [the ontology guide](./docs/NCP_ONTOLOGY.md).
+
+### Memory decay and the landfill problem
+
+- **Self-improving calibration** — `ncp calibrate --feedback` boosts chunks that keep proving useful, penalizes chunks that drew dissent, and lets weak or outdated memory decay instead of sitting at full weight forever. See [Retrieval and self-improving memory](#retrieval-and-self-improving-memory).
+- **Outcome-driven trust** — `ncp_record_outcome` ties task success or failure directly to the chunks that informed it, so calibration is grounded in what actually worked, not just what got read.
+- **Procedural self-refinement** — a single named procedure can accumulate outcome evidence and evolve through an explicit, human-gated pipeline, instead of instructions going stale. See [Procedural self-refinement](#procedural-self-refinement).
+
+### Multi-agent coordination
+
+- **Whispers** — short, directed, bounded-TTL signals between specific agents (handoffs, dissent, drift notes) instead of broadcasting full state.
+- **Cross-host handoffs** — one agent hands its task to another host through the same protocol, carrying bounded context forward instead of a transcript. See [Cross-agent handoffs](#cross-agent-handoffs).
+- **Shared pipeline memory** — every host on a `pipeline_id` reads and writes the same bounded, scored context.
+- **Request/reply threads** — a `share`/`request` whisper opens a thread; workers answer with typed `progress` and `result` whispers linked by `in_reply_to`, so a router can match results to dispatches without parsing prose. See [Coordinating many agents from one router](#coordinating-many-agents-from-one-router).
+- **Push delivery** — `ncp_wait_whispers` (long-poll) and `GET /events` (SSE) wake an agent when something is queued for it. Notifications never carry the payload; delivery and acknowledgement still go through `ncp_get_context`.
+- **Task ledger** (opt-in) — durable tasks with leased, fenced claims, heartbeats, checkpoints, retry limits and dedupe keys, so in-flight work survives a router or worker restart. NCP records claims; your orchestrator still decides who runs.
+- **Cross-pipeline overview** — `ncp_overview` gives a router one ranked, token-bounded line per active pipeline (failed tasks, waiting results, expiring claims first) instead of one context call per pipeline.
+
+### Trust and accountability
+
+- **Cryptographic agent identity** — Ed25519 keypairs, with optional signed authorship verified against a registered public key. See [Agent identity and reputation](#agent-identity-and-reputation).
+- **Per-agent reputation** — a Beta-distribution posterior over "produces trustworthy memory," updated from calibration's trust deltas, that can optionally weight retrieval or gate whispers.
+- **Decision traces and precedent** — `ncp_record_decision` captures structured rationale; `ncp precedents` queries past decisions.
+- **Typed decision records** — a decision is a durable object (`choice`, `confidence`, `schema_id`, `state_hash`), not prose to be re-parsed, and `ncp_compile_decision_query` compiles a bounded state packet any decision backend can answer. See [Decision records and compile](#decision-records-and-compile).
+
+### Operability at scale
+
+- **Storage tiers** — start on SQLite with zero extra services, move to pgvector + Redis for durable, cross-machine, multi-process coordination. See [Storage tiers](#storage-tiers).
+- **Cost and drift telemetry** — `ncp cost`, `ncp trust-drift`, `ncp explain`, and a read-only web UI at `/ui` for turn timelines, chunk trust, whisper traffic, and the memory graph.
+- **In-process library API** — drive the same bus directly from an orchestrator via `ncp.api`, no server required. See [Use NCP as a library](#use-ncp-as-a-library).
+
+Scoping note: NCP is the memory bus, not the orchestrator, and not the right default for simple single-agent or very short-lived tasks. See [What NCP is (and isn't)](#what-ncp-is-and-isnt).
+
+-----
+
+## Hosts and plugins
+
+NCP is MCP-native, so any host that can speak MCP can join the bus. Two packages make that concrete for the most common setups. Install whichever matches your client, or both — they point at the same running `ncp serve` instance and don't conflict.
+
+| Package | For | What it adds |
+|---------|-----|---------------|
+| [`claude-plugin/`](./claude-plugin) | Claude Code | Native plugin, installable via `/plugin install`. A `SessionStart` hook health-checks `ncp serve`, can autostart it, and injects the turn contract — including the mandatory subagent dispatch rule — automatically. |
+| [`agent-plugin/`](./agent-plugin) | Any [Agent Plugins 1.0.0](https://agent-plugins.org)-compliant client (Cursor, VS Code/Copilot, Codex CLI's plugin support, and others) | Vendor-neutral `plugin.json` + `mcp.json` + `skills/` package. Same MCP tools and skill guidance as the Claude plugin, without Claude-specific packaging. |
+
+Both declare the same `ncp` MCP server (`http://127.0.0.1:4242/mcp`) and the same tool surface. `claude-plugin/` trades portability for lifecycle automation (autostart, health-check, session-start injection); `agent-plugin/` trades that automation for working unmodified across any spec-compliant client — the Agent Plugins spec has no hook mechanism, so `ncp serve` must already be running, and setup is one step more manual. Each package's README documents its own install steps; the Portable Agent Plugin's also lists known gaps (no stdio transport, no autostart, no built-in auth-header injection) rather than presenting itself as more turnkey than it is.
+
+For Codex CLI, OpenCode, GitHub Copilot, and n8n, see [Quickstart](#quickstart) and the matching `examples/` directory.
+
+-----
+
+## Quickstart
+
+```bash
+pip install neural-context-protocol
+ncp init
+ncp serve --host 127.0.0.1 --port 4242 --cwd /path/to/project
+```
+
+For Claude Code, either install the packaged plugin:
+
+```
+/plugin marketplace add kulkarni2u/neural-context-protocol
+/plugin install ncp@neural-context-protocol
+```
+
+or copy the config by hand:
+
+```bash
+cp examples/06_claude_code/mcp_servers.json .mcp.json
+```
+
+See [`examples/06_claude_code/README.md`](./examples/06_claude_code/README.md) and [`claude-plugin/README.md`](./claude-plugin/README.md).
+
+For Codex CLI, copy [`examples/07_codex_cli/mcp_servers.json`](./examples/07_codex_cli/mcp_servers.json) into your Codex MCP config location.
+
+See [`examples/07_codex_cli/README.md`](./examples/07_codex_cli/README.md).
+
+For Codex CLI and OpenCode, register the same endpoint and copy the host's `AGENTS.md` turn contract — see [`examples/07_codex_cli/README.md`](./examples/07_codex_cli/README.md) and [`examples/09_opencode/README.md`](./examples/09_opencode/README.md).
+
+For GitHub Copilot (VS Code agent mode), copy [`examples/11_copilot/mcp.json`](./examples/11_copilot/mcp.json) to `.vscode/mcp.json` and [`examples/11_copilot/copilot-instructions.md`](./examples/11_copilot/copilot-instructions.md) to `.github/copilot-instructions.md` — see [`examples/11_copilot/README.md`](./examples/11_copilot/README.md).
+
+For n8n, NCP's MCP server must be reachable from your n8n instance with an auth token configured — see [`examples/08_n8n/README.md`](./examples/08_n8n/README.md).
+
+### Portable Agent Plugin (vendor-neutral)
+
+[`agent-plugin/`](./agent-plugin) packages NCP to the open
+[Agent Plugins 1.0.0](https://agent-plugins.org) standard — `plugin.json` +
+`mcp.json` + `skills/` in one directory — so the same package works with any
+compliant client (Cursor, VS Code/Copilot, or any other host implementing
+the spec), not just Claude Code:
+
+```bash
+pip install neural-context-protocol
+ncp init
+ncp serve --host 127.0.0.1 --port 4242 --cwd /path/to/project
+```
+
+Then load `agent-plugin/` with whatever mechanism your client uses to load
+an Agent Plugin directory. It declares one `streamable-http` MCP server
+(`http://127.0.0.1:4242/mcp`) and two skills: `ncp-core` (the per-turn loop
+and tool reference) and `ncp-multi-agent` (whispers, subagent dispatch,
+cross-host coordination). See [`agent-plugin/README.md`](./agent-plugin/README.md)
+for setup details and known gaps (no stdio transport, no session-start
+hook/autostart — both intentional, explained there).
+
+This is a different package from [`claude-plugin/`](./claude-plugin): the
+Claude Code plugin is native-format and installable via `/plugin install`,
+with a `SessionStart` hook that health-checks and can autostart the bus.
+`agent-plugin/` trades that lifecycle automation for portability across
+clients. Install whichever matches your client, or both — they point at the
+same running `ncp serve` instance and don't conflict.
+
+`ncp init` creates `.ncp/config.toml` and a `CLAUDE.md` turn contract in the project root.
+When run interactively, it also detects installed `claude`, `codex`, and
+`opencode` CLIs and asks whether to add the matching NCP hook/setup files.
+
+### Zero-touch setup (route all agent comms through NCP)
+
+For Claude Code, Codex CLI, and OpenCode you can go further than registering
+the server: setup files can start/check the bus automatically and instruct
+every session — and any subagents it dispatches — to use NCP as the
+agent-to-agent channel. For Claude Code, installing the `ncp` plugin (above)
+gets you this automatically; the steps below are the manual-copy equivalent.
+
+```bash
+mkdir -p .claude/hooks .claude/skills/ncp
+cp examples/06_claude_code/settings.json             .claude/settings.json
+cp examples/06_claude_code/hooks/ncp-session-start.sh .claude/hooks/
+cp examples/06_claude_code/skills/ncp/SKILL.md        .claude/skills/ncp/
+chmod +x .claude/hooks/ncp-session-start.sh
+```
+
+The setup files health-check `127.0.0.1:4242/healthz`, start `ncp serve` if
+it's down, and inject the protocol instruction (including the mandatory
+subagent dispatch rule). Codex uses `.codex/hooks.json`; OpenCode uses a
+project plugin at `.opencode/plugins/ncp.js`. Hooks and contracts *instruct*
+hosts to use NCP — they don't *enforce* it; reliable coverage comes from
+registering the MCP tools, the always-loaded instructions, the dispatch
+template, and the session-start nudge together. See
+[`examples/06_claude_code/README.md`](./examples/06_claude_code/README.md),
+[`examples/07_codex_cli/README.md`](./examples/07_codex_cli/README.md), and
+[`examples/09_opencode/README.md`](./examples/09_opencode/README.md).
+
+-----
+
+## How agents talk over the bus
+
+Instead of treating every model call as an isolated chat, NCP assembles a shared working context from three blocks every turn. Each block is a different channel on the bus:
+
+```
+[NCP:CONSCIOUS]     what this agent knows right now
+[NCP:SUBCONSCIOUS]  relevant past, retrieved not replayed
+[NCP:WHISPERS]      bounded signals from other agents
+```
+
+Memory survives restarts. The same runtime serves multiple hosts against the same store. Agents coordinate through bounded whispers without stuffing prompts.
+
+### Concrete example: a 3-agent bugfix on the bus
+
+This is where the memory bus starts paying for itself.
+
+Say you have a 30-module Java monorepo and a bug in `PaymentProcessor.java`. You run three agents on the same `pipeline_id`: `analyzer`, `fixer`, `reviewer`. They never see each other's transcripts — they communicate only through the bus.
+
+`analyzer` reads the file, runs the affected tests, and **publishes** one distilled chunk instead of pasting a full stack trace into the next prompt:
+
+```text
+NPE at PaymentProcessor.java:142.
+root_cause: retryCount is null when payment_method=ACH and customer.tier=trial.
+Guard missing before .intValue() call.
+```
+
+`fixer` does not receive the full transcript. It **reads** bounded context from the bus, retrieves that chunk by relevance, opens `PaymentProcessor.java` fresh with its own tools, applies the null guard, runs the targeted tests, and publishes the outcome:
+
+```text
+Null guard applied at PaymentProcessor.java:142.
+if (retryCount == null) retryCount = 0.
+PaymentProcessorTest.testAchTrialRetry passes.
+```
+
+`reviewer` reads its own bounded context, sees the fix outcome, and **receives** a bounded whisper with the changed file list. If the fix is wrong, it emits a `dissent` whisper directed back to `fixer` with the specific issue — a targeted message on the bus, not a full-history replay.
+
+By turn 20, a raw-replay workflow is dragging old stack traces, earlier tool output, and prior reasoning through every turn. The bus workflow is working from durable shared memory, current task context, and trust-weighted evidence.
+
+### Turn flow
+
+```mermaid
+flowchart TD
+    A["Host calls ncp_get_context"]
+    B["Assembler loads conscious state"]
+    C["Resolve recent refs"]
+    D["Retrieve top relevant chunks"]
+    E["Drain bounded whispers"]
+    F["Assemble bounded context"]
+    G["Host runs provider turn"]
+    H["Host persists durable memory"]
+
+    A --> B --> C --> D --> E --> F --> G --> H
+```
+
+### Architecture
+
+```mermaid
+flowchart LR
+    A["Claude / Codex / OpenCode / n8n / other MCP hosts"]
+    B["ncp serve<br/>HTTP/SSE MCP runtime"]
+    C["Assembler<br/>bounded context + retrieval"]
+    D["SQLite mode<br/>local-first store"]
+    E["pgvector mode<br/>durable memory"]
+    F["Redis<br/>whispers + fetch-session state"]
+
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    C --> F
+```
+
+Every connected agent is a peer on the bus (`A`); `ncp serve` is the transport; the assembler and stores are the bus internals.
+
+-----
+
+## Memory layers
+
+Memory on the bus is not a flat blob. Every chunk carries a required `layer` tag, drawn from a fixed set of five cognitively-named values, so you can filter retrieval by *what kind* of memory you want (`ncp_fetch` takes a `layer` filter, and `ncp status` / `ncp viz` report the distribution).
+
+The valid layers are `episodic`, `procedural`, `semantic`, `social`, and `reasoning_trace`. Four of them are a writer-chosen convention — NCP stores and filters by the tag but does not enforce a meaning, so use them consistently with their usual sense:
+
+| Layer             | Conventional use                                                |
+|-------------------|-----------------------------------------------------------------|
+| `episodic`        | What happened — events, observations, tool results from a turn  |
+| `procedural`      | How to do something — repeatable steps and methods              |
+| `semantic`        | Stable facts and definitions that outlive a single run          |
+| `social`          | Agent-to-agent context — who said what, handoffs, dissent        |
+
+`reasoning_trace` is the exception: it is set automatically — `ncp_record_decision` writes the decision rationale as a `reasoning_trace` chunk. Tagging memory consistently is what lets the bus retrieve "the decision rationale" or "the procedure" rather than just "a recent chunk."
+
+-----
+
+## Trust-aware transport
+
+Most frameworks treat stored context as equally credible. The bus doesn't. Trust is part of the protocol, so a receiving agent always knows how much to believe a message.
+
+Every memory chunk carries a `base_trust` score (derived from its `src` at write time) and a `written_at_drift` marker. Both `base_trust` and `drift_score` are **self-reported, client-asserted advisory inputs** — NCP does not yet compute drift itself. Retrieval scoring discounts chunks written during high-drift periods, and the `CoherenceChecker` reads the per-turn `drift_score` agents report and fires alerts when it crosses threshold. Agents emit `world_check` whispers to report drift back onto the bus. A runtime-computed drift signal is future work — see the [north-star roadmap](./docs/NCP_NORTH_STAR_CAPABILITY_ROADMAP.md) (WI-016).
+
+**Grounded claims (CAP-T2).** By default, `base_trust` for `src="tool_result"`/`"user_verified"` is still just that self-declared `src` string — nothing checks it's backed by anything real. `[identity].require_grounded_high_trust` (opt-in, default `false`) closes that gap: when on, a `ncp_write_memory` call with one of those two highest trust tiers must be *grounded* — either its `evidence_id` resolves to a real, existing chunk, or the write's own noise-filtering auto-produced a `raw_ref` to the unfiltered original. An ungrounded write is not rejected, only demoted: `base_trust` is clamped to the `agent_inferred` ceiling (`0.60`), and the response carries `trust_demoted: true` with a reason. The clamp applies even to an explicit caller-supplied `base_trust`, so the toggle can't be bypassed by asserting a number directly.
+
+```
+ChunkSource:      user_verified | tool_result | agent_inferred | synthesis
+base_trust:       float (0.0–1.0) — advisory weight applied at retrieval time
+drift_score:      float (0.0–1.0) — self-reported coherence signal (advisory; not runtime-computed)
+written_at_drift: float — drift level reported when this memory was written
+```
+
+The effect: each agent receives context ranked by how much it should believe it, not just by recency.
+
+Per-chunk trust is only half the story. Trust on the bus also attaches to *who wrote it* — see agent identity and reputation below.
+
+-----
+
+## Agent identity and reputation
+
+In a multi-agent system, "how much do I trust this message" depends on *who sent it*. NCP gives agents real, cryptographic identities, lets them optionally sign what they write, and tracks a reputation for each one. Reputation is computed and displayed by default; it can also weight retrieval and gate whispers, but only when an operator opts in (CAP-T4 — see below).
+
+**Cryptographic identity.** `ncp identity create` generates an [Ed25519](https://ed25519.cr.yp.to/) keypair; the identity ID is derived from the SHA-256 of the public key, and the secret key is written to a `0700` keystore (`~/.ncp/keys`, or `NCP_KEYSTORE_DIR`). Public keys are registered in the store; keys can be listed and revoked.
+
+```bash
+ncp identity create --label fixer   # prints the new identity_id
+ncp identity list
+ncp identity revoke <identity_id>
+```
+
+**Optional authorship signing.** `ncp_write_memory` and `ncp_emit_whisper` accept an optional `signature` over a canonical `written_by | sha256(content) | pipeline_id` payload; NCP verifies it against the author's registered public key, persists the result, and surfaces a `verified` marker in fetch results and the pidgin wire format. This is **opt-in and off by default**: it is gated behind `[identity].require_signatures`, which defaults to `false`, so unsigned writes still work and authorship is *not* authenticated unless an operator turns enforcement on. With `require_signatures = true`, writes that cannot be verified — including those from revoked identities — are rejected.
+
+**Reputation as a Beta posterior.** Each identity carries a Beta distribution `(alpha, beta)` over "produces trustworthy memory." When `ncp calibrate --feedback` runs, the per-chunk trust changes it computes are rolled up to the chunk's author: trust gains become positive evidence, dissent-driven losses become negative evidence. A `forget` factor decays old evidence so reputation tracks recent behavior, and `gain` scales how fast evidence accrues. The reported score is the posterior mean; confidence rises with the number of observations.
+
+```bash
+ncp reputation             # score, confidence, and observation count per identity
+```
+
+Tune it under `[reputation]` in `.ncp/config.toml` (`gain`, `forget`, `confidence_k`) or via `NCP_REPUTATION_*`. An agent that has repeatedly produced disputed memory earns a lower reputation. Since Sprint 4 that score can also act on the bus — each piece is **opt-in and off by default**:
+
+- **Outcomes as evidence** (CAP-T3) — `ncp_record_outcome` records task success/failure against the chunks (or turn) that informed it; `ncp calibrate --feedback` consumes each outcome exactly once as the primary trust/reputation signal, ahead of the retrieval-count prior (`[retrieval].usage_prior_weight`).
+- **Reputation-weighted retrieval** (CAP-T4) — `[retrieval].reputation_weight` (default `0.0`) blends the author's reputation confidence into chunk trust at ranking time, identically across the SQLite, pgvector, and async pgvector backends.
+- **Whisper gating** (CAP-T4) — `[whispers].min_author_reputation` (default `0.0`) drops whispers from low-reputation authors at drain time. It gates on the *claimed* sender: sender identity is only as strong as `[identity].require_signatures` enforcement, which also stays off by default.
+- **Dissent integrity** (CAP-T5) — a dissent whisper (`ncp_emit_whisper` with `type: dissent`) debits the disputed chunk's trust via `dissent_count`. That count is now deduped per `(chunk_id, identity_id)`: the same identity dissenting against the same chunk repeatedly is a no-op after the first time, not a fresh penalty each call. `[whispers].dissent_min_author_reputation` (default `0.0`) additionally lets an operator require a reputation floor before a dissent counts at all — a below-floor dissent is still recorded (so it doesn't start counting for free once reputation later crosses the floor) but does not debit trust. `record_dissent()` stays fully backward compatible: called without an identity it always increments, exactly as before.
+- **Work memoization** (CAP-C3) — `[memoization].enabled` (default `false`) turns on `ncp_lookup_memo`/`ncp_record_memo`, a signature-keyed memo of completed work. It is lookup-only: NCP surfaces memo hits, misses, and an *estimated* tokens-saved figure in `ncp status`, and the host decides whether a memo lets it skip its own model call.
+
+-----
+
+## Retrieval and self-improving memory
+
+Retrieval on the bus is hybrid multi-signal fusion, not pure recency or pure vector search. `RetrievalPolicy` (`ncp/stores/retrieval.py`) blends three signals with weights that must sum to 1.0:
+
+```
+score = w_lexical · BM25 + w_recency · recency + w_trust · base_trust
+        (defaults 0.5 / 0.3 / 0.2; recency half-life 4h)
+```
+
+Two multiplicative penalties then shape the result:
+
+- **Drift discount** — chunks written while `written_at_drift > 0.3` are scaled by `(1 - drift)`.
+- **Generation decay** — every chunk carries a `generation` integer that increments as it is re-derived; the score is multiplied by `generation_penalty_base ** generation` (default `0.9`), so heavily-rederived memory is naturally demoted in favor of primary sources.
+
+Beyond scoring, retrieval can **expand along `caused_by` edges** — pulling in causally-linked chunks with a decay factor (`[retrieval].edge_expansion`) — and optionally **rerank** with a cross-encoder (`[retrieval].rerank_*`). Semantic vector retrieval (CAP-C4) is **on by default** via the `[embedding]` block, blending embedding similarity into the fusion using a small local model (`provider = "local"`, `fastembed`-backed, no API key). This needs the optional `[local-embeddings]` extra (`pip install 'neural-context-protocol[local-embeddings]'`); if it isn't installed, NCP logs a one-time warning and falls back to lexical-only retrieval instead of failing to start. The local model itself is loaded lazily, on the first embed call rather than at startup, so a cold model download (~130MB on first-ever use) never blocks `ncp serve` startup; if that first download fails or a store's embed call errors out later, NCP logs a warning and disables embeddings for that store for the rest of its lifetime instead of retrying on every write/query. Set `[embedding].enabled = false` to opt out entirely, or `provider = "openai"` to use OpenAI embeddings instead (requires `OPENAI_API_KEY`; missing key or package degrades the same way).
+
+The self-improving loop closes through `ncp calibrate --feedback` (`ncp/stores/calibration.py`): chunks that keep getting retrieved gain trust (`+feedback_weight · min(1, retrievals/10)`), chunks that draw dissent lose it (`-dissent_weight · min(1, dissents/3)`), and a fraction of each net change propagates one hop along `caused_by` to credit or debit the cause. `user_verified` chunks are protected from automatic adjustment. Those same deltas feed the reputation rollup above.
+
+-----
+
+## Procedural self-refinement
+
+`ncp calibrate --feedback` reweights trust on *stored memory* — it never touches the instructions an agent operates under. Procedural self-refinement (`ncp/refine.py`) closes that gap for a narrow, deliberately bounded case: a single named **procedure** — one chunk-sized block of operating instructions, not a whole multi-KB contract file — can accumulate outcome evidence and evolve through an explicit, human-gated pipeline.
+
+```bash
+ncp refine ingest null-guard-rule --content "Always null-check retryCount before calling intValue()."
+ncp refine propose null-guard-rule        # evidence-backed candidate, not yet adopted
+ncp refine apply <candidate_chunk_id>     # adopt it (promotes trust, optional --write-to file)
+ncp refine rollback null-guard-rule       # revert to the prior version (new generation, nothing deleted)
+ncp refine show null-guard-rule --history # walk every version
+```
+
+`ncp refine propose` is deterministic and additive-only: it never edits or removes existing instruction text, only appends deduplicated, frequency-ranked notes drawn from `ncp_record_outcome` failures (no model call). Writing a candidate does not adopt it — it's a new, low-trust chunk linked to its predecessor via `supersedes`. `ncp refine apply` is the human-gated adoption step, reusing the existing CAP-C5 `supersede()` machinery and `calibrate` manual-trust-override rather than duplicating either. `ncp refine rollback` never deletes or rewrites history: reverting writes a *new* generation whose content matches the prior version. Config under `[refine]`: `min_failed_outcomes` (default `3`), `max_bullets` (default `5`), `promote_trust` (default `0.80`).
+
+-----
+
+## Graph engineering
+
+Relationships between memories are first-class graph structure. Chunks are linked via typed directional edges (`caused_by`, `supersedes`, `supports`, `contradicts`, `refines`, `derived_from`), so retrieval and trust propagation can traverse relationships instead of treating memory as a flat scored pool.
+
+At write time, the `edges` parameter on `ncp_write_memory` lets you specify chunk relationships (e.g., `{"dst": "parent_chunk_id", "type": "caused_by"}`). Retrieval can expand up to `[retrieval].edge_max_hops` (default `1`) along `[retrieval].edge_expansion_types` (default `["caused_by"]`), inheriting relevance with per-hop decay. Trust propagation walks edges up to `[retrieval].propagation_max_hops` (default `1`), crediting or debiting causes for effects that proved useful or drew dissent. All defaults preserve legacy behavior exactly.
+
+Export the relationship graph with `ncp graph`:
+
+```bash
+ncp graph --format dot
+```
+
+```
+digraph ncp_graph {
+  "chunk_abc123..." [label="chunk_abc\nepisodic", style=filled, fillcolor="#2e7d32"];
+  "chunk_def456..." [label="chunk_def\nreasoning_trace", style=filled, fillcolor="#f9a825"];
+  "chunk_abc123..." -> "chunk_def456..." [label="caused_by", style=solid];
+  "chunk_ghi789..." -> "chunk_abc123..." [label="supports", style=dotted];
+}
+```
+
+Node fillcolor indicates trust (green ≥0.8, amber 0.5–0.8, red <0.5); edge styles differ by type. JSON export includes stats and per-type edge counts. Add `--as-of <epoch|ISO-8601>` for a point-in-time view of the graph over the bi-temporal columns.
+
+Two further graph capabilities are opt-in: `[graph].infer_edges` (default off) infers `refines` edges between similar chunks at write time with a deterministic similarity ratio — no model calls — marking them `created_by="ncp:inferred"`; and outcome credit recorded via `ncp_record_outcome` propagates along the `caused_by` chain during `ncp calibrate --feedback`, reported as a "via outcome propagation" count. See [the graph engineering plan](./docs/NCP_GRAPH_ENGINEERING_PLAN.md) for the full model, multi-hop semantics, and compatibility details.
+
+Separately from this memory-evidence graph, an opt-in **domain ontology** (`[ontology] enabled = true`, off by default) holds an evidence-backed graph of services, databases, APIs, topics and teams: `ncp_get_context` can append verified dependency paths automatically, and `ncp_ontology_*` tools answer explicit graph questions. Populate it with `ncp ontology scan` (a static exporter that turns a monorepo's build files, CODEOWNERS, deploy manifests and Kafka usage into a reviewable manifest) and `ncp ontology seed` (loads one or more manifests idempotently, every relation evidence-cited, `--prune` to stay in sync); see [Seeding the graph](./docs/NCP_ONTOLOGY.md#seeding-the-graph). Opt-in `infrastructure` schema packs add repos, modules and tables (v2) and queues and exchanges (v3); `ncp ontology wiki` renders a scan for review, `promote` / `demote` turn reviewed candidates into verified facts, `pack` manages custom schema packs and `eval` scores a scan against a golden manifest. See [the ontology guide](./docs/NCP_ONTOLOGY.md), [`examples/13_ontology/`](./examples/13_ontology/README.md) and [its benchmark](./docs/NCP_BENCHMARK_ONTOLOGY.md) (measured on SQLite: fact recall 1.00 against 0.38 at an 800-token budget for about +7 ms p95, and about 20% fewer tokens at matched recall on low budgets; at a fixed 800-token budget it still uses more prompt tokens).
+
+-----
+
+## Signal filtering at write time
+
+The bus is not a compression tool — but a memory bus should carry useful signal, not tool-output boilerplate.
+
+When you call `ncp_write_memory`, NCP runs deterministic noise reduction before storing: it strips ANSI codes, collapses blank-line runs, dedups consecutive duplicate lines, removes tool-output boilerplate (progress bars, timing lines), and prunes null/empty JSON fields. The goal is context quality: stored chunks should be easier for future agents to retrieve, trust, and use.
+
+This is reversible. The unfiltered original is preserved as a low-trust `raw_ref` chunk and retrievable on demand via `ncp_fetch`, so filtering does not destroy auditability.
+
+The filter is conservative. It removes obvious noise where there is structural redundancy and leaves already-dense content mostly alone. On a fixed corpus of representative noisy agent payloads (`chars_div4` token unit), aggregate reduction is **33%** (537 -> 360 tokens), with per-category results:
+
+| Payload category                          | Token reduction |
+|-------------------------------------------|----------------:|
+| Duplicate-heavy logs                      | **68%**         |
+| Null/empty-heavy JSON tool results        | **59%**         |
+| CLI output (ANSI + progress + timing)     | **5%**          |
+| Stack-trace-style blobs                   | **2%**          |
+
+This is deterministic signal filtering, not a model-quality change. See [the compression benchmark doc](./docs/NCP_BENCHMARK_COMPRESSION.md).
+
+-----
+
+## Fan-in reduction
+
+Write-time filtering strips boilerplate from one chunk at a time. It doesn't dedup *across* chunks — and a high-fanout burst (many parallel workers writing overlapping findings into one pipeline) is exactly the case where that matters: without dedup, a synthesis agent's bounded context can end up with several near-duplicate restatements of the same claim instead of that many distinct ones.
+
+`[retrieval].reduce_fanin_enabled` (off by default) adds a deterministic reduction pass to context assembly for this case. When enabled, retrieval overfetches beyond the normal chunk cap, then — within any high-fanout cluster — merges near-duplicate claims down to the highest-trust version (reusing the same clustering `ncp consolidate` uses), drops malformed (empty) candidates, and flags surviving same-topic claims that diverge as contradictions. Contradictions are surfaced as a `note:contradicts` line in the assembled context for the reading agent to reason about; NCP groups and drops duplicates deterministically, but it never resolves a contradiction itself.
+
+```toml
+[retrieval]
+reduce_fanin_enabled = true
+```
+
+On a deterministic 40-worker benchmark, 25% of NCP's own bounded top-k retrieval slots are near-duplicates of another slot in the same result with this off; enabling it merges those away and cuts tokens 13% against an unbounded raw dump of all 40 workers. See [the fan-in reduction benchmark doc](./docs/NCP_BENCHMARK_FANIN_REDUCE.md), including an honest account of the contradiction-flagging heuristic's false-positive rate.
+
+-----
+
+## Decision records and compile
+
+The typed Decision API is an initial implementation in v1.6.1 and remains
+incomplete and under active development. The interfaces below describe what
+is currently available, not a completed Decision API.
+
+Not every slot in a pipeline needs prose. Classify, route, score and choose are
+decisions: the answer is a value from a known set, not a paragraph. NCP stores
+those as first-class objects rather than as a chunk of text to be re-parsed
+later, and can compile the bounded state a decision backend needs to answer
+one.
+
+A `DecisionRecord` carries `schema_id`, `slot`, `choice`, `options`, `probs`,
+`confidence`, `confidence_source`, `backend`, `state_hash` and the evidence
+`chunk_ids` it was compiled from. `rationale` is optional commentary, capped at
+600 characters, and is never the key anything is matched on.
+
+```python
+import ncp
+
+packet = ncp.compile_decision_query(
+    agent=ncp.agent(id="executor", role="implementer",
+                    task="fix-auth", slot="retry-policy", intent="unblock-login"),
+    schema_id="ncp.slot.continue_or_escalate",
+)
+
+if packet["escalate"]:
+    ...  # call a generating model with normal ncp.get_context pidgin
+else:
+    ...  # hand packet["state"] and packet["questions"] to a rule, a JSON-mode
+         # cheap model, a schema-constrained backend, or a person
+```
+
+The packet contains the conscious state plus bounded evidence, the `questions`
+a backend must answer, a `state_hash`, up to three prior decisions over the
+same state, and advisory `joint_confidence` / `contradiction_mass` with an
+`escalate` flag and reasons from a closed set.
+
+Three things NCP deliberately does not do here:
+
+- **It does not choose.** The choice arrives from a backend or a human. NCP
+  compiles the question and persists the answer.
+- **It does not route.** `escalate_reasons` says *why* — `low_joint_confidence`,
+  `high_drift`, `contradiction`, `open_schema`, `critical_budget`,
+  `no_evidence` — and never names a model. Picking the backend is the host's job,
+  same as `tier_hint` has always been advisory.
+- **It does not claim calibration.** `joint_confidence` is a bounded heuristic
+  over evidence trust, contradiction and drift. Outcome-weighted trust is not
+  calibration, and this number is labelled `advisory` in the payload itself.
+
+Everything is additive and gated by `[decisions]`. Existing clients keep
+working: the old `ncp_record_decision` call shape still writes its
+`reasoning_trace` chunk and returns the same fields, and additionally adapts
+into a typed record under `schema_id = "legacy.untyped"`. Two defaults are off
+on purpose — `dual_write_chunks`, because mirroring decisions into the pool
+`ncp_get_context` retrieves from changes ranking and token budgets for
+pipelines that were tuned without it, and `surface_joint_confidence`, because
+adding a line to the injected pidgin changes every turn.
+
+Query typed decisions from the CLI with `ncp precedents --schema-id ... --slot
+...` (also `--state-hash`, `--backend`, `--min-confidence`); with a plain text
+argument the command keeps searching legacy decision traces as before.
+
+**Any harness, not a particular one.** The contract is three calls in order —
+compile, decide, record — over whichever integration surface a host already
+uses: MCP tools, raw HTTP JSON-RPC, or the in-process library. There is no
+preferred orchestrator and nothing to adopt beyond the tools you already call.
+[`examples/12_decision_loop.py`](./examples/12_decision_loop.py) is the loop
+with no framework at all and a pluggable backend, and
+[`examples/03_langgraph/`](./examples/03_langgraph/) shows the same contract
+driven by a real third-party harness.
+
+One integration trap worth knowing before you wire it: `task` is part of the
+state identity `state_hash` covers, so a task string carrying a round counter
+(`"review_round_7"`) is a different state every round and can never match a
+precedent. Name the decision, not the iteration.
+
+`ncp dogfood --loop decision` runs the whole contract end to end with no
+provider calls and reports escalate rate, precedent hit rate and `state_hash`
+stability — use it to tune the thresholds against your own workload instead of
+trusting the defaults.
+
+-----
+
+## Coordinating many agents from one router
+
+A common multi-agent shape is one long-lived **router** that receives events and dispatches **workers** in parallel. NCP gives that router four primitives on the same bus. It still does not schedule anything: your orchestrator decides who runs, and NCP records what is in flight and who is waiting on what.
+
+| Primitive | Tool | What it gives the router |
+|---|---|---|
+| Request/reply threads | `ncp_emit_whisper` with `progress`/`result` and `in_reply_to` | Results matched to the request that caused them |
+| Push delivery | `ncp_wait_whispers`, `GET /events` | Wake on new work instead of polling `ncp_get_context` |
+| Task ledger | `ncp_task` (opt-in) | Durable record of in-flight work, with leases that expire if a worker dies |
+| Overview | `ncp_overview` (needs `profile = "full"`) | One bounded line per pipeline, most urgent first |
+
+```text
+router loop:
+  ncp_wait_whispers(agent_id="router", timeout_seconds=30)   # sleep until something arrives
+  ncp_overview(agent_id="router")                             # which pipelines need attention?
+  ncp_get_context(agent_id="router", pipeline_id=p, ...)      # receive results for pipeline p
+  ncp_task(action="create", assign_to="reviewer", dedupe_key="github:pr/142:review", ...)
+  ncp_record_outcome(turn_id=...)                             # once success is independently verified
+  ncp_post_turn(...)
+
+worker:
+  ncp_task(action="claim", agent_id="reviewer", pipeline_id=p, slot="review")   # returns lease_token
+  ncp_get_context(...) → work → ncp_task(action="heartbeat", lease_token=..., progress={...})
+  ncp_write_memory(finding) → ncp_task(action="complete", lease_token=..., summary=..., result_chunk_ids=[...])
+```
+
+Safety properties:
+
+- **Fenced claims.** Each claim rotates a `lease_token`. A worker whose lease expired cannot heartbeat or complete a task that someone else has since claimed.
+- **Owner-checked results.** A `progress`/`result` whisper that names a `task_id` is rejected unless it comes from the task's current owner.
+- **Self-reported until verified.** `complete` sends a linked `result` whisper but never records an outcome. The router calls `ncp_record_outcome` once it has independent evidence, such as tests passing.
+- **Data, not instructions.** Notifications carry ids only. Task titles, summaries and overview snippets are agent-written text and are rendered as quoted data.
+
+On SQLite, notifications are in-process, and a store poll (`[notify].poll_interval_seconds`, default 2s) picks up whispers written by other processes. With pgvector + Redis they travel over Redis pub/sub. Postgres deployments must apply `018_add_tasks.sql` (`ncp migrate apply`) before enabling `[tasks]`. Full contract: [design doc](./docs/specs/2026-11-02-ncp-coordination-primitives-design.md) and protocol spec §4i–§4k.
+
+-----
+
+## What NCP is (and isn't)
+
+**NCP is the agent-to-agent memory bus and context protocol, not the orchestrator.**
+
+It sits underneath your existing agent framework — LangGraph ([runnable example](./examples/03_langgraph/)), CrewAI, AutoGen, or a custom orchestrator — and gives every connected host the same bounded, trust-weighted working memory. Agents can learn, share, dissent, hand off, and build on prior work without making the orchestrator own all context.
+
+It is not a vector database. Not a model training framework. Not an orchestrator. Not the right default for simple single-agent or very short-lived tasks.
+
+### Host-native memory
+
+Host-native memory is useful for continuity within a host or user's workflow, but its scope varies by provider: it may be machine-local or more broadly synchronized. NCP complements that provider-native continuity with an explicit shared repo/runtime agent-to-agent channel and, with a shared backend, cross-host collaboration.
+
+NCP adds bounded retrieval, provenance, optional authenticated authorship, dissent, graph relationships, and explicit handoff to that shared context. Use it when you have **3+ agents, 10+ turns, and real shared state to preserve**.
+
+-----
+
+## Benchmarks
+
+| Scenario                               | Baseline       | Baseline tokens | NCP tokens | Result     | Caveat |
+|----------------------------------------|----------------|----------------:|-----------:|-----------:|--------|
+| 4-agent coding pipeline (40 turns)     | sliding window | 377             | 261        | **1.44x**  | Closest accounting comparison for a bounded recent-context baseline. |
+| 4-agent coding pipeline (40 turns)     | plain RAG (BM25) | 358           | 260        | **1.38x**  | Token accounting only, at the same 340-token ceiling; says nothing about context quality. |
+| 4-agent coding pipeline (40 turns)     | raw replay     | 3,426           | 261        | **13.13x** | Worst-case floor; the ratio scales with turn count. |
+| 4-agent coding pipeline (40 turns)     | rolling summary| 2,096           | 261        | **8.03x**  | Token accounting only; does not score summary quality. |
+| 6-role research pipeline (36 turns)    | raw replay     | 3,277           | 267        | **12.27x** | Worst-case floor for a deterministic synthetic research trace. |
+| Cross-host handoff (Claude -> OpenCode)| window baseline| 0.0 success     | 0.8 success| **+0.8**   | Local harness with a noise-only control, not a distributed-host reliability study. |
+| Needle recall at budget 4              | sliding window | 0.00            | 1.00       | **+1.00**  | Synthetic budget-stress recall check. |
+| Needle recall at budget 4              | plain RAG (BM25) | 1.00          | 1.00       | **tie**    | Lexical task: any BM25 retriever solves it; shows NCP is not worse than ordinary retrieval, not that it is better. |
+| Task success at matched budget 400 (12 tasks, mock) | sliding window | 0.00 | 1.00 | **+1.00** | Context adequacy with a deterministic mock provider, not live model success. |
+| Task success at matched budget 400 (12 tasks, mock) | plain RAG (BM25) | 1.00 | 1.00 | **tie** | Ties at every budget tried (150-800); mock scoring only checks the fact is present. NCP used fewer tokens at budget 800 (568 vs 783 median). |
+| HotpotQA-style multi-hop QA at matched budget 300 (15 tasks) | sliding window | 0.00 | 1.00 | **+1.00** | Synthetic, HotpotQA-shaped context-adequacy check — not the official HotpotQA dataset or PlugMem's own eval harness (see [the benchmark's README](./benchmarks/hotpotqa_style/README.md)). |
+| HotpotQA-style multi-hop QA at matched budget 300 (15 tasks) | plain RAG (BM25) | 1.00 | 1.00 | **tie** | Plain RAG **beats** NCP at tighter budgets: 1.00 vs 0.60 at budget 150 and 1.00 vs 0.87 at 200. |
+| Conflicting / low-trust memory, true claim ranked first at k=1 (60 tasks) | plain RAG (BM25) | 0.33 | 0.98 | **+0.65** | Claims differ only by value, so BM25 ties; NCP uses trust, supersedes, outcomes and dissent. NCP's one miss per seed is a retrieval ranking issue (a common word outweighs the topical terms), and it loses when the wrong claim is the trusted one (0.00 vs 0.58). Seed 7; NCP is 0.98 on all five seeds tried. See `docs/NCP_BENCHMARK_CONFLICT_TRUST.md`. |
+
+MACE multi-agent coordination score (40 turns): **0.8915**
+
+Coding benchmark token unit: `chars_div4`; context budget: `340`; pass gate: `true`.
+These are deterministic token-accounting benchmarks. The task-success row measures context adequacy at a matched token budget with a deterministic mock provider — whether the needed fact survives into a budget-bounded context (see [the benchmark doc](./docs/NCP_BENCHMARK_TASK_SUCCESS.md)); run it with a live provider to measure real model task success. Provider-real quality-at-matched-budget evaluation lives in `benchmarks/efficacy/` and compares NCP with sliding-window and rolling-summary controls (see [the efficacy benchmark doc](./docs/NCP_BENCHMARK_EFFICACY_LIVE.md)). The matched-budget construction and negation-aware scoring these benchmarks use are also available as a public API — `ncp.eval` — so you can build the same kind of eval against your own scenarios without vendoring `benchmarks/`.
+
+A separate, complementary compression benchmark measures ingestion-time noise reduction on a fixed noisy-payload corpus: **33% aggregate token reduction** (537 → 360, `chars_div4`, pass gate aggregate >= 0.20), ranging from **68%** on duplicate-heavy logs down to **2%** on already-dense stack traces (see [the compression benchmark doc](./docs/NCP_BENCHMARK_COMPRESSION.md)).
+
+A third, complementary benchmark targets the many-parallel-workers-to-one-synthesizer fan-in case: with `[retrieval].reduce_fanin_enabled` off (today's default), **25% of NCP's own bounded top-k retrieval slots are near-duplicates of another slot in the same result** on a deterministic 40-worker/4-topic corpus; enabling it merges the near-duplicates, drops malformed candidates, and flags likely contradictions for the reading model, at a **13% token reduction** against an unbounded raw dump of all 40 workers (see [the fan-in reduction benchmark doc](./docs/NCP_BENCHMARK_FANIN_REDUCE.md) for the full methodology and an honest account of the contradiction-flagging heuristic's false-positive rate).
+
+Plain RAG is BM25 top-k over the raw transcript turns packed into the same token budget, with none of NCP's trust weighting, whispers, distillation or consolidation (`ncp.bench.baselines.PlainRagBaseline`). On the context-adequacy benchmarks above it ties NCP, and on the HotpotQA-style set it beats NCP at budgets of 200 tokens or less; those benchmarks do not exercise the features that distinguish NCP from ordinary retrieval. The conflicting-memory benchmark does: when contradicting claims match the query equally well, NCP ranks the true one first in 0.98 of tasks against 0.33 for plain RAG, with the caveats in its row above. Efficacy mock mode (`benchmarks/efficacy`, budgets 200 and 400) shows the same tie: NCP 1.00, plain RAG 1.00, rolling summary 1.00, sliding window 0.00.
+
+Benchmarks are reproducible:
+
+```bash
+python3 benchmarks/coding_pipeline/run.py
+python3 benchmarks/needle/run.py --turns 24 --needles 6 --budget 4
+python3 benchmarks/task_success/run.py            # mock provider, no keys needed
+python3 benchmarks/task_success/run.py --provider anthropic   # live task success
+python3 benchmarks/efficacy/run.py --provider mock --seeds 2  # context adequacy at matched budget
+python3 benchmarks/compression/run.py             # ingestion-time compression
+python3 benchmarks/fanin_reduce/run.py            # many-workers-to-one-synthesizer fan-in reduction
+python3 benchmarks/hotpotqa_style/run.py          # synthetic HotpotQA-shaped multi-hop QA
+```
+
+-----
+
+## The protocol surface
+
+NCP exposes one MCP endpoint that every agent connects to: `http://127.0.0.1:4242/mcp`
+
+```
+ncp_get_context      — read bounded context for this turn (subscribe)
+ncp_write_memory     — publish durable memory; filters ingestion noise and keeps a reversible raw_ref
+ncp_emit_whisper     — send a bounded, directed signal to another agent
+ncp_post_turn        — persist the turn result and acknowledge consumed whispers
+ncp_remember         — compile raw content into deterministic semantic memory atoms
+ncp_recall           — query compiled semantic memory atoms
+ncp_improve          — consolidate and improve stored memory
+ncp_fetch            — pull additional bounded context mid-turn
+ncp_record_decision  — capture a decision trace, and a typed DecisionRecord when a schema is given
+ncp_get_decision     — read one typed decision by id
+ncp_compile_decision_query — compile a bounded decision packet for any decision backend
+ncp_record_outcome   — attach outcome feedback to chunks, turns, or a decision
+ncp_lookup_memo      — check for reusable completed work by signature
+ncp_record_memo      — store reusable completed work by signature
+ncp_wait_whispers    — block until a whisper is queued for this agent (peeks, never drains)
+ncp_task             — opt-in task ledger: create / claim / heartbeat / release / complete / cancel / get / list
+ncp_overview         — ranked, token-bounded summary across active pipelines (read-only)
+ncp_ontology_*       — opt-in domain graph: capabilities / query / explain / assert / revoke / evidence
+```
+
+The `[tools] profile` setting picks the advertised surface: `core` (5 per-turn lifecycle tools), `standard` (the default: core plus `ncp_record_outcome`, the decision tools and `ncp_wait_whispers`) or `full` (everything). `ncp_overview`, `ncp_remember`, `ncp_recall`, `ncp_improve`, `ncp_task` and the memo tools require `profile = "full"` (`ncp_task` also needs `[tasks].enabled = true`); the six `ncp_ontology_*` tools need `[ontology].enabled = true` and a non-`core` profile. See [the ontology guide](./docs/NCP_ONTOLOGY.md).
+
+The core agent-to-agent protocol is still: read context, publish memory, signal peers, and record outcomes. The memory facade (`ncp_remember` / `ncp_recall` / `ncp_improve`) is an ergonomic layer over the same trust-aware chunks and graph edges.
+
+**Streaming.** `ncp_get_context` accepts `stream: true` and delivers the context blocks progressively — as NDJSON or SSE over HTTP, or as `ncp/stream_chunk` JSON-RPC notifications over stdio — so a host can start consuming context before assembly finishes. The runtime also serves `/healthz`, an `/sse` discovery endpoint, and `/message`, and supports CORS (`--cors-origin`) and MCP protocol-version negotiation across spec versions. A stdio transport is available via `ncp serve-stdio` for hosts that prefer it over HTTP.
+
+By default the server requires no token on loopback (`127.0.0.1`/`localhost`/`::1`). Set `[server].auth_token` in `.ncp/config.toml` (generated by `ncp init`), the `NCP_AUTH_TOKEN` env var, or `--auth-token` on `ncp serve` to require an `Authorization: Bearer <token>` header on `/mcp` and `/sse`. `ncp serve` refuses to start on a non-loopback host unless one of these is set.
+
+`GET /events?agent_id=...&pipeline_id=...` is an SSE stream of payload-free doorbell frames (`ready`, `whisper`, `task`) for long-running orchestrators. It uses the same bearer auth and is capped by `[notify].max_subscribers`.
+
+Each session is capped at 3 `ncp_fetch` calls per turn; in Redis mode that budget is coordinated across processes so the cap holds even with multiple hosts on one pipeline.
+
+-----
+
+## Use NCP as a library
+
+NCP is not only an MCP server — `ncp/api.py` exposes the same runtime as an in-process Python API, so you can drive the bus directly from an orchestrator without standing up a server:
+
+```python
+import ncp
+
+ncp.configure(cwd="/path/to/project")
+fixer = ncp.agent(id="fixer", role="build", task="fix_payment_bug", slot="payment")
+
+context = ncp.get_context(agent=fixer)          # assemble bounded context
+ncp.write_memory(chunk)                          # publish a SubconsciousChunk
+ncp.emit(whisper)                                # send a bounded signal
+response = ncp.run(agent=fixer, turn="apply the null guard")   # assemble + call adapter + post-turn
+for piece in ncp.stream(agent=fixer, turn="..."):  # streamed variant
+    ...
+```
+
+`run` and `stream` go through an adapter (`LocalAdapter` by default) and persist the turn automatically.
+
+The coordination functions live on `ncp.api`: `wait_whispers` and `subscribe` (push delivery), `create_task`, `claim_task`, `heartbeat_task`, `release_task`, `complete_task`, `cancel_task`, `get_task` and `list_tasks` (task ledger, synchronous stores), and `overview`. They return the same results as the matching MCP tools.
+
+-----
+
+## Storage tiers
+
+| Tier           | When to use                                              | Backing             |
+|----------------|----------------------------------------------------------|---------------------|
+| **SQLite**     | Default. Zero extra services.                            | `.ncp/store.db`     |
+| **pgvector**   | Durable semantic retrieval across machines.              | Postgres + pgvector |
+| **Redis**      | Cross-agent coordination, whispers, fetch-session state. | Redis 7             |
+
+Start with SQLite. Add pgvector and Redis when you need richer retrieval or multiple agents coordinating across processes. Semantic vector retrieval is **on by default**, including on pgvector — tune or disable it under `[embedding]` (see Configuration); with embeddings off (or gracefully falling back because `fastembed` isn't installed), pgvector still gives you durable, cross-machine lexical + trust + recency retrieval.
+
+Managed local Postgres + Redis from an installed CLI:
+
+```bash
+pip install 'neural-context-protocol[pgvector,redis]'
+ncp init --store pgvector
+ncp infra up
+ncp serve --host 127.0.0.1 --port 4242 --cwd /path/to/project
+```
+
+Bring your own Postgres + Redis:
+
+```bash
+pip install 'neural-context-protocol[pgvector,redis]'
+ncp init --store pgvector
+ncp migrate apply --cwd /path/to/project
+ncp serve --host 127.0.0.1 --port 4242 --cwd /path/to/project
+```
+
+-----
+
+## Operator commands
+
+```bash
+ncp status      # store and activity metrics
+ncp doctor      # check config, store, migrations, server, agent auth headers and extras (--json)
+ncp cost        # token and USD rollups
+ncp explain     # human-readable runtime summary
+ncp viz         # pipeline visualization
+ncp graph       # export typed chunk relationships as JSON or Graphviz DOT
+ncp trust-drift # trust-drift observability: rising, falling, and feedback summary
+ncp precedents  # query past decisions: 'show me decisions like this one'
+ncp overview    # ranked cross-pipeline summary: failed tasks, waiting results, expiring claims
+ncp consolidate # merge and compact memory
+ncp vacuum      # delete aged rows from append-only tables (--older-than 30d; previews unless --yes)
+ncp forget      # permanently delete specific chunks (--chunk / --agent / --pipeline; previews unless --yes)
+ncp ontology scan # write a seed manifest from a (mono)repo: modules, services, owners, Kafka / SQS / SNS / RabbitMQ / JMS edges
+ncp ontology wiki # render a scan as linked markdown pages for review (--compare, --summary)
+ncp ontology promote # turn reviewed candidate relations into verified ones (also demote)
+ncp ontology pack # list / validate / show custom schema packs
+ncp ontology eval # score a scan against a golden manifest (precision / recall / F1)
+ncp ontology seed # load/sync the opt-in ontology from one or more manifests (--dry-run, --prune)
+ncp calibrate   # recalibrate trust (add --feedback for the self-improvement pass)
+ncp refine      # evidence-backed procedural self-refinement: ingest/show/propose/apply/rollback
+ncp handoff     # cross-agent handoff coordination
+ncp batch       # process a JSONL file of NCP operations
+ncp identity    # create / list / revoke Ed25519 agent identities
+ncp reputation  # per-identity reputation: score, confidence, observation count
+ncp emit        # emit a whisper from the CLI
+ncp demo        # run a self-contained demo pipeline
+```
+
+### Retention and deletion
+
+`ncp vacuum --older-than 30d` trims the append-only bookkeeping tables
+(`cost_log`, `drift_history`, `turn_chunks`, consumed `outcomes`, terminal `tasks`,
+and so on; the newest `conscious_log` snapshot per agent is kept) and never touches
+memory chunks, whispers, identities or decisions. Trimming `cost_log` lowers the spend
+the budget governor reads. `ncp forget --chunk <id>` (repeatable), `--agent <written_by>`
+and `--pipeline <id>` (combined as AND) permanently delete chunks, their `raw_ref`
+backups, edges and turn links, and leave a permanent tombstone so the same `chunk_id`
+cannot be written again. `--pipeline` never matches `scope='global'` chunks, and
+`user_verified` chunks are deleted when you select them. Both commands only preview
+unless you pass `--yes` (or confirm at the prompt on a terminal); `--dry-run` never
+deletes and `--json` emits the counts. Both are supported on SQLite and sync
+pgvector; other backends report that they are not implemented.
+
+Back up the SQLite store with `sqlite3 .ncp/store.db ".backup backup.db"`, or stop
+`ncp serve` first. The store runs in WAL mode, so copying `store.db` alone while the
+server is running can miss recent writes that still sit in `store.db-wal`.
+
+### Web UI
+
+`ncp serve` hosts a read-only memory visualization at
+`http://127.0.0.1:4242/ui`: a per-agent turn timeline with whisper traffic,
+a filterable chunk browser with trust badges, a whisper inbox with TTL
+countdowns, an interactive memory graph (`caused_by`/`supersedes` and typed
+chunk edges), and store/cost stats. Plain HTML/CSS/JS served from the package
+— no build step, no external requests. It reads the `/api/*` endpoints
+documented in [`docs/NCP_HTTP_API.md`](./docs/NCP_HTTP_API.md), which honor
+the same auth token as `/mcp`.
+
+`ncp calibrate --feedback` runs the self-improvement pass: it boosts chunks that
+keep getting retrieved, penalizes chunks that drew dissent, and propagates the
+net trust change one hop along `caused_by` edges so a cause is credited or
+debited for what it produced. Add `--dry-run` to preview. Because this pass
+resets the per-chunk retrieval/dissent counters it consumes, `ncp trust-drift`'s
+"most retrieved" view shows activity since the last calibration, not lifetime
+totals.
+
+-----
+
+## Cross-agent handoffs
+
+Handoffs are first-class on the bus: one agent hands its task to another host through the same protocol, carrying bounded context forward instead of a transcript.
+
+```bash
+ncp handoff claude --cwd /path/to/project --pipeline-id pipe_demo --emit-to opencode
+ncp handoff opencode --cwd /path/to/project --pipeline-id pipe_demo --emit-to claude
+```
+
+-----
+
+## Verify setup
+
+```bash
+ncp status --cwd /path/to/project
+ncp cost --cwd /path/to/project
+ncp explain --cwd /path/to/project
+```
+
+- `ncp status` shows store and activity metrics.
+- `ncp cost` shows token and USD rollups once turns are logged. For provider adapters these are **measured** — actual token usage threaded from the SDK and priced via the `[providers]` table; for the local/mock in-process path they are **estimated** (chars/4) and flagged `cost_source=estimated`.
+- `ncp explain` gives a human-readable runtime summary.
+
+-----
+
+## Configuration
+
+`ncp init` writes `.ncp/config.toml`. Every block below has a default, and most values can be overridden per-run with an `NCP_*` environment variable. The knobs that most affect bus behavior:
+
+| Block            | Controls                                                                                  |
+|------------------|-------------------------------------------------------------------------------------------|
+| `[budget]`       | Context token budget and per-pressure chunk/whisper caps (default → high → critical)       |
+| `[pipeline]`     | Working-set size and GC (`max_working_chunks`, `gc_threshold`, default TTL); eviction is lowest trust/recency first and never removes `user_verified` chunks |
+| `[whispers]`     | Whisper TTL, max per drain, and `min_confidence` to deliver                                |
+| `[retrieval]`    | Signal weights, `generation_penalty_base`, `edge_expansion`, rerank, trust propagation, `reduce_fanin_enabled` |
+| `[embedding]`    | Semantic vector retrieval — on by default (local, no API key); provider, model, graceful lexical-only fallback if `fastembed` is absent |
+| `[reputation]`   | Beta-reputation `gain`, `forget`, `confidence_k`                                           |
+| `[consolidation]`| Similarity threshold, trust floor, and optional LLM model for memory compaction            |
+| `[retention]`    | Hard cap on working chunks per pipeline (`user_verified` chunks are never evicted)         |
+| `[providers]`    | Per-model pricing used by `ncp cost` (configurable)                                        |
+| `[server]`       | `auth_token` for non-loopback binds                                                        |
+| `[notify]`       | Push delivery: `enabled`, `backend` (auto/memory/redis), `max_subscribers`, `max_wait_seconds`, `poll_interval_seconds` |
+| `[tasks]`        | Task ledger (off by default): `enabled`, lease defaults and limits, `default_max_attempts`, `stale_open_seconds` |
+| `[principals.<name>]` | Opt-in authenticated principals: a bearer token (`token_sha256` or `token_env`) bound to an `agent_id`, a `pipelines` allowlist and `admin`/`verify`/`record_outcome` capabilities. See "Principals" in [the HTTP API](./docs/NCP_HTTP_API.md) |
+| `[ontology]`     | Domain ontology (off by default): `enabled`, `packs`, `pack_versions`, `retrieval_mode`, traversal and token ceilings, timeouts, `fail_mode`. See [the ontology guide](./docs/NCP_ONTOLOGY.md#configuration-reference-ontology) |
+
+Pgvector schema changes are managed with versioned, checksummed migrations that support rollback:
+
+```bash
+ncp migrate check    --cwd /path/to/project   # report pending migrations
+ncp migrate apply    --cwd /path/to/project   # apply pending migrations
+ncp migrate rollback --cwd /path/to/project   # roll back the last migration
+```
+
+-----
+
+## Semantic memory layer
+
+A deterministic compiler that ingests raw text, splits it into semantic atoms, and persists them as `SubconsciousChunk` graph nodes connected by `derived_from` edges. No model calls — compilation is pure Python.
+
+```python
+from ncp import compile_memory, remember, recall, improve
+
+# Compile only (no persistence)
+result = compile_memory("Alice likes fast feedback. Bob owns release verification.")
+print(result.source_chunk.chunk_id, len(result.atoms))  # chunks, 2
+
+# Compile + persist
+remember("Trial users need ACH retry guards.", pipeline_id="pipe_demo")
+
+# Query persisted memory
+hits = recall("ACH retry guards", pipeline_id="pipe_demo")
+
+# Consolidate redundant atoms
+improve(pipeline_id="pipe_demo")
+```
+
+**CLI:**
+```bash
+echo "Alice values fast feedback loops." | ncp memory remember --stdin --pipeline-id pipe_demo
+ncp memory recall "fast feedback" --pipeline-id pipe_demo
+ncp memory improve --pipeline-id pipe_demo
+```
+
+**MCP tools:** `ncp_remember`, `ncp_recall`, `ncp_improve` are advertised when the server runs with `[tools] profile = "full"` (not in the default `standard` profile).
+
+-----
+
+## Examples
+
+Runnable examples in the repo:
+
+```bash
+python3 examples/01_quickstart.py
+python3 examples/02_multi_agent.py
+python3 examples/03_langgraph/pipeline.py   # requires: pip install langgraph
+python3 examples/12_decision_loop.py        # typed decision contract, no framework
+```
+
+Tool-specific setup lives in:
+
+- [`examples/06_claude_code/`](./examples/06_claude_code/)
+- [`examples/07_codex_cli/`](./examples/07_codex_cli/)
+- [`examples/08_n8n/`](./examples/08_n8n/)
+- [`examples/09_opencode/`](./examples/09_opencode/)
+- [`examples/10_omnigent/`](./examples/10_omnigent/) — NCP under Databricks' Omnigent meta-harness
+
+-----
+
+## In our own pipelines
+
+NCP is the memory bus. In our workflows, Sarathi is one orchestrator that runs on top of it. Sarathi is an integration example, not a requirement — NCP works under any MCP-compatible host.
+
+-----
+
+## Working on NCP with agents
+
+NCP's own development uses a brain/worker split ([`AGENTS.md`](./AGENTS.md)). The brain is Opus, set as the session model in `.claude/settings.json`; it plans, decides, integrates and commits. It delegates bounded work to the workers in `.claude/agents/`:
+
+| Worker | Model | Use |
+|---|---|---|
+| `vichara` | haiku | read-only research |
+| `pravaha` | sonnet | implementation |
+| `nirnaya` | sonnet | read-only review |
+| `parikshaka` | haiku | test/lint summaries |
+
+When Sarathi orchestrates, it dispatches the same roles. Every worker starts with `ncp_get_context` and ends with `ncp_write_memory`.
+
+-----
+
+## Documentation
+
+- [Setup guide](./docs/NCP_SETUP.md)
+- [Orchestrator integration guide](./docs/NCP_ORCHESTRATOR_INTEGRATION_GUIDE.md)
+- [Protocol spec](./docs/NCP_PROTOCOL_SPEC.md)
+- [HTTP API contract](./docs/NCP_HTTP_API.md)
+- [Context policies (foundation)](./docs/NCP_CONTEXT_POLICY.md)
+- [Router coordination primitives (design)](./docs/specs/2026-11-02-ncp-coordination-primitives-design.md)
+- [Graph engineering plan](./docs/NCP_GRAPH_ENGINEERING_PLAN.md)
+- [Ontology (opt-in domain graph)](./docs/NCP_ONTOLOGY.md)
+- [Benchmark: task success at matched budget](./docs/NCP_BENCHMARK_TASK_SUCCESS.md)
+- [Benchmark: provider-real efficacy](./docs/NCP_BENCHMARK_EFFICACY_LIVE.md)
+- [Benchmark: coding pipeline](./docs/NCP_BENCHMARK_CODING_PIPELINE.md)
+- [Benchmark: needle recall](./docs/NCP_BENCHMARK_NEEDLE_RECALL.md)
+- [Benchmark: matched-budget efficacy](./docs/NCP_BENCHMARK_MATCHED_BUDGET_EFFICACY.md)
+- [Benchmark: research pipeline](./docs/NCP_BENCHMARK_RESEARCH_PIPELINE.md)
+- [Benchmark: ingestion-time compression](./docs/NCP_BENCHMARK_COMPRESSION.md)
+- [Benchmark: fan-in reduction](./docs/NCP_BENCHMARK_FANIN_REDUCE.md)
+- [Benchmark: ontology](./docs/NCP_BENCHMARK_ONTOLOGY.md)
+- [MACE multi-agent eval](./benchmarks/mace/README.md)
+- [North-star capability roadmap](./docs/NCP_NORTH_STAR_CAPABILITY_ROADMAP.md)
+- [Active handoff packet](./docs/NCP_ACTIVE_HANDOFF_PACKET.md)
+- [CHANGELOG](./CHANGELOG.md)
+
+-----
+
+*NCP is MIT licensed. Built by [@kulkarni2u](https://github.com/kulkarni2u).*

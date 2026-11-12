@@ -1,0 +1,151 @@
+# opencode-memory
+
+Durable cross-session memory for [OpenCode](https://opencode.ai) v2. Two scopes — **personality** (cross-project rules and machine facts) and **project** (facts, learnings, guardrails, issue threads) — with deterministic injection, just-in-time recall, auto-captured failures, and an injection audit dashboard in the TUI.
+
+## What it does
+
+- **Personality scope** — operating rules and machine/stack facts that should always be on, in every project. Lives in `~/.config/opencode/memory/`.
+- **Project scope** — this project's durable facts, preferences, decisions, corrections, learnings, and issue threads. Stored in-repo at `.opencode/memory/` so it can be committed and shared with your team (or gitignored to keep private).
+- **Cache-first deterministic injection** — a budget-capped, session-static block is appended to the system instructions once per session (guardrails, corrections, open threads, both scopes, lessons, protocol). Everything that changes during a turn — just-in-time recall, preflight/coach pins, distillation requests — is appended as a small tail at the end of the message list before every model call. Every section and every truncation is logged (no LLM calls in the hot path).
+- **Just-in-time recall** — entries whose files or keywords appear in the conversation surface under `RELEVANT THIS TURN` in the turn tail, even when the always-on budget is full.
+- **Auto-captured failures** — a failed tool call (thrown error or nonzero exit) is recorded without the model doing anything. Repeats coalesce into a guardrail with an error sample and, once fixed, a verified fix.
+- **Enforcement ladder** — `warn` pins a preflight reminder into the next model call's turn tail; `block` rejects a known-failing call before it runs. Genuine success auto-resolves the guardrail; reoccurrence after a fix flips it back to `open` and shows a coach pin.
+- **Issue threads** — multi-turn work opens a thread with affected areas; fixes are verified, regressions flip the thread to `regressed`.
+- **Audit** — see exactly what was injected, when, and why (`/memory` panel); the model can self-evaluate with the `memory_audit` tool.
+
+### Prompt cache
+
+The static block is byte-stable for the whole session, so the provider's cached prefix (tools + system + conversation) survives across model calls. Guardrail churn from failed or fixed tool calls only updates the turn tail — usually a single line — instead of rewriting the prefix. The static block rebuilds only on the first call, after a compaction, or at a new turn boundary when durable memory actually changed. Edits made mid-turn (`memory_set`, `memory_learn`, `memory_issue`, config) appear in the static block on the next user turn; until then, the tool result is the immediate confirmation.
+
+The audit log carries both hashes (`staticHash`, `turnHash`) so cache behaviour is provable: `staticHash` should stay constant unless durable memory changed, while `turnHash` changes when the tail does.
+
+## Install
+
+OpenCode installs straight from git — no npm release needed:
+
+```sh
+opencode plugin add github:lazyhands/opencode-memory        # latest main
+opencode plugin add github:lazyhands/opencode-memory#v0.2.5 # pinned tag (recommended)
+opencode plugin list                                        # verify: RPC + TUI active
+```
+
+Local development uses the checkout directly in `~/.config/opencode/opencode.json`:
+
+```jsonc
+{
+  "plugins": [
+    { "package": "file:/absolute/path/to/opencode-memory" }
+  ]
+}
+```
+
+The first session in a project creates `.opencode/memory/` with the project stores and a `.gitignore` that hides only the runtime audit log.
+
+## Install for AI agents
+
+Using an agent (opencode, Claude Code, …) to set this up? Point it at this repo — these are the instructions it needs:
+
+1. Install: `opencode plugin add github:lazyhands/opencode-memory#v0.2.5` (pin a tag; use `#main` only if the user wants unreleased code).
+2. Confirm the spec landed in the global config (`~/.config/opencode/opencode.json` → `"plugins"`).
+3. If an opencode background service is already running, restart it so the plugin loads: `opencode service restart`.
+4. Verify: the next session shows a `[MEMORY]` block; the `memory_status` tool (or `/memory` in the TUI) confirms it is live. No npm, no build step.
+
+What it gives the user: memory that survives sessions — global personality rules, per-project facts/decisions/corrections under `.opencode/memory/` in their repo, guardrails learned from failed tool calls, and an injection audit dashboard. Enforcement is `warn` by default; blocking is opt-in. The runtime logs (`audit.jsonl`, `guardrails.jsonl`) stay local unless the user commits them.
+
+## Tools
+
+The model gets nine tools. Expected failures come back as typed `[code] message` errors rather than crashing the session; a memory problem never stops the run.
+
+| Tool | Purpose |
+| --- | --- |
+| `memory_set` | Add or replace an entry (`target`, `kind`, `action`, `content`, `old_text`). Enforces routing: project-specific content is rejected from personality. |
+| `memory_read` | List entries for a scope, optionally filtered by `kind`. |
+| `memory_search` | Recall across entries, lessons, threads, and guardrails (BM25-lite, no LLM). |
+| `memory_learn` | Distill a one-line lesson after a success **or** failure. |
+| `memory_forget` | Remove an entry (matched by a unique substring); returns a recovery id. |
+| `memory_restore` | Restore a forgotten entry by recovery id. |
+| `memory_issue` | Open / update / list issue threads with affected areas and a verification command. |
+| `memory_status` | Health report: store usage vs caps, lesson/thread/guardrail counts, injection totals, open issues. |
+| `memory_audit` | Self-evaluation over the injection log: what was injected, how often, what reoccurred, what to consolidate. |
+
+## TUI
+
+- **Sidebar** — plain-language summary: how many memories exist (`6 memories`), whether any were recalled this turn (`6 memories · 2 recalled`), and a red `● N guardrails failing again` line when a known failure reoccurred. Verbosity follows the `tui.sidebar` config field: `compact` (default — one line), `full` (scope breakdown + injection size), or `off` (hidden).
+- **`/memory`** — opens the dashboard panel:
+  - `1` Injections — the session's injection timeline with per-section breakdowns and truncation reasons.
+  - `2` Effectiveness — guardrail/lesson table: injected ×, reoccurred ×, state, mode, and the recorded fix.
+  - `3` Config — every field with its effective value and where the value came from.
+  - Keys: `1`/`2`/`3` tabs · `↑`/`↓` or `j`/`k` select · `b` toggle the selected guardrail between warn/block and inherit · `r` refresh · `f` fullscreen · `esc` close.
+- **`/memory config [path]`** — guided editor: pick a field (searchable) → edit the value → choose project or global scope. Equivalent to editing the JSON files by hand.
+- **`/memory status`**, **`/memory audit`**, **`/memory injections`** — quick toasts and tab jumps.
+
+## Guardrails
+
+1. **Capture** — every failing tool call is fingerprinted (tool + normalized arguments) and recorded; repeats increment a counter and keep the newest error sample.
+2. **Distill** — when the same failure reoccurs with a fix applied, the guardrail becomes `resolved` with `errorSample` and `fix`.
+3. **Preflight** — before each tool call, open guardrails matching tool + arguments are ranked (exact match, resolved fix, frequency). `warn` pins a reminder into the next model call's turn tail; `block` rejects the call outright (the session continues; only that call fails).
+4. **Auto-resolve** — a genuine success on a matching call resolves the guardrail.
+
+Modes are per guardrail (`warn` / `block` / `inherit`) with the global default in `guardrails.mode`. Start with `warn` — it changes nothing about execution. Toggle the selected guardrail in the dashboard with `b`, or via `memory_issue`/config.
+
+## Configuration
+
+Resolution order (first wins): project `<project>/.opencode/memory/config.json` → global `~/.config/opencode/memory/config.json` → this plugin's `options` in `opencode.json` → built-in defaults. `config.example.json` lists every key with its default (a drift test keeps it exact).
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `personalityCharLimit` | int | 1500 | Total char cap for personality entries. |
+| `projectCharLimit` | int | 4000 | Total char cap for project entries. |
+| `perEntryCharLimit` | int | 180 | Max chars for a single entry. |
+| `maxEntryLines` | int | 3 | Max lines for a single entry. |
+| `maxInjectChars` | int | 2400 | Budget for the session-static memory block. The per-call turn tail has its own fixed 800-char cap. |
+| `jit` | bool | true | Just-in-time surfacing of entries matching the conversation. |
+| `learnings.maxIndexTitles` | int | 12 | Lesson titles listed in the snapshot index. |
+| `capture.toolErrors` | bool | true | Auto-capture failing tool calls. |
+| `capture.ignoreTools` | string[] | `[]` | Tools never captured (in addition to built-ins). |
+| `capture.maxRecords` | int | 200 | Cap for captured records. |
+| `guardrails.mode` | string | `"warn"` | Global enforcement mode: `warn` or `block`. |
+| `autoDistillOnCompact` | bool | false | Prompt a distillation pass when the context compacts. |
+| `audit.enabled` | bool | true | Write the injection audit log. |
+| `audit.retentionDays` | int | 30 | Audit retention window. |
+| `protocol` | string | `"full"` | Protocol block verbosity injected into snapshots: `full`, `short`, or `off`. |
+| `tui.sidebar` | string | `"compact"` | Sidebar widget verbosity: `compact`, `full`, or `off`. |
+
+## Files
+
+Project scope (`<project>/.opencode/memory/`): `project.md`, `learnings.md`, `issues.md`, `guardrails.jsonl`, `config.json`, and `audit.jsonl` (runtime log, auto-gitignored); forgotten entries are kept under `recovery/`. The personality scope lives in `~/.config/opencode/memory/` (`personality.md`, `config.json`). All writes are atomic (temp + rename) and reads are cached by mtime; concurrent sessions editing the same entry resolve last-write-wins.
+
+## Troubleshooting
+
+- **Edited the plugin source and nothing changed** — while most config directories hot-reload, arbitrary paths do not: run `opencode service restart` (or restart the TUI). `opencode plugin list` shows whether the plugin is active and which entry points resolved.
+- **RPC methods look "unknown" or the sidebar shows `unavailable`** — a stale server generation is still running: `opencode service restart`.
+- **Two checkouts fight each other** — remove one entry from the `plugins` array in `opencode.json`; a global config entry and the git-installed spec both register the same plugin id.
+- **Worktrees** — a linked `git worktree` resolves to the main worktree root, so all worktrees of a repository share one project memory (by design).
+- **Edited memory mid-turn and the model still sees the old block** — durable edits are deferred to the next user turn so the cached prefix is not rewritten mid-turn. The tool result is the immediate confirmation; send the next message to see it in the block.
+- **Too noisy** — set `guardrails.mode` to `inherit` and toggle individual guardrails, or raise `maxInjectChars`.
+
+## Development
+
+Requires Node ≥ 24 (native TypeScript) and OpenCode v2.
+
+```sh
+npm install
+npm run check   # typecheck (tsc --noEmit)
+npm test        # unit tests (node --test)
+```
+
+CI runs both on every push. The package ships TypeScript as-is (loaded natively by OpenCode and Node ≥ 24) with pinned `@opencode/plugin` internals for the server/TUI adapters; the `src/core/` domain layer is pure and platform-free.
+
+## Releasing
+
+The version lives in three places: `package.json`, `MEMORY_VERSION` in `src/index.ts`, and the newest `CHANGELOG.md` section. To cut a release:
+
+1. Update all three and commit.
+2. Tag the commit: `git tag vX.Y.Z`.
+3. Push the tag: `git push origin vX.Y.Z`.
+
+The tag triggers `.github/workflows/release.yml`: it runs the checks and tests, verifies the tag matches both version pins, and publishes a GitHub release whose notes are the matching `CHANGELOG.md` section. Users install a release with `opencode plugin add github:lazyhands/opencode-memory#vX.Y.Z`.
+
+## License
+
+[MIT](./LICENSE)

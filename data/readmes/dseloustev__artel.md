@@ -1,0 +1,131 @@
+# Artel
+
+> **артель** *(Russian)* — a self-organized crew of craftsmen who take on one job together and
+> answer for the result as a collective.
+
+Artel is an [OpenCode](https://opencode.ai) plugin that packages a **spec-driven,
+autonomous feature-development workflow**: a ticket goes in at one end, a reviewed pull request
+comes out the other, and the pipeline in between runs itself with a **single human approval pause**.
+
+A crew of specialized agents — analyst, researcher, planner, implementer, reviewer, QA, tech
+writer — hands work down the line, leaving a durable spec trail behind:
+
+```
+idea → PRD → vision → plan → tasklist → ⏸ approval → implement → review → docs → PR
+```
+
+## Status
+
+**Released and installable.** See [CHANGELOG.md](CHANGELOG.md) for the release history and
+[Install](#install) below.
+
+The port from the private production setup ([docs/porting-plan.md](docs/porting-plan.md)) has
+landed in full, and artel is validated by use on real projects. A hands-on smoke-test guide for a
+Flutter host is in [docs/testing-flutter.md](docs/testing-flutter.md).
+
+## What ships in the plugin
+
+| Component | What it does |
+|---|---|
+| **Entry points** | `/artel-feature-development` (the one entry point for ticket work: it sizes the work and runs the full, the lean or the bug head, with one approval pause), `/artel-setup` (one-time config interview) |
+| **Stage skills** | Each pipeline stage à la carte: `analysis`, `researcher`, `planner`, `tasklist`, `implementer`, `run-reviewer`, `qa`, `docs-update`, `validate`, `pr-description`, `pr-create`, `figma-analysis`, `generate-idea`/`-vision`/`-tasklist`, `inner-loop`, `sync-phases` |
+| **Ops & utility skills** | `debugging` (root cause before a fix), `collaborative-review` (walk a GitHub PR one file at a time), `init-branch`, `merge-conflicts`, `deep-review`, `issue-draft`, `change-digest`, `address-pr-comment`, `save-context`/`restore-context`, `migrate-specs`, `move-to-worktree`/`return-from-worktree`, `agents-md-generator`, `set-home`, `migrate-prs` |
+| **Session & kartoteka** | `using-artel` (turn-one router, hook-injected), `knowledge` (ask the index), `tasks` (operate the queue) |
+| **Agents** | The crew of 14: analyst, figma-analyst, researcher, planner, task-planner, implementer, reviewer, QA, validator, vision/tasklist/tech writers, issue-scout, collaborative-reviewer |
+| **Hooks** | Quality gates ([hooks/README.md](hooks/README.md)): session baseline, fast per-edit verification, latching verify stop gate, run stop gate, sensitive-path guard, VCS/tracker platform guard, knowledge mirror, session router |
+| **Scripts** | Deterministic gate engines: `scripts/verify.py` (JSON-envelope wrapper over the configured verify commands), `scripts/plan_check.py` (plan-anchor grounding check), `scripts/deep_review.py` (the deep review's pinned target and artifact checker) |
+| **Docs** | Operator guide, skills reference, and the contracts the pipeline obeys (autonomous run, ticket parsing, config, deviation protocol, path conventions) |
+
+Core design properties:
+
+- **Spec trail** — every ticket owns a `specs/.current/<TICKET>/` directory with its artifacts
+  (`idea.md`, `prd.md`, `vision.md`, `plan.md`, `tasklist.md`, `review.md`, `qa.md`, …); phased
+  tickets get `phase-N/` subfolders. With `knowledge.adapter: "kartoteka"`, kartoteka is the spec
+  store: the spec trail lives in its artifact store, not in the repository
+  ([docs/spec-storage.md](docs/spec-storage.md)); `/artel-migrate-specs` moves existing local
+  trails in.
+- **One approval pause** — the pipeline interviews you, drafts the plan, and stops exactly once
+  for a green light; then runs implement → review → docs → PR unattended.
+- **Sized to the work** — the entry point sizes each ticket as a spike, a bug, a bounded change
+  or architectural work, says so with its reasons, and runs the head that size calls for: a
+  question gets an answer, a bug is reproduced before anything is planned, a small change gets a
+  work list instead of a PRD. `--head=` overrides it.
+- **Gates, not vibes** — hooks enforce verification before "done": analyzer/tests must pass,
+  the stop gate latches until evidence exists, sensitive paths are guarded in autonomous mode.
+- **App automation is host-owned** — each project carries its own automation skill and commands
+  for launching, driving and screenshotting the app; artel ships no launcher, no `runtime.*`
+  config and no runtime gate, and points at the host's skill when one is needed.
+- **Tasks with dependencies and routes** — a tasklist task is a block with its files,
+  dependencies, tests and the PRD requirements it implements ([docs/task-grammar.md](docs/task-grammar.md));
+  a task runs once its dependencies are done, and the risky ones — declared by the planner or
+  raised by a sensitive path — get their own review before the next task starts.
+- **Resumable** — re-invoking the same entry-point command resumes an interrupted run.
+
+## Install
+
+Requires **OpenCode 2.x**. From an artel checkout:
+
+```bash
+scripts/install-opencode.sh
+```
+
+Restart OpenCode; every skill is available as `artel-<name>` (TUI: `/artel-<name>`),
+the agent crew as `artel-<name>` subagents, and the quality gates run through a bridge
+plugin. Uninstall with `scripts/install-opencode.sh --remove`. Details and architecture:
+[docs/opencode.md](docs/opencode.md).
+
+Then, in the host repo, run `/artel-setup` (or let the first `/artel-feature-development`
+invocation trigger it) to write `.artel/config.json` — the per-project
+configuration every skill reads ([docs/config.md](docs/config.md)).
+
+## Repository layout
+
+```
+artel/
+├── .opencode/skills/      # repo-local dev skills (bump-version — not shipped)
+├── skills/                # workflow skills (one folder per skill, SKILL.md inside)
+├── agents/                # agent definitions only — one .md per agent, no prose (docs/agents.md)
+├── hooks/                 # Python gate scripts + default sensitive-paths policy
+├── scripts/               # gate engines (verify.py, plan_check.py) + the installer and build step
+├── opencode/plugin/       # the bridge plugin (artel.ts)
+├── tests/                 # stdlib unittest suite for hooks and scripts
+├── docs/                  # operator guide, skills reference, contracts, design doc, porting plan
+├── VERSION
+├── CHANGELOG.md
+└── README.md
+```
+
+## Documentation
+
+Operator-facing:
+
+- [docs/workflow-guide.md](docs/workflow-guide.md) — the narrative guide: which command to
+  reach for, how a full run unfolds, what to do when something stops
+- [docs/skills-reference.md](docs/skills-reference.md) — per-skill lookup table: purpose,
+  invocation, reads/writes, pause behavior
+- [docs/config.md](docs/config.md) — the `.artel/config.json` schema and defaults
+- [docs/testing-flutter.md](docs/testing-flutter.md) — how to smoke-test the plugin on a
+  separate Flutter project
+
+Contracts and internals:
+
+- [docs/design.md](docs/design.md) — what Artel is, architecture, genericization strategy,
+  decision log
+- [docs/agents.md](docs/agents.md) — the crew: what belongs in `agents/`, and what must not
+- [docs/porting-plan.md](docs/porting-plan.md) — phased plan for porting the source material
+  into the plugin
+- [docs/autonomous-run.md](docs/autonomous-run.md) · [docs/ticket-parsing.md](docs/ticket-parsing.md)
+  · [docs/orchestrator-common.md](docs/orchestrator-common.md)
+  · [docs/deviation-protocol.md](docs/deviation-protocol.md)
+  · [docs/code-navigation.md](docs/code-navigation.md)
+  · [docs/path-conventions.md](docs/path-conventions.md) — the rules the pipeline obeys
+- [docs/deep-review.md](docs/deep-review.md) — the deep-review contract: the pinned target, the
+  machine report (schema 1), and the report's metadata, finding IDs and task format
+- [docs/bratishka-duty.md](docs/bratishka-duty.md) — the Bratishka duty contract: config,
+  approval model, testing-PR body and naming, the spawn flow, and the safety rules the
+  `artel-bratishka-*` skills cite
+- [CHANGELOG.md](CHANGELOG.md)
+
+## License
+
+[MIT](LICENSE)

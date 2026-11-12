@@ -1,0 +1,337 @@
+<h1 align="center">🌊 Vibe Coding 与 AI Agent 全景知识库</h1>
+
+<p align="center">
+  <em>用清楚自然的中文讲透原理 · 从 0 到 1 搭建 Agent · 串联 Dify / OpenCode / LangChain / LangGraph / RAG 工程实践</em>
+</p>
+
+<!-- 📖 在线阅读：圆角图标 + 👈 阅读入口 + 明文站址（同一段落，<br> 分隔留白） -->
+
+<p align="center">
+  <a href="https://buffer121328.github.io/vibe-coding-and-agents/">
+    <img src="img/image.svg" alt="在线阅读" width="75" height="75" align="middle" />
+  </a>
+  &nbsp;&nbsp;
+  <b><a href="https://buffer121328.github.io/vibe-coding-and-agents/">👈 点这里开始阅读</a></b>
+  <br><br>
+  <sub><b>📖 在线文档站（全书 17 章 · 190+ 篇）：</b><a href="https://buffer121328.github.io/vibe-coding-and-agents/">https://buffer121328.github.io/vibe-coding-and-agents</a></sub>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/stars/buffer121328/vibe-coding-and-agents?style=social" alt="GitHub Stars" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License" />
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" />
+</p>
+
+> **“There's a new kind of coding I call 'vibe coding', where you entirely give in to the vibes, embrace every AI, and forget that the code even exists... I just see stuff, say stuff, run stuff, and copy paste stuff, and it mostly works.”**
+> —— *Andrej Karpathy (前 OpenAI 联合创始人、前 Tesla AI 总监)*
+
+***
+
+## 📖 项目简介 (About The Project)
+
+欢迎来到 **`vibe-coding-and-agents`** 开源知识库！
+
+本项目是一个**完全开源、面向零基础到进阶开发者的现代 AI 辅助编程与 Agent 智能体全景指南**。
+
+在 2026 年，软件开发的范式正在经历半个世纪以来最深刻的重塑：
+
+- **从“苦力搬砖码农”跃迁为“交响乐指挥官”**：开发者不再需要死记硬背繁琐的语法、分号和死板配置，而是以架构师与产品总监的视角，用自然语言意图（Intent）驱动 AI 进行软件工程创造；
+- **AI 智能体自治闭环**：AI 负责跨文件读写代码、安装依赖、在沙箱中运行测试、自我反思排错；人类负责享受纯粹的创造乐趣！
+
+本项目希望减少技术黑话带来的理解门槛，用**清楚自然的中文、贴近场景的例子、严谨的架构图和可核验的官方资料**，带读者从基本原理逐步走到工程实践。
+
+***
+
+## 🗂️ 知识库完整目录体系 (Table of Contents)
+
+> 📒 完整目录有 130+ 篇，默认折叠。想快速定位适合自己的内容，可直接跳到下一节 [章节导览：按学习路径分类](#-章节导览按学习路径分类-chapter-guide)。
+
+<details>
+<summary><b>📖 点击展开 / 收起完整目录</b></summary>
+
+```text
+vibe-coding-and-agents/
+├── LICENSE                                            # MIT 开源许可证
+├── README.md                                          # 项目介绍与全景目录总纲
+├── agents.md                                          # 智能体协作规则指南 (AI Rules 类似 CLAUDE.md)
+├── 01_发展之路/                                       # 第一章：发展之路（编程演进主线 + 并行支线）
+│   ├── README.md                                      # 第一章导读与演进主线脉络
+│   ├── 01_传统手写代码时代.md                         # 1.1 纯手工打铁与让人秃头的规则
+│   ├── 02_AI代码补全时代.md                           # 1.2 第一个吃螃蟹：Copilot 幽灵文字按 Tab
+│   ├── 03_对话式AI时代.md                             # 1.3 人肉搬运工与上下文割裂
+│   ├── 04_AI原生IDE时代.md                            # 1.4 AI 长进编辑器：理解整个项目
+│   ├── 05_CodingAgent自主编程时代.md                  # 1.5 自带手脚能跑腿排错的实习生
+│   ├── 06_低代码与工作流平台.md                       # 1.6 并行支线：搭积木与动动嘴出 App
+│   └── 07_VibeCoding思维方式与终极演进.md             # 1.7 Vibe Coding 的思维方式与后续发展
+├── 02_概念扫盲/                                       # 第二章：核心概念扫盲
+│   ├── README.md                                      # 第二章导读与全景图谱
+│   ├── 01_软件架构基础.md                             # 2.1 计算机与网络/前端/后端/数据库/中间件/微服务/同步与异步
+│   ├── 02_Git与GitHub极速入门.md                      # 2.2 时光机存盘、GitHub 注册与国内代理配置指南
+│   ├── 03_大模型本质与Transformer.md                  # 2.3 超级文字接龙、高维压缩与自注意力机制
+│   ├── 04_Agent机制与运行原理.md                      # 2.4 Agent 四大支柱与 ReAct 闭环
+│   ├── 05_提示词与上下文工程.md                       # 2.5 Prompt vs Context Engineering，KV Cache 
+│   ├── 06_记忆管理与AgentSkills.md                    # 2.6 人类三大记忆映射、短期滑动窗口与技能安装包
+│   ├── 07_工具调用_MCP与A2A协议.md                    # 2.7 Function Calling 与 MCP 万能接口
+│   ├── 08_RAG知识库与向量存储.md                      # 2.8 开卷参考书模式
+│   ├── 09_MultiAgent多智能体范式.md                   # 2.9 团队作战！监工/流水线/层级/辩论/蜂群五大范式
+│   ├── 10_模型微调与量化技术.md                       # 2.10 SFT/LoRA 深造 vs RAG 选型与量化
+│   ├── 11_Harness工程与Loop工程.md                    # 2.11 赛车底盘与标准化考场 (SWE-bench) + 死循环熔断防护
+│   ├── 12_主流开发框架全景.md                         # 2.12 LangChain、LangGraph、AutoGen、CrewAI 盘点
+│   └── 13_AI时代最值得读的论文和项目.md               # 2.13 代表性论文、DeerFlow、DeepAgents、Skills 与 MCP
+├── 03_脚手架搭建/                                     # 第三章：脚手架搭建
+│   ├── README.md                                      # 第三章导读与全景知识图谱
+│   ├── 01_Python编程核心内功.md                       # 3.1 告别 YES 工程师！Python 核心语法与免费名校宝库
+│   ├── 02_APIKey原理申请与安全防泄露.md               # 3.2 VIP 门禁卡、主流平台申请与 .env 防盗刷铁律
+│   ├── 03_IDE开发环境配置_VSCode与PyCharm.md          # 3.3 VS Code 必备插件天梯榜与 Python 虚拟环境 (venv/uv)
+│   ├── 04_主流Agent工具链下载与配置.md                # 3.4 Trae、Claude Code CLI、Cursor、Cline 安装与调优
+│   ├── 05_Spec驱动开发与OpenSpec实战.md               # 3.5 终结 AI 瞎猜！
+│   ├── 06_Hooks机制_MCP与Skills配置.md                # 3.6 门禁保安 Hooks 机制、mcp.json 配置与技能包挂载
+│   ├── 07_中转上游与代理配置_以Codex为例.md           # 3.7 CC-Switch 极速中转网关、.codex 与环境变量
+│   └── 08_如何选择AI.md                               # 3.8 主流大模型全景评测、6大业务场景与黄金选型矩阵
+├── 04_Dify实战/                                       # 第四章：Dify 实战（低代码与可视化工作流编排）
+│   ├── README.md                                      # 第四章导读与全景知识图谱
+│   ├── 01_Dify核心概念与平台全貌.md                   # 4.1 控制台功能拆解、四大应用形态与核心节点体系
+│   ├── 02_创建工作流与工作室实操.md                   # 4.2 探索工作室、三大创建应用姿势与形态选型指南
+│   ├── 03_模型供应商与工具插件生态.md                 # 4.3 全球模型矩阵、多Key密钥池、5大能力与MCP插件
+│   ├── 04_面必过Chatbot全景架构与状态机设计.md        # 4.4 业务痛点、游乐园手环状态锁、7大会话变量与插件生态
+│   ├── 05_状态锁路由与意图识别分流.md                 # 4.5 JD提取、状态锁If-Else、意图识别Prompt与动态加锁
+│   ├── 06_模拟面试流与多专家技术复盘.md               # 4.6 简历懒加载、Python问答记忆拼接、面试引擎与HTML报告导出
+│   ├── 07_多专家圆桌式简历优化流水线.md               # 4.7 JD匹配+HR审核+内容优化师、圆桌收敛与精修简历HTML
+│   └── 08_工作流调试发布与端到端自测.md               # 4.8 单节点调试、高频避坑清单、发布API集成与Agent节点局限性反思
+├── 05_OpenCode实战/                                   # 第五章：OpenCode 实战（开源终端与多智能体意图编排）
+│   ├── README.md                                      # 第五章导读与全景知识图谱
+│   ├── 01_OpenCode双端下载与主界面设置指南.md         # 5.1 CLI/Desktop 双端安装、主界面拆解与通用提供商设置
+│   ├── 02_高级配置_MCP与Skills及omo_slim实战.md       # 5.2 opencode.jsonc 核心拆解、MCP/Skills 挂载与 omo-slim 实战
+│   ├── 03_极速破冰_意图驱动单文件小工具实战.md        # 5.3 5分钟破冰、单文件免依赖应用规范与赛博木鱼实战
+│   ├── 04_进阶实战_动态交互网页与AI灵感卡片生成器.md  # 5.4 omo-slim 专家协同、高审美 UI 与灵感卡片工坊
+│   ├── 05_极简全栈_FastAPI与SQLite个人博客实战(上).md # 5.5 极简全栈：基建准备与阶段拆分规划
+│   └── 06_极简全栈_FastAPI与SQLite个人博客实战(下).md # 5.6 极简全栈：前后端编码落地与全链路交付
+├── 06_Trae实战/                                       # 第六章：Trae 实战（原生双模驱动与已有项目生产级二次开发）
+│   ├── README.md                                      # 第六章导读与全景知识图谱
+│   ├── 01_初识Trae：双模驱动、新人福利与生产级IDE新范式.md # 6.1 生态优势、新人首月2.5折、Work/Code双模、单文件精准撤销与Solo模式
+│   ├── 02_环境基建与项目导入：在Trae中建立上下文与依赖安装.md # 6.2 工程迁移、uv 依赖同步、CodeGraph 上下文、IDE 扩展与练习
+│   ├── 03_阶段一实战：用户认证与JWT权限隔离系统.md    # 6.3 指挥官思路、Plan交互模式、Bcrypt哈希与JWT角色权限守卫
+│   ├── 04_阶段二实战：评论点赞系统与接口分页重构.md    # 6.4 Solo自主闭环、点赞防刷幂等、楼层评论与Page&PageSize分页重构
+│   ├── 05_阶段三实战：AI原生赋能智能摘要与自动打标.md # 6.5 计划先行思路、OpenAI客户端接入、100字导读提炼与AI批量回填
+│   └── 06_架构演进与目录治理：从SpringBoot三层架构到现代化全栈解耦.md # 6.6 SpringBoot三层思想、AI上帝文件防腐、生产级目录治理蓝图与进阶宝典
+├── 07_Codex实战/                                      # 第七章：Codex 实战
+├── 08_手搓Agent/                                      # 第八章：手搓 Agent（基于智谱 BigModel GLM-5.3-Flash 从零构建）
+│   ├── README.md                                      # 第八章导读、13步路线图与 Gradio 真模型/Mock 运行说明
+│   ├── 01_环境基建与模型接入.md                        # 8.1 智谱 BigModel API (GLM-5.3-Flash) 接入与客户端封装
+│   ├── 02_ReAct思考范式.md                            # 8.2 极简 Thought-Action-Observation 闭环
+│   ├── 03_Plan_and_Execute规划范式.md                 # 8.3 任务清单拆解、Todo 状态机与动态重排
+│   ├── 04_工具注册与分发机制.md                        # 8.4 @tool 装饰器、JSON Schema 生成与分发机
+│   ├── 05_终端执行与代码编辑.md                        # 8.5 Bash 命令执行与 str_replace 精准行替换
+│   ├── 06_权限控制与人类在环.md                        # 8.6 危险指令拦截与 Human-in-the-Loop 交互确认
+│   ├── 07_Hooks生命周期机制.md                        # 8.7 Pre/Post 切面拦截、参数脱敏与审计日志
+│   ├── 08_上下文工程与压缩.md                          # 8.8 Token 预算、结果截断与 /compact 深度摘要
+│   ├── 09_记忆系统与技能挂载.md                        # 8.9 长期记忆提取持久化与 SKILL.md 动态挂载
+│   ├── 10_Subagents子代理协作.md                      # 8.10 上下文隔离、子任务派发与 DeepResearch
+│   ├── 11_会话持久化与多分支管理.md                    # 8.11 SessionStore 存档读档、树状 fork 与断点续跑
+│   ├── 12_可观测性与性能评估.md                        # 8.12 EventBus 事件总线、Token 账单审计与评测套件
+│   ├── 13_综合实战_打造个人MiniAgent.md                # 8.13 Rich 高亮终端、LoopGuard 熔断与整机交付 MiniAgent
+│   └── 14_常见问题与排查指南.md                        # 8.14 常见问题与排障指南：长时间卡住、Gradio排版错乱、环境与权限避坑
+├── 09_LangChain搭建Agent/                             # 第九章：LangChain 搭建 Agent（LCEL 管道流与工业级智能体编排）
+│   ├── README.md                                      # 第九章导读、13步进阶全景路线图与技术雷达
+│   ├── 01_初识LangChain与生态架构.md                  # 9.1 langchain-core 拆分、统一模型工厂与流式/批量调用
+│   ├── 02_Prompt模板与上下文消息流.md                 # 9.2 四大消息模型、ChatPromptTemplate 与 MessagesPlaceholder
+│   ├── 03_LCEL表达式语言与流式调度.md                 # 9.3 管道符 '|'、Runnable 协议族、并行流与 Fallbacks 容灾
+│   ├── 04_结构化输出与容错解析.md                     # 9.4 with_structured_output、Pydantic 强类型与 JSON 修复
+│   ├── 05_自定义工具生态与参数校验.md                 # 9.5 @tool 装饰器、Pydantic 参数防御与 bind_tools 底层机制
+│   ├── 06_记忆管理与会话状态持久化.md                 # 9.6 Checkpointer 短期记忆、Store 长期记忆与 trim_messages 裁剪
+│   ├── 07_Callbacks回调与可观测性中间件.md            # 9.7 BaseCallbackHandler、Token 账单审计（含新版 usage_metadata 兼容）与敏感信息脱敏
+│   ├── 08_RAG核心链路与向量检索增强.md                # 9.8 语义切块、Chroma 向量入库与 LCEL 标准 RAG 检索问答（含国产端点 Embedding 兼容）
+│   ├── 09_Agent现代架构与create_agent.md              # 9.9 现代 Tool Calling Agent、state_schema 自定义状态与 HITL 人类在环
+│   ├── 10_上下文工程与动态上下文注入.md               # 9.10 三类上下文 + 三数据源、动态 Prompt/工具/画像注入（真实调用双场景演示）
+│   ├── 11_自定义中间件与生命周期钩子.md               # 9.11 Node/Wrap 两类钩子、state_schema 与状态更新（熔断/重试真实演示）
+│   ├── 12_生产级防护_护栏安全与测试评估.md            # 9.12 确定性/模型性护栏、PII 脱敏、Prompt 注入防护（真实调用演示）与测试评估
+│   └── 13_综合实战_AI智能数码选购与避坑决策Agent.md   # 9.13 综合实战：SmartBuyer 数码选购参谋，9.1~9.12 全零件融会贯通整机交付（项目已独立：code/smart_buyer/）
+├── 10_LangGraph搭建工作流/                            # 第十章：LangGraph 搭建工作流（意图图编排与多智能体实战）
+│   ├── README.md                                      # 第十章导读：状态图运行时、两套 API 与 16 节路线图
+│   ├── 01_初识LangGraph与状态机.md                    # 10.1 单体 Agent 为何失控，图 / 节点 / 边与超步
+│   ├── 02_State图的构建与运行.md                      # 10.2 交接本 State、reducer、Runtime 上下文与输入输出 Schema
+│   ├── 03_条件路由与动态决策.md                       # 10.3 路由函数、路径表、决策与路由分离、Command
+│   ├── 04_并行执行与Send动态分发.md                   # 10.4 Fan-out/Fan-in、reducer 合并与 Send Map-Reduce
+│   ├── 05_图的可视化与流式调试.md                     # 10.5 Mermaid、stream_mode、v2 StreamPart 与子图透视
+│   ├── 06_Memory与Human-in-the-loop.md                # 10.6 Checkpointer 存档、静态断点与正式驳回
+│   ├── 07_MultiAgent分层架构.md                       # 10.7 主助理转交、状态栈与 Handoffs 入门
+│   ├── 08_工具调用循环与预构建组件.md                 # 10.8 bind_tools / ToolNode / tools_condition 与 create_agent
+│   ├── 09_工作流设计模式.md                           # 10.9 官方五大模式 + Agent：先选型再画图
+│   ├── 10_长期记忆与TimeTravel.md                     # 10.10 Store 跨线程档案、语义检索与回放改道
+│   ├── 11_持久执行与容错.md                           # 10.11 断点续跑、RetryPolicy、超时、缓存与幂等
+│   ├── 12_子图与多智能体全谱.md                       # 10.12 真子图与 Subagents/Handoffs/Skills/Router/Custom workflow
+│   ├── 13_HITL进阶.md                                 # 10.13 interrupt() + Command(resume) 条件拦截与多级审批
+│   ├── 14_FunctionalAPI与两套API选型.md               # 10.14 @entrypoint/@task 与 Graph / Functional API 对照
+│   ├── 15_部署与可观测性.md                           # 10.15 LangGraph Server/Studio/Platform 与观测取舍
+│   ├── 16_综合实战_旅行助手项目.md                    # 10.16 收官实战：旅行助手调度台（雷达 / 审批闸门 / Store 档案）
+│   └── code/                                          # 分节示例 examples（零 Key 直跑+工作台双入口）、图工作台 workbench、Web 层 skills、16 节实战 travel_agent_v2
+├── 11_RAG实战/                                        # 第十一章：现代 RAG 系统（完整生命周期分层 + 问题驱动实战）
+│   ├── README.md                                      # 第十一章导读、全景路线图与技术雷达
+│   ├── 01_RAG完整生命周期分层.md                      # 11.1 数据准备/检索/生成/评估运维四大层次全景，RAG 与微调/长上下文/Agent/LLM Wiki 边界
+│   ├── 02_文档解析清洗与切块.md                        # 11.2 痛点"数据脏乱"：Markdown/HTML/文字层 PDF、编码兜底与去噪清洗、四类切块（含 Lite 落地的标题层级切块与表格保护）、父子切块、MinerU 4.x/Docling、迟切块/上下文检索与 RAPTOR 摘要树
+│   ├── 03_向量嵌入与多模态.md                          # 11.3 痛点"机器不懂语义"：Embedding、三种度量、手写最近邻、MRL 降维与领域 Embedding 微调
+│   ├── 04_向量库与ANN索引.md                           # 11.4 痛点"海量查不快"：HNSW/IVF-PQ、Qdrant 建库与元数据过滤
+│   ├── 05_混合检索与重排.md                            # 11.5 痛点"搜不准搜不全"：手写 RRF、BM25+Dense 混合、Cross-Encoder 选型与微调、上下文编排与可解释检索
+│   ├── 06_查询重写与意图路由.md                        # 11.6 痛点"提问含糊"：HyDE/Multi-Query/Step-Back、结构化意图路由与前沿检索（Search-R1/生成式检索）
+│   ├── 07_知识图谱与GraphRAG.md                        # 11.7 痛点"宏观答不了"：实体关系抽取、社区发现、Global/Local 检索与 LightRAG/HippoRAG 轻量图谱
+│   ├── 08_Agentic_RAG自省自校正.md                     # 11.8 痛点"幻觉与答非所问"：Self-RAG/CRAG/Adaptive RAG、LangGraph 闭环、长期记忆式 RAG 与 Deep Research
+│   ├── 09_评估与可观测性.md                            # 11.9 痛点"无法度量"：RAG 三元组、Ragas、链路可观测与持续治理、RAGChecker 归因、中文基准、RAFT 与 AutoRAG
+│   ├── 10_工业级落地与主流框架选型.md                  # 11.10 选型地图：Dify/飞书Aily/FastGPT/MaxKB 低代码平台 + RAGFlow/LlamaIndex/Haystack/DSPy 框架
+│   ├── 11_迟交互与稀疏检索.md                          # 11.11 检索进阶：ColBERT 迟交互 MaxSim、SPLADE 稀疏学习、ColPali 视觉检索与多库语义调度
+│   ├── 12_生成层防幻觉与引用溯源.md                    # 11.12 生成层：编号引用协议、幽灵引用校验、忠实度复检、拒答兜底与流式生成
+│   ├── 13_工程化部署与安全.md                          # 11.13 生产化：FastAPI/SSE 服务化、三级缓存降本、多租户 ACL、增量更新、Prompt 注入防护与知识投毒/隐私泄露防御
+│   ├── 14_多模态与垂直场景RAG.md                       # 11.14 多模态：三条技术路线、图文混排组合拳、跨语言 BGE-M3、音视频转写、结构化数据(CSV/JSON/Text-to-SQL)与端侧
+│   ├── 15_端到端综合实战_KnowledgeForge_lite.md        # 11.15 总装实战：工牌 ACL + 三路加权 RRF + 证据资格 + Ragas 0.4 评测 + 三栏工作台
+│   └── code/                                           # 配套代码：s02~s14 分节脚本（模型经环境变量可切换）、rag_workbench/ 为 RAG 可视化教学工作台（输入/检索/过程可见）、skills/、KnowledgeForge_lite/ 为 11.15 总装项目
+├── 12_FastMCP搭建MCP服务/                             # 第十二章：FastMCP 全站教程与 MCP 服务实战
+│   ├── README.md                                      # 第十二章导读、原理篇与实战项目入口
+│   └── code/                                          # FastMCP 服务、天气查询与 Sysinternals 诊断项目
+├── 13_PiAgent实战/                                    # 第十三章：Pi Agent 实战与底层原理
+│   ├── README.md                                      # 第十三章导读、学习路线与示例入口
+│   ├── code/                                          # Pi Agent 运行时示例、扩展和原理实验
+│   └── projects/                                      # mini-agent 与 pi-review 随书项目
+├── 14_如何做一个自己的项目/                           # 第十四章：如何做一个自己的项目（个人与应届生 AI 落地实战）
+│   ├── README.md                                      # 第十四章导读与全景知识图谱
+│   ├── 00_什么是生产级Agent项目.md                    # 14.0 生产级七维分水岭、垂直领域深耕与 Demo 针对性迭代
+│   ├── 01_开源选型与二次开发.md                       # 14.1 站在巨人肩膀、开源许可证(MIT/Apache/GPL/AGPL)避坑与二次开发
+│   ├── 02_传统业务AI赋能.md                           # 14.2 电商/CRM/教育/本地生活系统 AI 赋能改造与架构嫁接手术
+│   ├── 03_数据困境与业务深耕.md                       # 14.3 真实数据破局4招、拒绝代码堆叠、Three.js 3D旅行助手惊艳案例
+│   ├── 04_求职与能力进阶.md                           # 14.4 垂直微调(SFT/LoRA)、后训练SLM小模型端侧极致降本与开源PR贡献
+│   └── 05_如何让自己不可替代.md                       # 14.5 AI替代边界、拒绝Yes&Continue、捡起Web基本功与架构容量思维
+├── 15_如何看待AI对时代的意义/                         # 第十五章：技术变化、职业影响与个人选择
+│   ├── README.md                                      # 第十五章导读与全景认知图谱
+│   ├── 01_生产力跃迁与超级个体红利.md                 # 15.1 机械打字员到指挥官、创造力平民化与独立开发者十倍杠杆
+│   ├── 02_结构性阵痛与传统岗位洗牌.md                 # 15.2 机械搬砖岗位挤压、任务消亡vs总需求爆发与拒绝执行末端
+│   ├── 03_从马夫到司机的历史回响_新职业浪潮与进化.md  # 15.3 百年汽车大博弈、照相机/Excel/ATM历史镜像与5大AI新职业浪潮
+│   ├── 04_拒绝焦虑割韭菜_构建AI时代不可替代的护城河.md # 15.4 识别焦虑营销，核查课程价值，积累可迁移能力
+│   └── 05_AI绝不能碰的红线.md                          # 15.5 AI六大红线：安防攻击/伦理道德/暴力违法/造谣造假/数据隐私/学术诚信
+├── 16_如何正确的使用agent工具/                        # 第十六章：如何正确的使用 Agent 工具（认知破局、算清账本与高效驾驭）
+│   ├── README.md                                      # 第十六章导读与全景图谱
+│   ├── 01_认清楚各个AI的界限.md                       # 16.1 概率接龙本质、窗口遗忘、四大形态谱系与人机责任边界
+│   ├── 02_搞清楚各个AI是如何计费的.md                 # 16.2 Token原理、输入/输出/缓存差价、2026官方价格全景表与Agent乘法风暴
+│   ├── 03_到底需不需要订阅CodingPlan和AgentPlan.md    # 16.3 订阅对赌本质与BYOK算账、2026官方价对比、四类人群决策树、隐藏机关与防割指南
+│   ├── 04_国外模型的使用方式.md                       # 16.4 OpenAI/Claude/Grok模型矩阵、纯净节点三铁律、支付门槛与OpenRouter聚合分发
+│   ├── 05_中转站和代充.md                             # 16.5 OneAPI原理、官转/逆向/掺水鉴别、sub2api对齐度检测、代充行情价与防坑自保
+│   ├── 06_如何正确的与AI进行对话.md                   # 16.6 RCCO结构化提问、长会话污染与切会话4大信号、Codex 258k红线与压缩计数、Agent步长控制
+│   └── 07_思考等级与多模型分工_用最便宜的方式把事做对.md # 16.7 规划-执行-审查流水线、思考等级路由、弱执行+强验证与实战组合
+└── 17_面试题/                                         # 第十七章：Agent 开发面试题（内功修炼导向的八大模块体系）
+    ├── README.md                                      # 第十七章导读：为什么专注内功修炼 + Agent 业务场景选型专题说明
+    ├── 01_Python基础.md                               # 17.1 语言机制、工程习惯与 asyncio 在 Agent 循环中的应用（20题）
+    ├── 02_计算机网络.md                               # 17.2 请求的一生、SSE 流式与 Agent API 超时定位（50题）
+    ├── 03_数据结构.md                                 # 17.3 复杂度直觉与工作流 DAG、LRU 上下文管理应用（50题）
+    ├── 04_操作系统.md                                 # 17.4 并发模型、工具执行隔离与沙箱容器化基础（50题）
+    ├── 05_软件工程.md                                 # 17.5 测试交付与"如何 Review AI 生成的代码"（25题）
+    ├── 06_数据库.md                                   # 17.6 索引事务、会话存档与向量库选型（35题）
+    ├── 07_系统设计.md                                 # 17.7 容量估算、多轮对话服务架构与成本取舍（25题）
+    └── 08_Agent专题.md                                # 17.8 概念框架盘点 + 业务场景选型实战：给你一个业务怎么快速搭起来（整理中）
+```
+
+</details>
+
+***
+
+## 🎓 项目状态与后续更新 (Status & Roadmap)
+
+> **本项目是初版，仍在不断完善中。**
+
+目前框架和实战项目已经搭建完成，后续会不断迭代和吸纳新的知识！
+
+> 📢 **提示**：本项目是一个**长期演进、持续更新的活体开源项目**，不会就此完结，会持续不断地更新，欢迎大家共创！
+
+***
+
+## 📂 章节导览：按学习路径分类 (Chapter Guide)
+
+本项目十七个章节看似很多，其实可以按学习路径分成几段，帮大家快速定位适合自己的内容：
+
+> 💡 **一句话看懂全书结构**：上半部「Vibe Coding 实战」（3-7 章）教你如何驾驭 AI 编程工具高效做项目；下半部「Agent 工程」（8-11 章）从底层实现、主流框架编排一直讲到 RAG 知识库工程。先用起来，再懂原理，两条线可以按需取用。
+
+- **01-03｜入门概念（打地基）**：这部分是入门概念，主要是让后续学习时遇到专属名词不陌生，先把"黑话"扫清。
+- **04-07｜主流工具实战（多备几把趁手的刀）**：主流工具的使用，这里建议大家**多学几个**。因为模型厂商的模型在高发期会"降智"，这是没办法避免的事情——算力不够。所以多掌握几个工具，在模型降智的时候能及时切换，不至于卡壳。
+- **08-11｜主流 Agent 框架与知识库工程**：第八章从原生 Python 拆解 Agent 内核，第九章进入 LangChain，第十章进入 LangGraph，第十一章完成 RAG 的完整生命周期、检索增强和生产化落地。四章放在同一条 Agent 工程路径里，便于从机制、框架到项目连续学习。
+- **12-13｜MCP 与 Agent 实战**：第十二章系统学习 FastMCP 服务开发，第十三章进入 Pi Agent 的运行时、扩展和项目实践。
+- **14-16｜对 Agent 与 AI 的思考与高效驾驭**：包含生产级项目、时代变化、AI 工具边界、Token 计费、订阅选型、海外模型访问与提问/会话管理。
+- **17｜Agent 开发面试题**：覆盖 Python 基础、计算机网络、数据结构、操作系统、软件工程、数据库、系统设计和 Agent 业务场景选型。
+
+***
+
+## �️ 学习路径推荐：按时间与目标 (Learning Path)
+
+章节太多不知道从哪开始？不同目标、不同时间预算，对应的最佳路径并不一样。这里给出三条建议，按需取用：
+
+### 🚀 路径一：快速上手（想找实习 / 想快速做出 Agent）
+
+目标：最短时间做出一个**可展示、有业务场景**的项目，撑起简历和面试。
+
+1. **03 脚手架搭建**：先把环境、API Key、工具链配好；
+2. **05-07 选一个**（OpenCode / Trae / Codex 实战）：挑一把趁手的"刀"，熟练驾驭 AI 编程工具；
+3. **08-11 Agent 工程路径**：从底层实现、LangChain、LangGraph 学到 RAG 知识库工程；
+4. **17 面试题**：边学边刷，覆盖八大基础模块和 Agent 业务选型。
+
+学完之后，**去 GitHub 找一个看起来不错的 Demo 进行二次开发**。注意：实习的项目可以 Demo 一点，**但一定要带一些业务场景**，避免假大空——面试官最反感的就是"简历写满、一问全空"的玩具项目。
+
+### 📚 路径二：系统学习（半年以上）
+
+时间充裕，建议**从第一章开始按顺序系统学**，打好地基。
+
+大致节奏：01 发展之路 → 02 概念扫盲 → 03 脚手架搭建 → 04-07 工具实战 → 08-11 Agent 工程与知识库 → 12-13 MCP 与 Pi Agent → 14-16 项目与工具使用 → 17 面试题。
+
+学到 08 章左右，**就可以开始看 17 章的面试题**了，把面试题当作检验学习成果的"镜子"，边学边查漏补缺。
+
+### 🧘 路径三：内功修炼（一年以上）
+
+如果你还有至少一年的时间，我更建议你**注重内功修炼**。记住：**能速成的东西注定是不保值的**——架构能力、审美能力……这些才是我们区别于 AI 的核心资产。
+
+这里给大家一个非常实战的建议：
+
+1. 找一个 **Star 很多、成熟、开源且仍在维护**的项目；
+2. 让 AI 帮助你**理解这个项目的核心功能**（架构、模块划分、数据流）；
+3. 然后你个人指挥 AI，**用另一种语言把它重写出来**（比如 Python 改 TypeScript，或者改 Go）；
+4. 这一个练习练的是你的**架构能力和错误处理能力**，给自己一个月的时间，绝对会比从 0 搓一个 Demo 好得多。
+
+***
+
+## �🙋 项目不足与共创邀请 (Known Gaps)
+
+这个项目大部分是我这大半年来的学习成果。写下教程不仅是对自己的一个回顾，同时也是与小伙伴们交流的过程，期待更多的思想碰撞。
+
+项目和教程均由我本人编写，如有雷同或表述有问题的地方，欢迎大家提 **Issue**。
+
+同时，由于个人储备的原因，本项目在 **模型微调实战** 上仍有欠缺（RAG 部分已完成体系化补充），欢迎有实战经验和项目的朋友帮我补充上去！
+
+***
+
+## 🤝 共同学习，欢迎贡献！(Join Us & Contributing)
+
+一个人可以走得很快，但一群人可以走得更远！**我们非常欢迎大家共同学习、一起进步！**
+
+- **💡 分享改进建议（Ideas）**：如果你有更清楚的例子，或者发现了值得补充的论文与工具，欢迎提交 **Issue** 或 **PR**；
+- **📐 完善开发规范与规则（Rules）**：如果你对不同开发语言（Python / TypeScript / Go / Rust）的 Vibe Coding 规范或 `.cursorrules` 沉淀有独到见解，期待你的分享；
+- **🐛 纠错与优化**：发现任何错别字、链接失效或描述不准确之处，欢迎一键发起 Pull Request！
+
+```bash
+# 参与贡献极简三步走：
+1. Fork 本仓库到你的个人 GitHub
+2. 新建你的分支：git checkout -b feature/awesome-idea
+3. 提交 PR 并描述你的贡献，我会在第一时间审核合并！
+```
+
+***
+
+## 📄 开源许可证 (License)
+
+本项目采用**自定义许可协议**（详见 [LICENSE](LICENSE)）：允许个人学习与非商业使用，**禁止任何形式的商业化使用**。
+
+- **✅ 允许**：个人学习、复制、分享、修改（使用时需保留原作者版权声明与许可全文）
+- **🚫 禁止**：任何形式的商业化使用（商用产品或服务、销售出租、商业部署、获取商业利益等）
+- **📧 商业授权**：如需商业化使用，请联系 <buffer121328@163.com> 获取商业授权
+
+***
+
+**🌊 Happy Vibe Coding! 愿每个人都能在 AI 时代享受创造软件的纯粹快乐！**
+
+***
+
+## 💬 学习交流群
+
+感兴趣的朋友欢迎扫码加入学习交流群，一起交流 AI 编程与 Agent 学习心得。

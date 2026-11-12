@@ -1,0 +1,758 @@
+# OpenCode Android Orchestrator
+
+Reusable OpenCode orchestration for macOS Android projects.
+
+New tasks use an explicit verification boundary: exact test filters, Gradle tasks
+and concrete variants are previewed before proposal approval and sealed with the
+contract. Baseline tests default off; the initial snapshot records no test pass.
+Incremental compiler outputs and build caches are retained. Unknown impact or
+out-of-bound tasks stop execution for replanning instead of widening the scope.
+
+RED and GREEN execute the focused targets. Independent Review reuses valid
+evidence only for the identical candidate. Supplemental regression and explicit
+build tasks run during final verification on the fixed candidate commit; changed
+HEADs require fresh focused tests. A repeated check of the same verified candidate
+reuses sealed checkpoints. Clean is an explicit opt-in, never an automatic retry.
+See [bounded verification](docs/QUEUE.md) for the complete contract and limitations.
+
+Version 1.3.6 adds interrupted
+trial cleanup and fresh restoration acceptance, and retains the fix for the
+status helper. Version 1.3.4 added bounded local
+candidate trials, exact native request binding,
+and durable model process ownership and continuation. It retains the Planner
+and live queue status behavior from 1.3.1.
+Full verification requires a reviewed fallback reason when project capabilities
+exist; existing approvals are preserved.
+
+Version 1.3.0 checks task startup conditions before approval and execution.
+Unstarted tasks wait durably when their workspace becomes unavailable; resolving
+the condition resumes scheduling only within the original approval. Uncommitted
+installation changes require a fresh snapshot. Changes to the exact
+`automation/automation-commit-prefix` path are exempt from dirty-workspace checks.
+
+Version 1.2.3 selects verification tasks from changed source sets and their
+transitive consumers under explicitly approved contracts. Environment recovery
+retries only failed verification steps while preserving candidate-bound evidence.
+The commands below pin version 1.5.0, currently a local, unpublished release.
+Use them after publication; until then use the frozen local-package workflow
+in docs/LOCAL-TRIAL.md for candidate validation.
+See the [changelog](CHANGELOG.md) for release details.
+
+Version `0.2.0` is the first published lifecycle release. Version `0.3.0` adds
+default all-module orchestration and stronger verification contracts. Version
+`0.4.0` adds a validated, exact-path worktree allowlist for intentional local
+changes while retaining the same certified OpenCode compatibility range.
+Version `0.5.0` makes `init` discover real Android debug verification tasks,
+including product flavors, without a separate JSON file and bootstraps the
+human-owned worktree allowlist when it is missing. Version `0.6.0` makes that
+discovery reliable in repositories that enable Gradle Configuration Cache by
+disabling the cache only for the temporary discovery invocation.
+Version `0.7.0` adds repository-configured unit-test and lint verification
+policies, while retaining the configurable 30-minute timeout and bounded
+baseline-capture recovery path. Version `0.8.0` bundles the five workflow
+skills used by the scheduled agents, registers them from the installed npm
+package, and removes the runtime GitHub/Superpowers plugin dependency. Version
+`0.8.1` makes upgrades tolerant of permission-mode drift and preserves
+project-specific `AGENTS.md` content outside the managed marker block. Version
+`0.9.0` discovers Android modules from Gradle's evaluated runtime model, so
+dynamic settings logic and company convention plugins no longer leave modules
+or their focused-test tasks out of generated configuration. Version `0.10.0`
+adds a user-maintained commit-message prefix that is read automatically for
+each task commit and blocks task startup until the required value is filled.
+
+Version `1.0.0` separates interactive planning from a durable background task
+queue. New installations configure `inPlaceExclusive` + `humanApproval`;
+task drafts inherit the repository's configured workspace and commit policies
+unless they explicitly override them. Fixed-directory tasks may use
+`autoCommit`. Optional isolated worktrees allow independent tasks to proceed.
+V8 contracts in 1.1.0 may explicitly approve isolated automatic local integration
+and bounded planning refresh; see [V8 continuity](docs/QUEUE.md#v8-isolated-integration-and-planning-refresh-110). Every queued
+execution requires approved compilation/test evidence and independent Review. All
+completion and recovery paths remain local and never push.
+Version `1.0.2` also allows queue-owned OpenCode shell commands to use a
+separate process group while preserving Worker ancestry checks. Version `1.0.1`
+bounds Planner snapshot output for large repositories. The
+initial snapshot returns only the target branch and fixed commit; path discovery
+and file content use bounded cursor pages tied to that commit. Version `1.0.5`
+adds structured test-case contracts and rejects RED evidence contaminated by
+preserved-behavior, fixture, build, missing, skipped or undeclared failures.
+
+## Documentation
+
+- [Queue and background execution](docs/QUEUE.md) — intake, scheduling,
+  workspace/commit policies, acceptance, pause, capacity and recovery.
+- [Migration guide](docs/MIGRATION.md) — choose the correct path for the
+  `0.1.0` scaffold, a manually copied V3 setup, or a manifest-managed install.
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — diagnose CLI failures, resource
+  drift, OpenCode discovery, blocked tasks, and recovery evidence.
+- [Security model](docs/SECURITY.md) — trust boundaries, approval guarantees,
+  file/Git protections, retained evidence, and residual risks.
+- [Third-party notices](THIRD_PARTY_NOTICES.md) — runtime, peer, bundled
+  derivative, and development-only dependency relationships and licenses.
+
+## Requirements
+
+- macOS with Node.js/npm for `npx` or the packaged CLI;
+- OpenCode `1.14.22` or `1.15.13` for a certified configuration (the declared
+  compatibility range is `>=1.14.22 <1.16.0`);
+- a Git-backed Android Gradle project with `settings.gradle[.kts]` and an
+  executable `gradlew`;
+- `git`, `jq`, `rg`, `shasum`, and Java on `PATH`;
+- an Android SDK resolved from `ANDROID_HOME`, `ANDROID_SDK_ROOT`, or
+  `local.properties` `sdk.dir`.
+
+Run lifecycle commands from the project root or a directory below it. Use a
+clean branch and preserve an independent backup before the first installation,
+even though the installer maintains its own verified recovery data.
+`init` configures Gradle once with a temporary read-only init script and
+explicitly disables Configuration Cache for that invocation, so the project's
+normal Gradle configuration and dependency resolution must succeed. Normal
+project builds retain their configured cache behavior.
+
+## Quick start
+
+```sh
+npx @frankzhang2026/opencode-android-orchestrator@1.5.0 init .
+$EDITOR automation/automation-commit-prefix
+npx @frankzhang2026/opencode-android-orchestrator@1.5.0 doctor .
+opencode --agent scheduled-planner .
+```
+
+New installations use all-module scope by default. Every detected Android
+module's `src/main`, `src/test`, and `src/androidTest` trees can be included in
+a task contract without selecting a primary module. To intentionally restrict
+generated contracts to one module, opt into primary-module scope:
+
+```sh
+npx @frankzhang2026/opencode-android-orchestrator@1.5.0 init . \
+  --module-scope primary \
+  --primary-module :mobile
+```
+
+In all-module scope, `--primary-module` is optional and only chooses the
+default module used by the focused-test placeholder; it does not narrow which
+detected modules may be modified.
+
+Since `0.5.0`, the same plain `init .` command automatically builds
+`gradleVerification` from tasks that Gradle actually registers. Standard
+unflavored tasks are collapsed to portable selectors such as
+`testDebugUnitTest`, while flavor-specific application tasks remain exact
+module paths. The preferred application's matching flavor is placed first for
+the generated focused-test example; all discovered debug flavors remain in the
+full verification matrix. Version `0.6.0` runs this configuration-phase query
+with `--no-configuration-cache`, avoiding false empty results after a previous
+cacheable `help` invocation. Version `0.9.0` also queries every evaluated
+project through `pluginManager` and reads registered task names without
+realizing the full `tasks --all` report. This makes Gradle authoritative for
+dynamic includes, custom `projectDir` logic, and convention plugins.
+`--gradle-verification-config` remains available only for an intentional
+nonstandard policy override and is not part of the normal quick start.
+
+For an existing manifest-managed installation whose generated module/task
+lists are incomplete, refresh all derived Gradle data in one upgrade:
+
+```sh
+npx @frankzhang2026/opencode-android-orchestrator@1.5.0 upgrade . \
+  --refresh-gradle-discovery
+```
+
+The refresh updates `androidProject.modules`, production/test paths, protected
+build files, and all five Gradle task groups together. Without the flag,
+upgrade preserves an intentionally customized task matrix. The explicit
+refresh is also allowed on an already installed `0.10.0` when the evaluated
+Gradle model has changed; an unchanged refresh remains byte-idempotent.
+
+### Bundled workflow skills
+
+Version `0.8.0` ships namespaced derivatives of the five Superpowers v6.2.0
+workflows that Orchestrator actually uses:
+
+- `android-orchestrator-brainstorming`
+- `android-orchestrator-writing-plans`
+- `android-orchestrator-test-driven-development`
+- `android-orchestrator-systematic-debugging`
+- `android-orchestrator-verification-before-completion`
+
+The plugin's compatible `config` hook registers their package-local directory
+with OpenCode. Project configuration therefore pins only the exact
+Orchestrator package. There is no `using-superpowers` bootstrap, runtime GitHub
+fetch, localhost brainstorming server, browser launcher, remote image, or
+telemetry path. Once npm has installed the Orchestrator package, skill
+discovery itself is offline.
+
+An upgrade reconstructs `opencode.json`/`opencode.jsonc` from the verified
+pre-install backup. The old exact Superpowers v6.2.0 reference disappears only
+when an earlier Orchestrator installation added it; a reference that already
+existed before Orchestrator was installed remains user-owned and is preserved.
+See the [migration guide](docs/MIGRATION.md) for the exact boundary.
+
+### Configurable unit-test and lint verification
+
+Verification policy lives in `automation/config.json`:
+
+```json
+{
+  "unitTestsEnabled": true,
+  "lintEnabled": false
+}
+```
+
+Unit-test verification is enabled by default. Queued execution requires
+`unitTestsEnabled: true`; disabling it blocks consumption while intake remains
+available. Legacy non-queue Shell tasks retain the old opt-out behavior. The mandatory TDD RED evidence step is
+unchanged. Android lint is disabled by default; setting `lintEnabled` to `true`
+runs the discovered `lintTasks` in those gates. Assemble, scope, evidence, and
+required device-test checks are unaffected by either flag.
+
+Discovery preserves missing lint or device-test capabilities as empty task
+arrays. Installation accepts these when they are not required. Enabling lint
+without a discovered lint task fails configuration validation, and approving a
+device-test contract without device tasks is rejected before execution. The
+managed AGENTS instructions use the configured full-unit-test task matrix.
+
+New development installations persist a versioned `androidProject.capabilities`
+snapshot from evaluated Gradle source sets, registered verification tasks, and
+project dependencies. Custom Java/Kotlin/resource roots and manifests replace
+fixed `src/main` assumptions. Android-reachable JVM libraries are included;
+unrelated JVM projects are excluded. Every discovered local Test task and
+production assemble variant remains in the full matrix, including non-Debug
+variants and Android consumers of a changed JVM library. This deliberately uses
+whole-project verification, not a minimal reverse-dependency scheduler.
+
+The snapshot is shared by installation, doctor and Shell validation. Source
+paths and module identities must agree, and full-test/build gates cannot omit
+snapshot tasks. Generated, external, symbolic-link and overlapping production/
+test roots are rejected. The model describes registered DSL source sets; it does
+not prove coverage for disabled variants or generated/custom plugin sources.
+Nested Gradle roots and composite builds are not supported by this increment.
+Existing installations retain their old path/matrix rules on upgrade; a new
+snapshot requires fresh discovery and reviewed regeneration.
+
+These two booleans, `commitMessagePrefixMode`, and the bounded queue policies
+are the operator-editable exceptions in the otherwise managed configuration. Change their values in
+place and commit the file before
+starting orchestration. Doctor accepts these policy changes and a later
+upgrade preserves them. Do not reformat or edit unrelated generated fields.
+Legacy installations without the fields receive `true` for unit tests and
+`false` for lint during upgrade.
+
+### Automatic commit-message prefix
+
+Automation configuration schema V5 adds this repository policy:
+
+```json
+{
+  "commitMessagePrefixMode": "required"
+}
+```
+
+`required` is the default. During `init` or `upgrade`, the plugin creates
+`automation/automation-commit-prefix` only when it does not already exist. The
+initial file contains comments but no value, so installation or upgrade still
+succeeds while new task startup remains blocked. Edit it once and put the
+current company text on exactly one non-comment line, for example:
+
+```text
+本周研发批次
+```
+
+The plugin reads that file automatically; it never asks for the value on each
+commit. A successful task commit becomes, for example,
+`本周研发批次 Implement Add profile validation (TASK-123)`, and an abort
+recovery commit receives the same current prefix. Change the one line whenever
+the company text changes; the next plugin-created commit uses the new value.
+
+The prefix file is human-owned, excluded from the 52 managed-file hashes and
+from task diffs, evidence, automated staging, and plugin-created commits, and
+preserved by upgrade and uninstall. Set `commitMessagePrefixMode` to `disabled`
+only when repository policy explicitly does not require a prefix. This setting
+governs commits made by the orchestrator; use a repository Git hook if manually
+created commits must also be enforced.
+
+### Managed long-command timeout
+
+The plugin raises direct managed lifecycle commands such as `claim-task.sh`,
+`approve-and-run.sh`, quality/review verification, recovery, and integration
+to at least `1800000` milliseconds (30 minutes). It never shortens a larger
+timeout supplied by the caller and does not alter unrelated Bash commands.
+
+Configure a different bounded value during installation or upgrade:
+
+```sh
+opencode-android-orchestrator init . --long-command-timeout-ms 3600000
+opencode-android-orchestrator upgrade . --long-command-timeout-ms 3600000
+```
+
+The accepted range is `120000` through `7200000` milliseconds. Upgrade
+preserves an installed value; installations before `0.6.1` receive the
+30-minute default. Apart from the two verification-policy booleans, generated
+`automation/config.json` fields remain managed, so use the lifecycle option
+instead of editing the timeout directly.
+
+### Allow intentional local worktree changes
+
+`init` automatically creates `.automation-worktree-allowlist` in the Git
+repository root when it is missing. An existing regular file is preserved
+byte-for-byte. If one or more files must stay locally modified while
+orchestration runs, edit the generated file as a normal text file:
+
+```text
+# One exact repository-relative file path per line
+local/operator-note.txt
+config/developer-overrides.json
+```
+
+Blank lines and lines beginning with `#` are ignored. Entries must be exact
+file paths; directory entries and glob patterns are rejected. The control file
+itself is automatically ignored by orchestration, so it does not need a
+`.gitignore` rule merely to pass preflight.
+
+The file is bootstrapped but intentionally not part of the 52 managed-resource
+hashes, so human edits do not create installation-integrity drift. Planning
+remains read-only, and a file newly created by `init` is removed if that
+installation later rolls back. Upgrade and uninstall preserve the file as
+human-owned project configuration.
+
+Allowlisted tracked, untracked, and staged changes do not block startup and are
+excluded from task scope, diff hashes, acceptance/abort evidence, and
+deterministic commits. Existing staged entries remain staged instead of being
+consumed by task or recovery commits. A rename has two paths, so both the old
+and new exact path must be listed if the whole rename should remain local.
+Protected orchestration, Gradle, Git, and planning paths cannot be allowlisted.
+Use this only for files that the task must not modify; remove an entry before
+starting a task that should change that file. The list is snapshotted when the queued task prepares its workspace, so edits made during a running task apply to the next task.
+Task status exposes the effective snapshot to Coder and Reviewer sessions; an
+isolated task worktree receives an empty effective list so task-local edits are
+never hidden by source-worktree exclusions.
+
+The install transaction manages 52 project-local paths:
+
+| Resource group | Count | Installation behavior |
+| --- | ---: | --- |
+| Scheduled agents, commands, and skills | 11 | Copy exact audited templates. |
+| Deterministic automation Shell files | 29 | Copy exact templates with `0755` modes. |
+| Schemas and plan authoring guide | 3 | Copy fixed supporting resources. |
+| Inventory validator, evaluator, Gradle collector, recovery and project model | 5 | Copy protected verification resources. |
+| Android automation config and task example | 2 | Generate from detected modules. |
+| `AGENTS.md` and OpenCode JSON/JSONC | 2 | Merge bounded content without replacing unrelated settings. |
+
+After installation or upgrade, fill the required commit-prefix file before
+starting `scheduled-planner`; preflight rejects a missing, comments-only,
+multi-value, oversized, or symbolic-link prefix file. Then use the planner's
+interactive flow.
+The `/acceptance <TASK-ID>`, `/resume-task <TASK-ID>`,
+`/resume-review <TASK-ID>`, and `/abort-task <TASK-ID>` commands are
+recovery/re-entry points; they do not replace the required fresh approval
+controls. `/resume-task` is limited to one baseline-only retry and rejects any
+product diff or existing baseline/downstream evidence. The workflow never
+pushes and does not register Scheduler or launchd jobs.
+
+## Status
+
+Version `0.1.0` was an early scaffold without a working installer. Version
+`0.2.0` introduced the complete managed lifecycle, `0.3.0` added all-module
+defaults and stronger verification contracts, and `0.4.0` adds the bounded
+worktree allowlist described above. Version `0.5.0` added automatic registered
+Gradle-task discovery and safe allowlist bootstrapping during `init`; version
+`0.6.0` makes discovery independent of the target project's Configuration
+Cache setting, `0.6.1` adds configurable long-command timeouts plus bounded
+baseline-interruption recovery, and `0.7.0` makes unit-test and lint gates
+repository-configurable. Version `0.8.0` moves the five required workflow
+skills into the npm package and removes their external plugin dependency.
+Version `0.9.0` makes Gradle's evaluated module model authoritative, and
+`0.10.0` adds the required user-maintained commit prefix and task-start gate.
+
+The cross-version plugin entry, OpenCode version doctor, Android/Gradle project
+discovery, audited V4 OpenCode/configuration resources, and all deterministic
+V3 Shell transactions are implemented. Read-only planning now renders project-relative automation
+configuration and a focused task example from the detected Android modules.
+Safe, comment-preserving OpenCode JSON/JSONC merge planning is also implemented.
+The installation transaction foundation now creates verified pre-install
+backups and a versioned SHA-256 manifest. Read-only conflict analysis and the
+installation-plan conflict gate are also implemented. The `init` command now
+installs and verifies the complete project-local resource set. The read-only
+`doctor` command now verifies the installed toolchain, manifest, resources,
+permissions, backups, and configuration. The `upgrade` command now replaces
+only unchanged managed resources, carries original pre-install backups
+forward, and restores the complete previous installation if verification
+fails. The `uninstall` command now restores unchanged original files, removes
+unchanged plugin-created files, and retains any content, permission, or
+deletion drift for manual review.
+
+Implemented checks include:
+
+- OpenCode `1.14.22` and `1.15.13` certification, with guarded support for
+  versions in the declared `>=1.14.22 <1.16.0` range
+- Git root and Gradle settings discovery from the project root or a module
+  directory
+- project name, Kotlin/Groovy DSL, Android namespace/application ID,
+  multi-module, custom `projectDir`, version-catalog plugin aliases, and Gradle
+  Wrapper detection
+- one-pass, marker-bounded Gradle task discovery for unflavored and flavored
+  debug unit, build, lint, and connected-device verification tasks, with unit
+  and lint execution controlled independently by repository policy
+- a plugin compatibility boundary restricted to API fields and hooks shared
+  by both certified OpenCode versions
+- package-local registration of five namespaced workflow skills, with the
+  required supporting files and upstream MIT license/provenance
+- project-independent templates for the three V4 agents, five commands, and
+  three scheduled-quality skills
+- all 29 automation Bash files with their `0755` modes; scope and test-change
+  gates consume detected source-set paths instead of a fixed module name
+- a portable automation configuration source, both Schemas, contract example,
+  plan guide, and bounded AGENTS managed block
+- adaptive configuration for every detected Android module, default
+  all-module task paths, opt-in primary-module restriction, exact protected
+  build files, production/test source sets, and a namespace-aware focused-test
+  placeholder
+- removal of the legacy Scheduler dependency and all local absolute paths from
+  shipped templates
+- read-only `opencode.json`/`opencode.jsonc` merge planning that preserves
+  existing fields, comments, plugin order, and plugin options while adding
+  only the fixed Orchestrator reference
+- conflict guards for malformed or ambiguous configuration, duplicate plugin
+  packages, different managed-plugin references, and symbolic links
+- a fail-closed installation preparation transaction that records package
+  version, source, strategy, desired SHA-256/size/mode, and original-file
+  backup metadata in `.automation-plugin/manifest.json`
+- backup-before-manifest publication, stale/tampered plan rejection, backup and
+  installed-file integrity reporting, installed-state completion, and guarded
+  rollback of a prepared transaction
+- read-only conflict reports with existing and desired hashes, sizes, modes,
+  source, and strategy; installation planning fails closed before any write
+  when `copy`/`generate` content or an existing file mode would be changed
+- a write-capable `init` transaction that installs 52 managed files, preserves
+  Shell executable modes, merges OpenCode JSON/JSONC and one bounded AGENTS
+  block, bootstraps the optional human-owned worktree allowlist when missing,
+  and is byte-idempotent for an unchanged installed version
+- write-before-complete verification using the 46-case automation suite and a
+  read-only shadow run; any failure restores original files before reporting
+  the error
+- an installation-aware, read-only doctor that authenticates the 52-file
+  inventory against packaged templates, separates content and permission
+  drift, verifies original-file backups, and semantically checks the OpenCode,
+  AGENTS, adaptive Android, and task-example configuration
+- a fail-closed `upgrade` transaction that rejects managed-file or original
+  backup drift, preserves the first installation's recovery state, records an
+  immediate pre-upgrade snapshot and history, restores obsolete user files,
+  reruns both post-write verifiers, and rolls the whole old version back on
+  failure
+- a transactional `uninstall` that validates the installed manifest, restores
+  verified first-install originals, removes only exact managed-file matches,
+  retains content, permission, and deletion drift, records recovery/history
+  evidence, and automatically restores the installed state on pre-commit
+  failure
+
+The installation planners deliberately avoid filesystem writes. The adaptive planner blocks
+ambiguous primary-module selections only in `primary` scope, as well as paths
+outside the Git root. Nested builds require an authoritative capability snapshot:
+initialize from the selected directory, for example `init /path/to/repo/android`.
+Managed resources and Git/queue operations remain at the repository root;
+Gradle, test collection and SDK lookup use the selected build root. Source and
+contract paths remain repository-relative. Doctor and upgrade from the Git root
+reuse the persisted selection, including explicit Gradle discovery refresh.
+An isolated worktree resolves the same relative build path in its own checkout.
+Sibling builds are not discovered or executed; composite builds remain unsupported.
+The transaction layer writes only installer control state and recovery
+evidence until `init`, `upgrade`, or `uninstall` explicitly applies a validated
+plan.
+
+## Adaptive template planning
+
+```js
+import {
+  planAdaptiveProjectTemplates,
+} from "@frankzhang2026/opencode-android-orchestrator";
+
+const plan = planAdaptiveProjectTemplates("/path/to/android-project", {
+  moduleScope: "all", // optional; this is the default
+  primaryModule: ":mobile", // optional focused-test default in all mode
+});
+
+console.log(plan.automationConfigContent);
+console.log(plan.taskContractExampleContent);
+```
+
+The returned JSON contains repository-relative paths only. This API plans
+content in memory; it does not create or modify target-project files.
+
+## Conflict policy
+
+`detectInstallationConflicts` is read-only and returns conflicts sorted by
+target path. Missing files and files whose content and effective mode already
+match are safe. Existing `copy`/`generate` files with different content are
+conflicts, as is any requested mode change. `planInstallationPreparation`
+enforces the same policy and throws `FILE_CONFLICT` before creating installer
+control state; there is no silent-overwrite option.
+
+The `merge` strategy permits a content difference only when the caller has
+already produced the desired content with a structure-aware merge planner,
+such as the OpenCode JSON/JSONC merger. It preserves the existing mode by
+default, and an explicit mode change still conflicts. Backup preparation then
+rechecks the planned original hash, size, and mode to close the gap between
+conflict analysis and the first write.
+
+## Installation preparation transaction
+
+`planInstallationPreparation` snapshots every managed path in memory.
+`prepareInstallationBackup` then verifies that the plan is unchanged, writes
+original files below `.automation-plugin/backups/<installation-id>/`, verifies
+their hashes and modes, and only then publishes a `prepared` manifest. A caller
+may mark it `installed` only after every desired file matches the manifest.
+`rollbackPreparedInstallation` restores originals and removes newly created
+files only when their hashes still match a safe prepared state.
+
+This API is the transaction foundation used by `init`. Callers must not treat
+preparation alone as resource installation;
+`applyInstallationPlan` performs the guarded write and completion transaction.
+
+## Init
+
+```sh
+npx @frankzhang2026/opencode-android-orchestrator@1.5.0 init .
+$EDITOR automation/automation-commit-prefix
+opencode --agent scheduled-planner .
+```
+
+All detected modules are enabled by default, including multi-application
+projects. Use the restrictive mode only when a task contract must stay within
+one module:
+
+```sh
+opencode-android-orchestrator init . \
+  --module-scope primary \
+  --primary-module :mobile
+```
+
+Before writing, `init` requires a compatible OpenCode version, a Git-backed
+Android Gradle project, an executable Gradle Wrapper, `git`, `jq`, `rg`,
+`shasum`, Java, and an Android SDK directory from `ANDROID_HOME` or
+`ANDROID_SDK_ROOT`. It then:
+
+1. when no override was supplied, configures Gradle with a temporary `0600`
+   init script, disables Configuration Cache for that invocation, and derives
+   both Android module metadata and the verification matrix from the evaluated
+   runtime project;
+2. renders project-specific configuration and plans both safe merges;
+3. rejects all unresolved content or mode conflicts;
+4. creates a comment-only `.automation-worktree-allowlist` when missing while
+   preserving any existing regular file;
+5. backs up every existing managed path and publishes a `prepared` manifest;
+6. writes missing or approved merged files with verified hashes and modes;
+7. runs the 46 automation tests and `shadow-run.sh`;
+8. marks the manifest `installed` only after both checks pass.
+
+Verification failure automatically restores originals and records rollback
+history; recovery backups remain below `.automation-plugin/backups/`. Repeating
+`init` on an unchanged, healthy installation performs no managed-file writes.
+
+Pin the exact package version in long-lived repositories and review the
+generated installation diff before starting the scheduled planner.
+
+## Doctor
+
+```sh
+opencode-android-orchestrator doctor /path/to/android-project
+opencode-android-orchestrator doctor /path/to/android-project --json
+```
+
+The command exits unsuccessfully when OpenCode is missing or incompatible,
+the target is not a Git Android project, the Gradle Wrapper or a required
+command is unavailable, the SDK cannot be resolved, or any installed state is
+unhealthy. SDK lookup uses an explicit API option, `ANDROID_HOME`,
+`ANDROID_SDK_ROOT`, then `local.properties` `sdk.dir`; an existing SDK root
+without detectable `platforms` or `build-tools` is reported as a warning.
+
+Installation checks are deliberately read-only and cover:
+
+- manifest schema, installed state, fixed package version, `0600` mode, exact
+  52-file inventory, sources, strategies, and packaged-template hashes;
+- each managed file's SHA-256, size, and mode, including all 29 executable
+  automation scripts;
+- every original-file backup required for future recovery;
+- the pinned OpenCode Orchestrator reference, the exact bounded AGENTS block,
+  and adaptive automation/task configuration against the currently detected
+  Android modules.
+
+Human output and `--json` expose the same checks. Exit code `0` means there are
+no failures (`warn` is allowed), `1` means at least one check failed, and `2`
+means the CLI arguments were invalid. Doctor reports drift but never repairs or
+rewrites the project.
+
+## Read-only OpenCode tools
+
+Two project-scoped diagnostic tools remain available to all scheduled agents:
+
+- `android_orchestrator_status` accepts one required `taskId` matching
+  `TASK-[A-Z0-9-]+` and returns the task contract, runtime state, and evidence
+  as JSON;
+- `android_orchestrator_doctor` accepts no arguments and returns the complete
+  project, dependency, SDK, and installation report as JSON.
+
+Both tools reject a call whose runtime context is outside the worktree that
+loaded the plugin. Before `status` invokes anything, it authenticates the
+installed manifest, managed-resource hashes, and executable modes against the
+packaged version. It then invokes only the fixed
+`scripts/automation/status.sh` path, passes the validated task ID as a separate
+shell expression, bounds the output to 1 MiB, and verifies that the returned
+contract ID matches the request. Neither tool asks for permission or writes
+project state. The installed planner, coder, and reviewer agents explicitly
+allow these two tool names while retaining their default-deny policy; source
+preflight verifies both resolved permissions and tool discovery.
+
+### Planner queue tools and approval receipts
+
+The plugin also registers `android_orchestrator_snapshot`,
+`android_orchestrator_intake` and `android_orchestrator_queue`, available only
+to the interactive Planner. Snapshot reads a fixed committed planning baseline.
+Intake seals artifacts in the Git common directory, approves one version and
+returns immediately. Queue controls manage status, durable notifications,
+pausing, recovery, revalidation and local integration through the same executor.
+Planner has no direct read/edit/Bash permission over the active Coder checkout.
+
+The earlier mutating-wrapper **NO-GO** decision is superseded for these bounded
+1.0.0 queue tools. The host's completed `question` hook must return the selected
+single-choice answer. A one-use receipt binds session/message, question call,
+operation, contract digest and candidate as applicable. Supplying an approval
+phrase as a model argument cannot create this receipt. Unconsumed receipts
+expire after 15 minutes and are lost on plugin restart; the next mutation needs
+a fresh question. Approved contracts and consumed proof remain durable.
+
+Direct CLI calls are trusted local-operator commands; scheduled agents cannot
+invoke that CLI or arbitrary shell commands. See [Security](docs/SECURITY.md)
+and the [queue guide](docs/QUEUE.md) for the operating boundary.
+
+## Upgrade
+
+```sh
+opencode-android-orchestrator upgrade /path/to/android-project
+opencode-android-orchestrator upgrade . --module-scope all --json
+opencode-android-orchestrator upgrade . --refresh-gradle-discovery
+```
+
+`upgrade` accepts either the Git root or a directory below it. It first validates
+the installed manifest, managed content, and original-backup content. Unix-mode
+drift alone does not block an upgrade; the write transaction applies the target
+package modes. It still refuses downgrades, user-modified ordinary managed
+resources, damaged backup content, malformed or duplicate AGENTS markers,
+ambiguous Android modules in restrictive `primary` scope, same-version resource
+rewrites, and an unfinished upgrade marker before creating recovery state.
+
+Upgrade preserves the installed module scope. Installations created before the
+scope field existed are interpreted as `primary` so an upgrade cannot silently
+widen write access; pass `--module-scope all` during a real version upgrade to
+opt in explicitly.
+
+Pass `--refresh-gradle-discovery` when a configuration generated by an older
+version omitted runtime Android modules or real verification tasks. The flag
+rebuilds module metadata, source/test paths, protected build files, and all task
+lists from one evaluated Gradle snapshot. It is opt-in so an intentionally
+supplied `--gradle-verification-config` matrix remains preserved by default.
+
+For an older healthy installation, the command:
+
+1. preserves current `AGENTS.md` content outside the old bounded marker block,
+   replaces that block with the target package content, and reconstructs the
+   OpenCode configuration from its verified pre-install file;
+2. saves the exact old manifest and immediate pre-upgrade file snapshots below
+   `.automation-plugin/upgrades/<upgrade-id>/`;
+3. carries the first installation's original backups into a new verified
+   backup set;
+4. writes only changed managed resources and restores or removes resources no
+   longer managed by the new version;
+5. runs the 46 automation tests and a mutation-free shadow run before swapping
+   the active manifest;
+6. records upgrade history below `.automation-plugin/history/`.
+
+A verification failure automatically restores the old manifest and all old
+managed resources. Recovery evidence remains available for inspection. Running
+the command again on the current, unchanged version is byte-idempotent: it
+rechecks prerequisites and post-install verification without creating upgrade
+history or recovery state.
+
+## Uninstall
+
+```sh
+opencode-android-orchestrator uninstall /path/to/android-project
+opencode-android-orchestrator uninstall . --json
+```
+
+`uninstall` accepts the project root or a directory below it and does not
+require the Android toolchain to remain healthy. It validates the installed
+manifest and refuses another active upgrade or uninstall transaction before
+creating recovery state. For every managed path it then applies one of these
+rules:
+
+1. if the content, size, and mode still match the installed manifest, restore
+   the verified pre-install file or remove a plugin-created file;
+2. if the path already matches its original state or is already absent when no
+   original existed, leave it untouched;
+3. if content, permissions, or existence drifted, retain the current state and
+   list the path for manual review.
+
+Before changing a file, the command records the active manifest and every
+affected installed file below `.automation-plugin/uninstalls/<uninstall-id>/`
+and publishes an uninstall marker. It verifies all final paths before removing
+the active manifest and records completion below `.automation-plugin/history/`.
+Any failure before that commit restores the complete installed state. Original
+installation backups and uninstall evidence are intentionally retained for
+audit and manual recovery; user-created or pre-existing empty directories are
+never guessed at or recursively removed.
+
+## Development
+
+The package root exports only the default OpenCode plugin factory because the
+OpenCode loader treats each root export as a plugin. Programmatic lifecycle and
+diagnostic APIs are available from
+`@frankzhang2026/opencode-android-orchestrator/api`.
+
+```sh
+npm run typecheck
+npm test
+npm run test:offline-discovery
+npm run pack:check
+```
+
+Version 1.2.0 adds Gradle 6.7.1 compatibility fixes, runtime/evidence checks
+and approved review supplements. See [the compatibility guide](docs/GRADLE-6.7.1.md)
+for upgrade requirements and supported boundaries.
+
+## License
+
+This project is available under the [MIT License](LICENSE). Third-party
+software is licensed by its respective owners; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for dependency scope,
+copyright notices, and license texts. The five adapted Superpowers v6.2.0
+workflow skills and their required support files are bundled with the upstream
+MIT license and provenance record.
+
+### 1.1.0 baseline recovery protocol
+
+New explicitly approved V5 contracts can resume deterministic baseline capture
+with immutable stage checkpoints, separate environment/manual retry budgets
+and persistent backoff. V4 remains the default template and retains its
+original evidence rules. These capabilities are included in 1.1.0 source
+and are absent from the published 1.0.5 package. See [queue policy and limits](docs/QUEUE.md#v5-baseline-checkpoint-recovery-110)
+and [migration](docs/MIGRATION.md#110-v5-baseline-recovery).
+
+### 1.1.0 Worker termination protocol
+
+New V6 contracts can explicitly approve per-execution run/stage deadlines and
+TERM grace. An independent supervisor verifies process ownership before
+signalling, retains deadlines across restart, and confirms descendant exit
+before the queue can proceed. Unknown ownership preserves the slot; interrupted
+commits retain their idempotent recovery transaction. Existing V1..V5 contracts
+keep their authority. See [V6 policy and recovery](docs/QUEUE.md#v6-worker-safety-deadlines-110).
+
+
+### 1.1.0 verification recovery protocol
+
+New V7 contracts can approve independent environment retry budgets for RED,
+GREEN and Reviewer verification. Only identified transient command failures
+retry; model calls and commits are not replayed. See [V7 policy and evidence](docs/QUEUE.md#v7-verification-environment-recovery-110).
+
+## Local candidate validation
+
+See [local candidate trials](docs/LOCAL-TRIAL.md) for artifact identity, bounded delegation,
+model continuation, and mandatory original-installation restoration. This path
+requires its own recorded validation and does not publish to npm.

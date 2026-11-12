@@ -1,0 +1,344 @@
+# Master Goal
+
+[![CI](https://github.com/darkmatter2222/opencode_mastergoal/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/darkmatter2222/opencode_mastergoal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![OpenCode-2.x](https://img.shields.io/badge/OpenCode-2.x-5C67F2)](https://github.com/darkmatter2222/opencode_mastergoal#quick-install)
+[![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/opencode_mastergoal?style=social)](https://github.com/darkmatter2222/opencode_mastergoal/stargazers)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/j6oiubzfnh)
+
+**File-first goal orchestration for OpenCode 2.x. The model does the work. The host checks the result.**
+
+Master Goal is an original implementation, built from scratch. It is not a fork of OpenCode Goals. It separates the agent's reasoning from the authority to declare completion.
+
+A run locks a `goal.md` contract and the verifier scripts it references. Every deterministic check must pass before the run can complete. An optional independent reviewer can veto success. Model prose, completion promises, completed todos, and arguments that a goal is impossible cannot mark a run complete.
+
+Explicit **forever mode** has no success transition and no default iteration, token, cost, or elapsed-time cap. `/goal stop` or `/goal end` stops it. Host shutdown, permission waits, errors, and unavailable providers can interrupt execution; none count as success.
+
+## Partner repositories: environments, agents and persistent goals
+
+These three projects form an Android automation stack around **OpenCode 2.x**. Each owns a different part of the workflow and can be installed independently.
+
+| Repository | Responsibility | Start here |
+|---|---|---|
+| [AndroidCtl](https://github.com/darkmatter2222/AndroidCtl) (formerly `virtual_android`) | Run persistent virtual Android environments: emulator/KVM, lifecycle, fleet health and stable ADB endpoints | [Fleet installation and operations](https://github.com/darkmatter2222/AndroidCtl#four-device-fleet-install-upgrade-and-run) |
+| [android_automation](https://github.com/darkmatter2222/android_automation) | Observe and operate Android UIs through guarded MCP tools; coordinate device workers, specialists and benchmark evidence | [Agent hierarchy and responsibilities](https://github.com/darkmatter2222/android_automation#how-the-agent-hierarchy-works) |
+| [MasterGoal](https://github.com/darkmatter2222/opencode_mastergoal) | Keep an OpenCode goal progressing across turns, verify finite outcomes and support ongoing forever automations | [Install](https://github.com/darkmatter2222/opencode_mastergoal#quick-install) · [Android forever workflow](https://github.com/darkmatter2222/opencode_mastergoal#android-automation-and-forever-goals) |
+
+The automation repository currently requires GitHub access. AndroidCtl itself is a standalone Python/systemd host manager; OpenCode 2.x is the agent backbone above it, not a prerequisite for booting an emulator. MasterGoal is useful beyond Android, and the harness can also control an existing physical or virtual device.
+
+
+## Quick install
+
+Requires Node.js 22+, npm, Git, and **OpenCode 2.x** (tested with 2.0.22). Version 0.3.0 removes OpenCode 1.x support. `--host 1` is rejected; `--host 2` is accepted for older install commands but is no longer needed.
+
+Install globally for all your OpenCode projects:
+
+```sh
+npx --yes --package=github:darkmatter2222/opencode_mastergoal mastergoal install --global
+```
+
+Or install only in the current project (run this from that project or sub-repository):
+
+```sh
+npx --yes --package=github:darkmatter2222/opencode_mastergoal mastergoal install --local
+```
+
+You can append a project directory after `--local`; quote paths containing spaces. Close OpenCode, run `opencode service stop`, then reopen after installing or updating. A shared background server can otherwise retain the previously loaded plugin list. This installs directly from GitHub; an npm registry release is not required, and this package is not yet published there. Initial installation builds the package and downloads dependencies.
+
+Global configuration uses `OPENCODE_CONFIG_DIR`, otherwise `$XDG_CONFIG_HOME/opencode`, otherwise `~/.config/opencode`. Project installation writes `opencode.json[c]` at the selected project root. OpenCode 2 discovers both the server and sidebar entrypoints from this single registration; the installer does not create `tui.json` or `cli.json`. It removes this package’s obsolete entries from existing terminal config files while preserving unrelated settings. Both installation scopes preserve JSONC comments and unrelated settings, back up changed configuration, and install a durable runtime in `.mastergoal-runtime` alongside it. Add that directory to your project's `.gitignore`. Clearing the npx cache does not remove your installed plugin.
+
+Repeat the install command to update. To unregister, use the same command with `uninstall` instead of `install`, keeping the same scope. Uninstall preserves goals, runtime files and run history; you may remove `.mastergoal-runtime` after unregistering it. Choose one scope per project to avoid loading the plugin twice.
+
+**Disable other plugins that own `/goal` or automatically inject continuation prompts in this session.** One scheduler should own the run.
+
+If an older installer fails with `prepare`, `npm run build`, or `tsc` while packing the npx cache, update to **0.2.1 or newer**. The fixed installer packages compiled files without build hooks. You do not need a global TypeScript installation or edits to npm's cache. Node/npm engine warnings from dependencies are separate from this packaging failure; the Windows installer is tested with Node 22.18.0 and npm 10.9.3 in CI.
+
+### Upgrade an npm-installed OpenCode to 2.x
+
+Close OpenCode first, then run in your terminal:
+
+```sh
+npm uninstall -g opencode-ai
+npm install -g @opencode/cli@2
+opencode --version
+```
+
+The version must start with `2.`. This replaces the npm-managed executable and preserves OpenCode configuration and session data. If `where opencode` on Windows still resolves to an older standalone executable, update that installation or its PATH order. Launch plain `opencode` first to verify `/goal help`; custom launchers such as `opencode-spark` must call the updated executable and retain the intended provider/configuration settings. Existing third-party 1.x plugins require migration or removal before use in 2.x.
+
+For development:
+
+```sh
+git clone https://github.com/darkmatter2222/opencode_mastergoal.git
+cd opencode_mastergoal
+npm ci
+node dist/cli.js install --local /absolute/path/to/project --link
+```
+
+`--link` registers this checkout directly; keep it in place and use `--link` for uninstall too. For remote OpenCode 2 servers, register the package on the server; OpenCode obtains the plugin list for the client, and the sidebar reads state through RPC. File-based package references must be accessible to the client; use a shared package installation when client and server filesystems differ. Tested host versions and evidence are in [validation](docs/validation.md).
+
+## Android automation and forever goals
+
+MasterGoal is the persistent-goal layer for [android_automation](https://github.com/darkmatter2222/android_automation), whose agent team operates devices supplied by [AndroidCtl](https://github.com/darkmatter2222/AndroidCtl) or another ADB-accessible Android environment. Run the plugin in the automation project so the goal, agent definitions and MCP configuration belong to the same workflow. See the partner's [agent hierarchy](https://github.com/darkmatter2222/android_automation#how-the-agent-hierarchy-works), [handoff rules](https://github.com/darkmatter2222/android_automation#communication-and-ownership-contracts) and [setup instructions](https://github.com/darkmatter2222/android_automation#install-on-your-automation-host).
+
+```mermaid
+flowchart TD
+    F["Goal file: objective and acceptance"] --> M["MasterGoal: locked contract and continuation"]
+    M --> C["OpenCode 2.x: Android coordinator"]
+    C --> S["Benchmark setup and blind worker"]
+    C --> W["General Android controller"]
+    S --> H["Android MCP and explicit ADB serial"]
+    W --> H
+    H --> D["AndroidCtl virtual device or existing device"]
+    S -. "exported outcome evidence" .-> V["Host verification"]
+    W -. "live outcome checks" .-> V
+    V --> M
+```
+
+Use a **finite verified goal** for a bounded outcome such as completing one benchmark and exporting its report. A benchmark completion verifier should check run identity and completion; a quality target additionally needs explicit score/coverage criteria. Use **forever mode** for intentionally ongoing work such as repeatedly checking an authorized app workflow. Passing a health check must not complete an ongoing goal.
+
+For the contract-based workflow currently on this branch, prepare the goal before starting forever mode. From an installed automation checkout, select `android-coordinator` in OpenCode and run:
+
+```text
+/goal init goals/android-monitor.md
+```
+
+Create the `goals/` directory first. Edit the generated Markdown with the exact ADB serial, recurring unit of work, allowed actions, expected postconditions, duplicate-prevention rules and bounded recovery policy. Then:
+
+```text
+/goal construct goals/android-monitor.md
+/goal forever goals/android-monitor.md
+/goal status
+```
+
+Inspect the constructed contract before starting. This branch parses a `mastergoal` contract even with `/goal forever`; do not assume that an unconstructed Markdown prompt is accepted by every installed version. Forever mode disables completion; it does not remove device ownership rules, renew exhausted worker retry budgets or authorize resetting a benchmark. For a recurring benchmark objective, explicitly authorize new runs and require exporting/archiving each completed run before starting the next.
+
+| Layer | Owns | Does not establish |
+|---|---|---|
+| MasterGoal | Outer continuation, locked contract, verification, pause/stop and run state | That an input reached the intended UI target or an emulator is healthy |
+| Automation coordinator/setup | Bounded delegation, one controller per serial, checkpoints and benchmark lifecycle | Permission to override a failing verifier or reset counters through delegation |
+| Device worker and MCP harness | Grounded observe/action/verify steps, delivery receipts and action guards | Goal completion merely because a tap was delivered |
+| AndroidCtl | VM lifecycle, saved ADB ports, systemd services and health reporting | Completion of an app workflow or model navigation proficiency |
+
+Use `/goal pause` to pause automatic continuation, `/goal resume` to resume an eligible existing run, and `/goal stop` or `/goal end` to stop it. Interrupt and join any in-flight model/tool work and child workers before giving the device to another controller; goal stop is not an emulator shutdown command. Host shutdown interrupts forever operation, and host restart requires explicit resume. One scheduler owns the OpenCode session: do not install a competing goal/continuation loop alongside MasterGoal.
+
+The default image window of **1** fits the harness's single-image perception approach. It limits raw images in outgoing model requests, not stored screenshots or evidence. Keep checkpoints, reports and diagnostics in the automation project's ignored runtime directories. Children and external review have separate usage accounting, as described below.
+
+## First goal
+
+In OpenCode:
+
+```text
+/goal init
+```
+
+This creates `goal.md` and a deliberately failing `goal.verify.mjs` placeholder without overwriting existing files. **You only need to write your natural-language objective in `goal.md`. You do not have to code the verifier.** You can keep the template sections or replace the document with plain Markdown.
+
+Then run:
+
+```text
+/goal construct
+```
+
+OpenCode's current model inspects the project and drafts the acceptance contract and executable verifier using its normal tools and permissions. It checks the baseline, tests incorrect cases, and explains coverage and any missing configuration. Construction instructions persist across compaction. This is a preparation turn, not an autonomous goal run: if the model stops with incomplete construction, ask it to continue or run `/goal construct` again. No success is inferred from its reply.
+
+For an ongoing objective, write an ordinary Markdown prompt and run:
+
+```text
+/goal forever my-prompt.md
+```
+
+No `/goal init`, `/goal construct`, compiled contract, or verifier is needed. MasterGoal saves the file contents and sends that exact prompt again after each finished model turn (with a one-second scheduling delay). It waits for the current turn before sending another. Completion claims and completed todos never end the loop. Any embedded contract fences are treated as prompt text, not executed as checks or used as budgets.
+
+Use `/goal pause`, `/goal resume`, and `/goal stop` (or `/goal end`) to control the loop. The saved prompt survives compaction and restart; after restarting OpenCode, use `/goal resume`. Edits to the source file do not change an existing loop: stop and start it again to load the new contents. The file must be nonempty, inside the project, and at most 256 KB.
+
+For advanced contract-based health checks, `/goal start` still accepts a constructed `"mode": "forever"` contract. Those checks report health and never completion. A finite verified goal whose checks already pass can complete immediately; inspect what those checks prove before starting.
+
+Inspect the proposed criteria, then run `/goal start`. Starting validates the contract and locks its bytes and verifier dependencies; construction never starts a run automatically. To change a live goal, `/goal stop` first. Custom paths work with all three commands, for example `/goal init goals/release.md` (create the parent directory first), `/goal construct goals/release.md`, `/goal start goals/release.md`.
+
+For finite goals, deterministic checks are mandatory. When subjective criteria require model review, construction can also draft a separate reviewer script. It must use an available configured review service; missing credentials/configuration leave verification failing and are reported to you. Review can veto success but cannot bypass deterministic checks. Generated checks are drafts of your intent, not a mathematical guarantee that every natural-language requirement has been captured.
+
+For example, construction might produce this contract and verifier:
+
+````markdown
+# Implement addition
+
+Implement `add(a, b)` in `src/add.mjs`. Preserve existing public APIs.
+
+```mastergoal
+{
+  "version": 1,
+  "title": "Correct addition implementation",
+  "mode": "verified",
+  "checks": [
+    {
+      "id": "addition-acceptance",
+      "type": "script",
+      "runtime": "node",
+      "path": "goal.verify.mjs",
+      "timeoutMs": 30000
+    }
+  ]
+}
+```
+````
+
+`goal.verify.mjs`:
+
+```js
+import assert from "node:assert/strict";
+import { add } from "./src/add.mjs";
+assert.equal(add(1, 1), 2);
+assert.equal(add(-3, 4), 1);
+assert.equal(add(0, 0), 0);
+```
+
+Then:
+
+```text
+/goal start
+/goal status
+```
+
+The plugin executes checks itself when the host finishes working. Failing evidence is included in the next turn. `goal.md` is reinjected into system context and compaction context from its durable locked snapshot.
+
+## Commands
+
+| Command                     | Behavior                                                            |
+| --------------------------- | ------------------------------------------------------------------- |
+| `/goal init [path]`         | Create the Markdown and script templates; default `goal.md`         |
+| `/goal construct [path]`    | Ask OpenCode to build the contract and verifier from your objective |
+| `/goal start [path]`        | Validate and lock a new goal; custom paths can contain spaces       |
+| `/goal forever [path]`      | Repeat a plain Markdown prompt; no construction required            |
+| `/goal status`              | Show verified progress and usage                                    |
+| `/goal inspect`             | Show the full contract, evidence, and recent history                |
+| `/goal check`               | Run a fresh verification on an active goal                          |
+| `/goal pause`               | Pause automatic continuation                                        |
+| `/goal resume`              | Resume the existing paused or blocked contract                      |
+| `/goal stop` or `/goal end` | Stop the run without claiming success                               |
+| `/goal help`                | Show command help                                                   |
+
+Changing the goal or a pinned verifier during a run blocks verification. To revise the contract, stop, edit, and start a new run. Resuming does not approve changed files. Stop/pause cancel verification and future continuation; use OpenCode's interrupt control to cancel an already-running model/tool action.
+
+The terminal CLI also supports `validate`, `status`, `inspect`, `check`, `pause`, `resume`, and `stop`. Session operations require `--session SESSION_ID` and the original project directory. Start new runs inside OpenCode so they bind to the correct session.
+
+## Deterministic checks
+
+All checks use AND semantics. `verified` mode rejects an empty check list.
+
+| Type     | Required fields                    | Pass condition                                                               |
+| -------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| `equals` | `id`, `type`, `actual`, `expected` | Strict deep equality of JSON values; no coercion or expression evaluation    |
+| `file`   | `id`, `type`, `path`               | Regular file exists; optional `contains` and `sha256` constraints also match |
+| `script` | `id`, `type`, `path`, `runtime`    | Pinned local script exits 0 within timeout and output limits                 |
+
+Script options: `args` (argument array), `timeoutMs` (default 30,000), and `pin` (additional verifier dependencies whose bytes must not change). The script path itself is always pinned. Script invocations do not interpolate a shell command. Paths must resolve inside the project, including symlink targets.
+
+A check such as `{"id":"impossible","type":"equals","actual":2,"expected":3}` can never pass. The model's reasoning cannot change those values. For a computation, put the computation in a pinned script; a string like `"1+1"` is just a string, not executable arithmetic.
+
+**Use outcome checks, not self-reports.** A file-existence test proves existence, not quality. A test that looks only for the word “done” is easy to satisfy. Independent assertions, fixed test datasets, exact artifact hashes, and external verification services are stronger. Pin test helpers, test configuration, and lockfiles where they are part of your acceptance boundary. See [contract design](docs/contracts.md).
+
+## Optional non-deterministic review
+
+Add a `review` script with the same shape as a script check. It runs only after all deterministic checks pass. Its nonzero exit, timeout, malformed response, or unavailability vetoes completion. It cannot override a failed deterministic check.
+
+[Optional reviewer example](examples/optional-review/review.mjs) calls a separately configured OpenAI-compatible endpoint with tool-free review instructions and a strict JSON verdict. It uses `MASTERGOAL_REVIEW_URL`, `MASTERGOAL_REVIEW_MODEL`, and optionally `MASTERGOAL_REVIEW_KEY`. This can point to a local model. Add a review entry such as:
+
+```json
+"review": {
+  "id": "independent-review",
+  "type": "script",
+  "runtime": "node",
+  "path": "review.mjs",
+  "args": ["README.md"],
+  "timeoutMs": 30000
+}
+```
+
+Copy and customize the script before starting. Review is probabilistic and susceptible to evidence bias; deterministic checks remain mandatory. A prose goal cannot in general be automatically converted into a complete proof of success.
+
+## Sidebar and telemetry
+
+![Master Goal sidebar preview](docs/sidebar.svg)
+
+Illustrative layout with sample values; terminal width and theme affect wrapping. The plugin appends this panel to OpenCode’s existing right sidebar.
+
+The sidebar shows run state, mode, checked criteria, verification iterations, assistant turns/steps, input/output/reasoning tokens, cache reads/writes, host-reported cost, review verdict, and available native todos.
+
+- **Check percentage** means passing checks / total checks. It is not a prediction of time remaining or overall task completion.
+- **Turns** count completed provider steps. They are not user-message counts.
+- **Cost** comes from the host. Zero can mean the provider did not supply pricing.
+- Usage is scoped to the bound session after goal start. Child-agent sessions and optional external reviewer usage are not included.
+- Replayed usage events are deduplicated. The exact usage ledger grows with the run; current history is capped at 200 events.
+
+## Long-running behavior
+
+There are no default budgets. If you want opt-in controls, add:
+
+```json
+"limits": { "turns": 1000, "tokens": 10000000, "cost": 50, "elapsedMs": 86400000 }
+```
+
+A reached budget pauses the goal; it never completes it. Limits are checked before the next verification/continuation, not mid-request. A single turn can exceed a budget. `elapsedMs` measures wall time since start, including pauses. To change a locked budget, stop and start a revised contract.
+
+The contract and state persist outside the project at `~/.local/state/opencode-mastergoal`, indexed by canonical project path and session ID. Set `MASTERGOAL_STATE_DIR` before starting OpenCode to override it. Atomic state replacement, filesystem locking, cancellation tokens, and run IDs protect ordinary concurrent transitions. Interrupted verifications must be rerun. On host restart, the previous run pauses for explicit `/goal resume`; no successful state is inferred from a crash.
+
+This is an in-process plugin, not an external watchdog or OS sandbox. It cannot run while OpenCode is closed, guarantee network availability, defeat a hostile process with the same OS permissions, or make an insufficient verifier prove your intent. Direct edit hooks and hash checks are tamper detection, not a security boundary against arbitrary shell access. [Architecture and boundaries](docs/architecture.md) explains these limits.
+
+## Tests and benchmarks
+
+```sh
+npm run verify
+npm run benchmark
+```
+
+The suite covers parser validation, path escapes, script crashes/timeouts/output overflow, false completion claims, verifier changes, cancellation races, duplicate idle events, pause/stop/resume, restart persistence, usage replay, adapters, and installer preservation.
+
+Copy one example directory’s files into the root of a disposable project, then use `/goal start` there. Verifier paths are relative to the project root.
+
+The [20 sample goals](examples/) include 12 runnable coding exercises and eight adversarial scenarios. `benchmarks/run.mjs` records per-case latency and expected state transitions to `benchmarks/latest.json`. This is a **deterministic harness benchmark using scripted candidate solutions**, not a claim of superior LLM coding performance. Real-host canaries exercise OpenCode with a local fake model that repeatedly claims completion. See [validation](docs/validation.md) for actual results and reproducible commands.
+
+## Developer guide
+
+`src/contract.ts` defines parsing and locking; `checks.ts` runs verifiers; `engine.ts` owns state transitions; `coordinator.ts` owns continuation admission. `server.ts` integrates the OpenCode 2 API. `tui.ts` renders read-only status. `rpc.ts` is the native sidebar's portable status contract.
+
+See [research](docs/research.md), [architecture](docs/architecture.md), [contract design](docs/contracts.md), and [contributing](CONTRIBUTING.md). MIT licensed.
+
+## Rolling image context window
+
+Master Goal limits raw images sent with each model request. The default is **1**, so screenshot-heavy sessions do not accumulate every previous screenshot in the provider request. The newest images across the whole outgoing conversation survive, including screenshots returned by tools. Text, code, reasoning, other files and tool-call/result pairs remain.
+
+Use OpenCode 2.0.22's native plugin options in `opencode.json` or `opencode.jsonc`. Replace the existing Master Goal entry; do not add a second registration. Keep its existing `package` path (the installer normally uses a `file:///.../.mastergoal-runtime/node_modules/@darkmatter2222/opencode-mastergoal` directory URL):
+
+```json
+{
+  "plugins": [
+    {
+      "package": "@darkmatter2222/opencode-mastergoal",
+      "options": { "imageWindow": 1 }
+    }
+  ]
+}
+```
+
+| Value         | Behavior                                       |
+| ------------- | ---------------------------------------------- |
+| `1` (default) | Latest image only                              |
+| `2`           | Latest two images                              |
+| `4`           | Latest four images                             |
+| `0`           | No raw images, including newly attached images |
+
+Explicit `options.imageWindow` takes precedence over `MASTERGOAL_IMAGE_WINDOW`, then the default `1`. Options require a non-negative safe integer JSON number; the environment variable requires decimal digits. Invalid selected configuration rejects plugin startup with a clear error, never disables the ceiling. Restart OpenCode after changing settings. Installer upgrades preserve plugin options.
+
+Protection applies whenever the plugin is loaded for a location, including sessions without a goal, finite and forever goals, autonomous continuation, compaction, title and session-generation requests. It filters the canonical request before provider serialization and does not delete persisted screenshots. It does not change the model architecture or vLLM's own multimodal limit. Set the window at or below your server's image limit.
+
+The sidebar and `/goal status` show `Image window: N`. When pruning occurs, debug output contains counts only: `[mastergoal] image window: found=100 retained=1 removed=99 limit=1`. No image payloads or URLs are logged. This is runtime configuration, separate from `goal.md` and its contract hash.
+
+The guarantee covers canonical image parts in these OpenCode session request hooks. Another plugin that adds images **after** Master Goal's hook can invalidate it; avoid such conflicting transforms. Opaque provider-managed history, images embedded inside PDFs, and model calls made outside OpenCode's session hooks are not inspected or decoded.
+
+## Support the partner projects
+
+If these tools help you, **star the repositories you use**: [AndroidCtl](https://github.com/darkmatter2222/AndroidCtl), [android_automation](https://github.com/darkmatter2222/android_automation) and [MasterGoal](https://github.com/darkmatter2222/opencode_mastergoal). Stars help other builders discover the environment, automation and goal layers together.
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-Support_development-FFDD00?logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/j6oiubzfnh)
+
+Bug reports, reproducible evidence and documentation improvements are welcome too.

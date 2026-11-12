@@ -1,0 +1,478 @@
+# OpenCode Loop
+
+## Native OpenCode 2 (0.6.10)
+
+The npm and V2 entrypoints use the official `@opencode/plugin` `Plugin.define()` contract. The installer now registers the exact `@bybrawe/opencode-loop` package in OpenCode's plural `plugins` configuration instead of copying a loose global plugin directory. OpenCode therefore resolves `@opencode/plugin` from Loop's own production dependency graph; explicit `--legacy-v1` remains a separate compatibility path.
+
+The installer defaults to the native V2 package plugin. It needs no loose local V2 copy, V1 SDK, or legacy command files. Valid legacy `plugin` registrations are now persisted into the single native `plugins` list using OpenCode 2.0.21's own normalization semantics, so native installs no longer leave parallel `plugin` and `plugins` blocks. Object options and entry order are preserved, malformed legacy values are left untouched, and unrelated provider/model settings are not rewritten. Existing 0.6.1/0.6.2 loose `plugins/opencode-loop` installs are still removed on update. Use `--legacy-v1` explicitly for the compatibility installation.
+
+V2 prompt admission and durable inbox/execution/compaction events own scheduling. Core-generated user-role messages never authorize a session abort. An unfinished dedicated Goal reserves its session, including paused and handed-off states; Loop does not wake or replace that Goal. Soft iteration timeouts do not abort a native model/tool/compaction turn.
+
+Automatic compaction remains host-owned. On OpenCode 2 versions exposing public `session.compact`, Loop's explicit native compaction is capability-gated and waits for its own manual `session.compaction.started` input ID, compaction completion, and a session terminal event. Older hosts reject unsupported compaction before scheduling.
+
+Prompt/command timers, watch and stop conditions, verification, preflight/postrun, notifications, checkpoints and diagnostic commands use the V2 runtime. Uncertain restart admissions pause for review rather than replaying potentially admitted work. OpenCode 2.2.x includes a native `/goal` feature. Loop does not install or maintain the separate `@bybrawe/opencode-goal` plugin; older Loop Goal records remain on disk and are not reinterpreted as native Goal contracts.
+
+
+**Idle-safe auto-continue, scheduled OpenCode work, and background loops.**
+
+OpenCode Loop adds `/loop`, scheduled prompt/command/shell jobs, compact scheduling, verification/checkpoints, and the `opencode-loopd` background daemon.
+
+> **Current published native OpenCode 2 release: `0.6.10`.** GitHub Actions workflows have been removed; future releases require an explicit, separately verified manual publication.
+
+**OpenTUI 0.8 source update (not published):** The `main` package manifest now permits optional 0.8.x peers alongside 0.5–0.7. The published npm 0.6.10 still declares its older peer range until a new release is made. OpenCode 2.2.3+ requires matching OpenTUI 0.8.x core/Solid; use `solid-js >=1.9.16` to avoid the older Seroval dependency advisory. The actual 0.8 Bun render has not yet been run in this environment. No Actions will be started.
+
+## Install or update
+
+### Recommended OpenCode 2 setup
+
+Install **OpenCode Loop alone**:
+
+```bash
+npx -y @bybrawe/opencode-loop@latest
+```
+
+Loop installs, updates, and removes **only Loop**. It never invokes, installs, upgrades, or uninstalls `@bybrawe/opencode-goal`. OpenCode 2.2.x already has a native `/goal`; the separate ByBrawe Goal plugin is not required for Loop.
+
+The old `--with-goals` and `--with-loop-goals` installation modes have been **removed**; both now fail before changing configuration. `--loop-only` and `--without-loop-goals` remain accepted as compatibility aliases for the standalone default. Loop preserves any previously installed Goal package, user-owned commands, and project history.
+
+Run the relevant install command again to update that package. Then **fully restart OpenCode** and verify:
+
+```text
+/loop-help
+/loop-doctor
+```
+
+If both native commands work in terminal TUI but are missing from Windows Desktop, follow the [Windows Desktop command-registry diagnostic guide](docs/OPENCODE2-DESKTOP-WINDOWS.md). Do not replace native commands with legacy Markdown bridges.
+
+On a version containing the diagnostic, run `npx -y @bybrawe/opencode-loop@latest --desktop-diagnostics --workspace "C:\\path\\to\\your\\project"` to check both commands against the currently registered *local* V2 service without printing its credentials. This does not install or modify Goal or Loop.
+
+Global npm alternative:
+
+```bash
+npm install -g @bybrawe/opencode-loop@latest
+opencode-loop
+```
+
+To uninstall:
+
+```bash
+npx -y @bybrawe/opencode-loop@latest --uninstall
+```
+
+or, for a global install:
+
+```bash
+opencode-loop --uninstall
+npm uninstall -g @bybrawe/opencode-loop
+```
+
+Loop uninstall never removes the dedicated Goal plugin. Project Loop state under `.opencode/opencode-loop/` is intentionally preserved by uninstall.
+
+## The mental model
+
+Loop separates two ideas:
+
+1. **When does work become due?** Idle, a timer, a watch trigger, or `/loop-now`.
+2. **When is it safe to dispatch?** Only when the session is actually idle and no active tool/child work would overlap it.
+
+A timer expiring does **not** intentionally inject a second model turn on top of an active one. Due work waits for idle.
+
+## Quick start
+
+### Keep saying “continue” whenever the assistant stops
+
+```text
+/loop continue
+```
+
+Turkish shorthand works naturally too:
+
+```text
+/loop devam et
+```
+
+Explicit equivalent:
+
+```text
+/loop idle continue
+```
+
+This is an **unlimited idle loop** by default. When the assistant finishes and the session becomes safely idle, Loop sends the prompt again. When that turn finishes, it does the same again, until you pause/stop it or a configured limit is reached.
+
+For very short continuation prompts such as `continue`, `keep going`, or `devam et`, Loop adds project-continuation guidance: treat the turn as continuation of the current repository/conversation, inspect relevant files/TODO/progress/git state as needed, find the next unfinished step, avoid redoing completed work, and verify meaningful changes when practical.
+
+For project work, a continuation loop with an explicit progress file is:
+
+```text
+/loop --safe --ask-never --progress-file progress.md devam et
+```
+
+**Important:** `--progress-file` supplies project context only; it is **not** a completion or stop condition. Checking every `- [ ]` task as `- [x]` in `progress.md` or `TASK.md` will **not automatically stop** an ordinary idle loop. This distinction is tracked in [#174](https://github.com/ByBrawe/opencode-loop/issues/174) following a [user report](https://www.reddit.com/r/opencode/comments/1vzchjo/i_need_help_with_opencode/). For unattended tasks that must stop, combine the progress file with a **host-observed** stop criterion such as `--max-runs`, `--max-runtime`, `--stop-file` or an explicit `--until` marker. For checklist-completion stop in **0.6.9 or newer**, add **`--until-checklist-complete`** explicitly alongside `--progress-file`; this option is absent from 0.6.8. Do not assume a progress file by itself implements a stop condition.
+
+The **user**, not an AI-generated chat response, must invoke `/loop-stop` or `/loop-clear` as a native control command. Asking the model to type `/loop-clear` in conversation does not reliably execute that command. Use `/loop-status` to inspect current jobs and `/loop-stop` or `/loop-clear` to stop them. See [#175](https://github.com/ByBrawe/opencode-loop/issues/175) for improvements to host-owned stop UX.
+
+Create a starter progress file first if needed:
+
+```text
+/loop-init
+```
+
+### Stop when a Markdown checklist is complete (0.6.9)
+
+OpenCode Loop 0.6.9 adds an **opt-in, host-checked** completion guard. It is **not part of 0.6.8**. Install 0.6.9 only after its npm release passes the verification gates:
+
+```text
+/loop --progress-file TASK.md --until-checklist-complete --verify "npm test" finish the tasks in TASK.md
+```
+
+On a safe idle/scheduling boundary, Loop reads `TASK.md` as a regular project file. If it has at least one Markdown checkbox and all actionable boxes are checked, Loop stops scheduling further turns. If `--verify` is configured, Loop also requires a previously observed successful host verification. Empty/missing/oversized/unsafe/symlink/control-plane files pause for review rather than being called finished; code-fenced and quoted checkbox examples do not count.
+
+**Without `--until-checklist-complete`, `--progress-file` only supplies context** and normal unlimited loops stay unlimited. The host/user controls `/loop-stop` and `/loop-clear` directly; having a model print those names is not an actual command invocation. Follow [#174](https://github.com/ByBrawe/opencode-loop/issues/174) and [#175](https://github.com/ByBrawe/opencode-loop/issues/175).
+
+### Repeat every 5 minutes
+
+```text
+/loop every 5m continue the project
+```
+
+This waits five minutes before the first run, then becomes due every five minutes. If the timer expires while OpenCode is busy, it waits for the next safe idle boundary rather than stacking prompts.
+
+### Do it once after 5 minutes
+
+```text
+/loop after 5m continue once
+```
+
+Alias:
+
+```text
+/loop in 5m continue once
+```
+
+This is a one-shot delayed job. Five minutes passing makes it due; it still waits for idle before dispatching.
+
+### Legacy compact syntax remains supported
+
+```text
+/loop 5m continue the project
+```
+
+For backward compatibility, this form starts on the next safe idle boundary and then follows a five-minute interval.
+
+Delay its first run explicitly:
+
+```text
+/loop 5m --no-now continue the project
+```
+
+Legacy idle form is still valid:
+
+```text
+/loop 0s continue
+```
+
+For the exact schedule truth table and edge cases, see [docs/SCHEDULING.md](./docs/SCHEDULING.md).
+
+## Schedule summary
+
+| Command | Meaning | First dispatch | Repeats |
+|---|---|---|---|
+| `/loop continue` | auto-continue on idle | next safe idle | every idle |
+| `/loop idle continue` | explicit idle loop | next safe idle | every idle |
+| `/loop every 5m continue` | recurring timer | after 5m, then idle | yes |
+| `/loop after 5m continue` | delayed one-shot | after 5m, then idle | no |
+| `/loop in 5m continue` | delayed one-shot alias | after 5m, then idle | no |
+| `/loop 5m continue` | legacy recurring form | next safe idle | yes |
+| `/loop 5m --no-now continue` | legacy delayed-first recurring | after 5m, then idle | yes |
+| `/loop 0s continue` | legacy idle form | next safe idle | every idle |
+
+## Understand an unfamiliar project and keep going
+
+A useful first loop for an unfamiliar repository is:
+
+```text
+/loop-init
+/loop --safe --ask-never --progress-file progress.md Understand the existing project architecture and current state first. Inspect relevant source, tests, docs, TODOs, git status, and recent work. Record useful state in progress.md, choose the next unfinished safe improvement, implement it, verify it, update progress.md, and continue from there on later idle turns.
+```
+
+Once the project state is established, this is enough:
+
+```text
+/loop --safe --ask-never --progress-file progress.md devam et
+```
+
+The short continuation form is deliberately interpreted as “resume this project”, not “invent a new task from scratch”.
+
+## Other job types
+
+Schedule an OpenCode slash command:
+
+```text
+/loop-command 200m /compact
+```
+
+Run a real shell command:
+
+```text
+/loop-shell 10m npm test
+```
+
+Ask a recurring quality-control prompt:
+
+```text
+/loop-ask 1h did you run tests, typecheck, and build? If not, run them and fix errors.
+```
+
+Watch a path:
+
+```text
+/loop --watch progress.md inspect the updated progress and continue
+```
+
+Prompt, command, shell, compact, and watch jobs use the same idle-safe scheduling path but different execution transports.
+
+## Core commands
+
+| Command | Purpose |
+|---|---|
+| `/loop <prompt>` | Add/update an unlimited idle prompt loop |
+| `/loop idle <prompt>` | Explicit idle-loop form |
+| `/loop every <duration> <prompt>` | Recurring timer, first run delayed |
+| `/loop after <duration> <prompt>` | One-shot delayed prompt |
+| `/loop in <duration> <prompt>` | Alias for `after` |
+| `/loop <duration> <prompt>` | Backward-compatible compact interval form |
+| `/loop-command <interval> <slash-command>` | Schedule an OpenCode command |
+| `/loop-cmd <interval> <slash-command>` | Alias for `/loop-command` |
+| `/loop-ask <interval> <question>` | Schedule a recurring check/question |
+| `/loop-shell <interval> <command>` | Schedule a shell command |
+| `/loop-status` | Show jobs plus schedule/state |
+| `/loop-now [id/name/all]` | Mark selected jobs due now; still waits for idle |
+| `/loop-pause [id/name/all]` | Pause jobs |
+| `/loop-resume [id/name/all]` | Resume jobs |
+| `/loop-remove [id/name/all]` | Remove jobs |
+| `/loop-clear` | Remove all jobs for the current session |
+| `/loop-logs` | Show recent scheduler/runtime events |
+| `/loop-doctor` | Diagnose session/state/scheduling problems |
+| `/loop-init` | Create a starter `progress.md` |
+| `/loop-export` | Export current-session Loop state |
+
+## Useful flags
+
+Lifecycle and limits:
+
+```text
+--name <name>
+--max-runs <n>
+--max-runtime <duration>
+--max-failures <n>
+--timeout <duration>
+--no-now
+--now
+```
+
+Safety and verification:
+
+```text
+--safe
+--ask-never
+--no-overlap
+--verify "npm test"
+--preflight "npm install"
+--postrun "git status --short"
+--pause-on-verify-fail
+```
+
+Project context:
+
+```text
+--progress-file progress.md
+--prompt-file loop-prompt.md
+--include-file ARCHITECTURE.md
+--batch 5
+--compact-every 20
+--watch progress.md
+```
+
+Checkpoints:
+
+```text
+--checkpoint-only
+--git-checkpoint
+```
+
+`--git-checkpoint` may stage/commit work; use it only when intentional.
+
+### Native Loop status sidebar (next release, PR #165)
+
+The native OpenCode 2 **TUI** can show a read-only Loop status panel alongside OpenCode Goal's separate status panel. This feature was proposed and implemented by [@zhek](https://github.com/zhek) in [PR #165](https://github.com/ByBrawe/opencode-loop/pull/165); thank you for the contribution!
+
+The new `@bybrawe/opencode-loop/tui` entry renders status only; the server's Loop plugin exposes `@bybrawe/opencode-loop/rpc` for location-scoped reads. Scheduled work, stop/pause commands, compaction and Goal ownership continue to run **only in the server**, and losing an optional panel never disables the Loop scheduler. The panel reports persisted jobs, due versus **waiting for idle**, runs/failures and pause reasons; it deliberately does **not** guess task completion, tokens, ETA or success percentage.
+
+**Release status:** this feature is under integration for a version **after 0.6.9**; it is **not included** in published 0.6.8 or the 0.6.9 release candidate. The `sidebar.content` API belongs to the native **CLI TUI**; it does **not** establish Windows Desktop/Web plugin UI support. OpenCode 2.0 and 2.1 OpenTUI compatibility and simultaneous Goal panel behavior are subject to real-host tests.
+
+**TUI discovery caveat (OpenCode 2.1):** actual rendering and plugin auto-loading are different checks. [Upstream OpenCode #55084](https://github.com/anomalyco/opencode/issues/55084) documents a silent skip when a TUI connects to a plugin-enabled server but the client has a **different npm package cache**, notably remote/split-cache setups. Normal shared-cache installs are not generally affected. If `/loop` works but the TUI panel is absent, inspect the active CLI/TUI plugin catalog and cache paths; on affected 2.1.x builds, adding the package to that version's separate `cli.json` plugin list is an upstream-reported workaround. Do not assume Desktop supports `ui.slot`. A real CLI/TUI reproduction is tracked in [#191](https://github.com/ByBrawe/opencode-loop/issues/191).
+
+## Status and diagnostics
+
+`/loop-status` reports both the **schedule definition** and the **current scheduler state**. Examples:
+
+```text
+schedule=every idle | state=waiting for idle
+schedule=every 5m, first after 5m | state=due in 3m
+schedule=once after 5m | state=due; waiting for idle
+```
+
+This is intentional: “due” is a clock fact, while “waiting for idle” is an admission/safety fact.
+
+### If a job says enabled but never runs
+
+The problematic shape is typically:
+
+```text
+enabled=true
+paused=false
+runCount=0
+lastRunAt=0
+```
+
+Some OpenCode TUI versions can leave `session.status` at `busy`/`retry` after a plugin command acknowledgement. Loop cross-checks that stale state against the chronological message tail before the first Loop run too. It recovers only when the latest assistant message is actually completed and no active tool/child work is known. A genuinely unfinished assistant turn, latest user turn, active tool, busy child, or unknown completion remains busy.
+
+Recovery is logged as:
+
+```text
+status-message-idle-recovery
+```
+
+Busy retries are also written as throttled `deferred` events so `loop.log` does not misleadingly contain only the original `add` line.
+
+Use:
+
+```text
+/loop-status
+/loop-logs
+/loop-doctor
+```
+
+### Session-bound state
+
+Normal plugin Loop jobs are session-bound and stored under:
+
+```text
+.opencode/opencode-loop/<session-id>.json
+```
+
+A new OpenCode session does not silently inherit another session's jobs. `/loop-doctor` reports other persisted session files that still contain enabled jobs, including jobs that have never run, so an old loop is visible instead of appearing lost.
+
+For work that must continue after the TUI/session closes, use `opencode-loopd`.
+
+## Loop and optional Goal features
+
+Loop works by itself. It does not install or manage other Goal plugins. **Use separate sessions for native `/goal` and prompt-producing `/loop` whenever practical.** On OpenCode 2.2.x, Loop checks the built-in Goal's **public, read-only `opencode.goal` RPC** before admitting an autonomous turn and again immediately before dispatch; an active/paused native Goal reserves the session. A separately installed ByBrawe Goal keeps its own guard, but orphaned ByBrawe Goal files no longer block Loop when that package is confirmed uninstalled. Unavailable/unrecognized ownership states fail closed. This is a safety guard, not a claim that two independently scheduled agents can run atomically without races; host-level integration remains tracked in [#195](https://github.com/ByBrawe/opencode-loop/issues/195). Recommended split:
+
+- use OpenCode's native **`/goal`** for a built-in objective workflow, or install ByBrawe Goal separately if its stronger evidence contracts are needed;
+- use **`/loop`**, `/loop-command`, `/loop-shell`, and `opencode-loopd` for scheduling/repetition/background infrastructure.
+
+A prompt-producing Loop and an active dedicated `/goal` should not both own autonomous continuation of the **same session**. The runtime therefore blocks a new prompt Loop when it detects an active dedicated Goal for that session.
+
+Recommended choices are to finish/pause the Goal or use a separate session. Advanced users can deliberately override the guard with:
+
+```text
+/loop --allow-goal-overlap continue
+```
+
+That escape hatch can create competing autonomous turns; use it only when that is intentional.
+
+Loop's older experimental `/loop-goal*` commands are omitted by default. The former `--with-loop-goals` mode is no longer supported. Existing Goal state is preserved; no automatic migration or deletion is performed.\n\n## Recommended development loop
+
+```text
+/loop --name dev --ask-never --safe --no-overlap --batch 5 --compact-every 200m --checkpoint-only --progress-file progress.md Treat progress.md as the project state. Continue with the next unfinished TODO, implement it, mark completed items, add useful follow-up TODOs, run tests/lint/build when available, and keep going while work remains.
+```
+
+Test/fix loop:
+
+```text
+/loop --name testfix --ask-never --safe --verify "npm test" --max-failures 3 Continue from progress.md. If tests fail, analyze the failure, fix it, and run the tests again.
+```
+
+## Background daemon
+
+The normal `/loop` plugin is session-bound. `opencode-loopd` pins one exact OpenCode session for daemon iterations and can keep scheduling outside the normal interactive Loop timer lifecycle.
+
+```bash
+opencode-loopd --project . --every 5m --prompt-file loop-prompt.md
+```
+
+Immediate daemon cadence:
+
+```bash
+opencode-loopd --project . --every 0s --prompt "continue from progress.md and implement the next unfinished TODO"
+```
+
+Pin a session and limit runs:
+
+```bash
+opencode-loopd --project . --session ses_xxx --every 5m --max-runs 20 --timeout 30m --prompt-file loop-prompt.md
+```
+
+### Dedicated Goal pulse-check
+
+Use the daemon as a read-only stall detector for dedicated `/goal` state:
+
+```bash
+# one-shot (good for systemd timers / cron-style runners)
+opencode-loopd pulse-check --project . --stale-after 30m
+
+# repeating opt-in watcher
+opencode-loopd pulse-check --project . --stale-after 30m --every 1m
+
+# watch one Goal by Goal ID or session ID
+opencode-loopd pulse-check --project . --goal <goal-or-session-id> --stale-after 30m --every 1m
+```
+
+The pulse-check reads `.opencode/goals/*.json` and alerts only while the dedicated Goal is `active`. `paused`, `waiting_user`, `blocked`, budget/usage-limited, and completed Goals do not alert. A stall episode is based on durable Goal activity (`updatedAt`, progress/revision changes); OpenCode session `updated` time is included only as corroborating telemetry because it is not reliable enough to be the stall authority on every host version.
+
+Episode state is stored separately in `.opencode/opencode-loop/pulse-check.json`. The checker never writes Goal state, never dispatches a prompt, never runs `/goal resume`, and therefore does not participate in the prompt-producing Goal-overlap guard. It emits at most one alert per stall episode and re-arms after observed Goal activity or a status change. The alert explicitly names the human recovery action: run `/goal resume` in the Goal's session.
+
+Windows Task Scheduler:
+
+```powershell
+opencode-loopd install-task --project "C:\path\to\project" --every 10m --prompt-file loop-prompt.md --name OpenCodeLoop
+opencode-loopd uninstall-task --name OpenCodeLoop
+```
+
+## State and checkpoints
+
+Runtime state and logs:
+
+```text
+.opencode/opencode-loop/
+.opencode/opencode-loop/loop.log
+```
+
+Patch checkpoints:
+
+```text
+.opencode/opencode-loop/checkpoints/
+```
+
+Add `.opencode/opencode-loop/` to `.gitignore` if runtime state should not be committed.
+
+## Permissions
+
+For unattended work, avoid permanently allowing every shell command. Grant routine read/edit/test operations while keeping destructive commands on ask/deny. `--safe` reduces risk but does not replace OpenCode permission configuration.
+
+## Package and compatibility
+
+```text
+@bybrawe/opencode-loop
+```
+
+Native OpenCode 2 is the default supported package path for `0.6.9`. The production dependency is pinned to `@opencode/plugin@2.0.22`; the explicit legacy V1 compatibility path retains `@opencode-ai/plugin >=1.4.0 <2`. Do **not** mistake the legacy V1 peer range for the V2 runtime API version.
+
+Automated release gates cover standalone native V2 packaging, Windows/Linux regressions, and real OpenCode 2 host command registration. Separate legacy ByBrawe Goal coexistence remains an optional compatibility test: it is **not** a Loop runtime, installation, update, or npm publication dependency. Native OpenCode 2.2+ `/goal` is checked read-only via the public Goal RPC immediately before autonomous Loop admission. **Windows Desktop GUI slash-command discovery is not yet proven equivalent to CLI TUI**; see [#169](https://github.com/ByBrawe/opencode-loop/issues/169) and the [diagnostic guide](docs/OPENCODE2-DESKTOP-WINDOWS.md). Platform gaps are tracked in [#177](https://github.com/ByBrawe/opencode-loop/issues/177).
+
+See [docs/SCHEDULING.md](./docs/SCHEDULING.md) for the scheduling contract and [CHANGELOG.md](./CHANGELOG.md) for release history.
+
+## License
+
+MIT

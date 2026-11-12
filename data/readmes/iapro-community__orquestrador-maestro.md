@@ -1,0 +1,379 @@
+# Orquestrador Maestro
+
+<p align="center">
+  <img src="assets/orquestrador-maestro-logo.png" alt="Orquestrador Maestro" width="360">
+</p>
+
+<p align="center"><a href="README.en.md">English</a> · <a href="docs/skills/README.md">Skills</a> · <a href="docs/installation.md">Instalar</a> · <a href="docs/benchmark.md">Benchmark</a> · <a href="CONTRIBUTING.md">Contribuir</a></p>
+
+> Use o mesmo processo com diferentes ferramentas de IA: entender o pedido, ler o contexto necessário, executar com limites, verificar o resultado e deixar um rastro útil para a próxima sessão.
+
+O Orquestrador Maestro é para quem usa Codex, Claude, OpenCode, Cursor, Gemini e outras ferramentas de IA em projetos reais. Ele não é um modelo nem substitui sua ferramenta favorita: prepara o ambiente para que ela trabalhe com menos desperdício, mais previsibilidade e evidência antes de dizer que terminou.
+
+## Veja o projeto em ação
+
+Assista à demonstração para conhecer o funcionamento do Orquestrador Maestro. Clique na imagem para abrir o vídeo no YouTube.
+
+[![Assistir à demonstração do Orquestrador Maestro no YouTube](https://img.youtube.com/vi/MW-BrC1Nlcs/hqdefault.jpg)](https://www.youtube.com/watch?v=MW-BrC1Nlcs)
+
+**[Assistir à demonstração no YouTube](https://www.youtube.com/watch?v=MW-BrC1Nlcs)**
+
+### Escolha seu próximo passo
+
+| Você quer… | Vá direto para… |
+| --- | --- |
+| Começar do zero em 10 minutos | [Comece aqui](docs/START-HERE.md) |
+| Entender a ideia em 1 minuto | [Como funciona](#um-processo-várias-ferramentas) |
+| Assistir à demonstração | [Veja o projeto em ação](#veja-o-projeto-em-ação) |
+| Instalar agora | [Comece em dois minutos](#comece-em-dois-minutos) |
+| Entender a evolução 0.5 → V1 | [Veja o que mudou e por quê](#da-050-à-v1-contexto-e-roteamento-proporcionais-ao-problema) |
+| Ver o benchmark | [Veja os números](#benchmark-veja-os-números-na-sua-máquina) |
+| Descobrir qual skill usar | [Escolha por objetivo](docs/skills/choose.md) |
+| Configurar memória e contexto | [Guias técnicos](#guias-técnicos) |
+| Conhecer CLI, workflows e adaptadores | [Referência completa](README-technical-reference.md) |
+
+## Por que usar
+
+Quando uma IA recebe só um prompt, ela pode abrir contexto demais, improvisar o processo e declarar uma tarefa pronta sem prova suficiente. O Maestro organiza o caminho antes da execução.
+
+| Sem orquestração | Com Orquestrador Maestro |
+| --- | --- |
+| A IA decide sozinha o que ler | Ela começa pelas regras, pelo estado e pela skill certa |
+| Contexto cresce sem critério | Lê o mínimo suficiente e aprofunda sob demanda |
+| “Pronto” pode ser apenas uma afirmação | Verificação e handoff fazem parte do trabalho |
+| Cada ferramenta cria seu próprio ritual | O processo se mantém entre ferramentas e sessões |
+
+![Três passos do Orquestrador Maestro](docs/diagrams/three-steps.svg)
+
+### O que muda na prática
+
+- **Menos contexto desnecessário.** Índices compactos e documentação de projeto evitam carregar catálogos e históricos inteiros.
+- **Menos surpresa na entrega.** Regras, escopo e verificação entram antes da mudança, não no fim.
+- **Conclusão verificável.** O [Maestro Resolution Engine](docs/maestro-resolution-engine.md) diferencia processo encerrado de `Validated Outcome`, preservando Evidence, Proof Bundle, budget e histórico de resolução.
+- **Menos recomeço entre sessões.** O estado útil fica no projeto, legível por pessoas e por outras ferramentas.
+
+## Comece em dois minutos
+
+Requer Node.js 20.19 ou superior.
+
+```bash
+npm install -g @iapro/orquestrador-maestro-cli@latest
+orquestrador-maestro install
+orquestrador-maestro verify
+```
+
+Prefere instalar pelo repositório? Use o [guia de instalação](docs/installation.md), que inclui Windows, Linux, macOS, bootstrap, dry-run e rollback.
+
+A **V1 estável (1.1.1)** é a versão padrão: branch `v1`, release `v1.1.1` e canal npm `latest`. Para atualizar uma instalação existente, rode `orquestrador-maestro update`, seguido de `orquestrador-maestro verify` e `orquestrador-maestro version --check`. O update faz backup e consolida o núcleo em `.orquestrador`, preservando memória/configuração ao migrar de `.orquestrador-maestro`. Veja a [migração para V1](docs/migration-v1.md).
+
+**Próximo passo:** [verifique a instalação](docs/installation.md#verificação) e [configure o primeiro projeto](docs/project-dev-hierarchy.md).
+
+Depois, abra sua ferramenta de IA no projeto e peça:
+
+```text
+Use o Orquestrador Maestro. Leia as instruções do usuário e do projeto,
+abra somente o contexto necessário, resolva esta tarefa, verifique o resultado
+e registre o estado útil para a próxima sessão.
+```
+
+## Um processo, várias ferramentas
+
+O Maestro começa com instruções globais e locais, encontra a skill adequada e usa `DEV/` para manter objetivo, decisões, verificação e próximo passo no próprio projeto. Assim, você não depende de a conversa anterior ainda estar disponível — nem de trocar de ferramenta sem perder o método.
+
+Ele integra fluxos para Codex, Claude Code, OpenCode, Freebuff, Cursor, Gemini CLI, Grok CLI, MiMo Code, Kimi Code, Windsurf e Antigravity. Cada ferramenta continua responsável pelo próprio runtime, login, modelo e credenciais.
+
+O Freebuff usa o mesmo contrato de `AGENTS.md` e `.agents/skills` que o Maestro já sincroniza. Veja o [guia de integração do Freebuff](docs/freebuff-integration.md) para instalação persistente, MCP, agentes locais e publicação para outros usuários.
+
+### Codex Desktop e ChatGPT Work
+
+A V1 inclui uma integração oficial por plugin para superfícies locais compatíveis com lifecycle hooks. Ela usa Router v3 + Complexity Gate, um **Context Ledger** por sessão, policy deduplicada, Tool Governor e um MCP local sob demanda. A mesma policy não é reinjetada a cada turno e o catálogo completo de skills não é carregado no plugin.
+
+```bash
+orquestrador-maestro desktop-plugin install
+orquestrador-maestro desktop-plugin status
+orquestrador-maestro desktop-plugin doctor
+```
+
+Depois, abra/reinicie o ChatGPT Desktop ou Codex, habilite o plugin **Orquestrador Maestro** no marketplace pessoal e aprove os hooks quando o cliente solicitar confiança. A integração continua fail-open para indisponibilidade do CLI e preserva o runtime nativo do host.
+
+Veja [Integração OpenAI Desktop](docs/openai-desktop-integration.md) para Context Ledger, MCP progressivo, `desktop-plugin stats`, modos `observe|optimize|strict`, budgets e limites.
+
+Para o funcionamento técnico, consulte [como o Orquestrador funciona](docs/orquestrador-reference.md), [economia de contexto](docs/context-economy.md), [memória de projeto com DEV/](docs/project-dev-hierarchy.md) e [perfis de ferramentas](docs/tool-profiles.md).
+
+**Próximo passo:** [aprenda o fluxo que a IA deve seguir](docs/ai-agent-operating-guide.md) ou [configure um workflow declarativo](docs/workflows.md).
+
+## Skills: você pede o resultado, o Maestro escolhe a capacidade
+
+Você **não precisa decorar o nome das Skills** para usar o Maestro. Na V1, elas funcionam como capacidades especializadas que o Router v3 seleciona conforme a intenção, a complexidade, a stack, os arquivos alterados, o risco e o contexto disponível.
+
+![Como o Maestro escolhe Skills na V1](docs/diagrams/skills-routing-v1.svg)
+
+O fluxo normal é:
+
+```text
+pedido em linguagem natural
+        ↓
+Complexity Gate
+        ↓
+sinais do projeto + Skill Contract
+        ↓
+Router v3
+        ↓
+1 Skill principal
++ apoios somente quando justificados
+        ↓
+contexto mínimo suficiente
+        ↓
+execução + verificação
+```
+
+### Comece pelo objetivo, não pelo catálogo
+
+| Quero… | Capacidade que o Maestro tende a procurar | Exemplos de Skills |
+| --- | --- | --- |
+| **Entender um projeto** | baseline, arquitetura, riscos e documentação | `skill-preflight`, `skill-repo-health`, `skill-deep-wiki`, `skill-adr` |
+| **Construir ou evoluir produto** | engenharia, frontend e UX coerentes com o projeto | `skill-engineering-quality`, `skill-frontend-excellence`, `skill-product-ux-architecture` |
+| **Melhorar uma interface** | direção visual, hierarquia, acabamento e motion | `skill-open-design-ui`, `skill-impeccable`, `skill-design-engineering-craft`, `skill-motion-design-principles` |
+| **Investigar e corrigir** | causa raiz, mudança focada e prova da correção | `skill-systematic-debugging`, `skill-verification-before-completion` |
+| **Entregar com segurança** | migração, release, CI, rollback e segurança | `skill-database-migrations`, `skill-release-engineering`, `skill-security-hooks`, `skill-threat-modeling` |
+| **Trabalhar com IA/agentes** | providers, budgets, observabilidade e delegação | `skill-ai-orchestration`, `skill-agent-observability`, `skill-multiagent-orchestration` |
+| **Integrar serviços específicos** | conhecimento de domínio carregado sob demanda | Stripe, AbacatePay, Google Workspace, WhatsApp, mídia e outras Skills de domínio |
+
+Esses exemplos são **portas de entrada**, não combinações obrigatórias. O Router não carrega todas as Skills de uma linha e não encadeia capacidades apenas porque elas parecem relacionadas.
+
+### Veja a decisão antes de executar
+
+Você pode perguntar ao próprio Router o que ele faria:
+
+```bash
+orquestrador-maestro route explain "investigue por que este teste começou a falhar"
+orquestrador-maestro route explain "refaça a arquitetura de UX deste produto"
+orquestrador-maestro route explain --json "prepare esta aplicação para release"
+```
+
+A explicação mostra, conforme aplicável:
+
+- complexidade estimada;
+- Skill principal;
+- Skills encadeadas;
+- confiança;
+- evidência que levou à seleção;
+- sinais de stack/escopo;
+- rotas rejeitadas;
+- contexto estimado e budget máximo.
+
+Isso transforma Skills de uma coleção de prompts em um **sistema de decisão inspecionável**.
+
+### Core, Domain e Skills externas
+
+| Origem | Papel | Como entra no fluxo |
+| --- | --- | --- |
+| **Maestro Core** | capacidades transversais de engenharia e governança | Skill Contract V2 obrigatório; elegíveis para routing automático |
+| **Maestro Domain** | capacidades especializadas, como frontend, segurança, IA e integrações | Skill Contract V2 obrigatório; roteadas quando há evidência específica |
+| **Library / External** | catálogo reutilizável mantido fora do núcleo | normalizado na fronteira; sem routing confiável permanece `explicit-only` |
+| **User / Project** | conhecimento local criado pelo usuário ou pelo repositório | permanece local e não precisa adotar o manifesto interno do Maestro |
+
+O catálogo atual possui **56 Skills canônicas Maestro** e **79 Skills públicas únicas**, mas o objetivo da arquitetura é justamente evitar que esse catálogo inteiro seja colocado no prompt ou apresentado ao usuário como uma lista que precisa ser aprendida.
+
+### As Skills de design não fazem a mesma coisa
+
+Uma área em que uma lista plana confundia bastante era design/frontend. Na V1 elas têm papéis diferentes:
+
+| Skill | Use principalmente para |
+| --- | --- |
+| `skill-product-ux-architecture` | estruturar produto, fluxos, informação, estados e arquitetura de UX |
+| `skill-open-design-ui` | sair de UI genérica/template e definir direção visual |
+| `skill-impeccable` | auditar hierarquia, spacing, consistência, legibilidade e acessibilidade |
+| `skill-design-engineering-craft` | elevar acabamento de implementação e detalhes que fazem a interface parecer madura |
+| `skill-motion-design-principles` | revisar e projetar animações, transições e comportamento de movimento |
+| `skill-frontend-excellence` | coordenar implementação frontend, Design Profile e Visual QA dentro do produto real |
+| `skill-melhorar-ux-ui-por-referencia` | trabalhar especificamente a partir de screenshots ou referências visuais |
+
+O Router usa `useWhen`, `doNotUseWhen`, capabilities e sinais do projeto para evitar que essas capacidades concorram apenas por palavras como “design” ou “frontend”.
+
+### Explore conforme sua necessidade
+
+- **[Escolher por objetivo](docs/skills/choose.md)** — melhor ponto de entrada para humanos.
+- **[Portal de Skills](docs/skills/README.md)** — entenda o modelo, routing, disponibilidade e contrato.
+- **[Receitas operacionais](docs/skills/recipes.md)** — veja quando várias capacidades realmente precisam trabalhar em sequência.
+- **[Referência completa](docs/skills/reference/README.md)** — consulte as 56 Skills canônicas e seus metadados.
+- **[Catálogo público](skill-library/PUBLIC_SKILLS_MANIFEST.json)** — fonte estruturada das Skills públicas deduplicadas.
+
+
+## Da 0.5.0 à V1: contexto e roteamento proporcionais ao problema
+
+A `0.5.0` consolidou a base de execução confiável do Maestro: Resolution Engine, Evidence, Proof Bundle, memória, telemetria, persistência e integração provider-neutral. Essa fundação resolveu uma pergunta essencial: **“o processo terminou ou o resultado foi realmente validado?”**
+
+A próxima limitação estava antes da execução. O fluxo ainda tinha decisões mais estáticas do que o produto precisava: roteamento centrado principalmente em triggers e um orçamento de exploração de codebase próximo de **8k tokens** no caminho legado, independentemente de a tarefa ser um typo ou uma mudança arquitetural.
+
+A V1 move essa decisão para o início do fluxo:
+
+```text
+pedido
+  ↓
+Complexity Gate
+  ↓
+Router v3
+  ↓
+Skill Intelligence
+  ↓
+Context Budget
+  ↓
+Provider
+  ↓
+Verification / Resolution
+```
+
+O objetivo não é simplesmente “usar menos contexto”. É **usar contexto proporcional ao problema**: reduzir agressivamente o que é carregado em tarefas pequenas e permitir mais profundidade quando a evidência indica uma tarefa realmente complexa.
+
+![Budget de contexto da 0.5.0 comparado à V1](docs/diagrams/v1-context-budget.svg)
+
+| Complexidade | 0.5.0 — fluxo legado | V1 | Mudança de teto |
+| --- | ---: | ---: | ---: |
+| `MICRO` | ~8.000 | 1.500 | −81,3% |
+| `SIMPLE` | ~8.000 | 3.000 | −62,5% |
+| `STANDARD` | ~8.000 | 6.000 | −25% |
+| `COMPLEX` | ~8.000 | 10.000 | +25% |
+| `DEEP` | ~8.000 | 16.000 | +100% |
+
+Esses números são **limites configurados no runtime**, não uma promessa de consumo real. O uso efetivo depende do repositório, provider, tarefa e contexto encontrado.
+
+### Como chegamos a esse desenho
+
+A evolução foi incremental:
+
+1. **Primeiro, confiabilidade de conclusão.** A linha 0.5 passou a separar processo encerrado de `Validated Outcome`, preservando verificação e evidência.
+2. **Depois, identidade e contrato das Skills.** A V1 introduz Manifest V3 e Skill Contract V2 para que routing, contexto necessário, outputs e verificação tenham uma fonte canônica.
+3. **Em seguida, complexidade antes de contexto.** O Complexity Gate classifica `MICRO | SIMPLE | STANDARD | COMPLEX | DEEP` antes de decidir quanto carregar.
+4. **Router v3 como caminho padrão.** O Router v3 considera evidência positiva e negativa, capabilities, aliases, sinais do projeto e budget. O Router v2 permanece apenas como comparação/rollback explícito durante a pré-release.
+5. **Fan-out continua deliberado.** Complexidade alta não cria automaticamente vários agentes. Multiagent exige intenção explícita e complexidade compatível para evitar amplification desnecessária.
+
+A mudança no catálogo é pequena em quantidade e grande em contrato:
+
+![Evolução do catálogo e contrato de Skills](docs/diagrams/v1-skill-evolution.svg)
+
+| Indicador | 0.5.0 | V1 proposta |
+| --- | ---: | ---: |
+| Skills canônicas Maestro | 52 | 56 |
+| Skills públicas únicas | 75 | 79 |
+| Manifest canônico | V2 | V3 |
+| Skill Contract V2 nativo | parcial/não canônico | obrigatório para `maestro/*` |
+| Negative routing | limitado | explícito |
+| Context requirements por skill | não canônico | explícito |
+| Outputs / verification por skill | distribuídos | canônicos |
+
+Ou seja: a principal mudança **não é ter mais quatro Skills**. É tornar a seleção explicável, versionada e verificável.
+
+### O que já conseguimos provar
+
+O conjunto comportamental versionado hoje contém **16 intents rotuladas** usadas para comparar Router v2 e Router v3. O gate atual exige que ambos acertem os 16 casos e que o v3 não introduza regressões nesses cenários conhecidos.
+
+Isso é evidência de **não regressão na baseline atual**, não prova de superioridade do v3. Por isso este README não publica uma porcentagem inventada de “melhoria de roteamento”.
+
+Também conseguimos verificar diretamente no código e nos manifests:
+
+- Router v3 é o default da linha V1;
+- Router v2 é rollback explícito;
+- Complexity Gate governa o budget normal de contexto;
+- tarefas `MICRO` e `SIMPLE` não habilitam subagents;
+- mesmo `COMPLEX` e `DEEP` só permitem subagents quando multiagent foi solicitado explicitamente;
+- Skills externas sem routing confiável permanecem `explicit-only`;
+- o catálogo canônico não depende de carregar todas as Skills no prompt.
+
+### Como isso deve melhorar o uso real
+
+Se o desenho se comportar como esperado, a V1 deve melhorar quatro dimensões:
+
+- **Eficiência:** tarefas pequenas deixam de pagar o mesmo custo de contexto de tarefas arquiteturais.
+- **Precisão:** positive/negative routing e capabilities reduzem seleção por coincidência textual.
+- **Profundidade quando necessário:** tarefas complexas podem usar budgets maiores sem obrigar todo o sistema a trabalhar sempre no pior caso.
+- **Explicabilidade:** `orquestrador-maestro route explain` mostra intenção, complexidade, Skill escolhida, evidência e budget estimado em vez de esconder a decisão.
+
+O resultado desejado é este:
+
+```text
+menos tarefa simples → contexto demais
+menos tarefa complexa → contexto de menos
+menos skill irrelevante → prompt
+menos fan-out automático → custo
+
+mais decisão explicável
+mais contexto quando a evidência pede
+mais verificação antes de "done"
+```
+
+### O que ainda precisa de benchmark A/B
+
+Há métricas que **não devem virar claim público apenas porque a arquitetura sugere melhora**. Para comparar `0.5.0` e V1 de forma válida, o benchmark precisa usar as mesmas tarefas, repositórios, provider/modelo e critérios de aceitação.
+
+As próximas comparações devem medir:
+
+| Métrica | Pergunta que ela responde |
+| --- | --- |
+| TTVO — Tokens To Validated Outcome | Quantos tokens foram necessários até um resultado realmente validado? |
+| Context tokens por tarefa | A V1 carregou menos contexto onde não precisava? |
+| First-pass validation | Mais tarefas passaram sem retry? |
+| Validation rate | A economia manteve ou melhorou a qualidade? |
+| Skills selecionadas por tarefa | O Router v3 evitou carregar capacidades irrelevantes? |
+| Retries / provider calls | Houve menos retrabalho e amplification? |
+| Time To Validated Outcome | O caminho até conclusão válida ficou mais curto? |
+| Fan-out por tarefa | Tarefas simples permaneceram solo? |
+| Regressões v2 → v3 | Algum caso conhecido piorou? |
+
+Esses resultados só devem ser publicados quando passarem pelo mesmo [evidence gate](docs/benchmark.md#evidence-gate) usado pelo benchmark do projeto.
+
+**Resumo:** a V1 muda o Maestro de um fluxo com contexto mais uniforme para um sistema que tenta gastar **o mínimo suficiente** por tarefa, sem reduzir os requisitos de validação. A economia é uma consequência esperada; a regra principal continua sendo chegar a um `Validated Outcome` com evidência.
+
+## Benchmark: veja os números na sua máquina
+
+O benchmark compara condições com o mesmo cenário, modelo e critérios de aceitação. Ele mede tokens apenas em tarefas aceitas e preserva evidência para auditoria.
+
+![Comparação entre fluxo sem e com Orquestrador Maestro](docs/diagrams/workflow-comparison.svg)
+
+> **Exemplo ilustrativo.** Os valores no gráfico não são uma promessa nem um resultado oficial. O efeito real varia por modelo, tarefa e ambiente. Rode o benchmark para produzir e inspecionar sua própria evidência.
+
+![Exemplo ilustrativo de economia de tokens](docs/diagrams/token-savings.svg)
+
+O [evidence gate](docs/benchmark.md#evidence-gate) impede que resultados sem verificação apropriada virem claim público. Em vez de pedir confiança, o projeto mostra como conferir modelo, cenário, execução e evidência.
+
+![Fluxo de evidência do benchmark](docs/diagrams/evidence-gate.svg)
+
+Para preparar o ambiente e executar uma comparação, siga o [quick start do benchmark](docs/benchmark.md#quick-start). A [metodologia](docs/benchmark.md) explica limites, métricas e o que os resultados não permitem concluir.
+
+**Próximo passo:** [inspecione a evidência gerada](docs/benchmark.md#evidence) antes de transformar qualquer número em claim.
+
+## Guias técnicos
+
+| Se você quer… | Comece aqui |
+| --- | --- |
+| Instalar ou atualizar | [Guia de instalação](docs/installation.md) · [migração para V1](docs/migration-v1.md) · [opções](docs/installer-options.md) |
+| Entender o método | [Guia operacional para IAs](docs/ai-agent-operating-guide.md) · [referência técnica](docs/orquestrador-reference.md) |
+| Reduzir custo de contexto | [Economia de contexto](docs/context-economy.md) |
+| Exigir qualidade verificável | [Engenharia guiada](docs/engineering-quality.md) · [Resolution Engine](docs/maestro-resolution-engine.md) |
+| Avaliar privacidade | [Modelo de privacidade](docs/privacy-model.md) |
+| Retomar tarefas longas | [Workflows](docs/workflows.md) · [contratos](docs/task-and-workspace-contracts.md) |
+| Organizar memória | [Hierarquia DEV/](docs/project-dev-hierarchy.md) · [escopos](docs/memory-scopes.md) |
+| Trabalhar com skills | [Portal](docs/skills/README.md) · [escolher](docs/skills/choose.md) · [catálogo](docs/skills/reference/README.md) |
+| Consultar CLI, arquitetura e comandos avançados | [Referência técnica completa](README-technical-reference.md) |
+| Resolver problemas | [Troubleshooting](docs/installation-troubleshooting.md) |
+| Ver tudo | [Índice de documentação](docs/) |
+
+## Privacidade por padrão
+
+Este é um snapshot público e sanitizado: compartilha estrutura e comportamento, não conteúdo privado da máquina que o originou. Credenciais, sessões, logs, caches, caminhos locais e memórias privadas ficam fora do repositório.
+
+![Fronteira entre conteúdo público e local](docs/diagrams/privacy-boundary.svg)
+
+Leia o [modelo de privacidade](docs/privacy-model.md) para saber exatamente o que entra, o que fica local e como a telemetria anônima funciona.
+
+A telemetria vem **desabilitada por padrão** (opt-in via `orquestrador-maestro telemetry enable`). Quando ativada, o CLI mede **instalações anônimas ativas**, nunca pessoas únicas. Envia somente comando, resultado, versão e ambiente técnico ao endpoint configurado; não envia caminhos, argumentos, prompts, arquivos, nomes, IP armazenado pelo produto ou credenciais. Desative com `orquestrador-maestro telemetry disable` ou `ORQUESTRADOR_MAESTRO_TELEMETRY=0`.
+
+**Próximo passo:** [confira o modelo completo de privacidade](docs/privacy-model.md) antes de sincronizar uma instalação pública.
+
+## Próximo passo
+
+**[Instale em dois minutos](docs/installation.md)** para usar o mesmo processo nas suas ferramentas de IA. Depois, **[rode o benchmark](docs/benchmark.md#quick-start)** para ver os dados no seu ambiente. Encontrou algo que pode melhorar? **[Contribua](CONTRIBUTING.md)**.
+
+## Licença
+
+Consulte [LICENSE](LICENSE). Este projeto organiza o processo de trabalho; decisões, credenciais e efeitos externos continuam sob controle humano.
