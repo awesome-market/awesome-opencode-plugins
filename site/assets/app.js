@@ -213,7 +213,7 @@ async function hydrateSocial() {
         try {
           const r = await api(`/${btn.dataset.act}/toggle`, {
             method: 'POST',
-            body: JSON.stringify({ site: 'github', item_id: el.dataset.fn })
+            body: JSON.stringify({ site: 'oplugins', item_id: el.dataset.fn })
           });
           const on = r.liked ?? r.faved;
           btn.classList.toggle('on', !!on);
@@ -659,7 +659,7 @@ async function init() {
   zkInit();
   initSearch();
   zkLoadUser().then(renderAuthChip);
-  api('/stats/view', { method: 'POST', body: JSON.stringify({ site: 'github', path: location.pathname }) })
+  api('/stats/view', { method: 'POST', body: JSON.stringify({ site: 'oplugins', path: location.pathname }) })
     .catch(() => { });   /* fire-and-forget analytics */
   readURL();
   applyStaticI18n();

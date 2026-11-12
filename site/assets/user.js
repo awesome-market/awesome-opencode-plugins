@@ -92,7 +92,7 @@ async function ucLoadItems(el, kind) {
       try {
         await api(toggleEp, {
           method: 'POST',
-          body: JSON.stringify({ site: 'github', item_id: row.dataset.id })
+          body: JSON.stringify({ site: 'oplugins', item_id: row.dataset.id })
         });
         row.remove();
         if (!el.querySelector('.uc-row')) ucLoadItems(el, kind);
@@ -338,5 +338,5 @@ document.title = t('uc.title') + ' · OpenCode Plugins';
 zkLoadUser().then(() => { renderAuthChip(); render(); });
 api('/stats/view', {
   method: 'POST',
-  body: JSON.stringify({ site: 'github', path: location.pathname })
+  body: JSON.stringify({ site: 'oplugins', path: location.pathname })
 }).catch(() => { });   /* fire-and-forget analytics */

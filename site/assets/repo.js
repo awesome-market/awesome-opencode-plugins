@@ -748,7 +748,7 @@ async function loadSocial(d) {
   if (!el) return;
   const needLogin = () => openAuthModal('login');
   let s = { views: 0, likes: 0, favs: 0, comments: 0, viewer: {} };
-  try { s = await api(`/items/github/social/${encodeURIComponent(d.full_name)}`); } catch { }
+  try { s = await api(`/items/oplugins/social/${encodeURIComponent(d.full_name)}`); } catch { }
   const sv = s.viewer || {};
   const m = d.metrics || {};
   const views = Math.round((m.downloads_month || 0) * 0.2 + (s.views || 0));
@@ -776,7 +776,7 @@ async function loadSocial(d) {
     try {
       const r = await api(`/${kind}/toggle`, {
         method: 'POST',
-        body: JSON.stringify({ site: 'github', item_id: d.full_name })
+        body: JSON.stringify({ site: 'oplugins', item_id: d.full_name })
       });
       const on = r.liked ?? r.faved;
       btn.classList.toggle('on', !!on);
@@ -811,7 +811,7 @@ function renderCommentForm(d) {
     try {
       await api('/comments', {
         method: 'POST',
-        body: JSON.stringify({ site: 'github', item_id: d.full_name, body })
+        body: JSON.stringify({ site: 'oplugins', item_id: d.full_name, body })
       });
       $('#cmText').value = '';
       $('#cmNote').textContent = t('cm.posted');
@@ -875,7 +875,7 @@ function openReplyForm(item, parent, d) {
     try {
       await api('/comments', {
         method: 'POST',
-        body: JSON.stringify({ site: 'github', item_id: d.full_name, body, parent_id: parent.id })
+        body: JSON.stringify({ site: 'oplugins', item_id: d.full_name, body, parent_id: parent.id })
       });
       loadComments(d);
     } catch (e) {
@@ -1087,7 +1087,7 @@ async function initRepo() {
   renderFoot(repo.data);
   api('/stats/view', {
     method: 'POST',
-    body: JSON.stringify({ site: 'github', item_id: fn, path: location.pathname })
+    body: JSON.stringify({ site: 'oplugins', item_id: fn, path: location.pathname })
   }).catch(() => { });   /* fire-and-forget analytics */
 }
 
