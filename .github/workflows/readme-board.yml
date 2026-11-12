@@ -31,6 +31,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Rebuild board data
+        # site/data/ is gitignored build output — regenerate the day files
+        # from committed snapshots so the README table uses real rankings.
+        run: python3 scripts/rank.py --site-base https://opencode-plugins.zhuikan.com
+
       - name: Regenerate README top-20 tables
         run: python3 scripts/update_readme.py
 
