@@ -114,4 +114,4 @@ jobs:
           rm -rf /tmp/cfp-site && mkdir -p /tmp/cfp-site
           rsync -a --exclude 'data/' /tmp/ghp-site/ /tmp/cfp-site/
           echo "deploy payload: $(find /tmp/cfp-site -type f | wc -l) files"
-          npx -y wrangler@3 pages deploy /tmp/cfp-site --project-name=oplugin --branch=main
+          npx -y wrangler@3 pages deploy /tmp/cfp-site --project-name=opencode-plugins --branch=main

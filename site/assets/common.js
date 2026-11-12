@@ -582,12 +582,12 @@ document.addEventListener('click', (e) => {
   let u;
   try { u = new URL(a.href); } catch { return; }
   if (u.protocol !== 'https:' && u.protocol !== 'http:') return;
-  if (u.hostname === location.hostname || u.hostname.endsWith('.oplugin.com')) return;
+  if (u.hostname === location.hostname || u.hostname.endsWith('.oplugin.com') || u.hostname.endsWith('.zhuikan.com')) return;
   if (typeof _hmt !== 'undefined') _hmt.push(['_trackEvent', 'outbound', outboundKind(u), u.href]);
 }, true);
 
 /* ---------------- api client + auth ---------------- */
-const API_BASE = 'https://api.oplugin.com';
+const API_BASE = 'https://api-openplugins.zhuikan.com';
 const zk = { token: null, user: null };
 
 function zkInit() {

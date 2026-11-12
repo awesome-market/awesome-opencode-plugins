@@ -32,7 +32,7 @@ const HOME = DB || './';
 // there (CORS would block api-site from *.github.io origins anyway).
 const DATA = (['localhost', '127.0.0.1'].includes(location.hostname)
   || location.hostname.endsWith('.github.io'))
-  ? `${DB}data/` : 'https://api.oplugin.com/data/';
+  ? `${DB}data/` : 'https://api-openplugins.zhuikan.com/data/';
 
 function deltaSpan(label) {
   const g = repo.data.growth && repo.data.growth[label];
