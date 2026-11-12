@@ -117,4 +117,6 @@ jobs:
           rm -rf /tmp/cfp-site && mkdir -p /tmp/cfp-site
           rsync -a /tmp/ghp-site/ /tmp/cfp-site/   # 载荷含 data/（~10.5k < 2万上限），后端上线后可剔除
           echo "deploy payload: $(find /tmp/cfp-site -type f | wc -l) files"
+          # wrangler 不自动建项目——幂等 create（已存在时报错但无害）
+          npx -y wrangler@3 pages project create opencode-plugins --production-branch=main || true
           npx -y wrangler@3 pages deploy /tmp/cfp-site --project-name=opencode-plugins --branch=main
