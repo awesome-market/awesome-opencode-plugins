@@ -15,8 +15,10 @@ const DB = document.body.dataset.base || '';
 // The gh-pages mirror keeps its own full data/ tree — fetch it relatively
 // there (CORS would block api-site from *.github.io origins anyway).
 const DATA = (['localhost', '127.0.0.1'].includes(location.hostname)
-  || location.hostname.endsWith('.github.io'))
-  ? `${DB}data/` : 'https://api.oplugin.com/data/';
+  || location.hostname.endsWith('.github.io')
+  || location.hostname.endsWith('.zhuikan.com')
+  || location.hostname.endsWith('.oplugin.com'))
+  ? `${DB}data/` : 'https://api-openplugins.zhuikan.com/data/';
 const LANG_PAGE = document.body.dataset.lang || '';
 const LANG_NAME = document.body.dataset.langName || '';
 const TAG_PAGE = document.body.dataset.tag || '';
@@ -550,7 +552,7 @@ async function renderAll() {
   await loadView();
 }
 
-/* ------------- header search — remote: api.oplugin.com/search ------- */
+/* ------------- header search — remote: api-openplugins.zhuikan.com/search ------- */
 const search = { hits: [], active: -1, err: false };
 
 function repoUrl(fn) { return `${DB}repos/${fn.replace('/', '__')}`; }

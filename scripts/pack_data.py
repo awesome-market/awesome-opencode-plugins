@@ -4,7 +4,7 @@
 Why: Cloudflare Pages caps deployments at 20k files and the data tree
 (per-repo JSON, README markdown, day/tag feeds) is ~16k files on its own.
 CI uploads this file via POST /data-upload on api-site; the frontend then
-hydrates from https://api.oplugin.com/data/<path> instead of static
+hydrates from https://api-openplugins.zhuikan.com/data/<path> instead of static
 /data/*.json files. gh-pages keeps the full tree as backup.
 
 Schema:

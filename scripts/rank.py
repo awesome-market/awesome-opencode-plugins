@@ -72,7 +72,7 @@ NEW_MIN_STARS = 10
 GROWTH_MIN_STARS = 30
 RATE_MIN_BASE = 50
 
-DEFAULT_SITE_BASE = "https://oplugin.com"
+DEFAULT_SITE_BASE = "https://opencode-plugins.zhuikan.com"
 
 
 def log(msg: str) -> None:
@@ -436,7 +436,7 @@ def _fetch_comments() -> dict[str, list]:
     Crawlers/no-JS clients get the build-time snapshot; repo.js hydration
     overwrites it with live API data on load. Failure → empty map (comments
     are additive content, never worth failing the whole build over)."""
-    api = os.environ.get("ZK_API_BASE", "https://api.oplugin.com")
+    api = os.environ.get("ZK_API_BASE", "https://api-openplugins.zhuikan.com")
     try:
         req = urllib.request.Request(
             f"{api.rstrip('/')}/comments/all_approved?site=oplugins",
@@ -744,10 +744,10 @@ def render_tag_page(tag: str, slug: str, items: list, day: str,
                   f'<meta name="description" content="{_esc(desc)}">',
                   html, count=1)
     html = html.replace(
-        '<link rel="canonical" href="https://oplugin.com/">',
+        '<link rel="canonical" href="https://opencode-plugins.zhuikan.com/">',
         f'<link rel="canonical" href="{_esc(url)}">')
     html = html.replace(
-        '<meta property="og:url" content="https://oplugin.com/">',
+        '<meta property="og:url" content="https://opencode-plugins.zhuikan.com/">',
         f'<meta property="og:url" content="{_esc(url)}">')
     note = (f'<p style="color:var(--muted,#8b949e);font-size:13px;margin:0 4px 10px">'
             f'{_esc(day)} · #{_esc(tag)} · {len(items)} '
@@ -786,10 +786,10 @@ def render_lang_page(lang: str, slug: str, boards: dict, day: str,
         f'<meta name="description" content="{_esc(lang)} OpenCode 插件榜单 · '
         f'{_esc(lang)} trending OpenCode plugins · ', 1)
     html = html.replace(
-        '<link rel="canonical" href="https://oplugin.com/">',
+        '<link rel="canonical" href="https://opencode-plugins.zhuikan.com/">',
         f'<link rel="canonical" href="{_esc(url)}">')
     html = html.replace(
-        '<meta property="og:url" content="https://oplugin.com/">',
+        '<meta property="og:url" content="https://opencode-plugins.zhuikan.com/">',
         f'<meta property="og:url" content="{_esc(url)}">')
     # SSR the language's daily board; month/year widgets don't apply here
     items = ((boards.get("daily") or {}).get("items") or [])[:SSR_TOP]
@@ -843,10 +843,10 @@ def render_board_page(board: str, day: str, items: list, days: list,
                   f'<meta name="description" content="{_esc(desc)}">',
                   html, count=1)
     html = html.replace(
-        '<link rel="canonical" href="https://oplugin.com/">',
+        '<link rel="canonical" href="https://opencode-plugins.zhuikan.com/">',
         f'<link rel="canonical" href="{_esc(url)}">')
     html = html.replace(
-        '<meta property="og:url" content="https://oplugin.com/">',
+        '<meta property="og:url" content="https://opencode-plugins.zhuikan.com/">',
         f'<meta property="og:url" content="{_esc(url)}">')
 
     # static nav so crawlers can traverse the whole board/date graph;
@@ -1554,7 +1554,7 @@ def main() -> int:
             f.unlink()
 
     # search indexes — published as open data (the header search box itself
-    # queries api-site.zhuikan.com/search remotely). Compact {n,d,l,s} fields
+    # queries api-openplugins.zhuikan.com/search remotely). Compact {n,d,l,s} fields
     # cover repo name / owner / language / description for every tracked repo;
     # news titles live in a separate file. Documented in llms.txt.
     (SITE_DATA / "search-index.json").write_text(

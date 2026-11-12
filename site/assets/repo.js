@@ -384,8 +384,8 @@ async function shareCanvas(d) {
   c.fillStyle = '#1f2328'; c.font = F(700, 34);
   c.fillText(fitText(c, `OpenCode Plugins · ${t('rp.share.slogan')}`, W - 72 - 170 - 182 - 20), 182, fy + 108);
   c.fillStyle = '#6e7781'; c.font = F(400, 26);
-  c.fillText(fitText(c, `oplugin.com/repos/${d.full_name.replace('/', '__')}`, W - 72 - 170 - 182 - 20), 182, fy + 152);
-  const pageUrl = `https://oplugin.com/repos/${d.full_name.replace('/', '__')}`;
+  c.fillText(fitText(c, `${location.host}/repos/${d.full_name.replace('/', '__')}`, W - 72 - 170 - 182 - 20), 182, fy + 152);
+  const pageUrl = `${location.origin}/repos/${d.full_name.replace('/', '__')}`;
   try {
     drawQr(c, pageUrl, W - 72 - 150, fy + 40, 150);
     c.fillStyle = '#9aa4b0'; c.font = F(400, 20); c.textAlign = 'center';
