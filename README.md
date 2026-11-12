@@ -1,80 +1,105 @@
-# 📡 GitHub Trending Rank Radar
+# OpenCode Plugins
 
-独立采集 GitHub 仓库数据的开源项目趋势榜单 —— **完全开源、数据自采**。
+OpenCode 插件 / 技能目录的开源趋势榜单 —— **数据每日自动同步、全部开放下载**。
 
-🌐 **在线榜单**: https://zhuikan.com/ （镜像：https://awesome-market.github.io/trending-rank-radar/）
+🌐 **在线榜单**: https://opencode-plugins.zhuikan.com
+（镜像：https://awesome-market.github.io/awesome-opencode-plugins/ · API：https://api-openplugins.zhuikan.com）
 
-## 八种榜单
+## 榜单
 
 | 榜单 | 口径 |
 |---|---|
-| 新榜 | 近 90 天内创建，按当前 Star 排序（≥20★） |
-| 日 / 周 / 月飙升榜 | 窗口 Star **绝对增长量**降序（增量 > 0，当前 ≥100★） |
+| 新榜 | 近 90 天内上架，按当前 Star 排序（≥10★） |
+| 首秀榜 | 当日首次进入跟踪范围的新条目 |
+| 日 / 周 / 月飙升榜 | 窗口 Star **绝对增长量**降序（增量 > 0，当前 ≥30★） |
 | 日 / 周 / 月增速榜 | **相对增长率** = 增量 ÷ 窗口起点 Star 基数 × 100（基数 ≥50） |
+| 下载日增榜 | npm 真实**逐日下载数**降序（见下方「下载数据」） |
+| 昨日下载榜 | 前一日的 npm 逐日下载数 |
 | 总榜 | 当前累计 Star 降序 |
 
-- 增长量由**每日 Star 快照差分**得出，每天北京时间 10:00 / 22:00 各采集一次
-- 增速榜与飙升榜分列（八榜结构）
-- 历史窗口不足时用最早可用快照兜底，界面标注实际区间（如 `10-15 ~ 11-08 · 24天`）
+- Star 增长由**每日快照差分**得出；窗口不足时用最早可用快照兜底并标注实际区间
+- 按日 / 月 / 年回看：月末八榜、当月累计增长、年度增长与 Top10 摘要
 
-## 按日 / 月 / 年回看
+## 数据来源
 
-- **日**：任意历史日期的八榜快照
-- **月**：月末八榜 + 当月累计增长榜 + 每日 Top10 摘要
-- **年**：年度增长榜 + 月度榜入口
+| 数据 | 来源 | 更新 |
+|---|---|---|
+| 目录、Star、30 天下载、检验状态 | 上游目录 [awesome-opencode-market](https://github.com/awesome-market/awesome-opencode-market) `index.json` | CI 每日 2 次（UTC 03:00 / 15:00） |
+| **逐日下载数** | npm 官方统计 `api.npmjs.org/downloads/range` | 同上，增量合并长期保存 |
+| 中文描述 | [OpenDock](https://github.com/qunqin24/opendock) `plugins.json` 补位（上游缺省时） | 每次同步 |
+| Star 历史（09-13 起）| OpenDock `history.json` 一次性回填 | 之后由本站快照接续 |
+
+上游目录只发布**滚动窗口指标**（`npmDownloads30d`），因此本站自行维护两条长期序列：
+
+- `data/snapshots/<UTC-时>.json` —— 每次同步的全量指标行（Star / 30 天下载 / 本月下载），**提交进 git 永不删除**
+- `data/dlhist/<owner>__<name>.json` —— 每插件 `{日期: 下载数}` 的真实逐日历史（首见回填 180 天，之后 7 天滚动增量）
+
+GitHub 源条目（未发布到 npm 的）没有下载数据——只有 Star 维度，这是数据源本身的边界。
 
 ## 界面特性
 
-- **中英双语**：右上角 `EN`/`中` 一键切换，选择本地持久化
-- **深/浅主题**：☀/☾ 手动切换，跟随系统偏好兜底，无闪烁加载
-- **宽版行**：作者 + 仓库名 + 头像 + 语言/Star/Fork/Watch/PR/Issue/Release 元信息 + 自适应简介 + 内嵌 30 日 Sparkline
-- **领奖台**：前三名金银铜错位卡片；空状态给出积累进度与备用榜预览
-- **桌面优先**：按 ≥1440px 宽屏设计，小屏保有可用降级
+- **中英双语**：右上角 `EN`/`中` 切换，本地持久化
+- **深 / 浅主题**：手动切换 + 系统偏好兜底，无闪烁加载
+- **插件详情页**：指标卡、检验结论（实测可用 / 装不上 / 有高危信号 / 未验）、能力与红旗（默认收起）、版本信息、Star 历史曲线、分享卡片
+- **社交功能**（经 API 后端）：注册登录、评论、点赞、收藏、浏览计数、用户中心
+- **SEO / GEO**：全量 SSR 详情页、canonical / OG / JSON-LD、feed、sitemap、llms.txt
 
 ## 技术架构
 
 ```
-GitHub Trending / Search API / GraphQL API
-        │  GitHub Actions 每日 2 次
-        ▼
-data/snapshots/*.json  ──►  scripts/rank.py  ──►  site/data/*.json
-   (git 仓库即数据库)         (八榜预计算)          (纯静态，Pages 托管)
+awesome-opencode-market index.json        api.npmjs.org/downloads/range
+        │  CI 每日 2 次                           │  CI 每日 2 次
+        ▼                                        ▼
+data/snapshots/*.json  data/repos/*.json   data/dlhist/*.json
+        │  (git 仓库即数据库 —— 长期档案)            │
+        └──────────►  scripts/rank.py  ◄──────────┘
+                            │  (榜单 + 历史 + 详情预计算)
+                            ▼
+               site/data/*.json + site/ 静态页
+                  │                │
+        Cloudflare Pages    gh-pages 镜像    site-data.db → api
 ```
 
-- **零依赖 Python 3**：采集/计算只用标准库（`urllib` + `html.parser` + `json`）
-- **纯静态前端**：原生 HTML/CSS/JS，无构建工具，GitHub Pages 直接托管
-- **数据即档案**：所有快照提交进 git，仓库本身就是可下载的历史数据库
+- **零依赖 Python 3**：采集 / 计算只用标准库
+- **纯静态前端**：原生 HTML/CSS/JS，无构建工具
+- **数据即档案**：快照与下载历史提交进 git，仓库本身就是可下载的历史数据库
+- **API 后端**（独立私有仓库）：FastAPI + SQLite，`api-openplugins.zhuikan.com`；站点数据以 `site-data.db` 单 blob 上传，社交 / 搜索 / 审核走 API
 
 ## 口径说明
 
-- 新榜 / 总榜为**本站跟踪仓库范围**（约 2000 个，由 Trending + Search API + 增长信号维护）内的排名，非全站点排名
-- 增速 = 增长量 ÷ 窗口起点 Star 基数，向下取整为整数百分比
-- `issues` 计数来自 GitHub API（REST 口径含 PR；GraphQL 中 issues / pullRequests 分列）
-- 数据仅供参考，不构成任何建议
+- 新榜 / 总榜为**本站跟踪范围**（当前约 5200 条目，由上游目录全量收录）内的排名
+- 增速 = 增长量 ÷ 窗口起点 Star 基数，取整为整数百分比
+- `30 天下载` 来自上游 `metrics.npmDownloads30d`（滚动窗口）；`逐日下载` 来自 npm 官方统计（UTC 自然日，滞后约 1 天，界面上标 `approx`）
+- `npm/` 为合成 owner 前缀：bare 包名归一化用，不代表维护者
+- 数据仅供参考
 
 ## 本地运行
 
 ```bash
-# 采集快照（需要 GITHUB_TOKEN）
-GITHUB_TOKEN=xxx python3 scripts/collect.py
+# 同步上游目录 → data/snapshots + data/repos + data/watchlist.json
+python3 scripts/sync_catalog.py            # OCM_INDEX_URL 可覆盖源地址
 
-# 重建榜单与站点数据
-python3 scripts/rank.py --site-base http://localhost:8000
+# 采集 npm 逐日下载 → data/dlhist/*.json
+python3 scripts/sync_downloads.py          # OCM_DL_LIMIT=8 可冒烟
 
-# 预览
-cd site && python3 -m http.server 8000
+# 重建榜单 + 站点数据 → site/data + site/ 静态页
+python3 scripts/rank.py --site-base https://opencode-plugins.zhuikan.com
+
+# 一次性回填 OpenDock star 历史（可选，已执行过）
+python3 scripts/import_opendock.py --catalog-only
 ```
 
-## 仓库结构
+## 目录结构
 
 ```
-├── docs/                  # 设计文档（数据管道/榜单算法/前端/自动化）
-├── scripts/               # collect.py · rank.py · gh.py（零依赖）
-├── data/                  # 快照与元数据（git 即历史档案）
-├── site/                  # 生成的静态站（Pages 部署源）
-└── .github/workflows/     # 每日定时采集 + Pages 部署
+data/snapshots/    全量指标快照（每次同步一份，长期保留）
+data/repos/        每插件详情 JSON（上游字段 + 补位中文描述）
+data/dlhist/       每插件逐日 npm 下载历史
+data/watchlist.json  跟踪名册（首见/末见日期）
+scripts/           sync_catalog / sync_downloads / rank / pack_data / import_opendock
+site/              静态前端 + 生成的 data/ 与页面（CI 产物）
 ```
 
 ## License
 
-[Apache-2.0](LICENSE)
+MIT — 数据文件以仓库形式公开，欢迎二次加工引用。
