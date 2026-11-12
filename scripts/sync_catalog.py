@@ -49,6 +49,13 @@ INDEX_URL = os.environ.get(
     "OCM_INDEX_URL",
     "https://terry2010.github.io/awesome-opencode-market/index.json",
 )
+# OpenDock snapshot: npm_id/repo-slug -> descriptionZh, fills the zh field
+# the upstream catalog leaves empty. One extra GET, tolerant of failure.
+ENRICH_URL = os.environ.get(
+    "OCM_ENRICH_URL",
+    "https://raw.githubusercontent.com/qunqin24/opendock/"
+    "main/src/data/plugins.json",
+)
 UTC = timezone.utc
 CTRL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 MAX_TXT = 4000
@@ -129,7 +136,30 @@ def _avatar(e: dict, owner: str) -> str | None:
     return None
 
 
-def convert(e: dict) -> dict | None:
+def load_zh_enrich() -> dict[str, str]:
+    """Fetch OpenDock plugins.json → {npm_id|repoSlug: descriptionZh}."""
+    try:
+        req = urllib.request.Request(
+            ENRICH_URL, headers={"User-Agent": "oplugins-radar/1.0"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            j = json.load(r)
+    except Exception as ex:
+        log(f"[warn] zh enrich fetch failed: {ex}")
+        return {}
+    out = {}
+    for p in j.get("plugins") or []:
+        zh = _txt(p.get("descriptionZh"), 2000)
+        if not zh:
+            continue
+        for key in (p.get("name"), p.get("repoSlug")):
+            k = _txt(key, 300)
+            if k:
+                out.setdefault(k.lower(), zh)
+    log(f"zh enrich: {len(out)} descriptions")
+    return out
+
+
+def convert(e: dict, zh: dict | None = None) -> dict | None:
     """catalog entry → our detail json; None when unusable."""
     slug = _txt(e.get("slug") or e.get("name"), 300)
     if not slug:
@@ -156,7 +186,11 @@ def convert(e: dict) -> dict | None:
         "url": _entry_url(e),
         "updated_at": _txt(e.get("modifiedAt"), 60),
         "detail": {
-            "description_zh": _txt(desc.get("zh"), 2000),
+            "description_zh": (_txt(desc.get("zh"), 2000)
+                               or (zh or {}).get(
+                                   (_txt((e.get("source") or {}).get("id"), 300) or "").lower())
+                               or (zh or {}).get(
+                                   (_txt((e.get("source") or {}).get("repo"), 200) or "").lower())),
             "source_repo": _txt((e.get("source") or {}).get("repo"), 200),
             "npm_id": _txt((e.get("source") or {}).get("id"), 300),
             "avatar": _avatar(e, owner),
@@ -208,11 +242,12 @@ def main() -> int:
         except Exception:
             prev_wl = {}
 
+    zh = load_zh_enrich()
     rows, wl, written, skipped = [], {}, 0, 0
     for e in entries:
         if not isinstance(e, dict):
             continue
-        conv = convert(e)
+        conv = convert(e, zh)
         if conv is None:
             skipped += 1
             continue
