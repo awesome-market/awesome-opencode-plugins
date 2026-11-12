@@ -1,7 +1,7 @@
 {
-  "name": "GitHub Trending Rank Radar",
-  "short_name": "TrendingRadar",
-  "description": "Independent open-source GitHub trend radar — daily/weekly/monthly star growth & rate boards, new & all-time charts, bilingual UI.",
+  "name": "OpenCode Plugins",
+  "short_name": "OCPlugins",
+  "description": "Independent open-data catalog of OpenCode plugins — daily/weekly/monthly star growth & download boards, new & all-time charts, bilingual UI.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

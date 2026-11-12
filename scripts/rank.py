@@ -382,7 +382,6 @@ def _ssr_repo(p: dict) -> str:
         same_links = (f'<div class="rp-same-label">同作者插件</div>'
                       f'<div class="rp-same-row">{same_links}</div>')
     page_fn = _esc(p["full_name"]).replace("/", "__")
-    news_html = _ssr_news(p.get("news") or [])
     owner_url = _owner_url(p)
     if p.get("avatar"):
         av_img = (f'<img class="rp-side-av" src="{_esc(p["avatar"])}?s=300" width="300" '
@@ -426,7 +425,6 @@ def _ssr_repo(p: dict) -> str:
 </div>
 <section class="rp-panel card">{dl_html}<div class="rp-metric-grid">{growth_mets}{mets}</div>
 {readme_html}{sec_i}{sec_d}{rel_html}</section>
-{news_html}
 {_ssr_comments(p.get('cm_items'))}
 <p class="rp-meta">Snapshot: {_esc(p.get('snapshot_at'))} · Data license Apache-2.0 ·
 <a href="../data/repos/{_esc(p['owner'])}__{_esc(p['name'])}.json">JSON</a></p>"""
@@ -441,7 +439,7 @@ def _fetch_comments() -> dict[str, list]:
     try:
         req = urllib.request.Request(
             f"{api.rstrip('/')}/comments/all_approved?site=oplugins",
-            headers={"User-Agent": "trending-rank-radar-build"})
+            headers={"User-Agent": "opencode-plugins-build"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read()).get("items") or {}
     except Exception as e:
@@ -502,63 +500,11 @@ def _ssr_comments(items: list) -> str:
             f'<div class="rp-cm-list">{body}</div></section>')
 
 
-def _load_news(owner: str, repo: str) -> list:
-    p = DATA_DIR / "news" / f"{owner}__{repo}.json"
-    try:
-        return json.loads(p.read_text(encoding="utf-8")).get("items") or []
-    except Exception:
-        return []
-
-
-def _ssr_news(items: list) -> str:
-    """Bilingual press block for repo pages. Both languages render into the
-    HTML (crawlable); the non-default one carries `hidden`, and repo.js
-    flips visibility on language switch / re-render."""
-    if not items:
-        return ""
-    zh = [i for i in items if i.get("lang") == "zh"]
-    en = [i for i in items if i.get("lang") != "zh"]
-
-    def row(i: dict) -> str:
-        extra = _esc(i.get("date") or "")
-        if i.get("source") == "Hacker News" and isinstance(i.get("points"), int):
-            c = i.get("comments")
-            extra = (f"▲ {i['points']:,}"
-                     + (f" · {c:,} comments" if isinstance(c, int) else "")
-                     + f" · {_esc(i.get('date') or '')}")
-        return (f'<a class="rp-item" '
-                f'href="{_esc(i.get("hn") or i.get("url") or "")}" '
-                f'target="_blank" rel="noopener">'
-                f'<span class="rp-news-src">{_esc(i.get("source") or "")}</span>'
-                f'<span class="rp-item-title">{_esc(i.get("title") or "")}</span>'
-                f'<span class="rp-item-extra">{extra}</span></a>')
-
-    def block(lst: list, lang: str, title: str, hidden: bool) -> str:
-        lattr = ' lang="zh-CN"' if lang == "zh" else ' lang="en"'
-        h = " hidden" if hidden else ""
-        more = ""
-        if len(lst) > 10:
-            label = f"展开其余 {len(lst) - 10} 条" if lang == "zh" \
-                else f"{len(lst) - 10} more"
-            more = (f'<details class="rp-news-more"><summary>{label}</summary>'
-                    f'{"".join(row(i) for i in lst[10:])}</details>')
-        return (f'<div class="rp-news-block"{lattr}{h}>'
-                f'<h3 class="rp-ph">{title} ({len(lst)})</h3>'
-                f'<div class="rp-list">{"".join(row(i) for i in lst[:10])}'
-                f'{more}</div></div>')
-
-    visible = "zh" if zh else "en"   # SSR default: zh first (site default lang)
-    return ('<section class="rp-news card">'
-            + (block(zh, "zh", "相关报道", visible != "zh") if zh else "")
-            + (block(en, "en", "News &amp; coverage", visible != "en") if en else "")
-            + "</section>")
-
-
 # ------------------------------------------------------------ index SSR --
 SSR_BEGIN, SSR_END = "<!--SSR-->", "<!--/SSR-->"
 # landing-order fallback mirrors app.js (default board = 'daily')
 SSR_BOARDS = ("daily", "new", "total", "weekly", "monthly")
-SSR_LABELS = {"new": ("新星榜", "New Repos"), "debut": ("首登榜", "Debut"),
+SSR_LABELS = {"new": ("新星榜", "New Plugins"), "debut": ("首登榜", "Debut"),
               "daily": ("日飙升榜", "Daily Growth"),
               "daily_rate": ("日增速榜", "Daily Rate"),
               "weekly": ("周飙升榜", "Weekly Growth"),
@@ -839,7 +785,7 @@ def render_board_page(board: str, day: str, items: list, days: list,
     desc = (f"{day} {zh} OpenCode 插件 Top {len(items)} · "
             f"{en} top {len(items)} trending OpenCode plugins · "
             "OpenCode 插件市场趋势榜单 · "
-            "Independent OpenCode plugin-market trend radar.")
+            "Independent OpenCode plugin-market rankings.")
     html = re.sub(r'<meta name="description" content="[^"]*">',
                   f'<meta name="description" content="{_esc(desc)}">',
                   html, count=1)
@@ -955,8 +901,8 @@ def render_repo_page(p: dict, template: str, base: str) -> str:
                 + json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
                 + "</script>")
     keywords = ", ".join(
-        [p["name"], p["owner"], fn, "github stars", "github trending",
-         "star growth", "star history", "开源项目", "星标增长"]
+        [p["name"], p["owner"], fn, "opencode plugin", "plugin rankings",
+         "npm downloads", "star growth", "插件榜单", "星标增长"]
         + [t for t in (p.get("topics") or [])[:6]])
     out = template
     out = re.sub(r"<title>.*?</title>", lambda m: f"<title>{_esc(title)}</title>", out, count=1)
@@ -1452,7 +1398,6 @@ def main() -> int:
     cm_map = _fetch_comments()
     detail_count = 0
     search_idx: list[dict] = []
-    news_idx: list[dict] = []
     for name, cur in detail_repos.items():
         owner, _, repo = name.partition("/")
         m = meta.get(name) or {}
@@ -1522,7 +1467,6 @@ def main() -> int:
             "latest_release": det.get("latest_release"),
             "readme": bool(readme_txt),
             "readme_zh": bool(readme_zh_txt),
-            "news": _load_news(owner, repo),
             "stale": stale,
             "snapshot_at": run_at[cur_day].astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "history_start": days[0],
@@ -1557,9 +1501,6 @@ def main() -> int:
             "f": int(cur[I_FORKS] or 0),
             "w": int(cur[I_WATCHERS] or 0),
         })
-        nws = [i["title"] for i in (payload["news"] or [])[:8] if i.get("title")]
-        if nws:
-            news_idx.append({"n": name, "s": int(cur[I_STARS] or 0), "nw": nws})
         if readme_txt:
             (readme_out / f"{owner}__{repo}.md").write_text(
                 readme_txt, encoding="utf-8")
@@ -1597,12 +1538,8 @@ def main() -> int:
     # search indexes — published as open data (the header search box itself
     # queries api-openplugins.zhuikan.com/search remotely). Compact {n,d,l,s} fields
     # cover repo name / owner / language / description for every tracked repo;
-    # news titles live in a separate file. Documented in llms.txt.
     (SITE_DATA / "search-index.json").write_text(
         json.dumps(search_idx, ensure_ascii=False, separators=(",", ":")),
-        encoding="utf-8")
-    (SITE_DATA / "search-news.json").write_text(
-        json.dumps(news_idx, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8")
 
     # ---------------- index / sitemap / robots ----------------

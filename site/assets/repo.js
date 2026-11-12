@@ -680,60 +680,13 @@ function panelHTML(d) {
   return { ov: overviewPanel, vf: verifyPanel, re: releasePanel }[repo.ctab](d);
 }
 
-/* ---------------- news (bilingual) ---------------- */
-function newsBlocks(d) {
-  const items = d.news || [];
-  if (!items.length) return '';
-  const zh = items.filter(i => i.lang === 'zh');
-  const en = items.filter(i => i.lang !== 'zh');
-  // active-lang block wins; fall back to whichever language has items
-  const vis = (LANG === 'zh' && zh.length) ? 'zh'
-    : (LANG === 'en' && en.length) ? 'en'
-    : (zh.length ? 'zh' : 'en');
-  const row = i => {
-    const extra = (i.source === 'Hacker News' && i.points != null)
-      ? `▲${fmtFull(i.points)}${i.comments != null ? ` · ${fmtFull(i.comments)} comments` : ''} · ${esc(i.date || '')}`
-      : esc(i.date || '');
-    return `<a class="rp-item" href="${esc(i.hn || i.url || '')}" target="_blank" rel="noopener">
-      <span class="rp-news-src">${esc(i.source || '')}</span>
-      <span class="rp-item-title">${esc(i.title || '')}</span>
-      <span class="rp-item-extra">${extra}</span></a>`;
-  };
-  const blk = (lst, lang, title) => {
-    const more = lst.length > 10
-      ? `<details class="rp-news-more"><summary>${
-          lang === 'zh' ? `展开其余 ${lst.length - 10} 条`
-                        : `${lst.length - 10} more`}</summary>${
-          lst.slice(10).map(row).join('')}</details>`
-      : '';
-    return `<div class="rp-news-block" lang="${lang === 'zh' ? 'zh-CN' : 'en'}"${lang === vis ? '' : ' hidden'}>
-      <h3 class="rp-ph">${title} (${lst.length})</h3>
-      <div class="rp-list">${lst.slice(0, 10).map(row).join('')}${more}</div>
-    </div>`;
-  };
-  return (zh.length ? blk(zh, 'zh', '相关报道') : '')
-    + (en.length ? blk(en, 'en', 'News &amp; coverage') : '');
-}
-
-function newsPanel(d) {
-  return newsBlocks(d) || `<div class="rp-panel-empty">${t('rp.nodata')}</div>`;
-}
-
-function newsHTML(d) {
-  const inner = newsBlocks(d);
-  if (!inner) return '';
-  // hidden while the News tab renders the same content in the panel
-  return `<section class="rp-news card" id="rpNewsSec"${repo.ctab === 'nw' ? ' hidden' : ''}>${inner}</section>`;
-}
-
 /* ---------------- render ---------------- */
 function renderAllRepo() {
   const d = repo.data;
   $('#repoContent').innerHTML = crumbHTML(d) + topHTML(d)
     + ptabsHTML() + trendHTML(d)
     + ctabsHTML(d)
-    + `<section class="rp-panel card" id="rpPanel">${panelHTML(d)}</section>`
-    + newsHTML(d);
+    + `<section class="rp-panel card" id="rpPanel">${panelHTML(d)}</section>`;
   if (repo.ctab === 'ov') loadReadme(d);
   renderChart();
   wireShare(d);

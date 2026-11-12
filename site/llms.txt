@@ -1,4 +1,4 @@
-# OpenCode Plugins (oplugin.com)
+# OpenCode Plugins (opencode-plugins.zhuikan.com)
 
 Trend/ranking site for the OpenCode plugin marketplace.
 Source of truth: https://github.com/awesome-market/awesome-opencode-market
