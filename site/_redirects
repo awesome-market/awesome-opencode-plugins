@@ -1,0 +1,7 @@
+# Data lives in the API blob store — shadow any stale /data/* files that
+# still linger from pre-migration deployments.
+/data/*  https://api-site.oplugin.com/data/:splat  301
+
+# Build template is not a page.
+/repo       /  301
+/repo.html  /  301

@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# local agent skills & checker artifacts (not for public repo)
+.devin/
+.taste-skill/
+site/.taste-skill/
+
+# rescue runner runtime artifacts
+run_status.json
+.rescue.lock
+rescue.log
+
+# one-off backfill checkpoint + atomic-write temp files
+.readme_backfill_ckpt.json
+*.tmp
+
+# generated site artifacts — rebuilt by scripts/rank.py every run, served from
+# the deployed site; keeping them out of version control stops ~300M of daily
+# churn in git history. Sources that stay tracked: index.html, repo.html,
+# assets/, langs templates, CNAME, manifest.webmanifest, llms.txt
+site/data/
+data/collect-plan/
+site/repos/
+site/langs/
+site/tags/
+site/b/
+site-data.db*
+site/sitemap.xml
+site/feed.xml
+site/robots.txt
+
+# one-off discoverhub.cn archive scrape — script + data, never committed
+docs/discoverhub/
