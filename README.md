@@ -4,10 +4,10 @@
 
 <br>
 
-<h3>OpenCode 插件 / 技能目录的开源趋势榜单 —— 数据每日自动同步、全部开放下载</h3>
-<h3>🌐 <a href="https://opencode-plugins.zhuikan.com">opencode-plugins.zhuikan.com</a> · 镜像：<a href="https://awesome-market.github.io/awesome-opencode-plugins/">GitHub Pages</a></h3>
+<h3>An open-data trend ranking for the OpenCode plugin / skill catalog — synced daily, all data freely downloadable.</h3>
+<h3>🌐 <a href="https://opencode-plugins.zhuikan.com">opencode-plugins.zhuikan.com</a> · Mirror: <a href="https://awesome-market.github.io/awesome-opencode-plugins/">GitHub Pages</a> · <a href="README.zh.md">中文版</a></h3>
 
-[**新星榜**](#new-board) • [**榜单**](#榜单) • [**数据来源**](#数据来源) • [**界面特性**](#界面特性) • [**技术架构**](#技术架构) • [**本地运行**](#本地运行)
+[**New Arrivals**](#new-board) • [**Boards**](#boards) • [**Data Sources**](#data-sources) • [**Features**](#features) • [**Architecture**](#architecture) • [**Run Locally**](#run-locally)
 
 <hr>
 
@@ -15,11 +15,11 @@
 
 <div id="new-board"></div>
 
-<h3>🔥 新星榜 · Top 20</h3>
+<h3>🔥 New Arrivals · Top 20</h3>
 
-> 近 90 天内上架、按当前 Star 排序（≥10★）。完整榜单与历史曲线见<a href="https://opencode-plugins.zhuikan.com">在线榜单</a>。
+> Plugins listed in the last 90 days, ranked by current stars (≥10★). Full boards and history curves on the <a href="https://opencode-plugins.zhuikan.com">live site</a>.
 
-| 插件 | Stars | 简介 |
+| Plugin | Stars | Description |
 | :--- | ---: | :--- |
 | [**@omniroute/opencode-plugin-v2**](https://github.com/diegosouzapw/OmniRoute) | 84,778 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
 | [**upstash/context7**](https://github.com/upstash/context7) | 64,240 | Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a… |
@@ -42,100 +42,100 @@
 | [**fishbottle7/opencode2dsh**](https://github.com/FishBottle7/opencode2dsh) | 389 | Free OpenCode Zen models for DeepSeek Harness (DSH): native dsh-llm adapter… |
 | [**useagenthq/useagent**](https://github.com/useagenthq/useagent) | 381 | The open-source Devin alternative. Run Claude Code, Codex or OpenCode in… |
 
-## 榜单
+## Boards
 
-| 榜单 | 口径 |
+| Board | Methodology |
 |---|---|
-| 新榜 | 近 90 天内上架，按当前 Star 排序（≥10★） |
-| 首秀榜 | 当日首次进入跟踪范围的新条目 |
-| 日 / 周 / 月飙升榜 | 窗口 Star **绝对增长量**降序（增量 > 0，当前 ≥30★） |
-| 日 / 周 / 月增速榜 | **相对增长率** = 增量 ÷ 窗口起点 Star 基数 × 100（基数 ≥50） |
-| 下载日增榜 | npm 真实**逐日下载数**降序（见下方「下载数据」） |
-| 昨日下载榜 | 前一日的 npm 逐日下载数 |
-| 总榜 | 当前累计 Star 降序 |
+| New Arrivals | Listed within the last 90 days, ranked by current stars (≥10★) |
+| Debut | Entries first seen in the tracking scope on that day |
+| Daily / Weekly / Monthly Surge | Absolute star growth over the window, descending (delta > 0, current ≥30★) |
+| Daily / Weekly / Monthly Growth Rate | Relative growth = delta ÷ stars at window start × 100 (base ≥50) |
+| Daily Downloads | Real per-day npm download counts, descending (see "Download data" below) |
+| Yesterday Downloads | npm per-day downloads for the previous day |
+| All-Time | Current cumulative stars, descending |
 
-- Star 增长由**每日快照差分**得出；窗口不足时用最早可用快照兜底并标注实际区间
-- 按日 / 月 / 年回看：月末八榜、当月累计增长、年度增长与 Top10 摘要
+- Star growth is derived from **daily snapshot diffs**; when a window is incomplete, the earliest available snapshot is used and the actual range is annotated
+- Historical browsing by day / month / year: month-end eight-board view, cumulative monthly growth, yearly growth and Top-10 summaries
 
-## 数据来源
+## Data Sources
 
-| 数据 | 来源 | 更新 |
+| Data | Source | Cadence |
 |---|---|---|
-| 目录、Star、30 天下载、检验状态 | 上游目录 [awesome-opencode-market](https://github.com/awesome-market/awesome-opencode-market) `index.json` | CI 每日 2 次（UTC 03:00 / 15:00） |
-| **逐日下载数** | npm 官方统计 `api.npmjs.org/downloads/range` | 同上，增量合并长期保存 |
-| 中文描述 | [OpenDock](https://github.com/qunqin24/opendock) `plugins.json` 补位（上游缺省时） | 每次同步 |
-| Star 历史（09-13 起）| OpenDock `history.json` 一次性回填 | 之后由本站快照接续 |
+| Catalog, stars, 30-day downloads, verification status | Upstream catalog [awesome-opencode-market](https://github.com/awesome-market/awesome-opencode-market) `index.json` | CI twice daily (UTC 03:00 / 15:00) |
+| **Per-day downloads** | Official npm stats `api.npmjs.org/downloads/range` | Same as above, incrementally merged and kept long-term |
+| Chinese descriptions | [OpenDock](https://github.com/qunqin24/opendock) `plugins.json`, filled in when upstream is missing | Every sync |
+| Star history (since 2026-09-13) | OpenDock `history.json`, one-time backfill | Continued by this repo's snapshots afterwards |
 
-上游目录只发布**滚动窗口指标**（`npmDownloads30d`），因此本站自行维护两条长期序列：
+The upstream catalog only publishes **rolling-window metrics** (`npmDownloads30d`), so this site maintains two long-term series of its own:
 
-- `data/snapshots/<UTC-时>.json` —— 每次同步的全量指标行（Star / 30 天下载 / 本月下载），**提交进 git 永不删除**
-- `data/dlhist/<owner>__<name>.json` —— 每插件 `{日期: 下载数}` 的真实逐日历史（首见回填 180 天，之后 7 天滚动增量）
+- `data/snapshots/<UTC-hour>.json` — full metric rows per sync (stars / 30-day downloads / month downloads), **committed to git and never deleted**
+- `data/dlhist/<owner>__<name>.json` — real per-day download history `{date: count}` per plugin (180-day backfill on first sight, then a rolling 7-day incremental merge)
 
-GitHub 源条目（未发布到 npm 的）没有下载数据——只有 Star 维度，这是数据源本身的边界。
+Entries whose source is GitHub-only (not published to npm) have no download data — stars only. That is a boundary of the data itself.
 
-## 界面特性
+## Features
 
-- **中英双语**：右上角 `EN`/`中` 切换，本地持久化
-- **深 / 浅主题**：手动切换 + 系统偏好兜底，无闪烁加载
-- **插件详情页**：指标卡、检验结论（实测可用 / 装不上 / 有高危信号 / 未验）、能力与红旗（默认收起）、版本信息、Star 历史曲线、分享卡片
-- **社交功能**：注册登录、评论、点赞、收藏、浏览计数、用户中心
-- **SEO / GEO**：全量 SSR 详情页、canonical / OG / JSON-LD、feed、sitemap、llms.txt
+- **Bilingual UI**: `EN`/`中` toggle in the top-right corner, persisted locally
+- **Dark / light themes**: manual toggle + system-preference fallback, flicker-free boot
+- **Plugin detail pages**: metric cards, verification verdicts (verified / failed / flagged / unverified), capabilities & red flags (collapsed by default), version info, star-history curve, share card
+- **Social**: sign-up & login, comments, likes, favorites, view counts, user center
+- **SEO / GEO**: fully SSR'd detail pages, canonical / OG / JSON-LD, feeds, sitemap, llms.txt
 
-## 技术架构
+## Architecture
 
 ```
 awesome-opencode-market index.json        api.npmjs.org/downloads/range
-        │  CI 每日 2 次                           │  CI 每日 2 次
-        ▼                                        ▼
+        │  CI twice daily                          │  CI twice daily
+        ▼                                          ▼
 data/snapshots/*.json  data/repos/*.json   data/dlhist/*.json
-        │  (git 仓库即数据库 —— 长期档案)            │
+        │  (the git repo IS the database — long-term archive)
         └──────────►  scripts/rank.py  ◄──────────┘
-                            │  (榜单 + 历史 + 详情预计算)
+                            │  (boards + history + precomputed details)
                             ▼
-               site/data/*.json + site/ 静态页
+               site/data/*.json + site/ static pages
                   │                │
-        Cloudflare Pages    gh-pages 镜像    site-data.db → api
+        Cloudflare Pages    gh-pages mirror    site-data.db upload
 ```
 
-- **零依赖 Python 3**：采集 / 计算只用标准库
-- **纯静态前端**：原生 HTML/CSS/JS，无构建工具
-- **数据即档案**：快照与下载历史提交进 git，仓库本身就是可下载的历史数据库
+- **Zero-dependency Python 3**: collection and computation use the standard library only
+- **Pure static frontend**: vanilla HTML/CSS/JS, no build tooling
+- **Data as archive**: snapshots and download history are committed to git — the repo itself is a downloadable historical database
 
-## 口径说明
+## Methodology Notes
 
-- 新榜 / 总榜为**本站跟踪范围**（当前约 5200 条目，由上游目录全量收录）内的排名
-- 增速 = 增长量 ÷ 窗口起点 Star 基数，取整为整数百分比
-- `30 天下载` 来自上游 `metrics.npmDownloads30d`（滚动窗口）；`逐日下载` 来自 npm 官方统计（UTC 自然日，滞后约 1 天，界面上标 `approx`）
-- `npm/` 为合成 owner 前缀：bare 包名归一化用，不代表维护者
-- 数据仅供参考
+- New Arrivals / All-Time rank within **this site's tracking scope** (~5,200 entries, full upstream catalog)
+- Growth rate = delta ÷ stars at window start, rounded to integer percent
+- `30-day downloads` comes from upstream `metrics.npmDownloads30d` (rolling window); `per-day downloads` comes from official npm stats (UTC calendar days, ~1-day lag, labeled `approx` in the UI)
+- `npm/` is a synthetic owner prefix used to normalize bare package names — it does not denote a maintainer
+- Data is provided for reference only
 
-## 本地运行
+## Run Locally
 
 ```bash
-# 同步上游目录 → data/snapshots + data/repos + data/watchlist.json
-python3 scripts/sync_catalog.py            # OCM_INDEX_URL 可覆盖源地址
+# Sync the upstream catalog → data/snapshots + data/repos + data/watchlist.json
+python3 scripts/sync_catalog.py            # OCM_INDEX_URL overrides the source
 
-# 采集 npm 逐日下载 → data/dlhist/*.json
-python3 scripts/sync_downloads.py          # OCM_DL_LIMIT=8 可冒烟
+# Collect per-day npm downloads → data/dlhist/*.json
+python3 scripts/sync_downloads.py          # OCM_DL_LIMIT=8 for a smoke run
 
-# 重建榜单 + 站点数据 → site/data + site/ 静态页
+# Rebuild boards + site data → site/data + static pages
 python3 scripts/rank.py --site-base https://opencode-plugins.zhuikan.com
 
-# 一次性回填 OpenDock star 历史（可选，已执行过）
+# One-time OpenDock star-history backfill (optional, already run)
 python3 scripts/import_opendock.py --catalog-only
 ```
 
-## 目录结构
+## Directory Layout
 
 ```
-data/snapshots/    全量指标快照（每次同步一份，长期保留）
-data/repos/        每插件详情 JSON（上游字段 + 补位中文描述）
-data/dlhist/       每插件逐日 npm 下载历史
-data/watchlist.json  跟踪名册（首见/末见日期）
+data/snapshots/    Full metric snapshots (one per sync, kept forever)
+data/repos/        Per-plugin detail JSON (upstream fields + filled Chinese descriptions)
+data/dlhist/       Per-plugin daily npm download history
+data/watchlist.json  Tracking roster (first-seen / last-seen dates)
 scripts/           sync_catalog / sync_downloads / rank / pack_data / import_opendock
-site/              静态前端 + 生成的 data/ 与页面（CI 产物）
+site/              Static frontend + generated data/ and pages (CI artifacts)
 ```
 
 ## License
 
-MIT — 数据文件以仓库形式公开，欢迎二次加工引用。
+MIT — data files are published as a repository; remix and re-use welcome.
