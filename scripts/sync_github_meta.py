@@ -22,7 +22,6 @@ import re
 import sys
 import time
 import urllib.request
-from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -37,7 +36,6 @@ BATCH = int(os.environ.get("OCM_GH_BATCH", "45"))
 REFRESH_DAYS = int(os.environ.get("OCM_GH_REFRESH_DAYS", "7"))
 LIMIT = int(os.environ.get("OCM_GH_LIMIT", "0"))
 FORCE = os.environ.get("OCM_GH_FORCE") == "1"
-WORKERS = int(os.environ.get("OCM_GH_WORKERS", "4"))
 
 FIELDS = """watchers{totalCount} forkCount
 issues(states:OPEN){totalCount} pullRequests(states:OPEN){totalCount}
@@ -89,17 +87,37 @@ def gql(query: str) -> dict:
         headers={"Authorization": f"bearer {TOKEN}",
                  "User-Agent": "opencode-plugins-ghmeta",
                  "Content-Type": "application/json"})
-    for attempt in (1, 2, 3):
+    delay = 1.0
+    for attempt in range(5):
         try:
             with urllib.request.urlopen(req, timeout=40) as r:
                 body = json.loads(r.read())
-            if body.get("errors") and "data" not in body:
-                raise RuntimeError(str(body["errors"])[:200])
+            errs = body.get("errors") or []
+            # partial data is still useful — some repos may be deleted
+            if errs and not body.get("data"):
+                raise RuntimeError(str(errs)[:300])
             return body.get("data") or {}
-        except Exception as e:
-            if attempt == 3:
+        except urllib.error.HTTPError as e:
+            detail = ""
+            try:
+                detail = e.read().decode()[:300]
+            except Exception:
+                pass
+            if e.code == 401:
+                raise RuntimeError(f"HTTP 401 {detail}")
+            if e.code in (403, 429, 502, 503) and attempt < 4:
+                # secondary rate limit — honor Retry-After, else back off
+                wait = float(e.headers.get("Retry-After") or 0) or delay
+                log(f"  http {e.code} retry in {wait:.0f}s ({detail[:80]})")
+                time.sleep(wait)
+                delay = min(delay * 2, 60)
+                continue
+            raise RuntimeError(f"HTTP {e.code} {detail}")
+        except Exception:
+            if attempt == 4:
                 raise
-            time.sleep(2 * attempt)
+            time.sleep(delay)
+            delay = min(delay * 2, 60)
     return {}
 
 
@@ -135,18 +153,25 @@ def main() -> int:
         except Exception:
             meta = {}
     todo = targets()
-    log(f"pending={len(todo)} have={len(meta)} batch={BATCH} workers={WORKERS}")
+    log(f"pending={len(todo)} have={len(meta)} batch={BATCH}")
     if LIMIT:
         todo = todo[:LIMIT]
     batches = [todo[i:i + BATCH] for i in range(0, len(todo), BATCH)]
-    got = 0
-    with ThreadPoolExecutor(max_workers=WORKERS) as ex:
-        for res in ex.map(fetch_batch, batches):
+    got = failed = 0
+    # sequential + small pause: GITHUB_TOKEN trips secondary rate limits
+    # on concurrent GraphQL bursts; a failed batch just retries next run
+    for i, b in enumerate(batches):
+        try:
+            res = fetch_batch(b)
             got += len(res)
             meta.update(res)
+        except Exception as e:
+            failed += len(b)
+            log(f"  batch {i + 1}/{len(batches)} failed: {e}")
+        time.sleep(0.35)
     OUT_PATH.write_text(json.dumps(meta, ensure_ascii=False,
                                    separators=(",", ":")), encoding="utf-8")
-    log(f"done got={got} total={len(meta)}")
+    log(f"done got={got} failed={failed} total={len(meta)}")
     return 0
 
 
