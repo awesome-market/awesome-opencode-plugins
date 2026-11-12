@@ -49,6 +49,14 @@ jobs:
         if: ${{ !inputs.deploy_only }}
         run: python scripts/sync_downloads.py
 
+      # README 全文不在上游 index.json 里 —— 直接从各插件 GitHub 默认分支抓
+      # data/readmes/<fn>.md（提交进 git 长期保存），rank.py 打进 site-data。
+      - name: Fetch plugin READMEs from GitHub
+        if: ${{ !inputs.deploy_only }}
+        run: python scripts/sync_readmes.py
+        env:
+          OCM_README_LIMIT: "3000"
+
       - name: Rebuild rankings & site data
         run: python scripts/rank.py --site-base "${{ vars.SITE_BASE }}"
 

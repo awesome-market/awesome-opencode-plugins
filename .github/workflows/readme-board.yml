@@ -39,6 +39,11 @@ jobs:
       - name: Regenerate README top-20 tables
         run: python3 scripts/update_readme.py
 
+      - name: Reset generated artifacts
+        # rank.py rewrites tracked build output (site/index.html cache-bust);
+        # only the two READMEs may carry changes into the commit.
+        run: git checkout -- . ':!README.md' ':!README.zh.md'
+
       - name: Commit README changes
         run: |
           if git diff --quiet README.md README.zh.md; then

@@ -1409,6 +1409,13 @@ def main() -> int:
         # full README texts live in standalone .md files fetched on demand —
         # keeps repo JSON small; fall back to the old 3000-char excerpt
         readme_txt = det.get("readme") or det.get("readme_excerpt")
+        if not readme_txt:
+            rm = DATA_DIR / "readmes" / f"{name.replace('/', '__', 1)}.md"
+            if rm.exists():
+                try:
+                    readme_txt = rm.read_text(encoding="utf-8")[:250_000]
+                except OSError:
+                    pass
         readme_zh_txt = det.get("readme_zh")
 
         growth: dict = {}
