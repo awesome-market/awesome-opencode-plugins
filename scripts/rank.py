@@ -286,7 +286,17 @@ def _ssr_repo(p: dict) -> str:
          if tag_slug(t) in _tag_pages
          else f'<a class="rp-topic" href="https://www.npmjs.com/search?q={_esc(t)}">{_esc(t)}</a>')
         for t in (p.get("topics") or [])[:8])
+    _VERIF_ZH = {"verified": "已实测可装可用", "failed": "装不上或加载失败",
+                 "skipped": "有高危信号没跑", "unverified": "还没验"}
+    _VERIF_EN = {"verified": "Tested: installs & loads",
+                 "failed": "Install or load failed",
+                 "skipped": "Skipped — high-risk signals",
+                 "unverified": "Not verified yet"}
+    _vs = ((p.get("verification") or {}).get("status") or "unverified")
+    verif_bit = (f'<span class="rp-meta-bit rp-verif-{_esc(_vs)}">'
+                 f'{_bi(_VERIF_ZH.get(_vs, _vs), _VERIF_EN.get(_vs, _vs))}</span>')
     bits = [x for x in [
+        verif_bit,
         f'<span class="rp-meta-bit">{_esc(p["language"])}</span>' if p.get("language") else "",
         f'<span class="rp-meta-bit">{_esc(p["license"])}</span>' if p.get("license") else "",
         f'<span class="rp-meta-bit">Created {_esc((p.get("created_at") or "")[:10])}</span>'
