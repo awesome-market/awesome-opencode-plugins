@@ -43,6 +43,12 @@ jobs:
           OCM_INDEX_URL: ${{ vars.OCM_INDEX_URL || 'https://terry2010.github.io/awesome-opencode-market/index.json' }}
         run: python scripts/sync_catalog.py
 
+      # 上游只有滚动指标（npmDownloads30d）——逐日真实下载量由本步骤
+      # 从 npm stats API 采集进 data/dlhist/<fn>.json（append-only 长期保存）。
+      - name: Fetch npm daily downloads
+        if: ${{ !inputs.deploy_only }}
+        run: python scripts/sync_downloads.py
+
       - name: Rebuild rankings & site data
         run: python scripts/rank.py --site-base "${{ vars.SITE_BASE }}"
 

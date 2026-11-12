@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 SNAP_DIR = DATA_DIR / "snapshots"
 REPOS_DIR = DATA_DIR / "repos"
+DLHIST_DIR = DATA_DIR / "dlhist"
 SITE_DIR = ROOT / "site"
 SITE_DATA = SITE_DIR / "data"
 
@@ -990,9 +991,35 @@ def eligible(cur) -> bool:
     return not cur[I_IS_FORK] and not cur[I_IS_ARCH]
 
 
+def load_dlhist() -> dict[str, dict]:
+    """npm per-day download history: full_name -> {YYYY-MM-DD: n}."""
+    out: dict[str, dict] = {}
+    if not DLHIST_DIR.exists():
+        return out
+    for f in DLHIST_DIR.glob("*.json"):
+        try:
+            days = (json.loads(f.read_text(encoding="utf-8")) or {}).get("days")
+        except Exception:
+            continue
+        if isinstance(days, dict):
+            out[f.stem.replace("__", "/", 1)] = days
+    return out
+
+
+def _dl_value(hdays: dict, day: str, back: int) -> tuple[int | None, bool]:
+    """Latest npm per-day count <= `day` (back=0) or the day before it
+    (back=1). npm counts are UTC days and trail ~1d, so the returned day
+    may predate `day` — caller flags that as approx."""
+    ks = sorted(k for k in hdays if k <= day)
+    if len(ks) <= back:
+        return None, False
+    k = ks[-1 - back]
+    return hdays[k], k != day
+
+
 def compute_boards(day: str, days: list[str], ridx: dict, meta: dict,
                    day_index: dict[str, int], lang: str | None = None,
-                   tag_pages=None) -> dict:
+                   tag_pages=None, dlhist=None) -> dict:
     """Compute all boards for `day`. Returns {board: {window_start?, window_days?, items}}.
     `lang` restricts candidates to repos whose current language matches —
     powers the per-language static pages (full-fidelity re-rank, not a
@@ -1075,14 +1102,25 @@ def compute_boards(day: str, days: list[str], ridx: dict, meta: dict,
         for name, (cday, ctup) in cur_map.items():
             if cday != day or not eligible(ctup):
                 continue
-            gb = repo_base_near(ridx, name, base_day, day)
-            if gb is None:
-                continue
-            bd, btup = gb
-            incr = (ctup[col] or 0) - (btup[col] or 0)
+            # prefer true per-day npm counts (dlhist); fall back to the
+            # rolling-metric diff when a package has no npm history.
+            incr, approx = None, approx_board
+            hdays = dlhist.get(name) if dlhist else None
+            if hdays:
+                v, ap = _dl_value(hdays, day,
+                                  0 if kind == "daily_downloads" else 1)
+                if v is not None:
+                    incr, approx = v, approx_board or ap
+            if incr is None:
+                gb = repo_base_near(ridx, name, base_day, day)
+                if gb is None:
+                    continue
+                bd, btup = gb
+                incr = (ctup[col] or 0) - (btup[col] or 0)
+                approx = approx_board or bd != base_day
             if incr <= 0:
                 continue
-            m_cands.append((incr, name, ctup, approx_board or bd != base_day))
+            m_cands.append((incr, name, ctup, approx))
         m_cands.sort(key=lambda x: (-x[0], -(x[2][I_STARS] or 0), x[1]))
         boards[kind] = {
             "window_start": base_day, "window_days": window_days,
@@ -1216,6 +1254,9 @@ def main() -> int:
 
     day_close, run_at = load_day_closes()
     days = sorted(day_close)
+    dlhist = load_dlhist()
+    if dlhist:
+        log(f"dlhist: {len(dlhist)} packages with per-day npm history")
     if not days:
         log("no snapshots found — nothing to build")
         return 1
@@ -1289,7 +1330,7 @@ def main() -> int:
     seen_boards: set[str] = set()
     for day in days:
         boards = compute_boards(day, days, ridx, meta, day_index,
-                                tag_pages=tag_pages)
+                                tag_pages=tag_pages, dlhist=dlhist)
         appearing = {e["full_name"] for blk in boards.values()
                      for e in blk.get("items", [])}
         # day-0 has no earlier boards to diff against — emit an empty debut
@@ -1591,6 +1632,7 @@ def main() -> int:
         slug = lang_slug(lang)
         try:
             lb = compute_boards(latest_day, days, ridx, meta, day_index,
+                                dlhist=dlhist,
                                 lang=lang, tag_pages=tag_pages)
             (SITE_DATA / "langs" / f"{slug}.json").write_text(
                 json.dumps({"lang": lang, "slug": slug, "date": latest_day,
