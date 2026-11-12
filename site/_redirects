@@ -1,6 +1,6 @@
-# Data lives in the API blob store — shadow any stale /data/* files that
-# still linger from pre-migration deployments.
-/data/*  https://api-site.oplugin.com/data/:splat  301
+# Data ships inside the Pages payload for now (10.5k files < 20k cap).
+# When the api backend goes live, point hydration at it or re-add:
+# /data/*  https://api-openplugins.zhuikan.com/data/:splat  301
 
 # Build template is not a page.
 /repo       /  301
