@@ -1,0 +1,189 @@
+# opencode-zeldoc
+
+An [OpenCode](https://opencode.ai) plugin that shows **exactly the Zeldoc models
+your API key can use**, with the right limits, prices and capabilities.
+
+Without it, OpenCode lists the Zeldoc models from [models.dev](https://models.dev),
+a static catalog that says nothing about your key. You may see models your key
+cannot call, miss models it can, and get no context limits or capabilities for
+Zeldoc's own models. This plugin asks Zeldoc which models your key has and
+builds the model picker from that answer. When a model is removed from your key,
+it disappears from OpenCode on the next start (OpenCode 1) or within minutes
+(OpenCode 2). On OpenCode 2 it also routes the `websearch` tool through
+[Zeldoc.ai's private search](#web-search-opencode-2).
+
+## How it works
+
+```
+OpenCode starts
+        │
+        ▼
+opencode-zeldoc (the "zeldoc" provider's model list)
+        │  • GET https://api.zeldoc.ai/v1/zeldoc/models with your API key
+        │  • keeps the chat models your key may call
+        │  • per model: context/output limits, your price per 1M tokens,
+        │    tool calls, reasoning (+ effort levels), image and PDF input
+        │  • display names come from models.dev where it knows the model
+        ▼
+the model picker shows only what your key can use
+```
+
+The plugin is resilient by design:
+
+- **Graceful fallback**: if the Zeldoc endpoint is unreachable or slow
+  (3 s timeout), OpenCode keeps the models.dev catalog instead of showing no
+  models at all.
+- **Nothing extra to configure**: it reuses the API key you already gave
+  OpenCode for Zeldoc and the base URL from models.dev.
+- **Prices are yours**: the catalog returns what your organization pays, so
+  OpenCode's cost tracking matches your Zeldoc usage.
+
+## Install
+
+Works with OpenCode 1 (1.18.29 and newer) and OpenCode 2.
+
+### From npm (recommended)
+
+Add to your `opencode.json` (global or per-project):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-zeldoc"]
+}
+```
+
+OpenCode installs the plugin automatically on next launch. OpenCode 2 reads
+this `plugin` key too; its native name is `plugins`.
+
+### From source (for development)
+
+Clone this repo. The included `opencode.jsonc` loads the plugin from local
+source:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["./src/index.ts"]
+}
+```
+
+That path is for OpenCode 1. OpenCode 2 only loads plugin directories and
+looks for a `server` or `index` file in them, but 2.0.18 skips a directory that
+has no `server` file. Point it at a directory holding a `server.ts` with
+`export { default } from "<repo>/src/index.ts"`.
+
+## Configure
+
+Log in to Zeldoc once, if you have not already:
+
+```bash
+opencode auth login   # choose Zeldoc, paste your API key
+```
+
+The plugin uses that key. Without a stored login it falls back to the
+`ZELDOC_API_KEY` environment variable, which OpenCode also reads for Zeldoc.
+
+| Source                   | Used when                                   |
+| ------------------------ | ------------------------------------------- |
+| `.zeldoc-profile` + CLI  | The project is pinned to a saved profile    |
+| `opencode auth login`    | A Zeldoc API key is stored (preferred)      |
+| `ZELDOC_API_KEY`         | No stored key                               |
+
+### One key per customer
+
+If you work for several customers, each with their own Zeldoc key, pin each
+project to its key with the [zeldoc CLI](https://github.com/martinmose/zeldoc-cli#one-key-per-customer):
+
+```bash
+zeldoc auth login --profile acme   # save Acme's key once
+cd ~/work/acme-app
+zeldoc auth pin acme               # writes .zeldoc-profile containing "acme"
+```
+
+In a project with a `.zeldoc-profile` file (in its folder or a folder above),
+the plugin asks the CLI for that project's key (`zeldoc auth token`) and
+OpenCode uses it for the model list and for every Zeldoc request, instead of
+the key from `opencode auth login` or `ZELDOC_API_KEY`. Projects without the
+file work as before, and need no CLI.
+
+If the project is pinned but the key cannot be read (the CLI is not
+installed, or no key is saved under that profile), Zeldoc requests fail with a
+message that says why. They are never sent with your other Zeldoc key, which
+may belong to another customer.
+
+OpenCode 1 reads the pin when it starts in a project, so restart it after
+changing the pin. OpenCode 2 checks the pin on every request.
+
+The CLI is looked up on your `PATH`, then in `~/.local/bin` (or
+`$XDG_BIN_HOME`), where its installers put it.
+
+### Refreshing the model list
+
+OpenCode 1 fetches the model list when it starts; restart it after a change to
+your key's models. OpenCode 2 keeps a background service running between
+sessions, so there the plugin also refreshes the list every 5 minutes and as
+soon as you log in with a different key.
+
+## Web search (OpenCode 2)
+
+On OpenCode 2 the plugin also adds **Zeldoc.ai** as a provider for the built-in
+`websearch` tool, using the same key as the models (including a pinned key).
+Queries go to Zeldoc.ai's private search, `POST /v1/search/zeldoc-search`. See
+[Web search](https://docs.zeldoc.ai/web-search/) for what leaves your machine.
+
+The plugin makes Zeldoc.ai the default provider. Without that, OpenCode 2 asks
+on the first search and, if you choose *Allow*, spreads queries randomly over
+all its built-in providers (Exa, Firecrawl, Parallel, Tavily and TinyFish). A
+`websearch` entry in your config wins over the plugin:
+
+```jsonc
+{
+  "websearch": { "provider": "zeldoc" } // explicit; same as the plugin's default
+  // "websearch": false                 // turns web search off
+}
+```
+
+OpenCode only hands search providers the query, so Zeldoc search's
+`time_range`, `language` and `engines` options are not available here.
+
+OpenCode 1 has no search-provider API. There, use the custom tool from the
+[Web search](https://docs.zeldoc.ai/web-search/#opencode-1) page.
+
+## Troubleshooting
+
+### Only ZDev shows up
+
+ZDev is the only Zeldoc model models.dev lists. Seeing only ZDev means
+OpenCode is showing the models.dev list: either the plugin is not installed
+(`opencode plugin list` should show `opencode-zeldoc`, 0.2.0 or newer for
+OpenCode 2), or it could not get your key's list.
+
+To see why, in OpenCode 2 run `/zeldoc-debug` in a session. It refreshes the
+list, then adds a short report to the session, which the model replies to:
+the plugin and OpenCode versions, where the key came from (a pin, a stored
+login or `ZELDOC_API_KEY`), the models it got, and why the last fetch failed.
+The report never contains the key itself, only the first 8 characters of its
+SHA-256, which the Key column on the Zeldoc dashboard also shows. OpenCode 1
+writes the reason to its log instead, from the service `opencode-zeldoc`.
+
+A sandbox that keeps a placeholder in `ZELDOC_API_KEY` and lets a proxy add the
+real key on the way out must add it to `GET /v1/zeldoc/models` too, not only to
+chat requests, and to `POST /v1/search/zeldoc-search` for web search. Otherwise
+chats work, the list fails with `401 Missing API key`, and you see only ZDev.
+
+## Develop
+
+This repo uses [Flox](https://flox.dev) for a reproducible dev environment
+(Bun). Tests use Bun's built-in test runner against a local HTTP server, no
+mocks.
+
+```bash
+flox activate        # enter the dev env (runs bun install)
+bun test             # run the unit tests
+bun run typecheck    # typecheck
+```
+
+## License
+
+MIT

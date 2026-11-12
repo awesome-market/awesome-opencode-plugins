@@ -1,0 +1,387 @@
+<div align="center">
+
+<img src="docs/assets/banner.svg" alt="gentle-terminal: an AI agent supervising a coding agent in a real terminal, surfacing approval prompts and verifying results" width="100%">
+
+# gentle-terminal
+
+**Approval-first terminal control for AI coding agents.**
+
+Let Claude Code, Codex, Cursor, OpenCode and any MCP client drive *real* interactive shells, CLIs and TUIs (and even supervise other coding agents) without auto-approving prompts, mistaking timeouts for success, or killing work in progress.
+
+[![CI](https://github.com/reyrodman/gentle-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/reyrodman/gentle-terminal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.12-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20server-7c3aed)](https://modelcontextprotocol.io)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-SKILL.md-0ea5e9)](SKILL.md)
+[![Platforms](https://img.shields.io/badge/platforms-Linux%20%7C%20macOS%20%7C%20Windows-informational)](#supported-platforms)
+
+[Quick start](#quick-start) ·
+[Connect your client](#connect-your-mcp-client) ·
+[Examples](#usage-examples) ·
+[How it works](#how-it-works) ·
+[Safety model](#safety-model) ·
+[FAQ](#faq)
+
+</div>
+
+---
+
+## Why gentle-terminal?
+
+Most agent shell tools run one command and hand back its output. That breaks the moment a program is **interactive**: `vim`, `htop`, a Python REPL, `git rebase -i`, an installer asking questions, an SSH login, or another AI agent like Codex CLI waiting for approval.
+
+[terminal-use](https://github.com/computer-agent-labs/terminal-use) solves the mechanics: a real PTY rendered by a real terminal emulator, exposed over MCP. **gentle-terminal adds the judgment** an agent needs to use that power responsibly:
+
+| Without a policy, agents tend to... | gentle-terminal teaches them to... |
+|---|---|
+| Treat a wait timeout as "done" or "failed" | Re-read the screen and classify the state: working, needs input, idle or exited |
+| Press Enter again or resubmit when nothing seems to happen | Type **once**; re-waiting is never resubmitting |
+| Pick "Always allow" on trust and approval prompts | Surface the exact prompt to you; one-time approval only when your policy covers it |
+| Trust another agent's "I'm done" | Inspect the artifact and run the check independently |
+| Kill a slow process to make progress | Keep supervising in bounded waits and report long stalls to you |
+| Leave orphaned shells behind | Close owned idle sessions and report anything uncertain |
+
+## Features
+
+<img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
+
+- 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,593 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers the prompts the task needs, never persistently, and keeps going until the goal is verified; credentials, deletions, system changes and installs, publishing and anything uncertain still stop for you.
+- 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
+- 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
+- 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
+- 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
+- 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf, plus a consent-gated extension for Gentle Shell. Ready-to-copy configs are included for manual setup.
+- ✅ **Cross-platform CI and deterministic checks.** `node:test` includes simulated-agent supervision and installer checks against a temporary home, plus MCP smoke checks. The CI matrix covers Linux, macOS and Windows; current adaptive-feature results and untested native-client scenarios are separated in the [efficiency report](docs/efficiency.md). No model or network calls in fixtures.
+- 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
+
+## Quick start
+
+**Requirements:** Node.js **22.12 or newer** and npm, on Windows, Linux or macOS (x64 or arm64).
+
+```bash
+git clone https://github.com/reyrodman/gentle-terminal.git
+cd gentle-terminal
+node install.mjs --dry-run   # shows which clients it found and what it would change
+node install.mjs             # installs the runtime and registers every client it found
+```
+
+The installer is the same command for a first install and for every later update, and it is safe to run again:
+
+- **Finds your clients by their config files** and only touches clients that are installed. One file can serve several apps: Cursor IDE and `cursor-agent` share `~/.cursor/mcp.json`, the Codex CLI, app and IDE extension share `~/.codex/config.toml`, and the Antigravity IDE and `agy` share `~/.gemini/config/mcp_config.json`. VS Code, Claude Code, Claude Desktop, OpenCode, Gemini CLI and Windsurf have their own files. Gentle Shell gets an extension link instead of a config entry; see [Gentle Shell](references/clients.md#gentle-shell).
+- **Adds or updates per client.** A missing entry is added as `gentle-terminal`. An entry that already runs a gentle-terminal `launch.mjs` from another folder (an older copy, a moved clone) is repointed in place, keeping its name and extra arguments such as `--cwd`. Other servers and settings are kept as they are.
+- **Never guesses.** A file with comments, invalid JSON or a TOML layout it does not recognize is left untouched and reported as a manual step (exit code 2).
+- **Backs up and checks.** Every changed file gets a `.bak-gentle-terminal-<time>` copy, is written atomically and read back. The pinned runtime is installed only when missing or out of date (the previous one is restored if `npm ci` fails), and the server must answer an MCP handshake before any client is touched.
+- **Links the skill** (a junction on Windows, a symlink elsewhere) into each client's user skills folder: `~/.agents/skills` (Codex, VS Code, Cursor), `~/.claude/skills`, `~/.config/opencode/skills`, `~/.gemini/config/skills` and `~/.gemini/skills`. An existing folder with that name is never replaced.
+
+Restart or reload the clients it lists at the end. Other options: `--only cursor,codex`, `--skip vscode`, `--node <path>`, `--uninstall`, `--help`.
+
+### Updating
+
+```bash
+npm run update     # = node install.mjs --update
+```
+
+It fast-forwards this git checkout (it refuses local changes, a diverged branch or a folder that is not its own git checkout), then runs the installer from the new code, which updates the runtime and every client. It follows the branch you are on: releases land on `main`, and on any other branch it prints a note with the `git switch` command. Nothing updates in the background: you decide when a new version runs.
+
+To check the bundle itself, `npm run verify` prints 0.2.1, runs the test suite and the MCP smoke test. Expected tail:
+
+```text
+PASS: persistent variable, typed text, Enter, read, exit 7, destroy, disconnect; server exit=0 stderr=""; owned shell gone.
+```
+
+## Connect your MCP client manually
+
+`node install.mjs` does this for you. To do it by hand: gentle-terminal is a standard **stdio** MCP server, command `node`, argument the absolute path to `launch.mjs`. Run `npm run setup` once to install the pinned runtime.
+
+<details open>
+<summary><b>Claude Code</b></summary>
+
+```bash
+claude mcp add gentle-terminal --scope user -- node /absolute/path/to/gentle-terminal/launch.mjs
+```
+</details>
+
+<details>
+<summary><b>Codex CLI</b></summary>
+
+```bash
+codex mcp add gentle-terminal -- node /absolute/path/to/gentle-terminal/launch.mjs
+```
+
+Or merge [`examples/codex/config.toml`](examples/codex/config.toml) into `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.gentle-terminal]
+command = "node"
+args = ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"]
+```
+</details>
+
+<details>
+<summary><b>Cursor</b> / <b>Claude Desktop</b> / other <code>mcpServers</code> clients</summary>
+
+```json
+{
+  "mcpServers": {
+    "gentle-terminal": {
+      "command": "node",
+      "args": ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"]
+    }
+  }
+}
+```
+
+Files: [`examples/cursor/mcp.json`](examples/cursor/mcp.json), [`examples/claude-desktop/claude_desktop_config.json`](examples/claude-desktop/claude_desktop_config.json).
+</details>
+
+<details>
+<summary><b>VS Code</b></summary>
+
+See [`examples/vscode/mcp.json`](examples/vscode/mcp.json): place it in `.vscode/mcp.json` for one workspace, or merge its `servers` into your user `mcp.json` (`Code/User/mcp.json`) for all of them.
+</details>
+
+<details>
+<summary><b>OpenCode</b></summary>
+
+See [`examples/opencode/opencode.json`](examples/opencode/opencode.json). OpenCode expects a command **array**, not a shell string.
+</details>
+
+On Windows, use an absolute Windows path (`C:/tools/gentle-terminal/launch.mjs` or escaped backslashes in JSON). More details and caveats: [`references/clients.md`](references/clients.md).
+
+> [!IMPORTANT]
+> Adding the MCP server gives the agent the **tools**. Loading [`SKILL.md`](SKILL.md) (through your client's skill discovery, or by asking the agent to read it) gives it the **policy**. Use both.
+
+## Usage examples
+
+Ask your agent in plain language. A few prompts that show what the skill changes:
+
+```text
+Open a terminal in this project, set APP_ENV=test, run the test suite and tell me the real exit code.
+Keep the session open so I can run more commands with the same environment.
+```
+
+```text
+Start Codex CLI in /approved/workspace and ask it to add a unit test for parseConfig.
+If it asks to trust the folder or approve a command, stop and show me the exact prompt.
+When it says it's done, verify the test file exists and run it yourself before telling me.
+```
+
+```text
+Run `git rebase -i HEAD~3`, show me the todo list as a screenshot, and stop there.
+I'll decide what to squash.
+```
+
+What a well-behaved supervised session looks like (tool calls from the agent's side):
+
+```text
+terminal_create  { command: "codex", cwd: "/approved/workspace" }   -> Created session 1
+terminal_wait    { sessionId: 1, until: "quiet", quietMs: 3000, timeoutMs: 30000 }
+  ⤷ input box visible, but STARTING: wait quiet again -> a trust/hooks menu appeared later
+  ⤷ AWAITING_HUMAN: the exact menu is shown to the user, who answers "once" -> agent waits
+terminal_type    { sessionId: 1, text: "add a unit test for parseConfig" }   (no \n: input boxes treat it as paste)
+terminal_press   { sessionId: 1, key: "Enter" }              -> task echoed in the transcript (submitted once)
+terminal_wait    { sessionId: 1, until: "quiet", quietMs: 3000, timeoutMs: 120000 }
+  ⤷ timed out -> "esc to interrupt" still visible -> state: RUNNING -> wait again
+terminal_wait    { ... }                                     -> "Worked for 2m 14s", prompt back -> state: IDLE
+  ⤷ agent reads the new test file and runs it in a separate command session: exit 0
+terminal_type    { sessionId: 1, text: "/quit" }  +  terminal_press { key: "Enter" }
+terminal_wait    { sessionId: 1 }                            -> command exited (exit code 0)
+terminal_destroy { sessionId: 1 }
+```
+
+More prompts, including REPLs, full-screen editors and long builds: [`examples/prompts.md`](examples/prompts.md).
+
+## How it works
+
+<img src="docs/assets/architecture.svg" alt="You give an AI agent a task; the agent reads SKILL.md and talks MCP over stdio to launch.mjs, which imports the pinned terminal-use 0.2.1 in the same Node process to drive a real PTY; trust, login and approval prompts come back to you" width="100%">
+
+1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine. Its only environment change: an inherited empty or `dumb` `TERM` becomes `xterm-256color`, matching the emulator, so TUIs started from IDE or agent shells still run on Windows (Linux and macOS sessions always get `xterm-256color`).
+2. **`runtime/`** holds a lockfile that pins `terminal-use@0.2.1` by registry integrity. Each machine installs its own platform-specific prebuilt binaries; `node_modules` is never shipped.
+3. **`SKILL.md`** encodes the operating policy: classify the screen into one of eleven states after every response, stop at human decisions, prove completion with fresh markers, verify artifacts before follow-ups, exit naturally and clean up owned sessions. The files in **`references/`** are read on demand only.
+
+<img src="docs/assets/states.svg" alt="The eleven observable states: STARTING, READY, RUNNING, IDLE and COMPLETED on the main path; AWAITING_HUMAN and AWAITING_PROGRAM_INPUT branch from RUNNING; FAILED, EXITED, UNKNOWN and RECOVERING off the main path" width="100%">
+
+The server also publishes the upstream `terminal-use` skill over MCP (`skills/list`) for hosts that support that extension. gentle-terminal's skill already covers routine use, so agents load the upstream text only for its key and TUI recipes ([details](references/engine.md#one-skill-not-two)).
+
+### Tools exposed (from terminal-use)
+
+| Tool | Purpose |
+|---|---|
+| `terminal_create` | Start an interactive shell, or a single program with `command` (exact exit status) |
+| `terminal_type` / `terminal_press` / `terminal_batch` | Type text, press keys and combinations, or send several inputs at once |
+| `terminal_wait` | Wait for a command to finish, a regex to appear, or output to go quiet |
+| `terminal_read` / `terminal_screenshot` | Read the screen as text, or render it as a PNG |
+| `terminal_click` / `terminal_scroll` | Mouse interaction for TUIs |
+| `terminal_list` / `terminal_resize` / `terminal_reset` / `terminal_destroy` | Session management |
+
+## Configuration
+
+All arguments after `launch.mjs` go straight to terminal-use:
+
+| Option | Default | Description |
+|---|---|---|
+| `--cwd <path>` | client's cwd | Default working directory for new sessions. It is **not** an access boundary: `terminal_create` accepts any `cwd`, `shell`, `command` and `env` per session. |
+| `--shell <path>` | Windows PowerShell on Windows; `$SHELL` or `/bin/bash` elsewhere | Shell for new sessions. Write commands in **that** shell's syntax. |
+| `--cols <n>` / `--rows <n>` | `120` / `30` | Terminal size |
+| `--scrollback <n>` | `5000` | Lines of history kept |
+| `--login` | off | Start login shells (loads your profile `PATH`) |
+
+```bash
+node launch.mjs --version   # 0.2.1
+node launch.mjs --help      # full upstream usage
+```
+
+JSON argument values must not contain extra shell quoting; keep spaces inside a single argument value.
+
+## Safety model
+
+> [!WARNING]
+> **This is not a sandbox.** Sessions inherit your user privileges and environment, potentially including credentials. Use trusted clients and keep their approval gates enabled.
+
+What is enforced in code and what is only guidance:
+
+| Control | Enforced by | Notes |
+|---|---|---|
+| Node and platform checks, clean stdout | `launch.mjs` | Tested in `tests/guards.test.mjs` |
+| Runtime pin, SHA-512 lockfile, no install scripts | npm + `tests/pin.test.mjs` | Every locked package must be a registry tarball with integrity |
+| Session disposal on client disconnect or SIGINT/SIGTERM/SIGHUP | terminal-use | Forced kills and detached grandchildren can escape |
+| Command sessions never rerun automatically | terminal-use | Tested in `tests/supervision.test.mjs` |
+| Approvals, Standard/Automatic modes and their hard limits, prompt injection, secrets, cwd scope, no duplicate submissions | **Agent Skill only** | Depends on the model and client following `SKILL.md`. Keep your client's own approval gates on |
+
+- **Human decisions stay human.** Trust, login, credential and approval prompts are shown to you verbatim. One-time approval is chosen only when an explicit policy you gave covers that exact action; persistent "always allow" is never chosen unasked.
+- **Automatic mode is a policy you grant, not a bypass.** When you pick it at the start of a task, the agent answers the prompts the task needs, even outside the workspace, with one-time options; a "this conversation" option only for read-only tools or the exact command shown, never for tools that run any command, edit any file or reach the network. Hard limits always come back to you: credentials and secrets, deleting what the task did not create (even if it asked to clean it), replacing what it did not ask to change, elevation and operating system changes, system-wide installs and downloaded scripts, publishing or uploads the task did not ask for, instructions found on screen, persistent options and anything uncertain. Every automatic answer is listed in the final report ([details](references/authorization.md#automatic-mode)). If your client confirms each tool call, the agent asks once to allow the gentle-terminal tools for this conversation: it tells you which session-only option to pick, or in the Cursor IDE, which has none, runs `node session.mjs allow` and reverts it with `revoke` when you ask; see [tool-call confirmations](references/clients.md#tool-call-confirmations).
+- **Terminal output is untrusted.** Text printed by programs, files and other agents is treated as data, never as instructions.
+- **`--cwd` is a default, not a jail.** Any session can start anywhere the user can.
+- **No silent global changes.** gentle-terminal never edits global settings, shell profiles, `PATH` or credentials. Client configs and skill links are changed only by `node install.mjs` when you run it, and a workspace `.cursor/permissions.json` only by `node session.mjs` after you agree; nothing runs it automatically (no npm lifecycle scripts, no background updates).
+- **No process-name kills.** Only sessions the agent created are destroyed, and only when idle. Upstream handles stdin disconnect and SIGINT/SIGTERM/SIGHUP, but forced termination, detached grandchildren and external programs can escape graceful disposal; uncertain cleanup is reported.
+- **Attach endpoints.** On Unix they are sockets in a `0700` directory. On Windows they are named pipes whose default ACL was observed to grant Read to Everyone; on shared Windows hosts other local accounts may be able to read session output. See [SECURITY.md](SECURITY.md).
+- **Supply chain.** The runtime is pinned by version and SHA-512 integrity and installed with `--ignore-scripts`. `tests/pin.test.mjs` fails if the manifest, lockfile or installed version drift, or if any locked package loses its registry integrity.
+
+Want stronger isolation? Run terminal-use inside a container (see the [upstream Docker notes](https://github.com/computer-agent-labs/terminal-use#docker)) and point the agent at that instead.
+
+## Supported platforms
+
+| OS | Architectures | Default shell | CI |
+|---|---|---|---|
+| Linux | x64, arm64 | `$SHELL` or `/bin/bash` | ubuntu-latest (x64), ubuntu-24.04-arm (arm64) |
+| macOS | arm64 (x64 untested) | `$SHELL` | macos-latest (arm64) |
+| Windows | x64, arm64 | Windows PowerShell | windows-latest (x64), windows-11-arm (arm64) |
+
+The CI column lists where the suite runs, on Node 22 and 24 for x64 and Node 24 for ARM runners. Check the badge or the Actions tab for the current result. macOS x64 relies on prebuilt binaries but has no runner here.
+
+Native dependencies are prebuilt; there is no compilation fallback. Reinstall the runtime on every OS/architecture and never copy `node_modules` between machines.
+
+## Testing
+
+```bash
+npm test          # launcher guards and forwarding, pin and lockfile integrity, skill validation,
+                  # export allowlist + privacy scan, E2E supervision against a simulated agent
+npm run smoke     # real MCP stdio round-trip: persistent state, keys, waits, exit codes, disconnect cleanup
+npm run bench     # cost benchmark: startup, payload sizes, per-tool latency, memory, calls per task
+```
+
+No test makes model or network calls, and scratch state lives in the OS temp directory. The smoke test starts the server, drives a shell, checks `exit 7` propagation, then disconnects and confirms its own shell is gone. [`evals/activation.json`](evals/activation.json) lists behavior cases (activation, authorization, silence, verification) for manual runs with real agents; they need a model, so they are not part of CI.
+
+### Efficiency results: measured scope and limits
+
+The following measurements are from **1.4.0**, not a new 1.5.0 benchmark. Skill activation was **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
+
+The measured 1.3.0 baseline (Windows x64, Node 24.16.0, stdio harness, 15 runs) recorded tools/list at **24,828 bytes**, optimized task p50/p95 at **313.4/338.0 ms**, and **54/54 tests** with smoke/bench/verify exit 0. The four-to-one-call strategy already existed before this feature. The 12-row experiment reduced response traffic **44.2%**, but sampled p95 increased **16.6%** (390.8 → 455.5 ms) against the same-run 40-row strategy, so smaller dimensions are **not promoted to a default**. The formal real-client/model evaluation cases have not been run as a controlled benchmark.
+
+For the 1.5.0 candidate, local Windows x64 verification with Node 24.16.0 passed 88/88 tests and the MCP smoke test. The Gentle Shell client extension was tested against a simulated host and temporary home; these checks do not prove model compliance or native integration across clients.
+
+See the [architecture, audit, comparison, security and evaluation report](docs/efficiency.md) and [benchmark methodology](bench/README.md) for scope, measured values, remaining proof and reproduction instructions. The upstream `MaxListenersExceededWarning` appeared on stderr in both benchmark reports; it is not hidden or fixed here.
+
+### Build a distributable archive
+
+```bash
+npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
+npm pack --ignore-scripts                    # creates gentle-terminal-1.5.0.tgz
+```
+
+The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.
+
+## Project structure
+
+```text
+gentle-terminal/
+├── SKILL.md                 # Agent Skill: hard rules, state table, efficient loop, on-demand index
+├── install.mjs              # Installs/updates the runtime, MCP entries and skill links for every client found
+├── launch.mjs               # Same-process launcher for the pinned MCP server
+├── session.mjs              # Allows/revokes gentle-terminal tool calls in one Cursor workspace (Automatic mode)
+├── smoke.mjs                # Deterministic MCP stdio smoke test
+├── references/              # Loaded on demand
+│   ├── workflow.md          # Supervising coding agents, versioned client signals
+│   ├── authorization.md     # Trust, approval, login and secret prompts
+│   ├── recovery.md          # Timeouts, respawns, crashes, disconnects
+│   ├── windows.md           # PowerShell, cmd and ConPTY behavior
+│   ├── engine.md            # terminal-use limits, wait semantics, measured cost
+│   └── clients.md           # Activation notes per MCP client
+├── clients/gentle-shell/    # Consent-gated Gentle Shell extension, linked by install.mjs
+├── bench/                   # Reproducible cost benchmark
+├── evals/                   # Behavior cases for real-agent evaluation
+├── examples/                # Copy-paste client configs and example prompts
+├── runtime/                 # Pinned terminal-use manifest + lockfile (install per machine)
+├── tests/                   # node:test suite, simulated agent fixture, MCP test client
+├── docs/assets/             # README artwork
+└── .github/                 # CI, issue and PR templates
+```
+
+## FAQ
+
+<details>
+<summary><b>How is this different from using terminal-use directly?</b></summary>
+
+terminal-use provides the terminal tools and a usage skill. gentle-terminal pins and verifies that runtime, gives you a portable launcher, and layers a stricter **approval-first supervision policy** on top, aimed at the hardest case: an agent driving another agent or a long interactive task where timeouts, prompts and false "done" claims are common.
+</details>
+
+<details>
+<summary><b>Can my agent approve prompts automatically?</b></summary>
+
+Only one-time approvals, and only when you have given an explicit policy that covers that exact action. Otherwise it stops and shows you the prompt. You can also attach your own terminal to the session (terminal-use `attach`) and answer directly.
+</details>
+
+<details>
+<summary><b>Does it work with PowerShell, cmd, zsh or fish?</b></summary>
+
+Yes, any installed shell via `--shell`. The skill requires the agent to write commands in the syntax of the **selected shell**, not merely the operating system.
+</details>
+
+<details>
+<summary><b>Why Node 22.12+?</b></summary>
+
+It is the minimum supported by terminal-use and its prebuilt native dependencies. The launcher fails fast with a clear message on older versions.
+</details>
+
+<details>
+<summary><b>Programs work in my terminal but say "command not found" in a session.</b></summary>
+
+Your MCP client was probably launched from a GUI and inherited a bare environment. Pass `--login` to start login shells that read your profile.
+</details>
+
+## Contributing
+
+Contributions are welcome: new client signals for the workflow, client config examples, docs and tests. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code of Conduct](CODE_OF_CONDUCT.md) first.
+
+## Security
+
+Please report vulnerabilities privately as described in [SECURITY.md](SECURITY.md). Do not open public issues for security problems.
+
+## Acknowledgements
+
+- [terminal-use](https://github.com/computer-agent-labs/terminal-use) by Computer Agent Labs: the PTY + terminal emulator MCP server this project builds on.
+- [Model Context Protocol](https://modelcontextprotocol.io) and the [Agent Skills](https://agentskills.io) format.
+
+Third-party licenses: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## License
+
+[MIT](LICENSE) © 2026 reyrodman and gentle-terminal contributors.
+
+<div align="center">
+
+If gentle-terminal saves your agent from one bad "Always allow", consider giving it a ⭐
+
+</div>

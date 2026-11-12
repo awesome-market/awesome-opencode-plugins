@@ -1,0 +1,95 @@
+# opencode-docker-panel
+
+[![CI](https://github.com/victor-ochenin/opencodeDockerPlugin/actions/workflows/ci.yml/badge.svg)](https://github.com/victor-ochenin/opencodeDockerPlugin/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/opencode-docker-panel.svg)](https://www.npmjs.com/package/opencode-docker-panel)
+[![npm downloads](https://img.shields.io/npm/dm/opencode-docker-panel.svg)](https://www.npmjs.com/package/opencode-docker-panel)
+
+A Docker container panel for the OpenCode 2 TUI sidebar, with Docker Desktop control.
+
+![The Docker panel in a session sidebar](docs/demo2.gif)
+
+What it does, with demos: [docs/features.md](docs/features.md). Русская версия этого файла:
+[README.ru.md](README.ru.md), демонстрации на русском — [docs/features.ru.md](docs/features.ru.md).
+
+## Requirements
+
+- OpenCode 2 runtime with plugin slots (`opencode2`)
+- `docker` on `PATH`
+- Engine control needs one more thing per platform. On Windows it is the `docker desktop` CLI plugin.
+  On Linux the engine is the `docker.service` systemd unit, and controlling it needs a one-time root
+  step: a sudoers rule for `systemctl start docker.service` and `systemctl stop docker.service
+docker.socket`. Without that rule the panel still lists containers, it just cannot start or stop the
+  engine, and it says so when you try.
+
+## Install
+
+### Option A: let an LLM do it
+
+Paste this into any agent (Claude Code, OpenCode, Cursor, and so on):
+
+```text
+Install the opencode-docker-panel Docker sidebar plugin by following
+https://github.com/victor-ochenin/opencodeDockerPlugin#installation
+```
+
+### Option B: manual setup
+
+Add the plugin to `~/.config/opencode/cli.json`. Create the file if it does not exist and keep
+whatever is already in it.
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["opencode-docker-panel"],
+}
+```
+
+Two things trip people up here, so they are worth stating plainly:
+
+- **It goes in `cli.json`, not `opencode.json`.** This is a terminal-only plugin: it draws in the
+  sidebar, and `cli.json` is the file the terminal client reads.
+- **There is no login step and no provider to configure.** It talks to the local `docker` CLI and
+  nothing else.
+
+Restart the TUI afterwards. The host installs the package on the next start; nothing to copy and
+nothing to build.
+
+Pin a version when you want a known state: `{ "package": "opencode-docker-panel@0.6.0" }`.
+
+### Verification
+
+There is no CLI check for this one: the plugin draws in the terminal UI, so `opencode run` will
+never show it. Verify in the TUI.
+
+1. `docker ps` returns at least one container. If it fails, the panel has nothing to draw and says
+   so.
+2. Restart the TUI and open a session.
+3. The sidebar gets a `Docker` header with a container count. Running containers appear as rows, at
+   most five of them, with a `N more, click for all` line under them when something is still hidden.
+4. Click `Docker` to collapse the list, then click it again to open the full list. Pick a container
+   to get its actions menu, and the last entry there is `Stop Docker Desktop`.
+
+Stop Docker Desktop and the sidebar gets a clickable `Start Docker Desktop` line instead of a line of text.
+
+If the header never appears, the plugin did not load: check that the entry is in `cli.json` under
+`plugins`, and check `~/.local/share/opencode/log/opencode.log` for a load error.
+
+## Options
+
+There are none. The panel follows Docker's own event stream, so there is nothing to configure and
+nothing to tune. It still polls as a safety net every 30 seconds, and every 3 seconds while Docker is
+stopped so that starting Docker Desktop from the tray shows up right away.
+
+Before `0.6.0` there was an `intervalMs` option. It controlled how often the panel ran `docker ps`,
+and it no longer does anything: events carry the updates and the poll is only a net. Leaving it in
+your config is harmless.
+
+Everything else lives in [docs/features.md](docs/features.md).
+
+## Changelog
+
+Versions and dates are in [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+MIT

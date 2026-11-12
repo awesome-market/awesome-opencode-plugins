@@ -1,0 +1,214 @@
+<p align="center">
+  <img src="plugins/claude-code/assets/logo.png" width="96" alt="Reintersect" />
+</p>
+
+<h1 align="center">Reintersect for coding agents</h1>
+
+<p align="center">Claude Code, Codex, Cursor and OpenCode, with your team in the loop.</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-9068F7" alt="Apache-2.0" /></a>
+  <a href="https://www.npmjs.com/package/@reintersect/opencode"><img src="https://img.shields.io/npm/v/@reintersect/opencode?label=%40reintersect%2Fopencode&color=9068F7" alt="@reintersect/opencode on npm" /></a>
+</p>
+
+Your coding agent forgets everything when the session ends. Your team doesn't have to.
+
+This plugin gives Claude Code, Codex, Cursor and OpenCode what your team already discussed, decided and learned on [Reintersect](https://reintersect.com), and sends back what the agent figures out along the way. Reintersect is where that discussing and deciding happens, and where the team hands work to agents. The plugin puts that record inside the agent on your machine.
+
+One sign-in covers every host on the machine, because they all run the same binary against the same token file.
+
+## Install
+
+### Claude Code
+
+Requires Claude Code 2.1.283 or later.
+
+Install for yourself across all projects (the default user scope):
+
+```bash
+claude plugin marketplace add reintersect/agent-plugins
+claude plugin install reintersect@reintersect
+```
+
+To use Reintersect only in a particular repository or work project, run these commands from that project's root directory instead:
+
+```bash
+claude plugin marketplace add reintersect/agent-plugins
+claude plugin install reintersect@reintersect --scope local
+```
+
+Local scope enables the plugin for you in that project through `.claude/settings.local.json`. For a setup shared with collaborators, use `--scope project` instead, which records the plugin in `.claude/settings.json`.
+
+If you're switching an existing user-scope installation to local scope, first run `claude plugin uninstall reintersect@reintersect --scope user --keep-data`, then use the local install commands above. Start a new Claude Code session in the project and check `claude plugin list` to confirm the scope. See [Claude Code's installation scopes](https://code.claude.com/docs/en/discover-plugins#choose-an-install-scope) for details.
+
+### Codex
+
+Requires Codex CLI 0.158.0 or later.
+
+```bash
+codex plugin marketplace add reintersect/agent-plugins
+codex plugin add reintersect@reintersect
+```
+
+Finish setup in Codex:
+
+1. Run `$reintersect:login` and choose your Reintersect workspace.
+2. Open `/hooks` in the Codex CLI and review and trust Reintersect's hooks. Codex requires this separately from installing the plugin; automatic recall and capture stay off until you do it.
+3. Start a new session and run `$reintersect:status` to verify the workspace, tools and capture. An enabled capture setting alone does not mean the hooks are running.
+
+Codex asks you to review hooks again if their definition changes.
+
+### Cursor
+
+```bash
+cursor-agent plugin marketplace add https://github.com/reintersect/agent-plugins
+cursor-agent plugin install reintersect@reintersect
+```
+
+### OpenCode
+
+Add the package and its MCP server to `opencode.json`, in the project or in `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "plugin": ["@reintersect/opencode"],
+  "mcp": {
+    "reintersect": {
+      "type": "local",
+      "command": ["npx", "-y", "@reintersect/opencode", "mcp"]
+    }
+  }
+}
+```
+
+### Sign in
+
+Run `$reintersect:login` in Codex, `/reintersect:login` in Claude Code, or `/reintersect-login` in OpenCode. It opens your browser and prints the URL, so it works over SSH too. Pick a workspace on the consent page; that choice binds this machine. Cursor has no slash commands, so sign in from a terminal instead:
+
+```bash
+node ~/.cursor/plugins/*/reintersect/dist/reintersect-agent.mjs login
+```
+
+If you'd rather use a key, set `REINTERSECT_API_KEY` to a `rei_…` key from Settings → Developer → API keys, and the browser step goes away.
+
+## What happens in a session
+
+Claude Code and Codex recall relevant memory on every prompt, including short follow-ups. During tool work they refresh in the background at most once a minute. Foreground prompt hooks have a four-second deadline; failures leave the host free to continue.
+
+Each response contains at most 4,000 characters, with at most 1,000 used by personal and repository profiles. The plugin supplies new or changed facts, retires facts and profiles that are no longer current or accessible, and restores context after compaction, resume, clear and fork. Subagents have separate delivery records. Memories are dated evidence with provenance, not instructions that override your task.
+
+Cursor keeps its session-start injection. OpenCode keeps its session-start and first substantial prompt behavior. Both use the shared capture and upload fixes.
+
+Every fact says where it came from: the conversation it was learned in, the decision that settled it, the date it was true. It's team memory with receipts. A vector store of chat scraps can't tell you which conversation settled a question; this can.
+
+As you work, the plugin records the session locally: your prompts, the agent's replies, which files it touched, which commands ran and how they ended. Before any of it leaves the machine it's scrubbed for secrets. Then it ships in batches, and Reintersect extracts memories from it and files them by repository, circle, workspace and person. The next session starts from there, and so does every teammate's agent and the agent in the Reintersect dashboard.
+
+Reintersect's tools ride along too. Mid-session the agent can search your team's conversations, read a decision and its rationale, or store something you asked it to remember.
+
+The plugin also includes an automatically selectable `reintersect` skill. It helps
+agents look up relevant team context before guessing or asking the user,
+verify important matches in their source conversation, and skip unrelated or
+already-resolved searches. The existing `recall` command remains an explicit lookup.
+
+Claude Code and Codex receive a short reminder before each prompt, on resume,
+after compaction, and at subagent start through the existing synchronous hooks.
+Async startup and background recall only deliver memory changes, so a standalone
+reminder cannot interrupt a model response already in progress. Cursor's always-applied rule points
+to the same skill. OpenCode includes the skill body in its system transform because
+its generated commands alone are not automatically selected skills. Reminder delivery
+still depends on the host enabling and consuming its hooks or rules; it does not
+prove the model will search appropriately. Recall-only sandboxes receive memories
+without the reminder because they need not have the plugin skills or search tools.
+
+Invoke the skills with `$reintersect:<name>` in Codex, `/reintersect:<name>` in Claude Code, or `/reintersect-<name>` in OpenCode:
+
+| Command | Does |
+| --- | --- |
+| `reintersect` | Look up relevant team decisions and context. |
+| `login` | Sign this machine in. |
+| `recall` | Ask what Reintersect knows about this repository, the team or you. |
+| `remember` | Store a fact, decision or preference for everyone. |
+| `forget` | Remove or correct something Reintersect remembered. |
+| `status` | Sign-in, bound workspace, capture state and pending uploads. |
+| `pause` | Stop capture on this machine, for private work. |
+| `resume` | Start capturing again. |
+
+## What leaves the machine
+
+Sent to Reintersect:
+
+- your prompts and the agent's final replies
+- subagent assignments and their results
+- repository-relative paths that were read or changed
+- commands that ran, whether they passed, and at most 500 characters of output when they failed
+- the git remote and branch, plus the host name and its session id
+
+Never sent:
+
+- file contents
+- output of commands that succeeded
+- the transcript file itself
+- anything matching the secret patterns: bearer tokens, API keys, access and refresh tokens, passwords, `sk-…` and `rei_…` keys, AWS, GitHub and Slack credentials. They're replaced with `[REDACTED]` before they're even written to disk.
+
+Everything is captured locally first, under `~/.reintersect/agent/`. Uploads happen at natural boundaries: when a turn ends, when a subagent finishes, before compaction and when the session ends. Uploads made before compaction or at session end are marked final, so Reintersect extracts memories from the session right away instead of waiting for it to go quiet. If the last turn already shipped everything, no upload is made and extraction follows the quiet-window schedule. Tool work isn't uploaded call by call. During a long turn it goes up once the oldest unsent record is five minutes old or the unsent records reach 64 KiB, whichever comes first. A boundary that arrives while an upload is still in flight is remembered, and the rest of the session follows as soon as that upload finishes. Messages are redacted in full, then split into ordered chunks without truncation. Batches snapshot their content and sequence numbers before sending, so retries remain identical while new work is captured. Undelivered batches remain on disk until delivered; they do not expire.
+
+Batches are bound to their backend and authenticated workspace/member. Changing accounts or repositories holds the original session rather than sending its history to another scope. Start a new agent session after a scope change. Records whose account cannot be established remain locally unassigned; status reports them for review. Re-signing in to the same account allows the current prompt and bound uploads to continue.
+
+The pause skill turns capture off. The tools keep working while paused, and batches already captured stay on disk until capture resumes.
+
+The plugin never writes to `CLAUDE.md`, `AGENTS.md` or any host settings file. Hook failures do not veto agent work. Automatic recall and capture are both paused by the pause command; pending uploads remain held.
+
+## Settings
+
+| Variable | Does |
+| --- | --- |
+| `REINTERSECT_API_URL` | Point the plugin at another Reintersect deployment. Defaults to `https://api.reintersect.com`, or whatever `login --api-url` last used. |
+| `REINTERSECT_API_KEY` | A `rei_…` key. Set it and the plugin skips the browser login. |
+| `REINTERSECT_AGENT_HOME` | Move the local data directory. Defaults to `~/.reintersect/agent`. |
+
+## Troubleshooting
+
+**Nothing comes back at session start.** Run `$reintersect:status` in Codex or `/reintersect:status` in Claude Code. It says whether the machine is signed in, which workspace it's bound to and whether batches are still waiting. If the repository belongs to a different workspace, ask the agent to switch workspace once; it has a tool for that.
+
+**Sign-in expired.** Run the login skill again. Tokens refresh on their own for 90 days; after that it's one more browser round trip.
+
+**Codex shows no repository-scoped results.** Codex starts the bundled MCP server from the plugin directory, so pass the active checkout's git remote as `owner/repo` in the tool's `repository` argument. The recall and remember skills do this for repository facts.
+
+**Cursor gets no context on prompts.** Cursor's prompt hook can't inject context, so there the plugin injects at session start and ships a rule that tells the agent to check Reintersect before assuming. Capture works the same as everywhere else.
+
+**OpenCode shows no Reintersect tools.** Keep the explicit `mcp` entry from the install step. The plugin also registers the server from its config hook, and OpenCode 1.18 didn't pick that up in testing.
+
+**Something failed and nothing said so.** Automatic memory warns once for authentication failures, after three consecutive recall failures, when a queued batch has waited five minutes to upload, or when captured work has waited ten minutes without being batched. Status reports the runtime version, observed hook activity, last recall attempt/success/output, duration, queue age and scope holds. A produced hook output is not proof the host consumed it. Safe error categories land in `~/.reintersect/agent/errors.log`. The exact material that gets sent is in `~/.reintersect/agent/sessions/`, one file per session.
+
+## Hosted sandboxes
+
+### Recall-only mode
+
+A host can run the CLI's hooks without installing the plugin, for example a sandbox that calls `node reintersect-agent.mjs hook <host> <event>` from its own hook configuration. Set `REINTERSECT_AGENT_RECALL_ONLY=1` there and the hooks only recall: at session start, on each prompt, when a subagent starts and during background refreshes. They keep only the session state recall needs, write no capture log, queue no uploads, leave earlier queued batches alone and never call `IngestCodingSession`. They also print no warnings, so the host never asks the user to run a status skill it does not have. The `status` command reports the mode.
+
+The mode uses these environment variables:
+
+| Variable | Does |
+| --- | --- |
+| `REINTERSECT_AGENT_RECALL_ONLY` | Set to `1` to recall without capturing or uploading. |
+| `REINTERSECT_API_URL` | The Reintersect deployment to recall from. |
+| `REINTERSECT_API_KEY` | The key the hooks send. It only needs access to the `RecallForCodingSession` tool. |
+| `REINTERSECT_AGENT_HOME` | A writable directory for session and recall state. Defaults to `~/.reintersect/agent`. |
+
+## Development
+
+Deploy the backend recall contract before releasing these plugin bundles. The backend retains `context` and `memoryIds` for installed 0.2.0 clients; new clients also require structured items, revisions, scope and completeness. An older backend is reported as needing an upgrade.
+
+Uploads are batched by turn, and the backend extracts memories when a session ends or compacts, after it has been quiet for ten minutes, and at least hourly during continuous work. The backend's `IngestCodingSession` tool accepts an optional `final` argument for the compaction and session-end uploads; older backends ignore it, because they decode tool arguments without rejecting unknown keys. Upload acceptance, extraction completion, hook output and host receipt are separate boundaries; a fake-backend test only proves the paths it exercises. See [validation](docs/validation.md) for checks and real-host smoke runs.
+
+`packages/cli/src` is the only source: a TypeScript CLI on Effect, bundled by `tsdown` into one dependency-free `dist/reintersect-agent.mjs` that `scripts/build.ts` copies into every plugin directory along with the skills rendered from `skills/`. The per-plugin `dist/` is committed, because hosts install plugins as plain git checkouts with no install step. `packages/opencode` is the npm package for OpenCode; the release builds its `dist/` before publishing.
+
+The root `package.json` `version` is the one version. `pnpm build` stamps it into every plugin and marketplace manifest (rendered from the `*.json.tmpl` beside each), into `packages/*/package.json`, and into the bundle as the version the CLI announces. `pnpm install`, then `pnpm check` runs lint, typecheck, tests and the build, and fails when any committed bundle, skill or stamped file drifts from the source. CI runs it on every pull request and push to `main`.
+
+To release, run the Release workflow in GitHub Actions and pick `patch`, `minor` or `major`. It bumps the version, builds, checks, commits `chore(release): vX.Y.Z` to `main`, tags it, publishes `@reintersect/opencode` through npm trusted publishing and creates the GitHub release. Pushing a `vX.Y.Z` tag by hand runs the same workflow with that version, whatever `main` says at the time.
+
+To try a local build, run `claude --plugin-dir plugins/claude-code`, or copy `plugins/cursor` into `~/.cursor/plugins/local/reintersect`.
+
+## License
+
+Apache-2.0.

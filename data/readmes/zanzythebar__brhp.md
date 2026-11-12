@@ -1,0 +1,201 @@
+# BRHP
+
+BRHP is an OpenCode plugin for structured, persistent planning.
+
+Instead of treating planning as a few disposable notes in a chat, BRHP gives planning its own state. You can start from a problem statement, build and revisit a planning session over time, and keep that session grounded in the instructions and constraints that matter for the current project.
+
+BRHP is short for Boltzmann Recursive Hierarchical Planning. At a high level, it models planning as a graph of scopes, nodes, and validation signals rather than a flat checklist, so the system can keep track of what is still unresolved and whether a plan has actually converged.
+
+## What BRHP is for
+
+BRHP is built for work that is too large, too uncertain, or too constrained to handle well with "just start coding."
+
+It is meant to help you:
+
+- turn a vague problem into an explicit planning session
+- keep track of the active frontier of unresolved work
+- validate whether the current plan is coherent enough to proceed
+- resume planning later without losing the thread
+- keep project-specific instructions in the loop while planning
+
+## Why this project exists
+
+Most AI-assisted development workflows are very good at moving fast. They are much less reliable at holding a careful plan in memory across multiple turns, especially when the work has dependencies, constraints, or policy-like requirements.
+
+BRHP exists to make planning a first-class activity inside OpenCode. The goal is not only to generate a plan once, but to maintain an explicit planning state that can be inspected, constrained, resumed, and handed off with more confidence.
+
+## What it does today
+
+BRHP currently provides:
+
+- a `/brhp` slash command for inspecting, creating, and resuming planning sessions
+- a `/brhp history` view for deeper bounded recent planner history on the active session
+- a `/brhp inspect` view for bounded graph, frontier, and validation drill-down on the active session
+- a TUI sidebar for the current planning state
+- instruction loading from both user-level and project-level directories
+- local persistence so planning sessions survive across turns and restarts
+
+BRHP reads instructions from:
+
+- `~/.config/opencode/brhp/instructions`
+- `.opencode/brhp/instructions`
+
+A default instruction set is included in `.opencode/brhp/instructions/planning-with-brhp.md` that teaches the LLM how to use BRHP tools.
+
+Planning sessions are stored locally at:
+
+- `.opencode/brhp/brhp.db`
+
+Optional planner configuration can be set in:
+
+- `.opencode/brhp/config.yaml`
+
+An example config is provided at `.opencode/brhp/config.example.yaml`. Currently supported: `temperature` (0.001–1.0) and `maxDepth` (1–10). Missing or invalid config degrades gracefully to defaults.
+
+## Getting started
+
+Requirements:
+
+- OpenCode V2 compatible with `@opencode/plugin` `2.0.32`
+- Node.js `20+`
+
+BRHP is not published on npm yet. Until it is, use the local V2 package-directory adapter below.
+
+Local checkout requirements:
+
+- `pnpm`
+- `bun`
+
+Build BRHP locally:
+
+```bash
+corepack enable
+pnpm install
+pnpm build
+pnpm verify:package
+```
+
+Create this package directory under your project:
+
+```text
+.opencode/plugins/brhp/
+├── package.json
+├── index.ts
+└── tui.ts
+```
+
+`.opencode/plugins/brhp/package.json`
+
+```json
+{
+  "name": "brhp-local",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./tui": "./tui.ts"
+  }
+}
+```
+
+`.opencode/plugins/brhp/index.ts`
+
+```ts
+export { default } from "file:///absolute/path/to/brhp/dist/src/index.js";
+```
+
+`.opencode/plugins/brhp/tui.ts`
+
+```ts
+export { default } from "file:///absolute/path/to/brhp/dist/tui/index.js";
+```
+
+After publication, configure the combined server/TUI package once in `opencode.jsonc`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["brhp"]
+}
+```
+
+Restart OpenCode after changing plugin files. Re-run `pnpm build` after local BRHP source changes. The documented
+external local package-path form did not activate in our OpenCode `2.0.32` live host test; see [V2 migration notes](./docs/opencode-v2-migration.md).
+
+Publishing remains unauthorized.
+
+Common commands:
+
+- `/brhp` or `/brhp status` to inspect the active planning session
+- `/brhp history` to inspect the newest 25 planner events for the active session
+- `/brhp inspect` to inspect bounded graph, frontier, validation, node, edge, and activity detail for the active session
+- `/brhp plan <problem statement>` to start a new planning session
+- `/brhp resume <session id>` to resume an existing session
+
+Planner tools (available to the LLM during BRHP planning):
+
+| Tool | Purpose |
+| --- | --- |
+| `brhp_get_active_plan` | Read the authoritative active planning state. |
+| `brhp_decompose_node` | Decompose a node into smaller child nodes. |
+| `brhp_validate_active_scope` | Persist a validation verdict for the active scope. |
+| `brhp_complete_leaf` | Complete an undecomposed node with a result summary; completed nodes leave the frontier. |
+
+Operator read surfaces are intentionally bounded:
+
+| Surface | What it shows |
+| --- | --- |
+| `/brhp status` | Compact active-session summary, instruction inventory, skipped files, and stack-free diagnostics. |
+| `/brhp history` | Newest 25 planner events for the active session. |
+| `/brhp inspect` | Active graph/frontier/validation drill-down with bounded frontier selections, validation clauses, focus nodes, edges, and recent activity. |
+| TUI sidebar | Compact read-only active-session summary. |
+
+The exact Markdown output is for humans, not a machine-stable API. The stable contract is the command surface and the read-model concepts documented in [Operator contract](./docs/operator-contract.md).
+
+Example:
+
+```text
+/brhp plan Design a safe rollout strategy for migrating our job system
+```
+
+## Documentation
+
+The README is meant to explain the project at a high level. If you want the internal design and formal model, start here:
+
+- [Architecture](./docs/architecture.md)
+- [OpenCode V2 migration notes](./docs/opencode-v2-migration.md)
+- [Operator contract](./docs/operator-contract.md)
+- [Formal specification](./docs/formal-spec.md)
+
+## Development
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Validate the project:
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm verify:package
+```
+
+`pnpm verify:package` requires `bun` and `npm` on `PATH`. It uses Bun to run the verifier, `npm pack` to build the package artifact, and `npm install` inside a temporary project to smoke-test the installed package. It may need npm registry or cache access for dependency resolution.
+
+If you are working on the local planner schema:
+
+```bash
+pnpm db:compile
+pnpm db:vet
+```
+
+## Project status
+
+BRHP is an early public release. The core planning model, OpenCode integration, and local persistence are in place, but the public surface is still intentionally small while the planning kernel hardens.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).

@@ -1,0 +1,143 @@
+<p align="center">
+  <a href="./public/farming-2/app-icon-v2-512.png"><img src="./public/farming-2/app-icon-v2-512.webp" alt="Farming Code" width="112"></a>
+</p>
+
+<h1 align="center">Farming Code</h1>
+
+<p align="center">
+  Farming Code is an open-source, self-hosted browser workspace for running and supervising Codex, Claude Code, Pi, OpenCode, and other AI coding agents.
+</p>
+
+<p align="center">
+  <a href="https://zhuwenzhuang.github.io/farming/en/">Documentation</a> ·
+  <a href="https://zhuwenzhuang.github.io/farming/en/#interactive-demo">Interactive Demo</a> ·
+  <a href="./README.zh_cn.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/zhuwenzhuang/farming/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/zhuwenzhuang/farming/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/zhuwenzhuang/farming/releases"><img alt="Release" src="https://img.shields.io/github/v/release/zhuwenzhuang/farming?label=release"></a>
+  <a href="https://www.npmjs.com/package/farming-code"><img alt="npm" src="https://img.shields.io/npm/v/farming-code?label=npm"></a>
+  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/github/license/zhuwenzhuang/farming"></a>
+  <img alt="macOS and Linux" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-555">
+</p>
+
+## Quick Start
+
+**npm installation** — Node.js 22.13+ (including 23.x), with npm's bin directory in PATH.
+
+```bash
+npm install --global farming-code@latest --registry=https://registry.npmjs.org
+farming daemon
+```
+
+**Directory installation** — installs into a directory you choose, with its own Node.js and compatibility for supported older Linux hosts.
+
+```bash
+curl -fLO https://zhuwenzhuang.github.io/farming/farming_install.sh
+bash farming_install.sh --dir ~/farming
+cd ~/farming
+./farming daemon
+```
+
+macOS / Linux. Choose one method, then open the printed URL and choose **New Agent**.
+See [installation requirements](https://zhuwenzhuang.github.io/farming/en/get-started/installation).
+
+[![Farming Code workbench](./docs/products/code/assets/01-code-workspace.webp)](./docs/products/code/assets/01-code-workspace.png)
+
+Farming Code runs on the same development machine as your repositories and coding CLIs. Agent processes, terminals, and project files stay on that machine; a desktop or phone browser connects to those real sessions.
+
+[![Start an Agent](./docs/products/code/assets/02-start-agent-picker.webp)](./docs/products/code/assets/02-start-agent-picker.png)
+
+## Farming Code
+
+Farming Code is the default desktop and mobile interface. It groups work by project and keeps live Agents, resumable history, files, browsers, and review in the same browser workspace.
+
+### Agents, Chat, and Terminal
+
+Start or resume Codex, Claude Code, Pi, OpenCode, Qoder, Qwen Code, Antigravity, and other detected
+coding Agents. Use structured Chat to read results and inspect the process, or
+switch to Terminal to work directly with the interactive CLI over the same backend session.
+
+[![Farming Code structured Agent process](./docs/products/code/assets/11-code-agent-process.webp)](./docs/products/code/assets/11-code-agent-process.png)
+
+[![Farming Code interactive Terminal session](./docs/products/code/assets/12-code-terminal-session.webp)](./docs/products/code/assets/12-code-terminal-session.png)
+
+### Agent Homes
+
+Configure multiple isolated Homes for the same coding Agent to separate work and personal accounts, provider configurations, and default launch modes (`Chat` or `Terminal`).
+
+[![Farming Code Agent Homes](./docs/products/code/assets/19-code-agent-homes.webp)](./docs/products/code/assets/19-code-agent-homes.png)
+
+### Files and Review
+
+Browse, search, and lightly edit Project Files with Language Server navigation without leaving the current task.
+Inspect changes and open Review when you need evidence.
+
+### Browser Resources
+
+Farming lets people and Agents use the same project browser. See [Farming Browser](docs/products/code/browser-agent-cli.md).
+
+## Supported Agents
+
+| Agent | Structured Chat | Terminal | History / resume |
+| --- | --- | --- | --- |
+| Codex | Yes | Yes | Yes |
+| Claude Code | Yes | Yes | Yes |
+| Pi | Yes | Yes | Yes |
+| OpenCode | Yes | Yes | Yes |
+| Qoder | Yes | Yes | Yes |
+| Qwen Code | Yes | Yes | Yes |
+| Antigravity | Yes | Yes | Yes |
+| bash / zsh | — | Yes | No |
+
+Provider-backed Agents still require a valid provider login. Other detected CLIs
+must be able to run on the Farming host.
+
+## Remote Use
+
+Run Farming on the development machine and open its authenticated URL from a
+desktop or phone that can reach it. Agents keep running when the browser
+disconnects, and prompts sent from a phone sync live with the desktop workspace.
+Try the [interactive Desktop + iPhone demo](https://zhuwenzhuang.github.io/farming/en/#interactive-demo), or see [Operations](./docs/operations/README.md) for remote-access and
+security guidance.
+
+[![Farming Code desktop and phone live sync](./docs/products/code/assets/20-code-desktop-mobile-sync.webp)](https://zhuwenzhuang.github.io/farming/en/#interactive-demo)
+
+<p align="center">
+  <a href="./docs/products/code/assets/05-mobile-agent-chat.png"><img src="./docs/products/code/assets/05-mobile-agent-chat.webp" alt="Farming Code on a phone browser" width="360"></a>
+</p>
+
+## Farming CRT
+
+Farming CRT is an optional keyboard-first, retro control-room interface for scanning many Agents, opening their Chat or Terminal sessions, searching history, and viewing usage telemetry.
+
+[![Farming CRT multi-agent dashboard](./docs/products/crt/assets/01-crt-dashboard.webp)](./docs/products/crt/assets/01-crt-dashboard.png)
+
+Code and CRT use the same backend Agents and sessions. Switching interfaces does not create a second Agent. Farming Code remains the default interface and the supported phone interface. See the [Farming CRT guide](./docs/products/crt/README.md) for controls and workflows.
+
+## Installation And Updates
+
+Install with the command above and update from **Settings → Updates**.
+Both installation and updates use the npm registry.
+
+[![Farming npm update settings](./docs/products/code/assets/14-code-settings.webp)](./docs/products/code/assets/14-code-settings.png)
+
+Standalone CLI and directory bundles remain available from [GitHub Releases](https://github.com/zhuwenzhuang/farming/releases) for manual installation. The in-app updater never reads GitHub Releases; it is available only to npm installations.
+
+## Security
+
+Farming controls real terminals and files on the development machine. Run it on a trusted host and network. Do not expose it directly to the public internet without a VPN, SSH tunnel, HTTPS reverse proxy, or equivalent access control.
+
+See [SECURITY.md](./SECURITY.md) for deployment and reporting guidance.
+
+## Documentation
+
+- [English user documentation](https://zhuwenzhuang.github.io/farming/en/)
+- [Repository architecture and development documentation](./docs/README.md)
+- [Release history](https://github.com/zhuwenzhuang/farming/releases)
+- [Contributing](./CONTRIBUTING.md)
+
+## License
+
+Farming is released under the [MIT License](./LICENSE). Third-party notices are listed in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).

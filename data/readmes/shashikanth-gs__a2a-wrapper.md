@@ -1,0 +1,357 @@
+<div align="center">
+
+# a2a-wrapper
+
+[![CI](https://github.com/shashikanth-gs/a2a-wrapper/actions/workflows/ci.yml/badge.svg)](https://github.com/shashikanth-gs/a2a-wrapper/actions/workflows/ci.yml)
+[![Publish](https://github.com/shashikanth-gs/a2a-wrapper/actions/workflows/publish.yml/badge.svg)](https://github.com/shashikanth-gs/a2a-wrapper/actions/workflows/publish.yml)
+[![Total Downloads](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/shashikanth-gs/a2a-wrapper/badges/.github/badges/downloads.json)](https://github.com/shashikanth-gs/a2a-wrapper/blob/badges/.github/badges/downloads-detail.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js >=20](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
+[![GitHub Stars](https://img.shields.io/github/stars/shashikanth-gs/a2a-wrapper?style=social)](https://github.com/shashikanth-gs/a2a-wrapper)
+[![Follow on GitHub](https://img.shields.io/github/followers/shashikanth-gs?style=social)](https://github.com/shashikanth-gs)
+
+<img src="docs/assets/hero.svg" alt="a2a-wrapper: Claude, OpenAI Codex, GitHub Copilot, OpenCode, and Google Antigravity each wrapped into a standalone a2a-* server on shared @a2a-wrapper/core, exposed to any A2A orchestrator over one protocol" width="100%">
+
+**Turn Claude, OpenAI Codex, GitHub Copilot, OpenCode and Google Antigravity into A2A agents that can discover, delegate to, and work with each other.**
+
+A monorepo of [A2A protocol](https://a2a-protocol.org) wrappers that turn production AI backends into standalone, interoperable agents. Drop a JSON config file in, get a fully spec-compliant A2A server out.
+
+[Website](https://a2a-wrapper.allsrc.dev) · [Quick Start](#quick-start) · [Copilot Example](examples/copilot-quickstart/) · [Crew Demo](examples/software-engineering-crew/) · [Security Guide](docs/security.md)
+
+> **Speaks A2A v1.0 natively, backward compatible with v0.3.x clients.** Every wrapper here negotiates protocol version per request — v1.0-aware orchestrators get the native wire format, and anything still on v0.3.x keeps working with zero config changes. See [Protocol Versions](packages/core/README.md#protocol-versions) for how it works.
+
+*If you find this project useful or are using it to build your own agent wrappers, please consider giving it a star! ⭐️*
+
+</div>
+
+> **The pattern:** MCP is the vertical rail — how agents access tools. A2A is the horizontal rail — how agents talk to each other. This repo adds the horizontal rail to multiple AI backends.
+
+## Why this exists
+
+Coding agents like Claude, Codex and Copilot are powerful but isolated. You can't cleanly hand a task from one to another, track long-running work, or compose them into a team without writing custom glue for each.
+
+`a2a-wrapper` puts each of them behind the same open protocol. You get discovery (agent cards), a task lifecycle, streaming, multi-turn sessions and sub-agent delegation without writing protocol code, and any A2A client can talk to any wrapper.
+
+**See it working, in two steps:**
+
+1. **Simple:** [Copilot Quickstart](examples/copilot-quickstart/). One config file turns GitHub Copilot into an A2A server; discover it and talk to it.
+
+   <img src="docs/assets/copilot-quickstart.gif" alt="Recording: start a2a-copilot, discover it via its agent card, and ask it a question" width="760">
+
+2. **Extended:** [Software Engineering Crew](examples/software-engineering-crew/). Claude implements a feature and Codex writes the tests, coordinated over A2A. It has a `--mock` mode that needs no API keys.
+
+   <img src="docs/assets/crew-demo.gif" alt="Recording: a planner delegates a feature to an implementer agent, then a tester agent (mock agents)" width="760">
+
+## When to use this
+
+| You want to… | Use |
+|---|---|
+| Expose Claude, Codex, Copilot, OpenCode or Antigravity as an A2A server with just a config file | **a2a-wrapper** |
+| Build a fully custom agent from scratch | The official [A2A SDKs](https://a2a-protocol.org) |
+| Adapt Python agent frameworks or plain functions to A2A | A Python adapter library; this repo is Node/TypeScript |
+
+These are complementary: an orchestrator built with any A2A SDK can call the wrappers here.
+
+## Packages
+
+| Package | Stable | Canary | Description |
+|---|---|---|---|
+| [`@a2a-wrapper/core`](packages/core/) | [![npm](https://img.shields.io/npm/v/@a2a-wrapper/core.svg)](https://www.npmjs.com/package/@a2a-wrapper/core) | [![canary](https://img.shields.io/npm/v/@a2a-wrapper/core/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/@a2a-wrapper/core/v/canary) | Shared infrastructure — logging, config loading, event publishing, server factory, session management, CLI scaffold |
+| [`a2a-copilot`](a2a-copilot/) | [![npm](https://img.shields.io/npm/v/a2a-copilot.svg)](https://www.npmjs.com/package/a2a-copilot) | [![canary](https://img.shields.io/npm/v/a2a-copilot/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/a2a-copilot/v/canary) | A2A wrapper for GitHub Copilot SDK. Supports **Bring Your Own Model (BYOK)** — Ollama, OpenAI, Anthropic, Azure, vLLM, or any OpenAI-compatible endpoint |
+| [`a2a-opencode`](a2a-opencode/) | [![npm](https://img.shields.io/npm/v/a2a-opencode.svg)](https://www.npmjs.com/package/a2a-opencode) | [![canary](https://img.shields.io/npm/v/a2a-opencode/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/a2a-opencode/v/canary) | A2A wrapper for OpenCode — multi-provider out of the box (Anthropic, OpenAI, GitHub Copilot, and more) |
+| [`a2a-claude`](a2a-claude/) | [![npm](https://img.shields.io/npm/v/a2a-claude.svg)](https://www.npmjs.com/package/a2a-claude) | [![canary](https://img.shields.io/npm/v/a2a-claude/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/a2a-claude/v/canary) | A2A wrapper for Claude — fully spec-compliant agent powered by the official `@anthropic-ai/claude-agent-sdk` |
+| [`a2a-codex`](a2a-codex/) | [![npm](https://img.shields.io/npm/v/a2a-codex.svg)](https://www.npmjs.com/package/a2a-codex) | [![canary](https://img.shields.io/npm/v/a2a-codex/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/a2a-codex/v/canary) | A2A wrapper for OpenAI Codex SDK — repository-scoped software engineering agent with sandboxing, MCP, and multi-agent delegation |
+| [`a2a-antigravity`](a2a-antigravity/) | [![npm](https://img.shields.io/npm/v/a2a-antigravity.svg)](https://www.npmjs.com/package/a2a-antigravity) | [![canary](https://img.shields.io/npm/v/a2a-antigravity/canary.svg?label=canary&color=orange)](https://www.npmjs.com/package/a2a-antigravity/v/canary) | A2A wrapper for Google Antigravity SDK — Node/TypeScript public server with a managed Python SDK subprocess, Gemini auth, policies, MCP, and sideband traces |
+
+Both badges are live — **Stable** reflects the latest approved release (`npm install <package>`), **Canary** reflects the most recent successful merge to `main` (`npm install <package>@canary`). See [Release Process](CONTRIBUTING.md#release-process) for how the pipeline works.
+
+### Feature Comparison
+
+All five wrappers share the same core: A2A v1.0 native + v0.3.x backward-compatible protocol support, sub-agent delegation, MCP tool integration, and JSON config with env/CLI overrides. Where they differ:
+
+| | Provider flexibility | Streaming | Sandboxing / Docker |
+|---|---|---|---|
+| **a2a-copilot** | BYOK — Ollama, OpenAI, Anthropic, Azure, vLLM, any OpenAI-compatible endpoint | SSE | Docker-ready |
+| **a2a-opencode** | Multi-provider native — Anthropic, OpenAI, GitHub Copilot, and more, switch in one config line | SSE with auto-reconnect + polling fallback | Docker-ready |
+| **a2a-claude** | Claude models via `@anthropic-ai/claude-agent-sdk` | Streaming | Docker-ready; permission-mode guardrails (headless-safe by default) |
+| **a2a-codex** | OpenAI Codex models via `@openai/codex-sdk` | Streaming | Docker-ready; `read-only` / `workspace-write` / `danger-full-access` sandbox modes |
+| **a2a-antigravity** | Gemini models via the Google Antigravity Python SDK | SSE-compatible | Node/Python bridge — no published Docker image yet |
+
+## Backend Flexibility
+
+Several wrappers are provider-flexible — you are not locked into a single vendor:
+
+- **`a2a-opencode`** is multi-provider out of the box. OpenCode natively routes to Anthropic, OpenAI, GitHub Copilot, local models, and more — switch provider with one line in `config.json`.
+- **`a2a-copilot`** supports custom providers via GitHub Copilot's BYOK ("Bring Your Own Key") capability. Point it at a local Ollama instance, OpenAI, Anthropic, Azure OpenAI, Azure AI Foundry, vLLM, or any OpenAI-compatible endpoint using the `copilot.provider` config block. See the [a2a-copilot BYOK section](a2a-copilot/README.md#bring-your-own-model-byok) for setup and model requirements.
+- **`a2a-antigravity`** exposes Google Antigravity through A2A while keeping the public package Node-based. It creates a managed Python environment for `google-antigravity` via `a2a-antigravity setup`, then uses Gemini API key or Vertex/ADC auth.
+
+> **Note on local models (a2a-copilot):** the agentic loop requires the model to support **native tool calling**. Some small/older local models emit tool calls as plain text and won't work. Use a tool-capable model (e.g. `qwen3.6`, `llama3.3`). Full details in the [BYOK section](a2a-copilot/README.md#bring-your-own-model-byok).
+
+## Architecture
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                          @a2a-wrapper/core                             │
+│      Logger · Config · Events · Server · Session · CLI                 │
+│      Sub-Agents · Memory · Schema                                      │
+└──────────────────────────────┬─────────────────────────────────────────┘
+                               │
+                               ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ Wrapper packages                                                       │
+│  • a2a-copilot      → GitHub Copilot SDK                               │
+│  • a2a-opencode     → OpenCode Server                                  │
+│  • a2a-claude       → Claude Agent SDK                                  │
+│  • a2a-codex        → OpenAI Codex SDK                                 │
+│  • a2a-antigravity  → Google Antigravity SDK via Python bridge         │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+Each wrapper implements a single `A2AExecutor` interface and a thin config/CLI layer. Everything else — A2A protocol compliance, Express server wiring, agent card building, session TTL management — comes from `@a2a-wrapper/core`.
+
+## Calling Other A2A Agents (Sub-Agents)
+
+Any parent agent can delegate to other A2A agents by declaring them under `subAgents` in its `config.json`. The wrapper spawns [`a2a-mcp-skillmap`](https://www.npmjs.com/package/a2a-mcp-skillmap) as a stdio MCP server and registers it under the reserved `a2a-subagents` key. Each remote skill becomes a callable MCP tool — the LLM dispatches to them like any other tool.
+
+> **Bridge:** [`a2a-mcp-skillmap`](https://github.com/shashikanth-gs/a2a-mcp-skillmap) — the open-source bridge that fetches A2A agent cards, projects each skill as an MCP tool, and serves them over stdio or HTTP. See that repo for the full bridge documentation, config schema reference, response modes, session continuity, and OpenTelemetry integration.
+
+```json
+{
+  "subAgents": {
+    "agents": [
+      {
+        "name": "coding",
+        "agentCardUrl": "https://coding.example.com/.well-known/agent-card.json",
+        "auth": { "mode": "bearer", "token": "${CODING_AGENT_TOKEN}" }
+      },
+      {
+        "name": "research",
+        "agentCardUrl": "https://research.example.com/",
+        "endpointUrlOverride": "https://research.internal.local/.well-known/agent-card.json"
+      }
+    ],
+    "options": {
+      "responseMode": "artifact",
+      "probeTimeoutMs": 5000,
+      "syncBudgetMs": 30000
+    }
+  }
+}
+```
+
+The LLM sees `coding__<skillId>` and `research__<skillId>` tools. When `subAgents` is absent the parent starts normally with no side effects.
+
+**Try it:** [`examples/a2a-subagents-scenario/`](examples/a2a-subagents-scenario/) — a self-contained runnable example with two fake sub-agents, a parent config, and a 26-assertion end-to-end test. No API keys required.
+
+```bash
+# First time (or after changing packages/core): build @a2a-wrapper/core.
+# Its dist/ output is git-ignored and is NOT produced by `npm install`.
+npx turbo run build
+
+cd examples/a2a-subagents-scenario
+./start-all.sh
+```
+
+## Quick Start
+
+**60 seconds, no clone needed.** Turn GitHub Copilot into an A2A server (needs a GitHub account with Copilot access):
+
+```bash
+npm install -g a2a-copilot
+gh auth login        # or: export GITHUB_TOKEN=...
+
+cat > config.json <<'JSON'
+{
+  "agentCard": {
+    "name": "Copilot Agent",
+    "description": "GitHub Copilot as an A2A agent",
+    "version": "1.0.0",
+    "protocolVersion": "0.3.0",
+    "streaming": true,
+    "defaultInputModes": ["text"],
+    "defaultOutputModes": ["text"],
+    "skills": [{ "id": "assistant", "name": "Coding Assistant", "description": "Answer coding questions", "tags": ["code"] }]
+  },
+  "server": { "port": 3000, "hostname": "127.0.0.1" },
+  "copilot": { "model": "auto", "systemPrompt": "You are a concise coding assistant.", "systemPromptMode": "replace" }
+}
+JSON
+
+a2a-copilot --config ./config.json
+```
+
+Then, from another terminal, discover and talk to it like any A2A client would:
+
+```bash
+curl http://localhost:3000/.well-known/agent-card.json
+curl -X POST http://localhost:3000/a2a/jsonrpc -H 'content-type: application/json' -d '{
+  "jsonrpc": "2.0", "id": "1", "method": "message/send",
+  "params": { "message": { "kind": "message", "messageId": "m1", "role": "user",
+    "parts": [{ "kind": "text", "text": "What does Array.prototype.flatMap do?" }] },
+    "configuration": { "blocking": true } }
+}'
+```
+
+The full walkthrough, with a recording, is in [`examples/copilot-quickstart`](examples/copilot-quickstart/). Claude, Codex, OpenCode and Antigravity work the same way with their own package and config block. When you're ready for more than one agent, try the [Software Engineering Crew](examples/software-engineering-crew/).
+
+> **Security:** the endpoint has no built-in authentication and agents can act on your machine. The config above binds to `127.0.0.1`. Read the [Security Guide](docs/security.md) before exposing it on a network.
+
+### From source (all wrappers)
+
+```bash
+# Clone the monorepo
+git clone https://github.com/shashikanth-gs/a2a-wrapper.git
+cd a2a-wrapper
+
+# Install all dependencies
+npm install
+
+# Build all packages so @a2a-wrapper/core is compiled to dist/
+# (dist/ is git-ignored and is NOT produced by `npm install`)
+npx turbo run build
+
+# Run a specific wrapper
+cd a2a-copilot
+npm run dev -- --config agents/example/config.json
+
+# Or
+cd a2a-opencode
+npm run dev -- --config agents/example/config.json
+
+# Or
+export ANTHROPIC_API_KEY=sk-... WORKSPACE_DIR=/path/to/repo
+cd a2a-claude
+npm run dev -- --config agents/example/config.json
+
+# Or
+export OPENAI_API_KEY=sk-... WORKSPACE_DIR=/path/to/repo
+cd a2a-codex
+npm run dev -- --config agents/example/config.json
+
+# Or
+export GEMINI_API_KEY=... WORKSPACE_DIR=/path/to/repo
+cd a2a-antigravity
+npm run dev -- setup
+npm run dev -- --config agents/example/config.json
+```
+
+## Development
+
+This monorepo uses [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces), [Turborepo](https://turbo.build/) for task orchestration, and [Changesets](https://github.com/changesets/changesets) for versioning.
+
+```bash
+# Install dependencies for all packages
+npm install
+
+# Build all packages (core builds first, then wrappers in parallel)
+npx turbo run build
+
+# Run tests across all packages
+npx turbo run test
+
+# Type-check all packages
+npx turbo run typecheck
+
+# Clean build artifacts
+npx turbo run clean
+```
+
+Turborepo caches build outputs — unchanged packages are skipped on subsequent runs.
+
+### Working on a Specific Package
+
+You can scope Turborepo to a single package with `--filter`:
+
+```bash
+# Build only core
+npx turbo run build --filter=@a2a-wrapper/core
+
+# Test only a2a-copilot
+npx turbo run test --filter=a2a-copilot
+
+# Build a2a-opencode and its dependencies
+npx turbo run build --filter=a2a-opencode...
+
+# Test only a2a-antigravity
+npx turbo run test --filter=a2a-antigravity
+```
+
+### Changesets Workflow
+
+Every PR that changes package behavior should include a changeset:
+
+```bash
+# Create a new changeset (interactive prompt)
+npx changeset
+```
+
+The CLI will ask which packages were affected, the semver bump type (patch / minor / major), and a summary. Commit the generated file with your PR.
+
+Every merge to `main` (with or without a changeset) publishes affected packages under the `canary` npm tag automatically — see [Release Channels](#packages) above. Changesets themselves accumulate on a long-lived "Version Packages" PR that the Changesets bot keeps up to date; merging it — whenever a maintainer decides a stable release is ready — is the first of two gates before anything publishes under `latest`. See [Release Process](CONTRIBUTING.md#release-process) for the full pipeline.
+
+## Adding a New Wrapper
+
+Adding a new A2A wrapper (e.g. `a2a-claude`) requires no changes to the root config or core package:
+
+1. **Create the directory** at the repo root following the `a2a-<name>` naming convention:
+   ```
+   a2a-claude/
+   ├── package.json
+   ├── tsconfig.json
+   ├── src/
+   │   ├── index.ts
+   │   ├── cli.ts
+   │   └── claude/
+   │       ├── executor.ts       # Implements A2AExecutor
+   │       ├── session-manager.ts
+   │       └── config/
+   │           ├── types.ts      # Extends BaseAgentConfig
+   │           └── defaults.ts
+   └── agents/
+       └── example/
+           └── config.json
+   ```
+
+2. **Implement the `A2AExecutor` interface** from `@a2a-wrapper/core`. This is the only interface your wrapper needs — it handles task execution for your backend. Define your backend config type extending `BaseAgentConfig<YourBackend>` and set up config defaults.
+
+3. **Wire it up with `createCli()`** from `@a2a-wrapper/core` to get a fully functional CLI with config loading, server startup, and agent card generation out of the box.
+
+4. **Add sub-agents support** (optional, ~10 lines) — call `bootstrapSubAgents()` inside `executor.initialize()` and provide a `toXxxMcpEntry()` adapter that maps the canonical `SynthesizedMcpDescriptor` to your wrapper's MCP entry shape. See `a2a-copilot/src/copilot/executor.ts` for a reference implementation.
+
+4. **Set up `package.json`** with:
+   - `name` set to `a2a-<name>`
+   - `@a2a-wrapper/core` as a dependency (`"*"`)
+   - `publishConfig.access` set to `"public"`
+   - `build`, `test`, and `typecheck` scripts
+
+5. **Run `npm install`** at the repo root to link the new package. The `a2a-*` workspace glob in the root `package.json` automatically picks up the new directory.
+
+6. **Verify everything works:**
+   ```bash
+   npx turbo run build test typecheck
+   ```
+
+7. **Create a changeset** for the initial release:
+   ```bash
+   npx changeset
+   ```
+
+See the [core package README](packages/core/README.md) for the full API guide.
+
+## Security
+
+Wrappers run coding agents behind an HTTP endpoint. Read the [Security Guide](docs/security.md) before exposing one beyond localhost.
+
+*a2a-wrapper is an independent project and is not affiliated with or endorsed by Anthropic, OpenAI, GitHub, or Google.*
+
+## Roadmap
+
+- **OpenTelemetry observability** — optional distributed tracing (`a2a.task.execute` + backend passthrough). Optional peers for `@opentelemetry/api` / SDK; CLI auto-bootstraps when `otel.exporter.endpoint` is set. Lightweight Phoenix demo (no Docker): [`examples/otel-stack`](examples/otel-stack). Guides: [Observability](docs/observability.md), [attribute ownership](docs/otel-attribute-ownership.md).
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+## License
+
+[MIT](LICENSE) © a2a-wrapper contributors

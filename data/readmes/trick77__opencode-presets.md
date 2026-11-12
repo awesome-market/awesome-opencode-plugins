@@ -1,0 +1,434 @@
+<p>
+  <img src="logo.svg" alt="opencode-presets" width="720">
+</p>
+
+Ready-made presets for OpenCode 2: permission rules, MCP servers, plugins,
+skills, agent limits. A small CLI merges them into your `opencode.json` so you
+never hand-edit the JSON.
+
+**Requires opencode 2.** opencode 1.x is not supported; the last release that
+targeted it is 0.32.0 (`npm install -g opencode-presets@0.32.0`).
+
+Presets write the older key names (`permission`, `agent`, `mcp`, `plugin`,
+`provider`). opencode 2 reads and normalizes them in memory, and they match what
+an existing `opencode.json` already uses.
+
+**Upgrading from 0.32 or earlier:** `jdtls-lombok`, `jdtls-clean-workspace`,
+`privacy-share-disabled` and `tui-disable-mouse` are gone (opencode 2 has no LSP,
+no sharing, no `tui.json`), so `remove` no longer knows them. What they wrote is
+inert on opencode 2; to clear it: `opencode-presets reset lsp.jdtls` and
+`opencode-presets reset share`.
+
+**Upgrading from 0.34 or earlier:** `opencode-planify-german` is now
+`planify-german`. Its members are now `plugin-planify-german`,
+`instructions-planify-german` and `skill-planify-german`. What they write is
+unchanged, so nothing needs reinstalling (doing it anyway adds no duplicates).
+Use the new names for `install`, `remove` and `@include`.
+
+## Install
+
+```sh
+npm install -g opencode-presets
+```
+
+Needs Node 22+.
+
+## Built-in presets
+
+Fresh install? Start with the permission bundle — one command, no prompts
+for the everyday read-only commands, hard blocks on the destructive ones, and
+a prompt before the agent touches paths outside the project:
+
+```sh
+opencode-presets install permissions-recommended
+```
+
+**It is opinionated, and it is not a free pass.** These are one person's
+defaults for everyday work, not an audited sandbox and not a security boundary.
+They cut prompting for read-only commands, hard-block a list of known
+footguns, and ask before paths outside the project — that is the whole claim. Anything
+not listed still falls through to a prompt you have to read; the deny rules
+miss env-prefixed and `sh -c`-wrapped invocations; and the presets you add on
+top can undo them. Read the rules before trusting them, and keep deciding for
+yourself.
+
+Install any row below with `opencode-presets install <preset>`. Presets that need
+something outside your opencode config say so in their description.
+
+| Preset | Category | Mode | Description |
+| --- | --- | --- | --- |
+| `permissions-recommended` | Permissions | bundle | **Start here.** Installs the seven presets marked *In the bundle* |
+| `permissions-shell-safe` | Permissions | merge | In the bundle. Low-risk shell commands (ls, cat, grep, rg, jq, yq, etc.) |
+| `permissions-git-safe` | Permissions | merge | In the bundle. Read-only git commands (status, diff, log, branch --list, fetch, etc.) |
+| `permissions-toolchain-info` | Permissions | merge | In the bundle. Version probes for common dev toolchains |
+| `permissions-container-info` | Permissions | merge | In the bundle. Read-only docker and podman inspection commands (the `oc` rules moved to `permissions-cluster-info` in 0.2.0) |
+| `permissions-external-dir-ask` | Permissions | merge | In the bundle. Asks before the agent touches paths outside the project (`external_directory`) — opencode 2 allows them by default |
+| `permissions-deny-destructive` | Permissions | merge | In the bundle. Hard-denies `sudo`, root/home-anchored `rm -rf`, `dd`, `mkfs`, force-push, `reset --hard` |
+| `permissions-deny-cluster-write` | Permissions | merge | In the bundle. Hard-denies mutating and exec `oc`, `kubectl`, `helm` verbs — no prompt, not bypassable by `--auto` |
+| `permissions-build-tools` | Permissions | merge | Not in the bundle. Build tools (node, npm, mvn, gradle, make, python, pip, cargo, go) |
+| `permissions-cluster-info` | Permissions | merge | Not in the bundle. Read-only `oc` (OpenShift) inspection — grants read access to whichever cluster you are logged into |
+| `permissions-webfetch-ask` | Permissions | merge | Not in the bundle. Requires approval before opencode uses the webfetch tool |
+| `mcp-http` | MCP | replace | Add an HTTP MCP server (localhost or remote) with one custom header (prompts for id, URL, header name, header value) |
+| `mcp-http-noauth` | MCP | replace | Add an HTTP MCP server (localhost or remote) without auth headers (prompts for id, URL) |
+| `mcp-intellij` | MCP | replace | Requires the official "MCP Server" plugin installed and enabled in the IDE first — this preset does not install it. Adds the JetBrains IDE MCP server (loopback HTTP, default port 64342) |
+| `mcp-litellm` | MCP | replace | Add a LiteLLM proxy's MCP gateway as a remote MCP server (prompts for gateway URL and LiteLLM key; auth via `x-litellm-api-key`, no login flow) |
+| `mcp-litellm-passthrough` | MCP | replace | Install `mcp-litellm` first — re-running it replaces `mcp.litellm` and drops these headers. Adds one `x-mcp-<alias>-<header>` passthrough header to the `mcp.litellm` server so an upstream MCP server authenticates as you (run once per header) |
+| `mcp-playwright` | MCP | replace | Add the Playwright MCP server (local stdio via npx; pins `@playwright/mcp` 0.0.84) |
+| `mcp-vscode` | MCP | replace | Requires the `JuehangQin.vscode-mcp-server` extension installed, enabled and toggled active in VS Code first — this preset does not install it. Adds the VS Code MCP server via that extension (loopback HTTP, default port 3000) |
+| `litellm-pricing` | Provider | bundle | LiteLLM proxy models in the picker with the proxy's own per-model pricing instead of `$0`: points the `litellm` provider at your proxy (prompts for base URL and API key; no models list) and adds `opencode-plugin-litellm-pricing` (pins 1.0.0, needs opencode 2), which fills in the models at runtime |
+| `plugin-superpowers` | Plugin | append | Add the Superpowers OpenCode plugin from `obra/superpowers` (brainstorming, plans, TDD, review workflows; pins tag `v7.0.1`) |
+| `agent-runaway-guard` | Agent | merge | Adds step limits to built-in agents to prevent runaway tool loops |
+| `default-agent-plan` | Agent | replace | Sets the default agent to "plan" so opencode always starts in plan mode instead of build mode |
+| `planify-german` | Bundle | — | The whole planify setup, which does nothing in parts: the `opencode-planify-german` plugin from npm (pinned to `1.0.1`, needs opencode 2), registering a `plan_render` tool that validates a plan JSON against a schema and renders a self-contained HTML file to `docs/plans/<TICKET>-<slug>.html`, and a `pr_summary` tool that writes a short task/problem/solution summary into the description of the Bitbucket Data Center PR of the current branch, opening it as a draft if none is open; the rules file that makes opencode answer in German with Swiss orthography (never the eszett character, always `ss`) and send every plan through `plan_render`; the `planify` skill documenting the plan schema; and `skill-diagram-design`, which draws the plan's diagrams. Prompts for the Bitbucket URL and an HTTP access token with repository write, stored as plugin options in `opencode.json` (token in plain text; prefer `--set-env bitbucketToken=ENV_VAR`). Rules file and skills are fetched sha256-verified. Run `opencode service restart` after installing |
+| `skill-diagram-design` | Skill | append | Registers the `diagram-design` skill (editorial diagram types as self-contained HTML + SVG). Downloads the archive of one pinned commit of [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design), verifies its tar sha256, unpacks its `skills/` dir to `<cache>/diagram-design-skills-<version>` and appends that to `skills.paths`. No clone. The repo ships no tags, so a new upstream commit means a new preset version. Part of `planify-german`, so `remove planify-german` removes it too. Coming from 0.3.x (clone + prompt): drop `--set skillsDir` from scripts, and delete the old clone's `skills.paths` entry by hand, or the skill is registered twice |
+
+### Bundles
+
+A preset whose header is `@include` lines is a **bundle**: a list of other
+presets, with no rules of its own. Three ship: `planify-german`,
+`litellm-pricing`, and `permissions-recommended`, which is all of this:
+
+```
+permissions-recommended
+  permissions-shell-safe           22 keys   ls, cat, grep, rg, jq, ps        allow
+  permissions-git-safe             40 keys   status, diff, log, blame, fetch  allow
+  permissions-toolchain-info       60 keys   node -v, python -V, mvn -v       allow
+  permissions-container-info       52 keys   docker/podman ps, logs, inspect  allow
+  permissions-external-dir-ask      1 key    external_directory               ask
+  permissions-deny-destructive     34 keys   sudo, dd, mkfs, rm -rf /, -f     deny
+  permissions-deny-cluster-write   64 keys   oc/kubectl/helm delete, exec     deny
+```
+
+The order is part of the definition: opencode is last-match-wins and `merge`
+appends new keys at the end, so the denies have to land after every allow.
+
+```sh
+opencode-presets install permissions-recommended
+opencode-presets install permissions-recommended permissions-build-tools
+```
+
+**Reset first?** Only if you already have hand-written `permission.bash` rules.
+`merge` never overwrites, so any rule of yours with the same pattern string as a
+preset's keeps that rule out — and when the casualty is a deny, a guardrail you
+think you installed is absent. Wiping the path first guarantees every rule lands:
+
+```sh
+jq '.permission.bash, .agent' ~/.config/opencode/opencode.json   # see what you'd lose
+opencode-presets install --reset permission.bash permissions-recommended
+```
+
+That deletes every hand-written rule at `permission.bash` — a backup is written
+first, and nothing else in the config is touched. On a config with no bash rules
+of your own it changes nothing, so skip it. Either way the installer names any
+deny that was kept out, so you can start with a plain install and only reset if
+it complains.
+
+`remove` expands a bundle the same way. There is no per-preset ownership
+tracking, so removing it also clears keys an earlier standalone install of a
+member wrote — the confirmation lists every preset first.
+
+Not in the bundle, on purpose:
+
+- `permissions-build-tools` — runs project-defined code, and `python -c "…"` /
+  `node -e "…"` execute commands opencode never sees as shell commands, so no
+  deny rule can match them.
+- `permissions-cluster-info` — read access to whichever cluster you are logged
+  into, production included. Worth an explicit decision.
+- `permissions-webfetch-ask` — *adds* friction; wrong for a defaults bundle.
+
+The members of `planify-german` and `litellm-pricing` do nothing on
+their own, so they are marked `@part-of` their bundle and `list` hides them;
+`list --all` shows them. They still install and remove by name.
+
+### About the `deny` presets
+
+A denied command is rejected outright — no prompt, and `--auto` only
+auto-approves what is *not* explicitly denied. That is the one tier a habit of
+clicking "allow" cannot defeat. Compound commands are split before matching, so
+`cd /x && oc delete pod y` is caught too.
+
+It is a guardrail, not a security boundary: env-prefixed
+(`KUBECONFIG=x oc delete …`), `sh -c "…"`-wrapped and aliased invocations slip
+through.
+
+Every shipped deny pattern is disjoint from every shipped allow pattern
+(enforced by a test), so install order does not matter among these presets. A
+broad hand-written rule of your own, like `"oc *": "allow"`, still wins if it
+was written after the deny — install the deny presets last.
+
+When one of your rules keeps a deny out, the installer says so instead of
+letting the guardrail go missing quietly:
+
+```
+• permissions-deny-destructive — added 27, preserved 3
+  ⚠ "sudo *" is already "ask" in your config — the deny was NOT applied
+  ⚠ "rm -rf /" is already "allow" in your config — the deny was NOT applied
+
+To apply those denies, pick one:
+  1. delete the listed keys from permission.bash in ~/.config/opencode/opencode.json,
+     then re-run: opencode-presets install permissions-deny-destructive
+  2. wipe the whole path and reinstall from scratch:
+     opencode-presets install --reset permission.bash permissions-deny-destructive
+     this also deletes any other hand-written rules at that path
+  3. keep your rule deliberately — nothing to do, but the guardrail is off
+```
+
+It also warns *before* you confirm if any agent sets its own permission rules:
+`agent.<name>.permission` is evaluated after the global rules and wins, so global
+denies do nothing for that agent.
+
+Upgrading `permissions-container-info` to 0.2.0 **does not revoke `oc` access an
+earlier install already granted** — `merge` never removes keys, and 0.2.0 no
+longer lists the `oc` rules. Clear them with
+`opencode-presets remove permissions-cluster-info`.
+
+Install multiple at once:
+
+```sh
+opencode-presets install mcp-playwright agent-runaway-guard
+```
+
+Presets whose path uses a prompt (like `mcp-http`) can't be
+removed with `remove` — use `reset` instead:
+
+```sh
+opencode-presets reset mcp.openrag-tom
+```
+
+### Pricing a LiteLLM proxy
+
+Install the `litellm-pricing` bundle. Pricing takes no configuration of its
+own: its plugin part (`plugin-litellm-pricing`) reads each model's cost, limits
+and capabilities from the proxy its provider part (`provider-litellm`) points
+at, so the base URL and key are the whole setup. Both parts only show in
+`list --all`, but install by name. The numbers are
+LiteLLM's own resolved ones, your config-level `model_info` overrides included,
+so what opencode displays is what the gateway bills. A model the proxy reports
+no cost for is injected without a `cost` block rather than with a wrong one, and
+the plugin names it on the server's console. opencode 2 gives plugins no logger,
+so under the background service that line is not kept; to see it, run the
+server in the foreground with `opencode serve`.
+
+`provider-litellm` is a `replace` preset, so re-running it rewrites the whole
+`provider.litellm` block and re-prompts for the base URL and key as well — have
+the key to hand. Coming from an earlier install, re-run it once: that is what
+clears the now-unused `options.catalogURL` out of your config.
+
+## Use
+
+```sh
+opencode-presets list                              # what's available
+opencode-presets list --all                        # plus presets that only work in a bundle
+opencode-presets install mcp-playwright           # apply one preset by name
+opencode-presets install mcp-playwright permissions-git-safe
+opencode-presets remove mcp-playwright            # undo a preset
+opencode-presets install --reset permission ./presets/foo.conf  # wipe then install
+opencode-presets reset permission                 # wipe a section outright
+opencode-presets validate                         # check opencode.json
+```
+
+Bare names are resolved through the preset search path (see "Where
+presets are found" below). You can always pass an explicit path
+instead, e.g. `install ./presets/mcp-playwright.conf`.
+
+Every change shows a diff and asks before touching anything. A
+backup is written to `~/.cache/opencode-presets/backups/` before
+each write — no auto-pruning, so they pile up.
+
+`validate` checks the configured `opencode.json` against
+OpenCode's current schema; invalid files print labeled `where`,
+`what`, and `detail` lines and exit nonzero.
+
+### Non-interactive prompt values (`--set` / `--set-env`)
+
+Presets with `@prompt` directives normally ask interactively. To
+drive them from a script (or just paste a one-liner from a wiki),
+pre-fill any prompt with `--set NAME=VALUE`:
+
+```sh
+opencode-presets install mcp-http \
+  --set name=openrag \
+  --set url=https://openrag.example.internal/mcp \
+  --set headerName=X-Bitbucket-Token \
+  --set 'headerValue=raw-token-here'
+```
+
+**Quote values that contain shell metacharacters** (`$`, `!`, `*`,
+backticks, spaces, etc.) with single quotes — otherwise the shell
+expands them before `opencode-presets` ever sees the value. A
+Bitbucket PAT that starts with `$` will silently turn into an empty
+string without quoting.
+
+For secrets, prefer `--set-env NAME=ENV_VAR`. The CLI reads the
+value from the named environment variable at install time, so the
+token never appears in shell history or process listings:
+
+```sh
+export BITBUCKET_TOKEN=…
+opencode-presets install mcp-http \
+  --set name=openrag \
+  --set url=https://openrag.example.internal/mcp \
+  --set headerName=X-Bitbucket-Token \
+  --set-env headerValue=BITBUCKET_TOKEN
+```
+
+`--set` / `--set-env` apply to a single preset per invocation — run
+the command once per preset rather than bundling several with shared
+flags. This keeps the wiring obvious ("this `--set` goes to *that*
+preset") and avoids surprise: in a non-TTY shell script, a bundled
+install would happily fill the first preset's prompts and then hang
+on a readline for the next.
+
+## Modes
+
+- `replace` — the preset owns the value at `@path`. Re-installing
+  overwrites whatever's there.
+- `merge` — the preset's keys are added; existing keys (yours or
+  someone else's) are never overwritten. Use this for permission
+  rules so user edits stick around.
+- `append` — the preset's array entries are appended if missing;
+  existing array entries are preserved. Use this for shared arrays
+  like `plugin`. An entry of the form `name@version` supersedes every
+  existing entry naming the same package, in place: bumping a pinned
+  plugin replaces the old pin instead of leaving both in the array for
+  opencode to load twice. A config that already stacked several bumps
+  collapses to the newest one on the next install.
+
+Re-installing is always safe: a no-op produces no backup and no
+write.
+
+opencode 2 runs one background service for every window, so quitting the
+TUI does not reload plugins. After installing a plugin preset such as
+`plugin-superpowers`, run `opencode service restart`.
+
+## Where presets are found
+
+`opencode-presets list` searches dirs in this order:
+
+1. Anything in `$OPENCODE_PRESETS_PATH` (colon-separated).
+2. `./presets/` relative to your current directory (honoured when it exists).
+3. The shipped `presets/` baked into the tool.
+
+Earlier dirs win on name collision; the lower one is still listed
+but flagged `shadowed`. Pass a positional arg (`opencode-presets list
+~/some/dir`) to scan exactly one dir instead.
+
+## Bringing your own presets
+
+For a team or cross-machine setup, keep your presets in **their own
+git repo** (not in `~/.config`, not inside the cloned tool). Point
+the env var at it:
+
+```sh
+# ~/.zshrc or similar
+export OPENCODE_PRESETS_PATH="$HOME/work/team-opencode-presets"
+```
+
+Multiple repos? Colon-separate them, highest priority first:
+
+```sh
+export OPENCODE_PRESETS_PATH="$HOME/personal-presets:$HOME/work/team-presets"
+```
+
+For ad-hoc presets you don't want to put in a repo and don't need
+on other machines, drop them in `./presets/` from wherever you run
+the tool, or use `OPENCODE_PRESETS_PATH`.
+
+## Pointing at different config files
+
+```sh
+OPENCODE_CONFIG=/path/to/other-opencode.json opencode-presets install ...
+OPENCODE_PRESETS_CACHE=/some/cache opencode-presets install ...
+```
+
+opencode 2 keeps terminal settings in `cli.json`, which no preset touches.
+
+## Writing your own preset
+
+Plain JSONC with a header. Drop into one of the dirs above, or pass
+an absolute path.
+
+```jsonc
+// @name: my-preset
+// @description: one or two sentences on what this fixes / sets up.
+// @author: you <you@example.com>
+// @version: 1.0.0
+// @target: config
+// @path: some.dotted.path
+// @mode: merge
+{ "key": "value" }
+```
+
+Presets write `opencode.json` only. `@target: tui` is rejected:
+opencode 2 does not read `tui.json`.
+
+`@fetch: <url> -> <dest> [sha256=hex]` downloads to the cache.
+`@archive: <url> -> <dir> tar-sha256=hex [subdir=path]` downloads a
+`.tar.gz` and unpacks it into the cache: the archive's top-level directory is
+stripped, and with `subdir` only that part is kept. The hash is the sha256 of
+the tar after gunzip, so a GitHub archive can be checked against
+`git archive --format=tar --prefix=<repo>-<sha>/ <sha>` from any clone. Only
+regular files and directories are accepted; a link, device or path escaping
+the directory refuses the whole archive. Unpacked to a temp dir and renamed
+into place, so an interrupted install never looks complete.
+`@prompt: name | text|secret|dir | help | default | setup` collects input
+at install time; everything after the type is optional. Both repeatable.
+Reference fetched files as `{{cache}}/<name>` and prompt values as
+`{{prompt:<name>}}` in the body or `@path`. Leave the default field empty
+to skip it — `name | dir | help | | <setup>` has a setup hint and no
+default. Only the first four `|` are structural, so a setup hint may
+contain pipes of its own.
+
+A `dir` prompt is checked before anything is written: the answer must be
+an absolute path (a leading `~` is expanded, since prompt input never
+sees a shell) to a directory that exists, or the install stops with an
+error and leaves your config alone. The resolved path is what gets
+written, so the entry means the same thing from any directory. `--set`
+values are checked exactly like typed ones.
+
+The `setup` field is what to do to make that directory exist. It is shown
+in the install summary, before you are asked anything, and again if the
+answer fails its check:
+
+```
+error: prompt "skillsDir": /tmp/dd does not exist
+  clone it first: git clone https://github.com/cathrynlavery/diagram-design, then answer with the skills/ dir inside that clone
+  nothing was written.
+```
+
+`@requires-bin: <name> | <setup>` names an executable the preset needs on
+`PATH`, and the command that installs it. Repeatable. The check runs
+before the install summary, so a missing binary refuses without ever
+asking you to confirm; `remove` never checks, so you can always take one
+back out. It is a name resolved against `PATH`, not a path — the parser
+rejects `/usr/local/bin/foo`. The setup half is optional but omitting it
+means the refusal cannot tell you what to run:
+
+```jsonc
+// @requires-bin: jq | brew install jq
+```
+
+```
+error: mcp-example requires "jq" on PATH.
+  brew install jq
+  then run this again — nothing was written.
+```
+
+`@part-of: <bundle>` marks a preset that does nothing without its siblings.
+`list` hides it unless `--all`; install and remove by name still work. Only
+on a preset with a body, never on a bundle.
+
+`@pins: <name> <version>` records a third-party artifact the preset
+installs at an exact version — the npm package behind an `mcp` command,
+a plugin spec, a `@fetch`ed jar. Optional and repeatable. It's shown on
+the install confirmation and in `list -l`, so you can see what a preset
+drags in before saying yes:
+
+```jsonc
+// @pins: @playwright/mcp 0.0.80
+```
+
+The version string must also appear in the body or `@fetch` line it
+describes; a test enforces that, so a bump can't land on one side only.
+
+See the existing `presets/*.conf` for working examples.
