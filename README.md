@@ -22,26 +22,26 @@
 
 | Plugin | Stars | Description |
 | :--- | ---: | :--- |
-| [**@omniroute/opencode-plugin-v2**](https://github.com/diegosouzapw/OmniRoute) | 84,778 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
-| [**upstash/context7**](https://github.com/upstash/context7) | 64,240 | Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a… |
+| [**@omniroute/opencode-plugin-v2**](https://github.com/diegosouzapw/OmniRoute) | 86,882 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
+| [**upstash/context7**](https://github.com/upstash/context7) | 64,706 | Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a… |
 | [**volcengine/openviking**](https://github.com/volcengine/OpenViking) | 41,919 | OpenViking integration for Magpie: memory recall/capture and model switching… |
-| [**othmanadi/planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 27,905 | Native OpenCode plugin for planning-with-files: per-turn plan injection, write… |
-| [**different-ai/openwork**](https://github.com/different-ai/openwork) | 24,414 | Use OpenWork Cloud in OpenCode: sign in once, and your organization's AI… |
+| [**othmanadi/planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 28,028 | Native OpenCode plugin for planning-with-files: per-turn plan injection, write… |
+| [**different-ai/openwork**](https://github.com/different-ai/openwork) | 24,499 | Use OpenWork Cloud in OpenCode: sign in once, and your organization's AI… |
 | [**startrail-org/pixelrag**](https://github.com/StarTrail-org/PixelRAG) | 10,855 | Give opencode eyes — screenshot any URL or document with pixelshot and read it… |
 | [**npm/victrid-oh-my-opencode-slim**](https://github.com/alvinunreal/oh-my-opencode-slim) | 10,122 | Lightweight agent orchestration plugin for OpenCode - a slimmed-down fork of… |
-| [**weave-os/router**](https://github.com/weave-os/router) | 5,614 | One-command installer that points Claude Code, Codex, opencode, or pi at the… |
-| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,471 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
-| [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,525 | deja-vu memory for opencode: the session history of forty-two other coding… |
+| [**weave-os/router**](https://github.com/weave-os/router) | 5,621 | One-command installer that points Claude Code, Codex, opencode, or pi at the… |
+| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,489 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
+| [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,531 | deja-vu memory for opencode: the session history of forty-two other coding… |
 | [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,422 | oh-my-agent hook bridge for OpenCode and Kilo Code |
 | [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 903 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
-| [**keli-wen/agy-staff**](https://github.com/keli-wen/agy-staff) | 858 | Hire Google's Antigravity CLI (agy) as a fast Gemini staffer for Claude Code,… |
+| [**keli-wen/agy-staff**](https://github.com/keli-wen/agy-staff) | 862 | Hire Google's Antigravity CLI (agy) as a fast Gemini staffer for Claude Code,… |
 | [**with-pebbly/aseprite-ai-artist**](https://github.com/with-pebbly/aseprite-ai-artist) | 653 | Agent-native control layer for Aseprite. MCP server (2025-11-25 spec, designed… |
 | [**coldteadotai/abide**](https://github.com/coldteadotai/abide) | 625 | Make your coding agent abide by all your project rules |
-| [**@aerovato/operator-opencode-v2**](https://github.com/aerovato/operator-memory) | 500 | Operator Memory adapter for OpenCode V2. |
+| [**@aerovato/operator-opencode-v2**](https://github.com/aerovato/operator-memory) | 512 | Operator Memory adapter for OpenCode V2. |
 | [**aerovato/operator-memory**](https://github.com/aerovato/operator-memory) | 500 | Operator Memory: durable context for agent-driven development. |
 | [**tiger-zzz/mini-trellis**](https://github.com/Tiger-zzZ/mini-trellis) | 434 | Minimal memory layer for AI coding agents: spec, research, journal, and… |
-| [**fishbottle7/opencode2dsh**](https://github.com/FishBottle7/opencode2dsh) | 389 | Free OpenCode Zen models for DeepSeek Harness (DSH): native dsh-llm adapter… |
-| [**useagenthq/useagent**](https://github.com/useagenthq/useagent) | 382 | The open-source Devin alternative. Run Claude Code, Codex or OpenCode in… |
+| [**fishbottle7/opencode2dsh**](https://github.com/FishBottle7/opencode2dsh) | 398 | Free OpenCode Zen models for DeepSeek Harness (DSH): native dsh-llm adapter… |
+| [**useagenthq/useagent**](https://github.com/useagenthq/useagent) | 384 | The open-source Devin alternative. Run Claude Code, Codex or OpenCode in… |
 <!-- /BOARD:TOP20 -->
 
 ## Boards
