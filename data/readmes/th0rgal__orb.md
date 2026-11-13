@@ -1,0 +1,133 @@
+<p align="center">
+  <img src="macos_shell/icons/icon.png" width="96" alt="Orb" />
+</p>
+
+<h1 align="center">Orb</h1>
+
+<p align="center">
+  <strong>All your AI providers, machines, and agent harnesses in one place.</strong><br/>
+  Connect your subscriptions, API keys, and local hardware to your machines, and orchestrate every agent harness from macOS and iOS.<br/>
+  <sub>Orb clients connect to Core, formerly sandboxed.sh.</sub>
+</p>
+
+<p align="center">
+  <a href="#get-started">Get started</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="orb/README.md">Desktop</a> ·
+  <a href="ios_dashboard/README.md">iOS</a> ·
+  <a href="https://orb.thomas.md">Website</a> ·
+  <a href="https://relens.ai/community">Discord</a>
+</p>
+
+![Orb on macOS, following a Verity coding mission](screenshots/orb-desktop.webp)
+
+## Choose where your agent works
+
+| Mode | Where it runs | How you use it |
+| --- | --- | --- |
+| **Your computer** | A local coding agent on your desktop | Choose **New Agent → This computer**, then a harness and model. Work with your local files and tools. |
+| **Your private cloud** | Your own servers and remote machines | Add machines to Core, then select one in Orb. Run agents in the configured host or isolated container workspace. |
+| **Cloud agents** | A coordinator or provider-managed assistant | Choose **Cloud agent**, then Hermes, Grok Bot or Cursor Cloud. Continue durable or provider conversations from Orb. |
+
+Use **Claude Code**, **Codex**, **Antigravity**, **OpenCode** or **Grok** for
+local and remote work, with live model, effort and cyber-access controls where
+supported. Cloud agents have their own connections: **Hermes** binds to durable
+coordinator conversations and router chains; **Grok Bot** uses its connected
+account; **Cursor Cloud** uses its official API with a repository,
+Git reference and model.
+
+![Creating an agent in Orb on macOS](screenshots/orb-setup.webp)
+
+## Pick up the conversation anywhere
+
+Projects organize missions, per-project colors, skills and a synced local
+**Context** folder in Finder. Inside a conversation:
+
+- **Follow and steer live runs**: collapsible `Worked — …` tool/thought folds,
+  nested subagents and callback reviews, inline prompt editing, and a
+  Cursor-style follow-up queue that sends on turn completion or immediately.
+- **Ask on the side**: open the docked `/btw` side-agent panel (`⌘⇧J`) to ask
+  questions with shared workspace context without interrupting the main turn.
+- **Keep long work moving**: schedule durable mission wake-ups, automatically
+  resume interrupted runs after restarts, and transfer workspaces across
+  machines (preserving symlinks while skipping build artifacts).
+- **Rich output**: Markdown, code, tables, LaTeX, quizzes, inline images and
+  clickable file links stay readable inside the transcript.
+
+Orb for **iOS** connects to the same Core server: browse projects with
+synced colors, inspect mission transcripts and activity folds, send follow-ups,
+view or edit shared Markdown context, and manage backend, machines and providers.
+
+<p align="center">
+  <img src="screenshots/orb-ios-projects.webp" width="260" alt="Orb on iOS showing the production projects list with synced project colors" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="screenshots/orb-ios.webp" width="260" alt="Orb on iOS showing the Pareto mission conversation in Verity" /><br/>
+  <sub>iOS Simulator · Connected to production (`Projects` list and `Verity / Pareto` mission).</sub>
+</p>
+
+## Bring your subscriptions
+
+Sign in to supported subscription accounts directly from **Providers** in Orb
+(desktop, iOS, and Android) or connect them through **CLIProxyAPI Plus**. You can
+authenticate via OAuth, renew tokens, enable or disable individual accounts,
+and inspect live plan/quota status; the proxy handles routing and rotation
+across eligible accounts while Orb lets you choose the harness and model.
+
+- [CLIProxyAPI Plus — maintained CCS fork](https://github.com/kaitranntt/CLIProxyAPIPlus)
+- [CLIProxyAPI — upstream](https://github.com/router-for-me/CLIProxyAPI)
+- [Credential ownership and proxy configuration](docs/CREDENTIAL_OWNERSHIP.md)
+
+This routes **model inference** for coding agents. Managed cloud agents use
+separate service adapters; connecting a proxy account does not create a
+Cursor Cloud API account.
+
+## Get started
+
+1. **Run Core.** Follow the [Docker guide](docs/install-docker.md) or
+   [native Linux guide](docs/install-native.md). It keeps the project record,
+   mission history and remote execution services.
+2. **Open Orb.** Build the [desktop client](orb/README.md) or the
+   [iOS app](ios_dashboard/README.md), then enter your server URL and sign in.
+3. **Connect your execution environment.** Set up local harnesses, register
+   [remote machines](docs/REMOTE_NODES.md), or connect a cloud-agent account.
+   Configure inference providers for the models you want to use.
+4. **Create a project and launch an agent.** Choose its execution mode, write
+   your task, and keep its conversation and results together.
+
+## Under the hood
+
+**Orb is the client; Core is its backend.**
+Desktop is built with SolidJS, a thin native WebKit shell (`macos_shell/` on macOS, `linux_shell/` on Linux), and the Lean 4 `orb-locald` daemon; iOS uses SwiftUI and Android uses Jetpack Compose. The Lean 4 backend (`lean/OrbCore/`, `lean/OrbNode/`) owns
+projects, missions, event history and remote-node coordination, backed by the
+formal Lean 4 decision kernel (`lean/Orb/Kernel.lean`, `lean/Orb/Spec.lean`) for orchestration, proxy and mission lifecycle, and
+cross-client projections. The
+[ABI manifest](shared/orb-spec/kernel_abi.json) records the exported functions,
+and the [kernel audit](lean/audit/AuditSpec.lean) checks the proof boundary.
+These guarantees cover the decision kernel, not the entire application.
+Cloud adapters observe provider work independently of the client window.
+
+The same control plane is available over MCP for coordinators such as
+[Hermes](https://github.com/Th0rgal/hermes-agent). Automation uses the same project
+and mission records as Orb.
+
+### Lightweight by default
+
+Orb Desktop avoids bundling Chromium or Node.js, pairing a native WebKit shell (`macos_shell/`, `linux_shell/`) with the compiled Lean 4 `orb-locald` daemon and SQLite tail-slice hydration:
+
+| Metric *(ARM64 Linux, Wayland)* | Orb Desktop | Electron Agent IDE *(Antigravity 2.25)* | Difference |
+| --- | ---: | ---: | --- |
+| **App bundle on disk** | **29 MB** *(12 MB UI + 17 MB native)* | ~493 MB | **17x smaller** |
+| **Cold launch RAM (PSS)** | **~250 MB** *(4 procs; `orb-locald`: 18 MB)* | ~801 MB *(10–12 procs)* | **3.2x less RAM** |
+| **8-hour active session RAM (PSS)** | **~630 MB** *(`orb-locald`: 35 MB)* | ~1.81 GB | **2.9x less RAM** |
+| **Cold launch CPU work** | **1.2 CPU-s** | 3.3 CPU-s | **2.6x less CPU** |
+| **2,000-event transcript open** | **12 ms cold / 0.2 ms warm** | — | `198 kB` SQLite tail slice |
+
+[Documentation index](docs/README.md) ·
+[Execution architecture](AGENTS.md) ·
+[Workspaces](docs/WORKSPACES.md) ·
+[MCP and Hermes](docs/HERMES_ORCHESTRATION.md) ·
+[Development and troubleshooting](DEBUGGING.md)
+
+---
+
+**Orb** (`orb.thomas.md`) · Powered by Core.

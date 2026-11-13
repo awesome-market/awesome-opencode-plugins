@@ -1,0 +1,184 @@
+# ProdHub Agent Kit
+
+Give any MCP-compatible coding harness a safe, repeatable path from source code
+to a ProdHub Preview Space.
+
+The hosted server also exposes named operations for the authenticated user's
+role-visible ProdHub areas. Agents discover these through
+`list_available_product_areas` and `list_product_operations`, then execute only
+returned operation IDs through `execute_product_operation`. Arbitrary backend
+paths are not accepted, writes require explicit confirmation, and normal
+Gateway ACL plus ProdHub ownership checks still apply. Cloud Resources, Cloud
+Snapshot, and Snapshot History are intentionally not exposed through MCP.
+The MCP transport and every tool operation use the same path, method, and role
+ACL policy as their equivalent ProdHub HTTP APIs; an unconfigured operation is
+denied by default.
+
+Resource Manager is a first-class governed workflow. Agents call
+`get_resource_manager_contract`, confirm the relevant role-visible tabs, and
+discover Kubernetes cluster-group and allocation-rule operations through
+`list_product_operations`. The complete sequence and field definitions are in
+[the Resource Manager runbook](./docs/resource-manager.md). Cloud Resources
+inventory remains intentionally excluded from MCP.
+
+This kit does not contain credentials. ProdHub uses browser-based OAuth, scopes
+each session to the approved organization, and applies the same role controls as
+the product UI.
+
+## Install
+
+The canonical remote MCP endpoint is:
+
+```text
+https://app.prodhub.in/mcp
+```
+
+ProdHub is described for machine discovery in [server.json](./server.json) and
+published under `io.github.SwaDeshiTech/prodhub` in the official MCP Registry.
+MCP clients and registry-backed catalogs can use that entry to discover the
+hosted Streamable HTTP endpoint without relying on a general web search.
+
+### Codex
+
+```bash
+codex mcp add prodhub --url https://app.prodhub.in/mcp
+```
+
+Merge the delivery instructions in `AGENTS.md` into the repository where Codex
+should use ProdHub; preserve existing project instructions. Copy the supporting
+docs too, or retain links to this kit.
+
+### Gemini CLI
+
+```bash
+gemini mcp add prodhub https://app.prodhub.in/mcp --transport http --scope user
+```
+
+Copy `GEMINI.md` into that repository or merge its instructions with an existing
+project file.
+
+### Claude Code and other MCP clients
+
+Use the remote-server entry in [mcp.json](./mcp.json), then copy or merge
+[CLAUDE.md](./CLAUDE.md) into the project guidance file used by your client.
+
+### ChatGPT and Codex plugin
+
+This repository is also a portable Agent Plugins package:
+
+- `plugin.json` contains the public listing, onboarding, review, and publication metadata.
+- `mcp.json` declares the remote ProdHub MCP server and OAuth with dynamic client registration.
+- `skills/get-started/SKILL.md` supplies the post-install setup and safe-delivery workflow.
+- `assets/prodhub-icon.svg` is the square directory and composer icon.
+
+Generate the ZIP to upload in the OpenAI Plugins submission portal:
+
+```bash
+./scripts/package-chatgpt-plugin.sh
+```
+
+Before final submission, record a reviewer-accessible walkthrough and add its URL
+to `extensions.com.openai.review.demo_recording_url` in `plugin.json`. Enter the
+dedicated test-account credentials only in the secure review form; never commit
+them to this repository.
+
+Follow the complete [ChatGPT submission checklist](./docs/chatgpt-submission.md)
+for the review fixture, domain verification, upload, and publication steps.
+
+## First connection
+
+1. Add the MCP endpoint in the client.
+2. Start the OAuth connection. Sign in to ProdHub and choose an organization.
+3. Approve the consent screen.
+4. Ask the coding harness to deploy a branch or create a Preview Space.
+
+To disconnect, use the MCP client's remove/disconnect action. ProdHub advertises
+an OAuth token-revocation endpoint, so compatible clients can invalidate their
+access or refresh token immediately instead of waiting for expiry.
+
+An authorized agent can also call `list_access_credentials` to review the
+user's browser sessions, MCP sessions, and generated API tokens. It must show
+the exact credential and obtain explicit confirmation before calling
+`revoke_access_credential`; the server independently verifies ownership and
+never returns bearer-token values.
+
+For a normal application build, use `list_applications`,
+`list_application_profiles`, and `get_application_profile` to resolve the exact
+BUILD profile. Show the selected repository, profile, and immutable commit SHA;
+after explicit approval call `trigger_build`, then poll the returned execution
+with `get_pipeline_execution`.
+
+The agent should begin with `get_prodhub_delivery_capabilities`, call
+`list_available_product_areas`, inspect the repository
+and the `prodhub_build` contract, show a plan, obtain approval, and then create
+resources. The product-area response is filtered by the same role-based tab
+configuration used by the ProdHub UI and does not require organization selection.
+
+Read the full workflow in [docs/preview-delivery.md](./docs/preview-delivery.md).
+For Helm charts maintained with application source, also read
+[docs/runtime-templates.md](./docs/runtime-templates.md) before creating or
+updating a runtime template.
+For cluster placement and workload-capacity rules, read
+[docs/resource-manager.md](./docs/resource-manager.md).
+
+## Understand the product before deploying
+
+Start with [product concepts](docs/product-concepts.md) to distinguish applications,
+profiles, provider connections, Preview Spaces, and pipeline executions.
+Then follow the [end-to-end Preview Space runbook](docs/preview-delivery.md).
+It covers new applications, existing profiles, credential sync, branch/revision
+verification, planning, explicit profile selection, provisioning, monitoring,
+retrying in the same environment, and lifecycle handoff.
+
+Use [profile field definitions](docs/profile-fields.md) while inspecting source,
+and [failure recovery](docs/failure-recovery.md) when delivery fails.
+These guides describe the current implementation; the connected server's
+`tools/list` is authoritative for tool availability.
+
+## Example requests
+
+- “Deploy this repository's feature/login branch to a new Preview Space for one day.”
+- “Reuse the existing catalog application's profiles and give me a verified preview URL.”
+- “Check why this Preview Space failed, fix the configuration, and retry in the same environment.”
+- “Show the Kubernetes cluster groups I can manage and prepare an allocation rule for Preview Spaces.”
+
+The agent should retain the application, profile, environment, and execution IDs
+returned by tools. Users should not have to discover these IDs manually.
+Local uncommitted changes are not included in a remote build.
+
+## Important boundaries
+
+`plan_application_preview` plans delivery for an existing application with saved
+profiles. New application onboarding needs its own proposal before those records
+are created. The planner does not validate the source code or reserve resources.
+
+A `url_available` response means a URL exists, not necessarily that the application
+has finished deploying. Inspect the current execution and verify the application
+response before reporting success. Early environment deletion and generic profile
+updates currently need a supported product flow; do not invent MCP tools for them.
+
+`mcp.json` is a configuration example. Clients have different file names and
+schemas; cloning this repository alone does not register the MCP server.
+
+## Files
+
+- [server.json](./server.json): official MCP Registry metadata for the hosted server.
+- [mcp.json](./mcp.json): portable remote-MCP configuration.
+- [plugin.json](./plugin.json): ChatGPT and Codex public plugin metadata.
+- [skills/get-started/SKILL.md](./skills/get-started/SKILL.md): plugin onboarding workflow.
+- [docs/chatgpt-submission.md](./docs/chatgpt-submission.md): public directory submission checklist.
+- [AGENTS.md](./AGENTS.md): Codex-oriented project instructions.
+- [CLAUDE.md](./CLAUDE.md): Claude Code project instructions.
+- [GEMINI.md](./GEMINI.md): Gemini CLI project instructions.
+- [docs/preview-delivery.md](./docs/preview-delivery.md): safe delivery workflow.
+- [docs/runtime-templates.md](./docs/runtime-templates.md): runtime-template parameters and repository-hosted Helm charts.
+- [docs/resource-manager.md](./docs/resource-manager.md): safe Kubernetes cluster-group and allocation-rule management.
+
+For the browser setup page, see [prodhub.in/setup](https://prodhub.in/setup).
+
+## Publishing discovery metadata
+
+The `Publish MCP Registry metadata` GitHub workflow validates and publishes
+`server.json` using GitHub OIDC. No registry token or long-lived secret is
+required. Increment the manifest version whenever the public MCP identity or
+tool contract changes; merging that update to `main` republishes the entry.

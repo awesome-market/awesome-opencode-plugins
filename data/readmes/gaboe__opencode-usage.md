@@ -1,0 +1,129 @@
+# opencode-usage
+
+CLI tool for tracking [OpenCode](https://github.com/sst/opencode) AI coding assistant usage and costs.
+
+## Features
+
+- Daily or monthly usage breakdown with token counts and estimated costs
+- Provider breakdown (Anthropic, OpenAI, Google, etc.)
+- Filter by provider, date range, or relative time
+- Watch mode for live monitoring
+- JSON output for scripting and automation
+- Model pricing for accurate cost estimation
+- Terminal table output
+- **Commander web dashboard** with quota status, account management, and ping
+
+## Installation
+
+```bash
+# Run directly with bunx (recommended, fastest)
+bunx opencode-usage
+
+# Or with npx (Node.js fallback)
+npx opencode-usage
+
+# Or install globally
+bun add -g opencode-usage
+npm install -g opencode-usage
+```
+
+## Usage
+
+```bash
+# Show all usage data (daily breakdown)
+opencode-usage
+
+# Filter by provider
+opencode-usage --provider anthropic
+opencode-usage -p openai
+
+# Show last N days
+opencode-usage --days 30
+opencode-usage -d 7
+
+# Date range filtering
+opencode-usage --since 20251201 --until 20251231
+opencode-usage --since 2025-12-01
+opencode-usage --since 7d      # last 7 days
+opencode-usage --since 1w      # last week
+opencode-usage --since 1m      # last month
+
+# Monthly aggregation
+opencode-usage --monthly
+opencode-usage -m --since 2025-01-01
+
+# JSON output (for scripting)
+opencode-usage --json
+opencode-usage --monthly --json > usage.json
+
+# Watch mode (live refresh every 5s)
+opencode-usage --watch
+opencode-usage -w -d 1
+
+# Combine filters
+opencode-usage --provider anthropic --since 7d --json
+```
+
+### Commander Web Dashboard
+
+```bash
+# Launch the web dashboard
+opencode-usage --commander
+
+# Custom port
+opencode-usage --commander --commander-port 5000
+```
+
+![Commander Dashboard](docs/commander.png)
+
+The Commander provides a single-page web UI with:
+
+- **Quota Status** - Per-provider account usage with progress bars, configurable thresholds, and stale detection
+- **Multi-Account** - Full multi-account support for Anthropic and Gemini providers
+- **Usage Breakdown** - Daily/monthly token usage table with cost estimates, provider filter, and date range
+- **Account Management** - Add, switch, remove, and re-authenticate accounts
+- **Plugins** - Extensible plugin system for custom providers and integrations
+- **Configuration** - Customizable thresholds, display preferences, and provider settings
+- **Ping** - Verify account connectivity with live PONG/FAIL indicators
+- **Dark mode** toggle
+- Auto-refresh every 5 minutes
+
+## Output
+
+```
+┌────────────┬───────────────────────────────────┬────────────────┬──────────────┬────────────────┬────────────┐
+│ Date       │ Models                            │          Input │       Output │   Total Tokens │       Cost │
+├────────────┼───────────────────────────────────┼────────────────┼──────────────┼────────────────┼────────────┤
+│ 2025-12-30 │ - claude-opus-4-5                 │    173,440,372 │      691,955 │    174,132,327 │    $167.42 │
+│            │ - claude-sonnet-4-5               │                │              │                │            │
+│            │   [anthropic]                     │    161,029,288 │      618,355 │    161,647,643 │    $162.06 │
+│            │   [openai]                        │      7,109,638 │       56,201 │      7,165,839 │      $5.36 │
+├────────────┼───────────────────────────────────┼────────────────┼──────────────┼────────────────┼────────────┤
+│ Total      │                                   │    395,521,798 │    1,617,158 │    397,138,956 │    $417.81 │
+└────────────┴───────────────────────────────────┴────────────────┴──────────────┴────────────────┴────────────┘
+```
+
+## Supported Providers
+
+- **Anthropic**: Claude Opus, Sonnet, Haiku (all versions)
+- **OpenAI**: GPT-4o, GPT-5, O1, O3
+- **Google**: Gemini 2.0, 2.5, 3.0
+- **OpenCode hosted**: Free models (qwen3-coder, glm-4.7-free, etc.)
+
+## How It Works
+
+This tool reads OpenCode session data from the SQLite database (`opencode.db`):
+
+- Linux: `~/.local/share/opencode/opencode.db`
+- macOS: `~/.local/share/opencode/opencode.db`
+- Windows: `%LOCALAPPDATA%/opencode/opencode.db`
+
+Requires OpenCode v1.2.0+ (SQLite storage). It aggregates token usage by day and calculates estimated costs based on current API pricing.
+
+## Note on Costs
+
+If you're using OpenCode with a Claude Max/Pro subscription or OpenCode Zen credits, the actual cost to you is your subscription fee, not the API-equivalent cost shown here. The cost column shows what the equivalent API usage would cost for reference.
+
+## License
+
+MIT

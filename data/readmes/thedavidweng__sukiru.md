@@ -1,0 +1,454 @@
+<div align="center">
+  <img src="Resources/AppIcon.webp" alt="Sukiru Icon" width="128" height="128" />
+  <h1>Sukiru</h1>
+  <p><strong>A fast, tiny, native macOS app that checks and repairs your coding agents' skill libraries.</strong></p>
+
+  <p>
+    <a href="https://github.com/thedavidweng/sukiru/releases"><img src="https://img.shields.io/github/v/release/thedavidweng/sukiru?color=007AFF&label=Release&logo=apple" alt="GitHub Release" /></a>
+    <a href="https://developer.apple.com/macos/"><img src="https://img.shields.io/badge/macOS-14.0%2B%20Sonoma-black?logo=apple" alt="macOS 14+" /></a>
+    <a href="https://www.swift.org"><img src="https://img.shields.io/badge/Swift-6.2-F05138?logo=swift&logoColor=white" alt="Swift 6.2" /></a>
+    <a href="#-installation"><img src="https://img.shields.io/badge/Homebrew-thedavidweng%2Ftap-FBB040?logo=homebrew" alt="Homebrew Tap" /></a>
+    <a href="PRIVACY.md"><img src="https://img.shields.io/badge/Privacy-No%20Telemetry-success" alt="No Telemetry" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0--only-blue" alt="License: AGPL-3.0-only" /></a>
+  </p>
+
+  <p>
+    <a href="README.md"><strong>English</strong></a> •
+    <a href="README_zh.md"><strong>简体中文</strong></a> •
+    <a href="https://sukiru.blahaj.uk/"><strong>Website</strong></a>
+  </p>
+
+  <br />
+  <img src="public/screenshot.webp" alt="Sukiru main window" width="800" />
+</div>
+
+---
+
+**Sukiru** checks and repairs the skill libraries of your coding agents. It
+manages skills by orchestrating the two official installers, `npx skills` and
+`gh skill`, and never keeps an install ledger of its own.
+
+Agent skills (directories with a `SKILL.md`) are installed by two official
+tools that keep separate records:
+
+- **Vercel `skills`** (`npx skills`) records installs in lockfiles
+  (`skills-lock.json` per project, `~/.agents/.skill-lock.json` globally).
+- **GitHub CLI** (`gh skill`) records provenance inside each skill's
+  `SKILL.md` frontmatter (`metadata.github-*`).
+  It also records every install and update by bare skill name in the Vercel
+  global lock; Sukiru recognizes these companion records as gh's own, not as
+  Vercel claims.
+
+Both write into the same agent directories, and neither reads the other's
+records. In controlled experiments ([collision matrix](docs/collision-matrix.md))
+this silently produced stale lock hashes, skills claimed by both tools,
+diverging copies, and cross-tool deletions. Hand-copied skills add a third
+category that no installer can update or cleanly remove.
+
+Sukiru reads both ledgers plus what is actually on disk, works out who owns
+each skill, explains every problem in plain language, and routes each fix to
+the tool that owns the skill.
+
+Website: <https://sukiru.blahaj.uk/>
+
+---
+
+## ✨ Features
+
+- 🩺 **Health report**: Problems are grouped into kinds you can act on: stale
+  lock records, broken links, copies where links belong, diverging copies,
+  skills with unknown sources, and ownership conflicts. Healthy layouts and
+  standing notices fold into Notes.
+- 🛠️ **Queue fixes, apply once**: Queue repairs from Health like items in a
+  cart, then review and apply them together, or Fix All. Every checkout
+  becomes one batch that you confirm once, in plain language, with the exact
+  commands one click away.
+- ↩️ **Safe by construction**: Every batch runs as snapshot → execute → diff,
+  and can be rolled back after you confirm. History is pruned by count, age
+  and size (default 20 batches, 30 days, 1 GB; the newest batch is always
+  kept), a pruned batch can no longer be rolled back, and you can delete any
+  batch or clear all history in Settings.
+- 📚 **Library**: See each skill's owner, provenance, pinned ref, and where it
+  is placed across agents. Switch a skill between link and copy mode, and
+  update or uninstall it (or update everything at once) through the installer
+  that owns it. A global skill can also be linked into an installed agent whose
+  global skills folder differs from the shared store, since no installer
+  command deploys it there. GitHub-installed skills can also be pinned to a ref,
+  unpinned, or restored to the recorded version over local edits. A skill can
+  move to the other installer's ledger when its record names the source; both
+  the removal from the old ledger and the re-install are official CLI
+  commands in one confirmed, snapshotted batch. Check for
+  Updates asks `gh skill` which GitHub-installed skills have newer versions
+  without changing anything.
+  Long descriptions stay within three lines in the inspector; hover to read the full text.
+- 🔍 **Search and install**: Search skills.sh and `gh skill search`
+  (optionally limited to one GitHub owner), preview `SKILL.md`, then install
+  with the installer you choose, through the same confirm → snapshot →
+  rollback pipeline. Install from Repository takes an `owner/repo` or GitHub
+  URL, lists its skills with that installer, and installs the ones you pick.
+  Vercel installs can target specific agents.
+- **Consistent skill selection**: Library, Discover, Health findings, and the
+  repository install picker support Shift-click ranges and Command-click
+  individual selection. Control-click opens the native context
+  menu. Group actions apply to the whole selection; actions that cannot apply
+  to every selected item stay unavailable. Search installs share one review
+  batch, and Library supports group updates, uninstalls, and Quick Look.
+- 🧭 **Adopt unknown skills**: Find Sources matches hand-copied skills to
+  skills.sh listings whose `SKILL.md` matches your copy, and queues their
+  adoption under `npx skills`.
+- 📴 **Works without the CLIs**: With neither Node.js nor `gh` installed,
+  Sukiru is still a complete read-only health checker.
+- **pnpm dependency skills**: Verified project links are read-only external
+  installations, grouped by package-qualified identity rather than declared name.
+  Workspace importer dependencies and project-local `skills.dirs` targets are
+  recognized. Health shows pending, approved, denied or unknown package permissions
+  separately from installed Skills. Refresh rereads pnpm state without running it.
+  Healthy links are not Vercel drift/orphan/copy-repair candidates; real host
+  collisions remain visible. Fix All, `fix` and `clean` skip protected entries.
+  A link is not proof a host can load or invoke the skill; see
+  [pnpm verification and host evidence](Fixtures/pnpm-12.11.0/README.md).
+- 🍎 **Native**: Pure Swift, SwiftUI, and AppKit with system controls only, so
+  it follows your appearance, accessibility settings, and Liquid Glass on
+  macOS 26. Available in English and Simplified Chinese.
+
+### Design principles
+
+- **Zero ledger.** Sukiru never writes installer records. Ledger changes go
+  through the official CLIs only. Sukiru performs file operations directly
+  only for link management that no CLI offers (deleting a broken link,
+  replacing a copy with a link, turning a link into a copy, creating a host's
+  missing global link), always inside a snapshot.
+- **Ownership routes repairs.** There is no global "backend" setting. A skill
+  owned by `npx skills` is repaired with `npx skills`, and the same goes for
+  `gh skill`.
+- **No background activity.** No filesystem watchers, and nothing is
+  downloaded or updated unless you ask. The app shows state at launch and
+  when you click Refresh.
+- **Deterministic.** The same disk state always produces the same report.
+- **Malformed data is a reported problem, never a crash.**
+
+---
+
+## 🚀 Installation
+
+### Requirements
+
+- macOS 14 Sonoma or later, on Apple silicon or Intel.
+- Optional, to make changes:
+  - [Node.js](https://nodejs.org/en/download) for `npx skills`.
+  - [GitHub CLI](https://cli.github.com) 2.90.0 or later for `gh skill`.
+
+Sukiru detects both tools at launch and disables only the actions that need a
+missing tool. It finds them the way your terminal does, by reading your login
+shell's PATH, so Node.js from Homebrew or a version manager (mise, fnm, nvm,
+Volta, asdf, nodenv) works without extra setup. If you use a version manager
+and Node.js is missing, Settings › Installers tells you to install it there
+instead of offering Homebrew. The `skills` CLI needs no install: with Node.js
+present, `npx` downloads it the first time you confirm a change that needs it,
+and the confirmation says so beforehand. Sukiru never downloads or updates it
+on its own; Settings › Installers also offers Download (to fetch it ahead of
+time) and Update (when a newer release exists).
+
+### Homebrew (Recommended)
+
+```bash
+brew install --cask thedavidweng/tap/sukiru
+```
+
+Sukiru updates itself: choose **Sukiru › Check for Sukiru Updates…**, or leave
+automatic checks on in Settings › General. `brew upgrade --cask sukiru` also
+works.
+
+### Direct Download
+
+1. Download `Sukiru-arm64.dmg` (Apple silicon) or `Sukiru-x86_64.dmg` (Intel) from
+   [GitHub Releases](https://github.com/thedavidweng/sukiru/releases).
+   Each release lists SHA-256 checksums in `checksums.txt`.
+2. Drag **Sukiru.app** into `/Applications`.
+3. Launch from Applications or Spotlight.
+
+> [!NOTE]
+> From v1.5.2, official releases are signed with Developer ID and notarized by Apple.
+
+---
+
+## 📖 Getting Started
+
+1. Launch Sukiru. It scans your user-level skill directories automatically.
+2. To include project-level skills, add your project folders as project roots
+   (**View › Add Project Root…**, `⇧ ⌘ A`, or in Settings).
+3. Open **Health** to see problems and what caused them. Click a problem's
+   fix button to queue it, then **Review Changes**. Or click **Fix All**.
+4. Review the confirmation sheet and confirm. To undo, use the result page or
+   **Repair › Roll Back Selected Batch**.
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+| Action | Shortcut |
+| :--- | :--- |
+| **Library / Health / Pending Changes / Snapshots / Discover** | `⌘ 1` – `⌘ 5` |
+| **Refresh** | `⌘ R` |
+| **Add Project Root…** | `⇧ ⌘ A` |
+| **Quick Look Selected Skill** | `⌘ Y` |
+| **Show Findings for Selected Skill** | `⇧ ⌘ F` |
+| **Reveal Selected Finding in Library** | `⇧ ⌘ L` |
+| **Toggle Selected Finding Evidence** | `⇧ ⌘ E` |
+| **Show Next / Previous Workspace** | `⌥ ⌘ →` / `⌥ ⌘ ←` |
+| **Run Search** | `⌘ K` |
+| **Install Selected Skill…** | `⇧ ⌘ I` |
+| **Fix Selected Finding…** | `⌥ ⌘ F` |
+| **Execute Batch** | `⌥ ⌘ E` |
+| **Discard Batch** | `⌥ ⌘ X` |
+| **Roll Back Selected Batch** | `⌥ ⌘ B` |
+| **Settings** | `⌘ ,` |
+
+All commands are also listed in the **View**, **Discover**, and **Repair**
+menus.
+
+---
+
+## 🛡️ Privacy & Permissions
+
+Sukiru has no accounts, analytics, or telemetry. It reads local files and
+runs the official CLIs on your machine. It connects to the network only to
+look up the latest `skills` CLI version on the npm registry, when you
+search (the skills.sh search API and `gh skill search`), preview a skill's
+`SKILL.md` from GitHub, find sources for skills with no known source, or run
+a CLI command that needs the network.
+Snapshots and execution records stay in
+`~/Library/Application Support/Sukiru`.
+
+Details in [PRIVACY.md](PRIVACY.md).
+
+---
+
+## 💻 Command-Line Interface
+
+The app bundles a first-class `sukiru` executable. The Homebrew cask links it
+onto PATH; source checkouts can use `swift run sukiru`.
+
+```bash
+sukiru health                     # passive local Health summary
+sukiru clean --dry-run             # preview cleanup-class repairs
+sukiru fix --dry-run               # preview deterministic one-click fixes
+sukiru fix --yes                   # execute after reviewing the plan
+```
+
+Human-readable output is the default. Add `--json` for structured stdout;
+diagnostics go to stderr. `health --check` exits 0 when healthy, 1 for Problems,
+and 2 when scanning fails. `--scope user|project|all`, repeatable `--root PATH`,
+and `--host HOST` use the same selectors throughout the CLI (for example
+`--host claude-code`). Installation and Plugin mutations require one concrete
+user or project scope. `--root` replaces `SUKIRU_ROOTS`.
+
+Each supported host's Plugins tab has its own marketplace view. Claude Code,
+Codex, Droid and Antigravity listings come from their host catalogs; Cursor
+shows cached catalogs without claiming registration or installation. A matching
+name does not prove provenance. Marketplace installs and repository installs
+are separate operations reviewed in Pending Changes. Codex installs from its
+user marketplace only; project-only selections cannot silently switch sources.
+Claude marketplace removal may uninstall plugins and delete their data when
+the last declaration is removed, so its preview includes the possible cascade.
+
+Cursor Plugin inventory is passive: local development plugins, cached payloads,
+formats and components are visible; cache presence does not establish installation,
+enablement, or runtime loading. Personal marketplace commands delegate to a verified
+Cursor `agent` help surface and require effects consent. Single-plugin operations
+return Cursor Customize or interactive `/plugin` instructions. Refresh records report
+observed catalog/payload changes independently of the command's exit status.
+
+```bash
+sukiru skills list --json
+sukiru skills update --all --dry-run
+sukiru skills uninstall --all --host claude-code --scope user --dry-run
+sukiru skills pin NAME --ref v1 --dry-run
+sukiru skills mode NAME --mode link --dry-run
+sukiru skills link NAME --host antigravity-cli --dry-run
+sukiru skills adopt NAME --installer vercel --source OWNER/REPO --dry-run
+sukiru skills migrate NAME --installer github --dry-run
+sukiru skills check-updates --json   # explicit official remote check
+sukiru search swift --backend github --json
+sukiru install OWNER/REPO --skill NAME --installer vercel --scope user --dry-run
+sukiru plugins list --json
+sukiru plugins health
+sukiru plugins capabilities --host claude-code
+sukiru plugins install NAME@MARKET --host claude-code --scope user --dry-run
+sukiru plugins marketplaces list
+sukiru plugins disable-local ~/.config/opencode/plugins/old.ts --host opencode --scope user --dry-run
+sukiru plugins disable NAME@MARKET --host claude-code --scope project --root /absolute/project --settings-scope local --dry-run
+sukiru snapshots --json
+sukiru history prune --json         # apply the retention limits from settings.json
+sukiru history clear --yes          # remove all snapshots and records
+sukiru rollback --batch ID --dry-run
+sukiru rollback --batch ID --yes --preserve /absolute/conflict/path
+sukiru capabilities --json          # explicit manager probes
+```
+
+Antigravity plugin support covers shared App/CLI plugins, built-ins, project discovery,
+components, configured enablement, and cached catalogs. Native operations use `agy`
+(verified from 1.4.7): install, uninstall, enable, disable, list, import, validate, and link.
+Enablement is shared by directory name across scopes. Cached catalogs do not establish
+marketplace registration, and inventory does not prove runtime loading. Marketplace
+management, automatic updates, MCP authentication, and runtime services stay in
+Antigravity Customizations or `/plugins`.
+
+```bash
+sukiru plugins list --host antigravity --json
+sukiru plugins import gemini --scope user --dry-run
+sukiru plugins validate /path/to/plugin --strict --scope user --dry-run
+sukiru plugins link NAME --marketplace MARKET --scope user --dry-run
+sukiru plugins inspect --host antigravity --scope user --dry-run
+sukiru plugins disable --host antigravity --scope user --dry-run -- -123
+```
+
+Droid plugin support covers user, project and org installations, their components
+(skills, commands, droids, output styles, hooks and MCP servers), and every marketplace
+Droid knows: user and project `extraKnownMarketplaces`, org-managed marketplaces, and
+their fetched catalogs. Native operations use `droid plugin` (verified from 1.1.0):
+install, update and uninstall with `--scope`, and marketplace add, update and remove.
+Droid has no enable command, so enable and disable edit `enabledPlugins` in the scope's
+`settings.json`. Org plugins and marketplaces are read only; Sukiru reports
+`strictKnownMarketplaces` and `strictEnabledPlugins` and leaves enforcement to Droid.
+
+```bash
+sukiru plugins list --host droid --json
+sukiru plugins marketplaces add Factory-AI/factory-plugins --host droid --scope user --dry-run
+sukiru plugins install security-engineer@factory-plugins --host droid --scope user --dry-run
+sukiru plugins disable security-engineer@factory-plugins --host droid --scope user --dry-run
+```
+
+Plugin commands accept a host version at or above Sukiru's verified baseline within
+the same major version, and still check the host's supported help surface before running.
+Antigravity uses parent help for most operations because subcommands may treat `--help`
+as an operation target.
+`disable-local` moves an incompatible local plugin file out of host discovery under
+snapshot protection. For Claude Code, `--settings-scope local` with `--root` targets
+`.claude/settings.local.json` instead of `--scope`. `fix` and `clean` skip repairs
+that need `npx` when Node is not installed.
+
+Bulk uninstall requires `--host` and removes only eligible entries installed
+by `npx skills` in that host's own folder. Dry-run shows the exact command,
+entries removed, entries left in place with next steps, and skills still visible
+through other folders; `--json` returns the same plan alongside its batch.
+Use `--scope project --root /absolute/project` for one project. Shared Copy
+deletion is disclosed before execution and requires `--confirm-dangerous`.
+The Library GUI action is pending; this workflow is currently available in the CLI.
+
+`skills migrate` moves one Skill to the other installer's ledger, using the
+repository and path already recorded. The destination follows the current
+owner: a Vercel-locked Skill moves to `gh skill`, a GitHub-provenanced Skill
+moves to `npx skills`. The move to `gh skill` runs the danger-flagged `npx
+skills remove` first, because only the Vercel CLI can drop its record and it
+deletes by name; `gh skill install` then rebuilds every skills folder the
+Skill held, as real copies rather than links to a shared copy. The move to
+`npx skills` is one `npx skills add` whose overwrite also erases the GitHub
+frontmatter provenance. Both are one snapshotted batch. A Skill is left out
+with a reason when its record lacks the repository or path the destination
+needs, when the destination CLI is missing, or when it is pinned (the Vercel
+ledger has no pin).
+
+Use generated `--help` on any family to discover update, uninstall, pin,
+unpin, restore, enable/disable, and marketplace operations. Generate shell
+completion with `sukiru --generate-completion-script zsh` (also bash and fish).
+`--version` reads the bundled app version, so shipped CLI and GUI agree.
+
+All mutations share `--dry-run`, `--yes` (`-y`), and `--confirm-dangerous`.
+A dry-run renders the exact Command Batch and writes nothing. Without `--yes`,
+execution prompts on a terminal and refuses non-interactive use. **`--yes`
+never acknowledges danger**: dangerous plans separately require
+`--confirm-dangerous`. Snapshots must succeed before commands run. Execution
+stops at the first failure and retains the rescan, differences, and rollback
+record. Rollback conflicts require explicit `--restore PATH` or `--preserve PATH`;
+no automatic merge or ownership/source guessing is performed.
+
+Advanced machine interfaces retain the unique explicit plan contracts:
+
+```bash
+sukiru scan --json
+sukiru batch --decisions decisions.json --dry-run --json
+sukiru batch --decisions decisions.json --execute --yes --confirm-dangerous --json
+sukiru plugins plan --requests requests.json --json
+sukiru plugins execute --requests requests.json --yes --confirm-dangerous --json
+```
+
+The former `sukiru-cli`, `--format json`, `--reviewed`, and rollback `--preview`
+spellings have been replaced by the public command and shared options.
+`SUKIRU_HOME` replaces `$HOME` for all path resolution, and `SUKIRU_ROOTS`
+adds colon-separated project roots. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for sandbox testing and [docs/hook-hygiene-cli.md](docs/hook-hygiene-cli.md)
+for the existing advanced hook contracts.
+
+---
+
+## 🧱 Building from Source
+
+### Prerequisites
+
+- macOS 14.0+
+- Xcode 26+ (Swift 6.2)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+
+### Build & Run
+
+```bash
+git clone https://github.com/thedavidweng/sukiru.git
+cd sukiru
+
+swift test                 # core library and CLI tests
+Scripts/build-app.sh       # generate the Xcode project and build Sukiru.app
+Scripts/run-app.sh         # run the debug app
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, quality gates,
+and test safety rules.
+
+### Release packaging
+
+`Scripts/package-release.sh` requires `MARKETING_VERSION` and Developer ID
+signing/notarization credentials: `APPLE_SIGNING_IDENTITY`,
+`APPLE_SIGNING_KEYCHAIN`, `APPLE_TEAM_ID`, `APPLE_API_KEY_PATH`,
+`APPLE_API_KEY_ID`, and `APPLE_API_ISSUER`. It signs the embedded CLI before the
+app, waits for Apple acceptance, staples the app before archiving, then signs
+and notarizes the DMG before calculating checksums.
+
+The Release workflow imports the certificate from `APPLE_CERTIFICATE_P12_BASE64`
+and `APPLE_CERTIFICATE_PASSWORD`, and the API key from `APPLE_API_KEY_BASE64`
+GitHub secrets. Missing credentials or rejected artifacts stop publication.
+
+---
+
+## 📄 Documentation & Contributing
+
+- Website: <https://sukiru.blahaj.uk/>
+- Glossary of domain terms used in code and UI: [CONTEXT.md](CONTEXT.md)
+- Architecture decision records: [docs/adr](docs/adr/README.md)
+- Experiments on how the two official installers interact: [collision matrix](docs/collision-matrix.md)
+- Contribution guidelines and quality gates: [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md)
+- Bugs and feature requests: [GitHub Issues](https://github.com/thedavidweng/sukiru/issues)
+- Security issues: follow [SECURITY.md](SECURITY.md). Do not open a public issue.
+
+### Project history
+
+Sukiru began as "Gino", a Rust/GPUI reimplementation of the `skills` CLI. In
+September 2026 it was rebuilt as a native Swift app that delegates all
+installer writes to the official tools ([ADR-0001](docs/adr/0001-pivot-to-zero-ledger-referee.md)).
+The retired implementation is kept for reference on the
+[`archive/rust-gui`](https://github.com/thedavidweng/sukiru/tree/archive/rust-gui)
+branch.
+
+---
+
+## ⚖️ License
+
+Copyright © 2026 David Weng. Licensed under the [GNU AGPL v3.0 only](LICENSE).
+
+Agent logos identify compatible tools and remain the property of their
+owners. Their sources and licenses are listed in
+[`App/Resources/AgentIcons-LICENSE.txt`](App/Resources/AgentIcons-LICENSE.txt).
+
+See [LICENSING.md](LICENSING.md) for historical and third-party licenses.
+External contributions require [CLA version 1.0](CLA.md), signed by replying
+to the bot in your PR. Contributors retain copyright and permit commercial
+and proprietary licensing of accepted contributions.

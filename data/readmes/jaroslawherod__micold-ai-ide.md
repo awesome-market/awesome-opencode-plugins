@@ -1,0 +1,115 @@
+# Micold AI IDE
+
+[![CI](https://github.com/jaroslawherod/micold-ai-ide/actions/workflows/ci.yml/badge.svg)](https://github.com/jaroslawherod/micold-ai-ide/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/jaroslawherod/micold-ai-ide)](https://github.com/jaroslawherod/micold-ai-ide/releases/latest)
+[![License](https://img.shields.io/github/license/jaroslawherod/micold-ai-ide)](LICENSE)
+
+**Run several AI coding agents side by side, each in its own git worktree, in one native desktop app.**
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://jaroslawherod.github.io/micold-ai-ide/media/main-window-dark.png">
+    <img alt="Micold AI IDE: a worktree sidebar on the left and the active project's details on the right" src="https://jaroslawherod.github.io/micold-ai-ide/media/main-window-light.png" width="860">
+  </picture>
+</p>
+
+Micold gives every line of work its own branch, worktree and real terminal, and keeps the agent
+session running in the background — close the window, or crash it, and the sessions are still there
+when you come back.
+
+- **Any agent, your choice per session** — [Claude Code](https://www.anthropic.com/claude-code),
+  [GitHub Copilot CLI](https://github.com/features/copilot/cli),
+  [Pi Coding Agent](https://pi.dev/), [Codex](https://github.com/openai/codex) or
+  [OpenCode](https://opencode.ai/). Mix them in the same project.
+- **One worktree per task** — start from a new branch or pick up an existing one; parallel agents
+  never trample each other's files.
+- **Sessions that survive** — a background session service owns the terminals; the window just
+  attaches.
+- **Sandboxable** — run the session service in a container so agents see only the projects and
+  credentials you allow.
+- **Native and local-first** — Rust and [iced](https://iced.rs), no Electron, no account;
+  all state stays on your machine and the app is fully functional offline.
+
+**Documentation: <https://jaroslawherod.github.io/micold-ai-ide/>** — the user guide with
+screenshots of the running application, published from this repository on every release.
+
+## Features
+
+- Open a git project and manage its worktrees (one branch per line of work) from a Material
+  Design sidebar — on a new branch, or on one that already exists locally or on a remote, so work
+  started outside the app can be picked up inside it.
+- Run multiple concurrent AI CLI sessions — `claude`, `copilot`, `pi`, `codex` or `opencode` — each in its own worktree
+  or directly in the project root ("Default"), in an embedded terminal. Each session remembers which
+  CLI it runs, and they can run side by side in the same project.
+- A real terminal emulator: full ANSI color + text styling, live keyboard and mouse input,
+  focus-gated key routing, resize, scrollback, and copy/paste.
+- Light/dark theming that follows your OS preference; configurable terminal scrollback.
+- Sessions run in a background **session service**, so they survive closing — or crashing — the
+  window, and reattach instantly when it comes back.
+- That service can run **in a container** instead of directly on your computer: it then sees only
+  the projects you registered and the credentials you allowed, under limits you set. See
+  [Running the session service in a container](docs/user-guide/sandboxed-daemon.md).
+
+## Download
+
+Prebuilt packages for every release are on the
+[releases page](https://github.com/jaroslawherod/micold-ai-ide/releases/latest):
+
+| Platform | Package |
+|---|---|
+| Debian, Ubuntu | `.deb` (amd64, arm64) — `sudo apt install ./micold-client_*.deb` |
+| Fedora, RHEL, openSUSE | `.rpm` (x86_64, aarch64) |
+| macOS | `.dmg` (universal) |
+| Windows | `-setup.exe` (x64, arm64) |
+
+Then run `micold-ai-ide` and open a git project; you also need at least one agent CLI
+(for example `claude`) on your `PATH`. Step-by-step guides:
+[installing](https://jaroslawherod.github.io/micold-ai-ide/install.html).
+
+## Build from source
+
+```sh
+mise run run        # run the GUI client (it spawns or attaches the session daemon itself)
+mise run test       # test the whole workspace, as CI does
+mise run test-core  # test only the render-free core — no GUI, much faster
+```
+
+The workspace is three crates: `micold-core` (render-free logic and the wire protocol),
+`micold-client` (the iced GUI) and `micold-daemon` (the session service). `mise.toml` holds the
+canonical commands; a first run in a fresh clone needs `mise trust` once.
+
+Linux build/runtime needs the usual GUI dev libraries (X11/Wayland/xkbcommon); see
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) for the exact package list.
+
+## Documentation
+
+The published site is <https://jaroslawherod.github.io/micold-ai-ide/>: the same documentation
+this repository carries, at the latest release, with the screenshots captured from that release's
+own build.
+
+The sources are here, and are what a pull request edits — the site is built from them, never the
+other way round: [`docs/README.md`](docs/README.md), including
+[installing on macOS](docs/user-guide/install-macos.md),
+[the session service](docs/daemon.md) and
+[running it in a container](docs/user-guide/sandboxed-daemon.md).
+How the site is built and published: [`docs/development/docs-site.md`](docs/development/docs-site.md).
+Changes: [`CHANGELOG.md`](CHANGELOG.md)
+(maintained by release-please and embedded in the app).
+
+## Releases
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please) from
+[Conventional Commits](https://www.conventionalcommits.org/). Each release publishes Debian
+packages (`.deb`) for `amd64` and `arm64`, a macOS disk image
+(`MicoldAIIDE-<version>-universal.dmg`) that runs natively on both Apple silicon and Intel Macs,
+and republishes the documentation site above.
+
+**Downloading the macOS build?** Its first launch is blocked: macOS says it *"could not verify"* the
+application, because the project has no Apple Developer account to sign it with. This is expected.
+Click **Done**, then open **System Settings › Privacy & Security** and click **Open Anyway**. That
+is the whole thing — once, in System Settings, no terminal — and every launch afterwards is silent.
+[Installing on macOS](docs/user-guide/install-macos.md) walks through it.
+
+## License
+
+Apache-2.0.

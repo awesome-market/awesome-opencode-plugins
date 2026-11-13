@@ -1,0 +1,363 @@
+<div align="center">
+
+# Token Tracker
+
+### Know exactly what you're spending on AI — across every CLI
+
+Auto-collect token usage from **20+ AI coding tools**, aggregate it locally, and inspect real cost trends in a browser dashboard served by a loopback CLI backend. No account, hosted service, or native app required — just one command.
+
+[![npm version](https://img.shields.io/npm/v/@ipv9/tokentracker-cli.svg?color=blue)](https://www.npmjs.com/package/@ipv9/tokentracker-cli)
+[![npm downloads](https://img.shields.io/npm/dm/@ipv9/tokentracker-cli.svg?color=brightgreen)](https://www.npmjs.com/package/@ipv9/tokentracker-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![CLI](https://img.shields.io/badge/CLI-macOS%20%C2%B7%20Linux%20%C2%B7%20Windows-lightgrey.svg)](https://www.npmjs.com/package/@ipv9/tokentracker-cli)
+[![GitHub stars](https://img.shields.io/github/stars/pitimon/TokenTracker?style=social)](https://github.com/pitimon/TokenTracker/stargazers)
+
+<br/>
+
+<img src="https://raw.githubusercontent.com/pitimon/TokenTracker/main/docs/screenshots/dashboard-dark.png" alt="Token Tracker dashboard" width="820" />
+
+<br/><br/>
+
+⭐ **If TokenTracker saves you time, please [star it on GitHub](https://github.com/pitimon/TokenTracker).**
+
+</div>
+
+---
+
+## 🤔 Why not just read each provider's billing page?
+
+You can — that is the honest alternative, and for a single tool it is enough. TokenTracker earns its place once you use more than one:
+
+- **One number instead of six tabs.** Claude, Codex, Cursor, Gemini and Copilot each bill in their own dashboard, on their own reset schedule, in their own units. Nobody adds them up for you.
+- **Subscriptions hide the number entirely.** A flat monthly plan shows you a quota bar, not what your usage would have cost. TokenTracker prices every token against public model rates, and you can enter what you pay to see the two side by side. The figure is list-price-equivalent for the window on screen, not a bill you would have paid — and when some usage cannot be priced it says so rather than quietly reporting a smaller number.
+- **Per-project and per-model, not just per-account.** Billing pages answer "what do I owe this month". This answers "which repo, which model, and which hour" — the resolution you need to actually change something.
+- **Quota chips before you hit the wall.** Live plan-limit usage sits on each provider's card, so a 5-hour window running out is something you see rather than something you discover.
+
+If you only use one tool and never care about per-project cost, the provider's own page is genuinely fine. This is for the rest.
+
+---
+
+## ⚡ Quick Start
+
+> **Requires** Node.js **20.18.1+**.
+
+```bash
+npx --yes @ipv9/tokentracker-cli
+```
+
+That's it. The first run installs hooks, syncs your data, and prints the dashboard URL, usually `http://127.0.0.1:7680`. Pass `--open` if you want TokenTracker to ask the OS to open your browser.
+
+Prefer a global install for shorter commands:
+
+```bash
+npm install -g @ipv9/tokentracker-cli
+
+tokentracker            # start the dashboard and print the URL
+tokentracker serve --open
+tokentracker sync       # sync now
+tokentracker status     # check which tools are connected
+tokentracker doctor     # health check
+```
+
+---
+
+## 🌐 Product scope
+
+TokenTracker is developed and released as a **local web dashboard plus loopback CLI backend**. Open the printed `localhost` or `127.0.0.1` URL in a normal browser. There is no hosted/cloud dashboard, native macOS app, or native Windows app in the active product scope.
+
+Historical Swift and C# source remains in the repository as an unsupported archive; it is not tested, versioned, built, or released.
+
+---
+
+## ✨ What you get
+
+- 🔒 **Your usage data never leaves your machine.** Usage metadata only — source, model, token and conversation counts, timestamps, and derived cost; never prompts, responses, message bodies, or private user-code paths. No account, no telemetry, no analytics, no phone-home. TokenTracker does make documented outbound calls *on your behalf* (for example model prices, provider authentication/quotas, and opt-in tools); none upload token-usage metadata.
+- 📊 **One calm web dashboard.** Your whole picture in the browser at a local URL, no login — light or dark, auto-refreshing while the tab is open. [What's on it ↓](#-the-dashboard)
+- 📈 **Quota at a glance, on every card.** Live plan-quota usage (e.g. 5h + weekly) as color-coded chips right on each provider's card — see how close you are to your limits without leaving the overview. Where the provider reports countable units you get the actual number rather than a percentage to convert in your head: GitHub Copilot reads `158/300` premium requests. Full windows + reset countdowns on the Limits page. Covers Claude, Codex, Cursor, Gemini, Kimi, Z.AI, Kiro, Copilot, and Antigravity.
+- 💰 **Cost you can trust — and a price tag when it can't.** 2,200+ models priced from [LiteLLM](https://github.com/BerriAI/litellm) (refreshed daily) with a bundled offline snapshot, so USD totals are right even without a network. When Hermes has already persisted an explicitly actual per-model amount, the local dashboard uses that amount instead of guessing from the alias; it remains gateway-calculated, not a provider invoice. A model too new to have a price is badged **pricing missing** rather than quietly counted as $0, and prices refresh in the background instead of waiting for a restart. Cross-provider records are de-duplicated to match each provider's own billing.
+- 🔌 **20+ tools, zero config.** Claude Code, Codex, Cursor, Gemini, Copilot, Antigravity, OpenCode, Kiro, Zed, Goose, and more — auto-detected, hooks auto-install on first run. Zero to dashboard in ~30 seconds.
+- 🧩 **Skills tab.** Syncs 250+ public skills across your tools.
+
+---
+
+### Environment-specific route estimates
+
+`gpt-6-auto-jev-v2` uses an owner-approved policy: GPT-6.1 Sol 71%,
+Claude Opus 5.5 19%, GPT-6 Luna 5%, GPT-6 Sol (high tier) 4%, and
+Claude Sonnet 5.5 1%. Its route-scoped gateway tariff snapshot yields
+USD/MTok rates of **2.285 input, 11.425 output/reasoning, 0.1185 cache read,
+and 2.85625 cache write**. These are configured gateway rates, not vendor
+list prices. They do not overwrite physical-model pricing.
+
+This is `routed-estimated` / non-exact pricing (Plan Value remains a floor),
+not actual spend. Applying it to an older display period does not reconstruct
+historical routing or invoices. Qualified Hermes actual-cost rows still take
+precedence. Unconfigured IDs in the bare or hyphen-suffixed `gpt-6-auto-jev`
+family stay `routed-unresolved`; other routed
+policies still reject missing/fuzzy child prices. See [#212](https://github.com/pitimon/TokenTracker/issues/212).
+
+## 📊 The dashboard
+
+| Dark | Light |
+|---|---|
+| <img src="https://raw.githubusercontent.com/pitimon/TokenTracker/main/docs/screenshots/dashboard-dark.png" alt="Dashboard — dark" /> | <img src="https://raw.githubusercontent.com/pitimon/TokenTracker/main/docs/screenshots/dashboard-light.png" alt="Dashboard — light" /> |
+
+**On one screen:**
+- **Total tokens + cost** for the selected window (24h / day / 7d / 30d / total / custom), with a browser-timezone "Updated" stamp.
+- **Usage Trend** — token volume over time, right beside the total.
+- **Provider breakdown** — every tool's share and top models, with each provider's live quota chips (e.g. 5h + weekly — a count like `158/300` where the provider reports one, otherwise a percentage) on its card and a click-to-expand per-model drill-down.
+- **Context breakdown** — where Claude's and Codex's tokens actually go (input / output / cache / reasoning), shown side by side.
+- **Activity heatmap** — daily usage at a glance.
+- **Project & daily tables** — per-project totals and a day-by-day breakdown with cost and $/MTok.
+
+Auto-refresh runs only while the tab is visible (`Off` / `30s` / `60s` / `120s`, default `30s`).
+
+---
+
+## 🔌 Supported tools
+
+Auto-detected on first run — no manual plugin or hook wiring:
+
+> **Claude Code · Codex CLI · Cursor · Gemini CLI · GitHub Copilot · Antigravity · Kiro · OpenCode · OpenClaw · Every Code · Hermes · Kimi Code · CodeBuddy · Grok Build · Droid · oh-my-pi · pi · Craft Agents · Kilo CLI · Kilo Code · Roo Code · Zed Agent · Goose**
+
+Each tool is connected one of three ways, all automatic: a **SessionEnd/notify hook** (Claude Code, Codex, Gemini, Every Code, CodeBuddy, Grok Build), a **bundled plugin** linked via the tool's own CLI (OpenCode, OpenClaw), or a **passive reader** that only reads files the tool already writes — SQLite, JSONL, OTEL exports (Cursor, Kiro, Copilot, Zed, Goose, and the rest).
+
+Run `tokentracker status` to see each integration's state. Missing your tool? [Open an issue](https://github.com/pitimon/TokenTracker/issues/new) — a new provider is usually one parser file away.
+
+Rate-limit providers are auto-detected where possible. For Z.AI / GLM Coding Plan quota windows, export `ZAI_API_KEY` or `ZHIPU_API_KEY` before starting the local server. If Claude-compatible tooling is pointed at Z.AI with `ANTHROPIC_BASE_URL=https://api.z.ai/...` and `ANTHROPIC_AUTH_TOKEN`, TokenTracker can reuse that auth token for the local limits endpoint.
+
+---
+
+## 🧩 How it works
+
+```
+AI CLI tools  →  hooks / passive readers  →  local queue files  →  dashboard
+   (logs)         (usage metadata)           (30-min buckets)     (your browser)
+```
+
+1. Your AI tools write logs during normal use.
+2. Lightweight hooks and passive readers parse tool logs locally, then retain only approved usage metadata — never prompts or response content. Some tools keep their logs in SQLite (Cursor, Kiro, Zed and friends); TokenTracker reads those databases without modifying them.
+3. Counts are aggregated into 30-minute UTC buckets and appended to `~/.tokentracker/tracker/queue.jsonl`; per-project counts and local project identifiers are also written to `~/.tokentracker/tracker/project.queue.jsonl`.
+4. The dashboard reads those local queues, derives cost, renders in your browser's timezone, and may cache usage summaries and daily rows in browser localStorage.
+
+No account, no upload of your usage, and no server to sign in to.
+
+---
+
+## 🔐 Privacy
+
+| Protection | What it means |
+|---|---|
+| **Usage metadata only** | Source, model, token and conversation counts, timestamps, and derived cost. Never prompts, responses, message bodies, or private user-code paths. |
+| **Your usage stays local** | Usage rows stay in `queue.jsonl` and `project.queue.jsonl`; derived summaries may also be cached in browser localStorage. No TokenTracker endpoint uploads usage. |
+| **Auditable locally** | Inspect both queue files with `cat ~/.tokentracker/tracker/{queue.jsonl,project.queue.jsonl}` and inspect optional browser localStorage caches in your browser's developer tools. The project queue includes local project identifiers. |
+| **No telemetry** | No analytics, no crash reporting, no phone-home, no account. |
+
+Credentials are used only for declared provider authentication or quota flows and their credential files; never place them in TokenTracker queues, logs, fixtures, diagnostics, API responses, or unrelated outbound payloads.
+
+**Outbound calls.** TokenTracker is local-first, not network-free. It reaches these hosts and no others. None of them carry your usage data — but some do reveal that *you* are asking, so they are listed with who makes the call.
+
+This table is checked in CI against [`outbound-hosts.json`](outbound-hosts.json): a host the code can reach but the file does not declare fails the build, and so does a declared host missing from this table. It is not maintained by memory.
+
+| When | Host | From | Why |
+|---|---|---|---|
+| Pricing refresh (daily) | `raw.githubusercontent.com` | server | The public [LiteLLM](https://github.com/BerriAI/litellm) price list. Anonymous — no credentials, nothing sent. Works offline from a bundled snapshot. |
+| Quota chips + Limits page | `api.anthropic.com`, `chatgpt.com`, `api.openai.com`, `cursor.com`, `www.cursor.com`, `cloudcode-pa.googleapis.com`, `api.kimi.com`, `api.z.ai`, `api.github.com` | server | Asks *your* provider about *your* plan limits, using credentials already on your machine. Only for providers you actually use. |
+| Token refresh | `auth.openai.com`, `oauth2.googleapis.com`, `auth.kimi.com` | server | Renews those same provider credentials when they expire. |
+| Skills tab — search | `skills.sh` | server | Searches the public skills directory. Sends the terms you typed. Only when you open that tab. |
+| Skills tab — install | `api.github.com`, `raw.githubusercontent.com` | server | Reads a public repository's file tree and downloads the skill's files. Carries the repository owner, name, branch and path — no usage data. |
+| Currency conversion | `open.er-api.com` | **browser** | Public USD exchange rates. Anonymous. Only when you pick a non-USD currency. |
+| Star count in the header | `api.github.com` | **browser** | The star count for this project's own repository — a fixed public URL that says nothing about you. |
+| IP check page | `ip.net.coffee`, `d.ip.net.coffee`, `1.1.1.1`, `claude.ai`, `www.anthropic.com` | server + **browser** | Only if you open that page, whose entire purpose is showing you your own IP, your DNS resolver, and whether Anthropic is reachable. The `d.` subdomain is a per-run DNS probe: your browser resolves a unique name so the page can see which resolver answered. |
+| IP check page — VPN leak test | `stun.l.google.com` (Google), `stun.cloudflare.com` | **browser** | WebRTC STUN binding requests, which is how the page detects whether a VPN leaks your real address — and which necessarily discloses that address to the STUN server. **This is the one place the dashboard talks to Google.** Only if you open that page. |
+| `npx` startup | `registry.npmjs.org` | server | How `npx` works — it downloads the package. A global install avoids it. |
+
+**What is deliberately absent:** the Projects panel does not fetch repository avatars or star counts. Doing so would have put the name of a repository you have checked out — a private one included — into a URL sent to GitHub from your browser. It did, until [#100](https://github.com/pitimon/TokenTracker/issues/100). Project rows now render a local icon.
+
+---
+
+## 🛡️ Security audit
+
+TokenTracker was audited on 18 October 2026 at commit `33c87e5`, using a methodology adapted from [Anthropic's OSS Scanner](https://github.com/anthropics/oss-scanner): a threat model first, then a sink-driven code review, then a dynamic round — live DNS-rebinding and CORS probes against the local server, hostile-file fuzzing of the session parsers, and a data-flow review of every HTML rendering path. **Result: 0 confirmed vulnerabilities.** Full report: [docs/security-scan-20261018.md](docs/security-scan-20261018.md).
+
+![Security scan summary — 0 confirmed findings](docs/security-scan-20261018.svg)
+
+---
+
+## 📦 Configuration
+
+Most users never touch this — defaults are sensible.
+
+| Variable | Description | Default |
+|---|---|---|
+| `TOKENTRACKER_DEBUG` | Debug output (`1` to enable) | — |
+| `TOKENTRACKER_HTTP_TIMEOUT_MS` | HTTP timeout (ms) | `20000` |
+| `CODEX_HOME` | Override Codex CLI directory | `~/.codex` |
+| `GEMINI_HOME` | Override Gemini CLI directory | `~/.gemini` |
+| `TOKENTRACKER_GROK_HOME` | Override Grok Build directory | `~/.grok` |
+
+To force a dashboard port, use your shell's environment-variable syntax (otherwise TokenTracker auto-picks the next free port from `7680`):
+
+```bash
+PORT=7700 npx --yes @ipv9/tokentracker-cli serve
+```
+
+```powershell
+$env:PORT = 7700
+npx --yes @ipv9/tokentracker-cli serve
+```
+
+Browser auto-open is opt-in: `tokentracker serve --open`. Background services and headless shells should use the default no-open behavior and open the printed URL manually.
+
+---
+
+## ⏰ Always-on, without a terminal (macOS)
+
+For an always-on local web dashboard, the repo ships a launchd installer. It registers two LaunchAgents — the browser dashboard on port `7680`, and a periodic background sync — both pinned to a specific published npm version:
+
+```bash
+git clone https://github.com/pitimon/TokenTracker.git
+cd TokenTracker
+./scripts/install-local-service.sh          # remove later with ./scripts/uninstall-local-service.sh
+```
+
+macOS only; it uses `launchd` directly. On Linux, the same effect is a small systemd user unit running `tokentracker serve --sync --no-open`.
+
+---
+
+## 🧰 Development
+
+```bash
+git clone https://github.com/pitimon/TokenTracker.git
+cd TokenTracker && npm install
+npm run dashboard:build && node bin/tracker.js
+npm run ci:local     # the full gate: build + tests + validators
+```
+
+Setup details, the test layout, and how to add a new tool integration are in [CONTRIBUTING.md](CONTRIBUTING.md). Source-backed engineering documentation starts at [`openwiki/README.md`](openwiki/README.md).
+
+---
+
+## 🔧 Troubleshooting
+
+<details>
+<summary><b>A tool isn't being detected</b></summary>
+
+<br/>
+
+```bash
+tokentracker status      # see each integration's state
+tokentracker doctor      # deeper health check
+```
+
+If a tool you use shows as not configured, run `tokentracker init` — it re-runs detection and installs anything missing. Still missing? [Open an issue](https://github.com/pitimon/TokenTracker/issues/new) with the `doctor` output.
+
+</details>
+
+<details>
+<summary><b>Port 7680 is already in use</b></summary>
+
+<br/>
+
+The server auto-picks the next free port (`7681`, `7682`, …) and logs it on startup. To force one, use the Bash or PowerShell command in [Configuration](#-configuration). To see what's holding port `7680`:
+
+```bash
+lsof -i :7680
+```
+
+```powershell
+Get-NetTCPConnection -LocalPort 7680 -ErrorAction SilentlyContinue
+```
+
+</details>
+
+<details>
+<summary><b>Linux: <code>spawn xdg-open ENOENT</code></b></summary>
+
+<br/>
+
+TokenTracker does not require `xdg-open` to run. The dashboard URL is printed on startup, so you can open it manually from another browser.
+
+If you explicitly pass `--open` on a desktop Linux machine and see `spawn xdg-open ENOENT`, install the desktop opener package:
+
+```bash
+sudo apt update
+sudo apt install -y xdg-utils
+```
+
+On servers, SSH sessions, CI, systemd units, and other headless environments, leave browser opening disabled and run:
+
+```bash
+tokentracker serve --sync --no-open
+tokentracker doctor
+```
+
+</details>
+
+<details>
+<summary><b>Windows / PowerShell: start TokenTracker with npx</b></summary>
+
+<br/>
+
+For an interactive PowerShell session:
+
+```powershell
+npx --yes @ipv9/tokentracker-cli serve --open
+```
+
+For headless PowerShell, CI, or a background process, keep browser opening disabled:
+
+```powershell
+npx --yes @ipv9/tokentracker-cli serve --no-sync --no-open
+```
+
+TokenTracker never stops another process to free a port. When no port is specified it tries the next one up (`7681`, `7682`, …); an explicit `--port` or `$env:PORT` that is already in use fails startup and prints an alternative command to run.
+
+</details>
+
+<details>
+<summary><b>Remove everything</b></summary>
+
+<br/>
+
+```bash
+tokentracker uninstall
+```
+
+Removes every hook TokenTracker installed across all detected tools, plus local config and data. Safe to re-run.
+
+One thing it does **not** touch: if you set up the always-on macOS service yourself with `scripts/install-local-service.sh`, that LaunchAgent is installed outside the CLI and keeps restarting the dashboard. Remove it first:
+
+```bash
+./scripts/uninstall-local-service.sh
+```
+
+(The CLI never installs a LaunchAgent, so if you have only ever run `npx`/`tokentracker`, there is nothing extra to clean up.)
+
+</details>
+
+---
+
+## 🤝 Contributing & Support
+
+- **Bugs / features** — [open an issue](https://github.com/pitimon/TokenTracker/issues/new)
+- **Security** — see [SECURITY.md](SECURITY.md) (please don't file public issues for security reports)
+- **Pull requests** — see [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## 🙏 Credits
+
+The Clawd character design belongs to Anthropic. This is a community project with no official affiliation with Anthropic.
+
+## License
+
+[MIT](LICENSE)
+
+---
+
+<div align="center">
+
+**Token Tracker** — quantify your AI output.
+
+<a href="https://www.npmjs.com/package/@ipv9/tokentracker-cli">npm</a> · <a href="https://github.com/pitimon/TokenTracker">GitHub</a>
+
+</div>

@@ -1,0 +1,76 @@
+# Supercode - a collection of OpenCode v2 plugins and tools
+
+I spend most of my day inside OpenCode, so I started fixing the small things to make it more convinient. Then those fixes turned into this — a little shelf of tools I actually use every day.
+
+Every project here started as a personal itch and lives in this repo as a git submodule.
+
+## [Command Gate](https://github.com/Glaicer/supercode-command-gate)
+
+Coding agents run dozens of shell commands per session. OpenCode's permissions are coarse: you either approve every `ls` by hand, or allow everything and hope the agent never hallucinates a destructive one.
+
+Command Gate is a permission layer that sits in between. It reads each command, decides whether it's safe, and only stops you when it matters.
+`ls src/` passes instantly by deterministic rules, no model call, no delay. `rm -rf /` is denied automatically. More complex commands and scripts the agent writes go to an LLM assessor that checks them against your session context: your goal, your latest request, and the agent's reasoning.
+
+Approvals are remembered until your intent or the project's scripts change. If OpenCode already blocks a command, Command Gate won't override that.
+
+## [nonocode](https://github.com/Glaicer/supercode-nonocode)
+
+Let your agent loose, just not on your whole machine. nonocode uses [nono](https://nono.sh/) to run OpenCode v2 in an OS-level sandbox. The agent can write to your project, temporary files, and OpenCode's own directories; the operating system blocks writes elsewhere.
+
+Pairs with Command Gate: that one decides which commands may run, this one limits where they can write. The sandbox protects against accidental writes, not deliberate escape attempts. See its README for installation.
+
+## [Token Usage Panel](https://github.com/Glaicer/supercode-token-usage-panel)
+
+See where the tokens went with detailed spending stats, cache rate, cost, and live token-per-second generation speed in a collapsible sidebar panel. 
+
+The totals include the parent session and every level of subagents beneath it.
+
+## [Session Recap](https://github.com/Glaicer/supercode-session-recap)
+
+A collapsible recap in the session sidebar: after every turn, two sentences max on where things stand. For when you return to a session after lunch and past-you left no notes.
+
+The recap is written by OpenCode's `small_model` — the same lightweight model that generates session titles — inside a throwaway child session that gets deleted afterwards. It costs almost nothing and leaves zero trace in your actual conversation. You can also configure recap model in plugin settings.
+
+## [Autoinvoke Skill Gate](https://github.com/Glaicer/supercode-autoinvoke-skill-gate)
+
+Stops the model from auto-using your manual-only skills. OpenCode v2 already has a mechanism to prevent model from invoking such skills; this plugins adds support for Claude Code and Codex markers. OpenCode v1 doesn't hide manual-only skills from the model, so this plugin completely remove them from `<available_skills>`section. Nothing is blocked: `/my-skill` or "use my-skill" still works — it just never happens automatically.
+
+## [Plugin Updater](https://github.com/Glaicer/supercode-plugin-updater)
+
+OpenCode caches npm plugins and managed tools (prettier, pyright, …) forever. Whatever version was current on first install stays there. The fix used to be deleting cache folders by hand, but this needs to be done regularly, or you need to set up a schedule. Of course, I would like something to notify me when a new version of the package is released.
+
+It checks npm once a day and toasts you when something is stale; `/plugin-updates` opens the review screen where you can observe plugins and managed tools and update them.
+
+## [Hashline Editing](https://github.com/Glaicer/supercode-hashline-editing)
+
+An OpenCode plugin for editing files by line number without the usual problems of search-and-replace or shifting line positions. 
+
+Each read returns a [PATH#TAG] header tied to the exact file version you saw, and edit checks that tag before writing. Patches can replace, insert, append, and update multiple files at once, while line numbers always refer to the version you read. Duplicate code is safe, patches stay small, and if any file changed on disk, the whole edit stops before anything is written.
+
+## [Context Progress Bar](https://github.com/Glaicer/supercode-context-progress-bar)
+
+Replaces the built-in `Context` section in the TUI sidebar with a progress bar, so window occupancy is visible at a glance. Can optionally hide MCP section too.
+
+Pairs with Token Usage Panel: that one shows total spend for the session family, this one shows window occupancy.
+
+## [Turn Timer](https://github.com/Glaicer/supercode-turn-timer) (OpenCode v1 only)
+
+Shows how long the current turn has been running, live in the prompt footer — right after the built-in `▣ Build · <model>`
+
+This plugin supports OpenCode v1 only as OpenCode v2 has builtin mechanism to show you turn time.
+
+## [Skill Commands](https://github.com/Glaicer/supercode-skill-commands) (OpenCode v1 only)
+
+For OpenCode v1, makes skills discoverable in `/` autocomplete. Skills already work as slash commands in v1, but the TUI doesn't list them in the popup; this plugin makes them visible without changing how they run.
+
+**OpenCode v2:** This plugin is no longer needed. Use the built-in `@` skill picker instead; no installation is required.
+
+---
+
+## Install
+
+Each project is its own repo, included here as a submodule. Start with its own README for installation. For plugins:
+
+```bash
+opencode plugin add @glaicer/supercode-<name>
+```
