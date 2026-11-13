@@ -1,0 +1,109 @@
+# [sreetamdas.com](https://sreetamdas.com)
+
+Thanks for checking out my personal website and blog! Here's the source code for it :)
+
+## Tech stack
+
+- [React](https://react.dev) + [TanStack Start](https://tanstack.com/start) (TanStack Router)
+- [Vite](https://vitejs.dev)
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS](https://tailwindcss.com)
+- Content: MDX processed via [Content Collections](https://github.com/sdorra/content-collections)
+- Hosting + data: [Cloudflare Workers](https://workers.cloudflare.com) and [D1](https://developers.cloudflare.com/d1/) (SQLite at the edge) via [Drizzle](https://orm.drizzle.team)
+- Native analytics via [stats.sreetamdas.com](https://stats.sreetamdas.com)
+- [React Icons](https://react-icons.github.io/react-icons)
+
+## Overview
+
+For a while, I had trouble following up on my side-projects so I rebuilt my website: I could now play around with pretty much everything.
+
+The website is pretty minimal, and should hopefully provide a seamless experience. If you notice anything that you'd like to improve, feel free to [create an issue](https://github.com/sreetamdas/sreetamdas.com/issues/new) and/or send a pull request!
+
+### The mini-game
+
+If you don't know what I am referring to, that's great! You haven't discovered the mini-game yet. If you'd like to check it out, please open up the browser console on [sreetamdas.com](https://sreetamdas.com). 😉
+
+You can check out some more details below ⬇️
+
+---
+
+<details>
+	<summary><strong>❗❗ HERE BE SPOILERS ❗❗</strong></summary>
+
+Well, the cat's out of the bag: there's a mini-game on <a href="https://sreetamdas.com">sreetamdas.com</a>! If you're forking this repository for yourself, be aware that you will be forking that as well. 😅 It isn't a "module" as such that you can just remove from the website — though the game lies in the <code>/foobar</code> subdirectory.
+
+Pretty much wherever the mini-game is present in the repo, it's placed under a <code>foobar</code> subfolder (eg. in <code>components</code>) so you'll know when you're about to come across mini-game related code. 😄
+
+</details>
+
+---
+
+### Page views & likes
+
+Every blog post has a view counter and a little heart you can tap — both live in [Cloudflare D1](https://developers.cloudflare.com/d1/). Likes do not need an account: the server issues a signed `HttpOnly` `like_id` cookie for anonymous identity, stores only HMAC-derived hashes, and uses a separate salted IP hash as a per-page abuse ceiling. The public count is recomputed from the real likes each time, so it cannot quietly drift out of sync. A bit more on how it is wired up (plus a recount script) lives in the [Contributing guide](CONTRIBUTING.md).
+
+## Development/Contributing
+
+Please check out the [Contributing guide](CONTRIBUTING.md)
+
+### Local development
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Notes:
+
+- `pnpm dev` runs the Vite dev server with Content Collections integration.
+- `pnpm build` runs `pnpm build:content-collections` automatically via `prebuild`.
+- `pnpm deploy` applies pending D1 migrations, runs `pnpm build`, and deploys production via Wrangler.
+- `pnpm deploy:staging` applies the same migration gate to the staging D1 (`sreetamdas_com_staging`) before building and deploying staging.
+
+### Environment variables
+
+Commonly used values:
+
+- `VITE_SITE_URL` (e.g. `https://sreetamdas.com`)
+- Buttondown newsletter: `BUTTONDOWN_API_KEY` (optional; falls back to mocks)
+- Keebs page data (Notion + Imgur):
+  - `NOTION_TOKEN`
+  - `NOTION_KEEBS_PAGE_ID`
+  - `IMGUR_API_CLIENT_ID`
+  - `IMGUR_KEEBS_ALBUM_HASH`
+- RWC page gist: `GITHUB_RWC_GIST_ID` (`VITE_GITHUB_RWC_GIST_ID` is also supported
+  if you intentionally want the gist id to be public build-time config)
+- RWC private GitHub API token: `GITHUB_TOKEN` (optional; server-only)
+
+Only client-safe values should use the `VITE_` prefix. API keys and tokens should stay
+server-only and be provided as Cloudflare secrets or server env vars.
+
+#### Prerendering in Cloudflare CI/Workers Builds
+
+TanStack Start prerendering runs at build time, so missing build-time env vars can fail data loading.
+
+- Set `CLOUDFLARE_INCLUDE_PROCESS_ENV=true` in CI/Workers Builds.
+- Provide the required env vars in your CI environment.
+- Optionally commit a reference-style `.env` file (not secrets) so build-time resolution works:
+
+```env
+BUTTONDOWN_API_KEY=${BUTTONDOWN_API_KEY}
+NOTION_TOKEN=${NOTION_TOKEN}
+NOTION_KEEBS_PAGE_ID=${NOTION_KEEBS_PAGE_ID}
+IMGUR_API_CLIENT_ID=${IMGUR_API_CLIENT_ID}
+IMGUR_KEEBS_ALBUM_HASH=${IMGUR_KEEBS_ALBUM_HASH}
+GITHUB_RWC_GIST_ID=${GITHUB_RWC_GIST_ID}
+GITHUB_TOKEN=${GITHUB_TOKEN}
+```
+
+### Newsletter
+
+I also run a _very awesome_ newsletter! It's got curated links keeping up with the JavaScript, React and webdev world.
+And mechanical keyboards! Check it out at [sreetamdas.com/newsletter](https://sreetamdas.com/newsletter) :)
+
+You can also [view previous issues](https://buttondown.email/sreetamdas/archive),
+and [subscribe via RSS](https://buttondown.email/sreetamdas/rss)!
+
+## License
+
+Licensed under the [MIT License](LICENSE). Feel free to use in your own projects, with attribution please. A 🌟star on the repository would be super cool too! 😄
