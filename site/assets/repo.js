@@ -472,6 +472,10 @@ function verifyPanel(d) {
   const flags = (caps.red_flags || []).map(x => `<li>${esc(x)}</li>`).join('');
   const run = v.run_url
     ? `<a class="rp-more" href="${esc(v.run_url)}" target="_blank" rel="noopener">${t('rp.verif.run')} ↗</a>` : '';
+  // the market's own detail page carries the install command + full
+  // scan/verdict evidence — link back instead of re-deriving the hint here
+  const mkt = d.market_url
+    ? ` <a class="rp-more" href="${esc(d.market_url)}" target="_blank" rel="noopener">${t('rp.verif.market')} ↗</a>` : '';
   const note = status === 'unverified' || status === 'skipped'
     ? `<p class="rp-verif-note">${esc(t('rp.verif.note'))}</p>` : '';
   return `<div class="rp-verif rp-verif-${esc(status)}">
@@ -480,7 +484,7 @@ function verifyPanel(d) {
     </div>${note}
     ${findings ? `<details class="rp-verif-det"><summary>${t('rp.verif.findings')}</summary><ul>${findings}</ul></details>` : ''}
     ${flags ? `<details class="rp-verif-det rp-verif-warn"><summary>${t('rp.verif.redflags')}</summary><ul>${flags}</ul></details>` : ''}
-    ${run}`;
+    ${run}${mkt}`;
 }
 
 function releasePanel(d) {

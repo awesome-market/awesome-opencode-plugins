@@ -22,8 +22,8 @@ The catalog is UNTRUSTED INPUT: only known keys are read, values are
 type-coerced and string lengths capped (see _txt).
 
 Env:
-  OCM_INDEX_URL — catalog index URL (default: dev fork Pages mirror;
-                  production points at awesome-market upstream)
+  OCM_INDEX_URL — catalog index URL (default: awesome-market upstream
+                  production index; dev builds may point at a fork mirror)
   OCM_TOP_README — if set, also fetch npm registry readmes for the top-N
                    entities by downloads (bounded; off by default)
 """
@@ -47,8 +47,20 @@ WATCHLIST_PATH = DATA_DIR / "watchlist.json"
 
 INDEX_URL = os.environ.get(
     "OCM_INDEX_URL",
-    "https://terry2010.github.io/awesome-opencode-market/index.json",
+    "https://awesome-market.github.io/awesome-opencode-market/index.json",
 )
+# Per-entry authority page on the market's own site — install command +
+# full scan/verify evidence live there; boards link back for "how to
+# install" instead of duplicating the hint. Segments are quoted
+# individually (nested slugs like owner/repo → p/owner/repo.html).
+MARKET_DETAIL = (
+    "https://awesome-market.github.io/awesome-opencode-market/p/{}.html"
+)
+
+
+def _market_url(slug: str) -> str:
+    parts = [urllib.parse.quote(s, safe="") for s in slug.split("/") if s]
+    return MARKET_DETAIL.format("/".join(parts)) if parts else ""
 # OpenDock snapshot: npm_id/repo-slug -> descriptionZh, fills the zh field
 # the upstream catalog leaves empty. One extra GET, tolerant of failure.
 ENRICH_URL = os.environ.get(
@@ -191,6 +203,7 @@ def convert(e: dict, zh: dict | None = None) -> dict | None:
                                    (_txt((e.get("source") or {}).get("id"), 300) or "").lower())
                                or (zh or {}).get(
                                    (_txt((e.get("source") or {}).get("repo"), 200) or "").lower())),
+            "market_url": _market_url(slug),
             "source_repo": _txt((e.get("source") or {}).get("repo"), 200),
             "npm_id": _txt((e.get("source") or {}).get("id"), 300),
             "avatar": _avatar(e, owner),
