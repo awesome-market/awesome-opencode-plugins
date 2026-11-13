@@ -1464,6 +1464,7 @@ def main() -> int:
             },
             "source_repo": det.get("source_repo"),
             "npm_id": det.get("npm_id"),
+            "market_url": det.get("market_url"),
             "verification": det.get("verification"),
             "approval": det.get("approval"),
             "capabilities": det.get("capabilities"),
