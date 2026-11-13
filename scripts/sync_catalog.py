@@ -203,7 +203,11 @@ def convert(e: dict, zh: dict | None = None) -> dict | None:
                                    (_txt((e.get("source") or {}).get("id"), 300) or "").lower())
                                or (zh or {}).get(
                                    (_txt((e.get("source") or {}).get("repo"), 200) or "").lower())),
-            "market_url": _market_url(slug),
+            # market detail page exists only for approved entries —
+            # approval=='pending' is held back by the market's isVisible gate,
+            # so linking it would 404
+            "market_url": ("" if _txt(e.get("approval"), 20) == "pending"
+                           else _market_url(slug)),
             "source_repo": _txt((e.get("source") or {}).get("repo"), 200),
             "npm_id": _txt((e.get("source") or {}).get("id"), 300),
             "avatar": _avatar(e, owner),
