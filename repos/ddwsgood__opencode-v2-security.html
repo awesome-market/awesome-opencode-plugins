@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ddwsgood/opencode-v2-security · OpenCode Plugins</title>
+<meta name="description" content="Autonomous execution-boundary security for OpenCode V2: scoped assessments, one-call authorization, bypass leases, and session read/write permission ceilings.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-v2-security, ddwsgood, ddwsgood/opencode-v2-security, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ddwsgood__opencode-v2-security">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ddwsgood/opencode-v2-security · OpenCode Plugins">
+<meta property="og:description" content="Autonomous execution-boundary security for OpenCode V2: scoped assessments, one-call authorization, bypass leases, and session read/write permission ceilings.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ddwsgood__opencode-v2-security">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ddwsgood/opencode-v2-security", "codeRepository": "https://github.com/DDwsgood/opencode-v2-security", "url": "https://opencode-plugins.zhuikan.com/repos/ddwsgood__opencode-v2-security", "description": "Autonomous execution-boundary security for OpenCode V2: scoped assessments, one-call authorization, bypass leases, and session read/write permission ceilings.", "author": {"@type": "Organization", "name": "ddwsgood", "url": "https://github.com/DDwsgood"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-25", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server,tui"}</script>
+</head>
+<body data-repo="ddwsgood/opencode-v2-security" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ddwsgood/opencode-v2-security</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ddwsgood__opencode-v2-security"><img class="rp-side-av" src="https://github.com/DDwsgood.png?s=300" width="300" height="300" alt="ddwsgood avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-v2-security</div>
+      <a class="rp-side-owner" href="https://github.com/DDwsgood">ddwsgood</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/DDwsgood">ddwsgood</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-v2-security</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Autonomous execution-boundary security for OpenCode V2: scoped assessments, one-call authorization, bypass leases, and session read/write permission ceilings.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-25</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="ddwsgood__opencode-dsh-godmode"><img class="rp-same-av" src="https://github.com/DDwsgood.png" alt="" loading="lazy">opencode-dsh-godmode</a><a class="rp-same-link" href="ddwsgood__opencode-usage-stat"><img class="rp-same-av" src="https://github.com/DDwsgood.png" alt="" loading="lazy">opencode-usage-stat</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/DDwsgood/opencode-v2-security">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">1.10.0</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-v2-security/v/1.10.0">1.10.0 ↓</a><span class="rp-dl-ver">1.10.0</span><span class="rp-dl-date">2026-11-02</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">19</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-v2-security
+
+ 原生 Windows 后端已通过所选范围的真实验收：PowerShell 7 与 cmd。 包含文件／网络隔离、只读、并发授权、取消和 ACL 恢复；本轮 Windows 宿主链路分批通过 12 项检查，1 项外部网络放行检查未重测。Git Bash／MSYS／Cygwin 和 Windows PowerShell 5.1 明确拒绝，不自动裸跑。真实 OpenCode 服务与在线 SystemOne 的端到端部署尚未验收。
+
+OpenCode v2 全自动执行边界安全插件。Linux 与原生 Windows shell、内置文件工具采用静态审查和统一动态授权；workspace-write 是审查基准。Linux 在运行时观察越界，Windows 启动前审查后保留 LPAC、受限令牌与 Job Object 的系统边界。没有等待人工确认的判定分支。插件使用 v2 effect 插件 API（{ id, effect(ctx) }，effect 返回 Effect.Effect）。
+
+1.5.0 保持现有配置和 category 名称兼容；研究和冻结验证依据见 RESEARCH-v1.5.0.md。授权针对同一命令与事实报告，不把未选项的绝对概率、弱提示或批准后的随机重审当成新的拒绝理由。
+
+ 1.10.0 Windows 沙箱与可信审查上下文
+
+- 范围：Linux shell、原生 Windows PowerShell 7／cmd 和 OpenCode 内置文件工具。内置文件工具使用真实路径与权限检查，不宣称在宿主内建立 OS 沙箱。全部 codemode 工具、MCP、其他直连自定义工具不纳入这条链路。TUI 负责当前模式与授权状态展示。
+- 平台兼容前提：新增 Windows 沙箱不改变原有 Linux 默认值、路径含义、静态规则优先级、运行时观察、执行路线或失败输出语义；WSL 仍走 Linux 链路，不因调用 .exe 而自动切换原生 Windows 沙箱。Windows 专用改动必须按实际平台分流，后续 Linux 沙箱更新先检查这一基线。另行要求的 SystemOne／AGENTS／skill 授权上下文增强是独立的全平台策略更新，不属于“Linux 行为完全未变”的声明。
+- 三种模式：TUI 统一显示 [Read only]、[Auto mode]、[Bypass mode]。Auto 可追加 , bypassing: filesystem,network 和 , custom bypassing on；custom 授权正文不显示在状态栏。
+- 用户切换：/perm r、ro、readonly、read-only 选择 Read only；/perm w、rw、auto 选择 Auto；/perm bypass 选择 Bypass。/bypass all、、ALL、yolo 也选择 Bypass，不再表示“全部类别”。类别和 custom 豁免属于 Auto 的附加授权，祖先只读上限仍优先。
+- 单一策略：HARD 策略已移除，不能通过配置或旧审查器选择。旧 strictness: &quot;LOOSE&quot; 仅作为单一策略的兼容拼写，不是另一种模式。
+- 审查基准：工作区与配置的临时目录可写，其他位置的写入以及进程、远端、权限和明确凭据效果进入静态审查。内置文件工具使用真实路径检查，而不是宣称在宿主进程内建立 OS 沙箱。
+- 静态层：Linux 运行时边界复核使用 ALLOW/ASK：known-safe 放行，不能证明则交给 JEV；Windows 在启动前完成静态／动态审查。闭合底线、独立 /perm 权限上限和无效输入仍可拒绝。JS/TS/Python 文件中的命令字符串不因源码文本匹配被当作已执行的底线。
+- 放行后的执行：Linux 事件许可继续原进程和观察，不重放先前步骤；需要整树许可的不透明能力另行审查。Windows 启动预审放行后仍保留 OS 能力边界。模型授权不改变真实 OS 权限、Windows ACL 或 sudo 凭据要求。
+- 动态层：默认使用 jev-latest 与包内 src/security/v11-gold-prompt.json；dynamicReview.jev.model 可覆盖主模型（例如 clef），提示词题组和裁决策略不变。六个效果概率题与四个策略题共 10 题，Read only 增加符合性题后为 11 题。Variant B 的物质性阈值为 = 0.40；闭合底线、只读限制及已确认未覆盖的物质效果先于补证回退，不以授权降低效果概率，不回退到另一套模型题组。
+- 仅 JEV：不再启用 OpenAI-compatible 审查器或跨引擎回退；当前 effects/L3 生产链的可用性只依赖 dynamicReview.jev 的端点、模型和密钥环境变量，并可配置最多两个同协议备用端点。旧 OpenAI 字段兼容读取但不起作用，无需补齐它们。当前实现使用已核验的 systemone 协议；decisions 的不同协议尚未接入。
+- r8 题组：当前策略版本为 v12-systemone-aligned-20261101-r8，RW/RO 分别使用该版本及其 -readonly 后缀，旧缓存不会混用。题数与概率含义不变，新增可信指示的授权来源规则。covered_by_bypass 只认当前 active bypass，普通工具文本或过期授权不算；判断以实际 argv/targets 和嵌套效果为准，打印／保存的非执行示例不算实际效果；Read only 允许 host-listed scratch 内临时数据写入，但不能越过独立保护与 floor。
+- 授权：真实用户消息、适用的 AGENTS.md、已加载 skill 的 host 注册正文及可信 /bypass 状态进入请求；可信 question 答复只保留实际选择。AGENTS.md 来源由真实会话位置和 host 来源快照确定，不从普通工具输出或伪造标签获取。类别豁免不扩大独立读写上限；最新限制或撤回优先。完整授权摘要绑定正向与负向批准缓存以及临时写根，指示变化不会复用旧批准。
+- 补证终局：最多一次有界补证后复审。明确底线、只读违规和 uncovered 否决不放宽；真正耗尽补证的未知由 dynamicReview.onUncollectable 决定 allow 或 deny，默认 allow，记录为接受未知而非证明安全。协议或网络故障另按 failPolicy 处理。
+- 重试限制：不把普通错误文本当作许可，也不自动重跑可能已有未知副作用的整条脚本。单次获准的执行例外与永久扩大沙箱边界不同。
+- 只读会话：/perm 没有写权限时仍执行独立只读上限，审查放行及类别豁免都不授予写权限。Windows 只读 shell 必须有可用原生隔离；Linux 获准的读写直接执行路线不依赖 bwrap。
+- 隐私范围：普通日志与 .bash_history、.zsh_history 不因文件名被当作隐私。具体密钥、令牌和敏感环境变</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/DDwsgood/opencode-v2-security/releases"><b>1.10.0</b> <span class="rp-rel-tag">1.10.0</span> <span class="rp-item-extra">2026-11-02</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/ddwsgood__opencode-v2-security.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

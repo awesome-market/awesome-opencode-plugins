@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hdldd/bilibili-obsidian-notes · OpenCode Plugins</title>
+<meta name="description" content="把课程/讲座视频整理成可验证的 Obsidian 笔记库（B 站为主，也吃任何 yt-dlp 源如 YouTube）：本地 SenseVoice 转写（音频不出机器）、按讲师自己的结构拆知识点、每张图标视频时间点、HARD=0 才算交付、整门课可续跑并可派子代理并行写。含 11 个脚本 + 离线测试样本库。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="bilibili-obsidian-notes, hdldd, hdldd/bilibili-obsidian-notes, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, memory">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/hdldd__bilibili-obsidian-notes">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="hdldd/bilibili-obsidian-notes · OpenCode Plugins">
+<meta property="og:description" content="把课程/讲座视频整理成可验证的 Obsidian 笔记库（B 站为主，也吃任何 yt-dlp 源如 YouTube）：本地 SenseVoice 转写（音频不出机器）、按讲师自己的结构拆知识点、每张图标视频时间点、HARD=0 才算交付、整门课可续跑并可派子代理并行写。含 11 个脚本 + 离线测试样本库。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/hdldd__bilibili-obsidian-notes">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "hdldd/bilibili-obsidian-notes", "codeRepository": "https://github.com/HDLDD/bilibili-obsidian-notes", "url": "https://opencode-plugins.zhuikan.com/repos/hdldd__bilibili-obsidian-notes", "description": "把课程/讲座视频整理成可验证的 Obsidian 笔记库（B 站为主，也吃任何 yt-dlp 源如 YouTube）：本地 SenseVoice 转写（音频不出机器）、按讲师自己的结构拆知识点、每张图标视频时间点、HARD=0 才算交付、整门课可续跑并可派子代理并行写。含 11 个脚本 + 离线测试样本库。", "author": {"@type": "Organization", "name": "hdldd", "url": "https://github.com/HDLDD"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,memory"}</script>
+</head>
+<body data-repo="hdldd/bilibili-obsidian-notes" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">hdldd/bilibili-obsidian-notes</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="hdldd__bilibili-obsidian-notes"><img class="rp-side-av" src="https://github.com/HDLDD.png?s=300" width="300" height="300" alt="hdldd avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">bilibili-obsidian-notes</div>
+      <a class="rp-side-owner" href="https://github.com/HDLDD">hdldd</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/HDLDD">hdldd</a>
+        <span class="rp-sep">/</span><span class="rp-name">bilibili-obsidian-notes</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">把课程/讲座视频整理成可验证的 Obsidian 笔记库（B 站为主，也吃任何 yt-dlp 源如 YouTube）：本地 SenseVoice 转写（音频不出机器）、按讲师自己的结构拆知识点、每张图标视频时间点、HARD=0 才算交付、整门课可续跑并可派子代理并行写。含 11 个脚本 + 离线测试样本库。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/memory">memory</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/HDLDD/bilibili-obsidian-notes">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">bilibili-obsidian-notes
+
+把课程/讲座视频整理成可复习、可检索、可续做的 Obsidian 笔记库，并且能被脚本验证。
+以 B 站为主，任何 yt-dlp 能解析的源（YouTube 等）都走同一条链路。
+
+English: an agent skill that turns lecture videos into a structured, verified Obsidian
+knowledge base. Bilibili-first, but any yt-dlp-supported source works and keeps the same
+pipeline. Transcription runs fully local (sherpa-onnx SenseVoice) — no audio leaves your
+machine. It has been driven end-to-end over 100-lecture courses, so the batch pipeline and its
+failure modes are documented from real runs, not designed on paper.
+
+- 核心不是「转写全文」，而是按讲师自己的结构落成带出处、带截图、带自测的知识点笔记。
+- 每一处产出都对得上磁盘：verify_course.py 要求 HARD=0 才算交付。
+- 整门课（几十到上百讲）走批处理：主代理串行采集，子代理并行写笔记，索引由脚本回填。
+
+ 它解决什么问题
+
+一条 45 分钟的 B 站课程视频，常见做法的产出是「一坨转写文本 + 三段总结」。三个月后回来看，这些东西基本没用：
+
+- 术语被 ASR 听成同音字，而且错了你不知道（坡印廷→坡形亭、媒质→酶质、时谐场→实写场）；
+- 公式丢了单位和适用条件，矢量方向丢了判据；
+- 想回看那块板书，但没留时间点，只能重刷整条视频；
+- 分不清哪句是老师讲的、哪句是自己补的，复习时把补充内容当成课上原文；
+- 笔记之间没有链接，或者链接在 Obsidian 里点不开、表格渲染成断列；
+- 做到第 20 讲断了，重跑时前面 19 讲又做了一遍，或者不知道该接着做哪一讲；
+- 硬盘里躺着十几个 G 的原片，不敢删、删了又后悔。
+
+这个 skill 把一门课落成一个库：章 → 讲 → 多篇知识点正文 + 本讲索引 + 扩展笔记 + 关键截图，
+每一层都有模板，而且每一处都对得上磁盘。核心机制是把「质量」变成可执行判据：
+
+ verify_course.py --strict 跑到 HARD=0、退出码 0，才算这一讲/这门课做完。
+
+ 能给你什么
+
+| 你想要的 | 靠什么 |
+|---|---|
+| 一讲完整笔记：正文 + 本讲索引 + 考点/易错点/典型题 + 按需截图 | SKILL.md Step 1–8 |
+| 整门课（几十到上百讲）可续跑、不重复劳动 | scripts/course_prep.py（幂等采集）+ references/batch-pipeline.md |
+| 多个子代理并行写笔记不互相覆盖 | references/subagent-rules.md（四种真实失败与对策） |
+| 术语不被同音字污染 | Step 3「转写只是草稿」+ 每课一张 ASR 纠错表 + verify_course.py --asr 扫残留 |
+| 出处可查，能回到视频那一秒 | 每张图标「视频 mm:ss」；本讲索引给知识点→进度区间；frontmatter 带分 P 链接 |
+| 不把自己补的内容当成课上原文 | 归属四分法（幻灯片 / 板书 / 口述 / 补充），自拟题必须标注 |
+| 链接点不开、表格断列能自动修 | scripts/fix_course_md.py（幂等，--dry-run 可先看） |
+| 索引统计和磁盘真实情况一致 | scripts/fill_indexes.py 按存在的文件回填，禁止手改、禁止 agent 口头汇报 |
+| 删原片之前不丢东西 | scripts/backup_workdir.py：备份 → 校验 zip → SHA256 → 比对 vault 哈希，才允许删 |
+| 内容层面的错（公式符号、图注不符、自拟题算错） | Step 8 派只读复核代理逐条对转写与总览图，报告必须引用现文原文 |
+
+实测规模：单门课最多 100 讲；45 集 / 95 讲 / 14 讲三门课的分工、拆篇判据和坑表都由实跑校准出来的，
+不是纸上设计。瓶颈是本机串行转写（CPU 推理，60 秒一段），不是笔记写作——所以采集放在主代理串行做，
+写笔记才是可以并行的部分。
+
+ 成品长什么样
+
+取自仓库自带的虚构测试库（evals/fixtures/skillfix/），格式就是真笔记的格式：
+
+markdown
+ [!warning] 待核对
+ 视频 10:30 的板书把线电荷密度写成 $\lambda$，幻灯片下一页写的是 $\eta$。两种读法都可能：
+ $\lambda$ 是一维线密度，$\eta$ 在本课程后面被用作面密度。考试口径按教材通例用 $\lambda$
+ 记线密度，「待核对」保留以便回看时确认。
+
+!检验电荷放入电场后受力示意（视频 04:10）
+
+ [!question]- 自测
+ 1. 把检验电荷电量放大一倍，测得的 $\vec{E}$ 会不会跟着变？
+    - 不会。$\vec{F}$ 同比增大，比值不变——前提是放大后的电荷仍能近似当作检验电荷。
+
+
+「待核对」不是缺陷，是这个库的可信度来源：讲师口述与画面矛盾、课件疑似笔误、画面看不清，
+都原样留下并写出两种读法，而不是为了让笔记看起来整洁而猜一个。
+
+ 和别的做法比
+
+| 做法 | 你会得到 | 缺什么 |
+|---|---|---|
+| 把视频/字幕丢给通用 AI 让它总结 | 一段读着顺的摘要 | 结构、出处、可验证性；同音字术语错得很自信 |
+| yt-dlp + Whisper 脚本 | 素材（视频 + srt） | 素材不是笔记：没有知识点切分、没有截图挑选、没有索引与校验 |
+| AI 笔记类 SaaS | 好看的界面 + 云端转写 | 音频要上传；术语纠错你改不动；产出回不到你自己的 vault，也没法续做下一讲 |
+| Obsidian 插件 / 模板 | 展示与书写格式 | 不管采集：下载、转写、截帧、回填、校验全得自己接 |
+| 这个 skill | 一个能自证的库 + 11 个可单独调用的脚本 | 首次跑通要装环境；长课程受本机转写速度限制 |
+
+ 同类开源项目（截至 2026-11）
+
+这个方向很热闹，下面这些都在做「视频 → 笔记」。先看别人做到哪，再决定要不要用这个：
+
+| 项目 | ★ | 形态 | 它做到哪 | 差异 |
+|---|---|---|---|---|
+| ysyecust/lecture-to-notes | 300 | Claude Code skill | yt-dlp+cookie、Wh</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/hdldd__bilibili-obsidian-notes.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

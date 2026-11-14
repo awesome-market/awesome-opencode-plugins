@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aether-dev365/opencode-workflow-starter · OpenCode Plugins</title>
+<meta name="description" content="复制即用的 OpenCode V2 工作流模板：领域规则、路径保护、提交前凭据扫描、只读审核与引导式接入">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-workflow-starter, aether-dev365, aether-dev365/opencode-workflow-starter, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, security, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/aether-dev365__opencode-workflow-starter">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="aether-dev365/opencode-workflow-starter · OpenCode Plugins">
+<meta property="og:description" content="复制即用的 OpenCode V2 工作流模板：领域规则、路径保护、提交前凭据扫描、只读审核与引导式接入">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/aether-dev365__opencode-workflow-starter">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "aether-dev365/opencode-workflow-starter", "codeRepository": "https://github.com/aether-dev365/opencode-workflow-starter", "url": "https://opencode-plugins.zhuikan.com/repos/aether-dev365__opencode-workflow-starter", "description": "复制即用的 OpenCode V2 工作流模板：领域规则、路径保护、提交前凭据扫描、只读审核与引导式接入", "author": {"@type": "Organization", "name": "aether-dev365", "url": "https://github.com/aether-dev365"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-25", "license": "https://spdx.org/licenses/MIT.html", "keywords": "security,workflow"}</script>
+</head>
+<body data-repo="aether-dev365/opencode-workflow-starter" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">aether-dev365/opencode-workflow-starter</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="aether-dev365__opencode-workflow-starter"><img class="rp-side-av" src="https://github.com/aether-dev365.png?s=300" width="300" height="300" alt="aether-dev365 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-workflow-starter</div>
+      <a class="rp-side-owner" href="https://github.com/aether-dev365">aether-dev365</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/aether-dev365">aether-dev365</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-workflow-starter</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">复制即用的 OpenCode V2 工作流模板：领域规则、路径保护、提交前凭据扫描、只读审核与引导式接入</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-25</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/aether-dev365/opencode-workflow-starter">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenCode Workflow Starter
+
+  
+
+一套复制进项目即可使用的 OpenCode V2 工作流：一个本地插件 workflow.starter，加上领域规则、路径保护、提交前凭据扫描、手动审核和引导式接入 /workflow-setup；质量检查、接入方 CI 和受控发布等扩展按需启用。业务目录、框架、模型供应商和生产地址由目标项目自己配置。
+
+给接入模型的入口：ADOPT.md。 可以直接告诉模型：
+
+ 请阅读工作流套件的 ADOPT.md，根据本项目实际结构接入模板，保留现有约定，完成自检和验收，并报告未验证项。
+
+ 解决什么问题
+
+| 常见问题 | 本模板的做法 |
+| --- | --- |
+| 模型不看目录规范就改代码 | 首次修改某个领域前，先注入该领域的 AGENTS.md；未加载时拒绝修改，下一轮加载后重试 |
+| 读到或改坏 .env、第三方代码、生成文件 | protection.json 声明读、写保护，插件在原生权限和 shell 解析两处检查 |
+| 凭据被提交 | 每次 git commit 前用固定版本 Gitleaks 扫描新增内容；扫描器缺失、失败或超时都拒绝提交 |
+| npm test \| tail 吞掉测试失败 | 测试类管道自动补 pipefail，失败退出码如实保留 |
+| 审核随意、结论无结构 | 用户触发 /review，只读 reviewer 按检查单提交结构化结论 |
+| 发布绕过审核 | 可选扩展：只有当前候选的审核全部通过，才运行登记好的固定发布命令 |
+| 接入步骤多，模式和模型不好选 | /workflow-setup 逐项询问模式、子代理模型和可选组件，预览改动并经确认后才应用 |
+| 新项目不知道从哪开始，规则和验证命令什么时候写 | /workflow-new 分阶段引导：最小接入、设计、搭骨架、补齐项目规则、第二轮配置、基线验收；中断后重新运行，从当前阶段继续 |
+| 子代理该拆几个、各管什么不好定 | AI 按项目领域建议实现类子代理，由你勾选；生成的代理文件沿用统一的安全边界 |
+| 项目里已有 Claude Code、Cursor、Codex 等配置，不知道该迁移还是保留 | /workflow-setup 列出检测到的配置及其在 OpenCode 中是否生效，AI 逐项评估并建议，由你决定迁移或保留 |
+| 注释写成开发日志、测试被悄悄跳过、文档链接断开 | 可选质量扩展：提交后报告注释、跳过测试、本地链接和已登记的格式检查，只报告、不拦截 |
+| 功能改了文档没更新、一处约束改了关联处没跟着改 | /review 默认包含文档与约束同步审核；可选质量扩展按登记的关联在提交后和 CI 中提醒 |
+| OpenCode 之外的提交和 PR 不经过守卫 | 可选接入方 CI 模板：在 GitHub Actions 中扫描候选完整历史的凭据，运行 doctor 和分层质量检查 |
+
+ 工作原理
+
+mermaid
+flowchart LR
+  model[模型发起工具调用] -- plugin[workflow.starter 插件]
+  plugin --|读取| perm[原生权限 + protection.json]
+  plugin --|修改文件| rules{领域规则已加载?}
+  rules --|否| reject[拒绝并说明原因]
+  rules --|是| guards
+  plugin --|shell 命令| guards[一个 Python 检查进程路径保护 · 凭据扫描 · pipefail]
+  guards --|git commit| gitleaks[固定版 Gitleaks扫描拟提交的新增内容]
+  guards --|拒绝| reject
+  guards --|放行| run[执行]
+  user[用户 /review] -- reviewer[只读 reviewer结构化结论]
+
+
+守卫失败时一律拒绝（fail-closed）：检查脚本报错、超时、输出无效都按拒绝处理。插件和 shell 解析不是操作系统沙盒，外部终端和任意脚本不在拦截范围内。
+
+ 平台支持
+
+| 平台 | 状态 | 说明 |
+| --- | --- | --- |
+| Linux x64 | 已验收 | CI 全量验收，含 OpenCode 2.2.0 原生运行测试 |
+| Windows + WSL2 | 已验收（同 Linux） | 推荐的 Windows 路线；所有命令在 WSL 终端里执行 |
+| Windows 原生（Git Bash） | 部分验证 | 插件测试、守卫、doctor、接入脚本已在 Windows 实机通过，CI 运行 Windows 子集；OpenCode 原生加载插件尚未验收 |
+| macOS（Apple Silicon） | 已验收 | CI 全量验收，含 OpenCode 2.2.0 原生运行测试；系统自带的 python3 是 3.9，需另装 3.10+ |
+| macOS（Intel） | 未验收 | 扫描器已固定 x64 校验值，按同样步骤操作；接入后自行做原生冒烟 |
+
+运行要求：Node.js 24+、Python 3.10+、Git（Windows 需完整的 Git for Windows，含 Git Bash）、OpenCode V2 CLI。OpenCode 与插件的验收基线均为 2.2.0。
+
+ 快速开始
+
+ 新项目：从空目录开始
+
+新建空目录并 git init，按下文 Linux、macOS、WSL 或 Windows 一节的命令复制 template/ 的全部内容并运行 setup.mjs（空目录不需要合并），然后在项目根启动 opencode，运行 /workflow-new。它分阶段带你完成最小接入、设计、搭骨架、补齐项目规则、第二轮配置和基线验收，需要你决定的地方逐个询问；中断后重新运行，会从当前阶段继续。详见 新项目流程。
+
+也可以把套件目录或仓库链接交给 OpenCode：
+
+text
+这是一个从空目录开始的新项目。请先读取工作流套件的 ADOPT.md，复制模板并准备依赖，确认插件加载后运行 /workflow-new，按新项目流程逐步引导我。
+不自动推送或发布。
+
+
+ 已有项目：让 OpenCode 引导接入
+
+把套件目录或仓库链接交给 OpenCode，并说明：
+
+text
+请先读取 ADOPT.md，调查当前项目，再用问答引导我接入工作流。
+请解释完整模式与基础模式、子代理继承或固定模型、各可选组件的作用。
+完整模式缺少 Superpowers 时先询问安装范围，安装并确认实际可加载后再进行设计和计划。
+先给出改动清单，得到确认后再执行；不要覆盖现有配置，不自动推送或发布。
+
+
+基础模板合并、依赖准备并实际加载后，运行 /workflow-setup。AI 会列出项目中已有的其他 AI 配置并请你决定迁移或保留，再询问模式、子代理、模型策略和可选能力；安装器只应用确认过的摘要计划，原生工具核对实际技能读取和</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/aether-dev365__opencode-workflow-starter.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

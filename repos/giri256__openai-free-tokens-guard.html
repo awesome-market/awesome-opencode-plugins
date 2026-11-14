@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>giri256/openai-free-tokens-guard · OpenCode Plugins</title>
+<meta name="description" content="Stay inside OpenAI&#x27;s free daily tokens (250K + 2.5M/day on the $5 Build tier). Meter, 85/95% alerts, agent handoff, hard block before paid usage. Spec to port into any app + ready-made opencode plugin">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="openai-free-tokens-guard, giri256, giri256/openai-free-tokens-guard, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, notifications, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/giri256__openai-free-tokens-guard">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="giri256/openai-free-tokens-guard · OpenCode Plugins">
+<meta property="og:description" content="Stay inside OpenAI&#x27;s free daily tokens (250K + 2.5M/day on the $5 Build tier). Meter, 85/95% alerts, agent handoff, hard block before paid usage. Spec to port into any app + ready-made opencode plugin">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/giri256__openai-free-tokens-guard">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "giri256/openai-free-tokens-guard", "codeRepository": "https://github.com/giri256/openai-free-tokens-guard", "url": "https://opencode-plugins.zhuikan.com/repos/giri256__openai-free-tokens-guard", "description": "Stay inside OpenAI's free daily tokens (250K + 2.5M/day on the $5 Build tier). Meter, 85/95% alerts, agent handoff, hard block before paid usage. Spec to port into any app + ready-made opencode plugin", "author": {"@type": "Organization", "name": "giri256", "url": "https://github.com/giri256"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-11", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,notifications,server,tui"}</script>
+</head>
+<body data-repo="giri256/openai-free-tokens-guard" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">giri256/openai-free-tokens-guard</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="giri256__openai-free-tokens-guard"><img class="rp-side-av" src="https://github.com/giri256.png?s=300" width="300" height="300" alt="giri256 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">openai-free-tokens-guard</div>
+      <a class="rp-side-owner" href="https://github.com/giri256">giri256</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/giri256">giri256</a>
+        <span class="rp-sep">/</span><span class="rp-name">openai-free-tokens-guard</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Stay inside OpenAI&#x27;s free daily tokens (250K + 2.5M/day on the $5 Build tier). Meter, 85/95% alerts, agent handoff, hard block before paid usage. Spec to port into any app + ready-made opencode plugin.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/notifications">notifications</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/giri256/openai-free-tokens-guard">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenAI Free Tokens Guard
+
+OpenAI gives you up to 2.75 million free tokens a day. Go one token over and it quietly bills your card. This keeps you under the line, in any app.
+
+Top up $5 on your OpenAI account (that puts you on the Build tier), turn on data sharing, and if your org is shown the offer you get every day:
+
+| Usage tier | Large models (gpt-6-luna, gpt-6-sol, gpt-5.5, o3, …) | Mini models (gpt-5.6-luna, gpt-5.6-terra, gpt-5-mini, …) |
+|---|---|---|
+| Build ($5) | 250,000 / day | 2,500,000 / day |
+| Launch ($100) | 1,000,000 / day | 10,000,000 / day |
+| Grow ($500) | 1,000,000 / day | 10,000,000 / day |
+
+Resets at 00:00 UTC. Details and the full model list: OpenAI help article. Your tier is shown on platform.openai.com/settings/organization/limits.
+
+Turn it on: Settings → Data controls → Sharing, &quot;Share inputs and outputs with OpenAI&quot; → enabled. If your org qualifies you&#x27;ll see &quot;You&#x27;re enrolled for complimentary daily tokens&quot;:
+
+!Data controls → Sharing: enable sharing inputs and outputs
+
+Only traffic you share counts, and OpenAI uses it to train its models, so keep secrets and private data out of it.
+
+The catch: nothing stops you at the limit. OpenAI just starts billing, and the request that crosses the line is billed in full. A coding agent can burn through 250K tokens in a few turns.
+
+ What the guard does
+
+- Meters every request per pool and per UTC day (cached and reasoning tokens included, as OpenAI counts them).
+- Alerts at 85 % and 95 %.
+- Soft stop: at 95 %, or when the next request would cross the free limit, or on a model the offer doesn&#x27;t cover, it tells the working agent to stop and write a HANDOFF.md in the project. Nothing is cut off: tell the agent to carry on and it will.
+- Shows the meter in opencode&#x27;s TUI sidebar: tokens used and left and % per pool, with a bar that is green, then orange from 50 %, then red from 85 %, plus the time to reset.
+- Hard block (opt-in): with &quot;onExhausted&quot;: &quot;block&quot;, a request that would cross the limit is never sent.
+
+ Use it in your own app (any language)
+
+Point your coding agent at SPEC.md. It is written for agents: the offer&#x27;s rules, what to count, where to gate, and checks the port must pass.
+
+ Read SPEC.md from https://github.com/giri256/openai-free-tokens-guard and add the free-tokens guard to this app. My usage tier is Build.
+
+Works the same for a mobile app&#x27;s backend, a Discord bot, a script, or a personal tool.
+
+ Use it in opencode (ready-made)
+
+This repo is also an opencode plugin (opencode 2.x).
+
+bash
+opencode plugin add github:giri256/openai-free-tokens-guard
+
+
+or add it to ~/.config/opencode/opencode.json:
+
+json
+{ &quot;plugins&quot;: [&quot;github:giri256/openai-free-tokens-guard&quot;] }
+
+
+Then set your tier in ~/.config/opencode/openai-free-tokens.json (see openai-free-tokens.example.json):
+
+json
+{ &quot;tier&quot;: &quot;build&quot; }
+
+
+It guards the openai provider when you are connected with an API key (ChatGPT-login traffic is not API-billed and is left alone).
+
+The session sidebar of the opencode TUI gets an Open</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/giri256__openai-free-tokens-guard.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

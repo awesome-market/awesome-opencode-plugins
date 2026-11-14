@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xiaosike/lingyi-shiwen · OpenCode Plugins</title>
+<meta name="description" content="零一拾文 · 公众号自适应采集引擎｜Skill 直接调用核心源码，初步雏形开发者 Spark">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="lingyi-shiwen, xiaosike, xiaosike/lingyi-shiwen, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/xiaosike__lingyi-shiwen">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="xiaosike/lingyi-shiwen · OpenCode Plugins">
+<meta property="og:description" content="零一拾文 · 公众号自适应采集引擎｜Skill 直接调用核心源码，初步雏形开发者 Spark">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/xiaosike__lingyi-shiwen">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "xiaosike/lingyi-shiwen", "codeRepository": "https://github.com/XiaoSiKe/lingyi-shiwen", "url": "https://opencode-plugins.zhuikan.com/repos/xiaosike__lingyi-shiwen", "description": "零一拾文 · 公众号自适应采集引擎｜Skill 直接调用核心源码，初步雏形开发者 Spark", "author": {"@type": "Organization", "name": "xiaosike", "url": "https://github.com/XiaoSiKe"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "keywords": "sessions,tools"}</script>
+</head>
+<body data-repo="xiaosike/lingyi-shiwen" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">xiaosike/lingyi-shiwen</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="xiaosike__lingyi-shiwen"><img class="rp-side-av" src="https://github.com/XiaoSiKe.png?s=300" width="300" height="300" alt="xiaosike avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">lingyi-shiwen</div>
+      <a class="rp-side-owner" href="https://github.com/XiaoSiKe">xiaosike</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/XiaoSiKe">xiaosike</a>
+        <span class="rp-sep">/</span><span class="rp-name">lingyi-shiwen</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">零一拾文 · 公众号自适应采集引擎｜Skill 直接调用核心源码，初步雏形开发者 Spark</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/XiaoSiKe/lingyi-shiwen">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">零一拾文 · 公众号自适应采集引擎
+
+
+  把散落的文章，拾成可复用的内容档案。
+
+
+
+  
+  
+  
+
+
+
+  初步雏形开发者：Spark
+  本项目在 Spark 的采集核心雏形上，完善可靠性与 Skill 调用流程。
+
+
+
+  开始使用 ·
+  Skill 入口 ·
+  命令参考 ·
+  核心设计
+
+
+---
+
+ ✦ 让 Agent 替你整理文章
+
+对支持本地 Skill 和命令执行的 Agent 说：
+
+ 用零一拾文，把这些公众号文章保存成 Markdown，按账号和日期整理，并告诉我哪些还没成功。
+
+零一拾文是一个自带核心源码的 Skill。 Agent 根据任务选择采集模式，再通过 scripts/shiwen.py 调用 wxrc/。源码随 Skill 一起提供，无需安装项目软件包。
+
+
+
+⌁ 收集从文章链接、搜索结果、客户端历史或管理员后台取得内容。
+◈ 整理输出 Markdown、正文 HTML 与 JSONL 索引，保留来源和时间。
+↻ 恢复待处理队列、成功去重和失败补采，让中断后的任务接着完成。
+
+
+
+ ◇ 先选对采集方式
+
+| 你手上有什么 | 使用方式 | 可获得的内容 | 范围说明 |
+|---|---|---|---|
+| 合集分享链接或合集 ID + 公众号标识 | album | 合集清单与当前可访问的文章正文 | 按结束标志翻页，总数不符或到达上限时明确标记未完成 |
+| 一篇或一批文章链接 | text | 正文、图片链接、基础元信息 | 无需客户端凭证；受文章可访问性影响 |
+| 公众号名称 | search | 搜索命中的文章，可按日期筛选 | 搜索抽样，不能保证全量 |
+| 客户端会话配置 | crawl | 客户端可见历史、正文，可选互动数据 | 受会话有效期、配额和可见范围限制 |
+| 自己管理的公众号 | admin | 后台发表记录，可选正文、最新留言 | 需要管理员登录；有翻页上限，互动字段随响应而定 |
+| 已保存的文章 HTML | parse | 离线结构化解析 | 不访问网络 |
+
+阅读数、点赞数、留言需要相应会话或后台权限。未获得的数据应结合状态字段判断，不能把默认值当成真实的零。admin --comments 当前获取一页最新留言，并非全部历史留言。
+
+ ↗ 开始使用
+
+ 1 · 把源码作为 Skill 放好
+
+以 Codex 的本地 Skill 目录为例：
+
+bash
+git clone https://github.com/XiaoSiKe/lingyi-shiwen.git &quot;$HOME/.codex/skills/lingyi-shiwen&quot;
+cd &quot;$HOME/.codex/skills/lingyi-shiwen&quot;
+
+
+其他 Agent 可将整个仓库放入其支持的 Skill 目录，或按其方式加载根目录 SKILL.md。保留完整目录，因为入口会直接调用旁边的核心源码。
+
+ 2 · 准备独立运行环境
+
+需要 Python 3.10+。以下步骤只安装运行依赖，不安装本项目、不构建安装包。
+
+bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python scripts/shiwen.py doctor
+
+
+Windows 使用 .venv\Scripts\python.exe 替换 .venv/bin/python。doctor 离线检查 Python、运行依赖和可选 Playwright 依赖。
+
+ 3 · 用自然语言调用
+
+重新加载 Agent 的 Skill 列表后，输入：
+
+text
+使用 $lingyi-shiwen，把这些链接保存为 Markdown，输出到我指定的资料目录。
+
+
+也可以直接执行同一个源码入口：
+
+bash
+.venv/bin/python scripts/shiwen.py text \
+  --url &quot;https://mp.weixin.qq.com/s/文章标识&quot; \
+  --out &quot;/你的资料目录/公众号文章&quot; --raw
+
+
+更多用法，包括批量链接、日期筛选、客户端会话配置和管理员扫码，见 命令参考。
+
+ ▤ 内容如何保存
+
+crawl 模式按账号、月份归档。文件名包含文章唯一标识，避免同名内容覆盖；图片采用稳定命名。
+
+text
+archive/
+├── 公众号名称/
+│   └── 2026-11/
+│       ├── 2026-11-02_文章标题_唯一标识.md
+│       ├── raw/                   正文 HTML
+│       ├── images/                启用图片下载时保存
+│       └── comments/              取得留言时保存
+├── index.jsonl                    归档状态与来源索引
+└── cursor.json                    列表游标与待处理队列
+
+
+text 模式保存为 账号/日期_标题_唯一标识.md；--raw 将正文 HTML 保存到 raw/账号/。两种模式的输出布局详见命令参考。
+
+ ↻ 持续完善
+
+v0.4.0：新增 album 合集入口，自动翻页、跨页去重、正文归档、断点恢复、失败补采与完整性报告；用合集分享链接直接指定目标。详见 合集采集。
+
+v0.3.0：增加采集范围与停止原因报告、从最新页检查的增量模式，以及表格、嵌套列表、代码块的解析回归。真实探测和合成样本的验证范围见 验证记录。
+
+v0.2.0：链接批量任务支持成功去重、失败与中断恢复、产物缺失补采、强制刷新和输出目录互斥；后台正文复用同一归档入口，浏览器诊断新增 doctor --browser。
+
+v0.1.9：浏览器支持统一为 Playwright；修复令牌桶重复记账、长文章 JSON 截断、部分失败退出码和互动数据 HTTP 错误判定。
+
+
+- 恢复更完整：先保存待处理列表，下游处理完成后确认；页内限额不会丢掉本页剩余文章。
+- 失败可补采：只有成功归档或确认删除的文章进入完成索引；meta_only 在后续运行重试。
+- 文件不冲突：正文、正文 HTML、留言和图片均使用稳定标识，减少同名覆盖。
+- 判断更准确：正文关键词与验证页分开识别，HTTP 5xx 按服务错误处理。
+- 账号策略统一：列表与互动数据请求共用身份绑定、逐请求计费、单账号限速和冷却规则。
+- 暂停可预期：重试中逐次检查熔断；配置的出口不可用时停止，不创建隐式直连。
+- 登录态更收敛：会话文件原子写入并在 POSIX 上设为 0600，日志隐藏会话 token 与敏感参数。
+
+这是源码与 Skill 工作流迭代。没有桌面安装程序、项目 wheel 或打包发布步骤。
+
+ ⌘ 源码结构与验证
+
+text
+lingyi-shiwen/
+├── SKILL.md                       Agent 读取的操作流程
+</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/xiaosike__lingyi-shiwen.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

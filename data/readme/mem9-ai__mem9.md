@@ -1,0 +1,523 @@
+<p align="center">
+  <img src="site/public/mem9-wordmark-square.svg" alt="mem9" width="180" />
+</p>
+<p align="center">
+  <strong>Persistent Memory for AI Agents.</strong><br/>
+  Your agents forget everything between sessions. mem9 fixes that with persistent memory across sessions and machines, shared memory for multi-agent workflows, and hybrid recall with a visual dashboard.
+</p>
+
+<p align="center">
+  For OpenClaw and ClawHub installs, start here: <a href="https://mem9.ai/openclaw-memory">mem9.ai/openclaw-memory</a>
+  <br/>
+  Hermes Agent, Claude Code, OpenCode, Codex, DeepSeek Harness, and Dify guides are below.
+</p>
+
+<p align="center">
+  <a href="https://tidbcloud.com"><img src="https://img.shields.io/badge/Powered%20by-TiDB%20Cloud%20Starter-E60C0C?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj48cGF0aCBkPSJNMTEuOTk4NCAxLjk5OTAyTDMuNzE4NzUgNy40OTkwMkwzLjcxODc1IDE3TDExLjk5NjQgMjIuNUwyMC4yODE0IDE3VjcuNDk5MDJMMTEuOTk4NCAxLjk5OTAyWiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" alt="Powered by TiDB Cloud Starter"></a>
+  <a href="https://goreportcard.com/report/github.com/mem9-ai/mem9/server"><img src="https://goreportcard.com/badge/github.com/mem9-ai/mem9/server" alt="Go Report Card"></a>
+  <a href="https://github.com/mem9-ai/mem9/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/mem9-ai/mem9"><img src="https://img.shields.io/github/stars/mem9-ai/mem9?style=social" alt="Stars"></a>
+</p>
+
+---
+
+## Quick Start
+
+1. Choose your mem9 endpoint.
+
+   - Hosted API: `https://api.mem9.ai`
+   - Self-hosted: apply the matching control-plane schema, then start `mnemo-server`:
+
+     ```bash
+     cd server
+     MNEMO_DSN="user:pass@tcp(host:4000)/mnemos?parseTime=true" go run ./cmd/mnemo-server
+     ```
+
+     See [Self-Hosting](#self-hosting) for backend-specific setup details, and [API Reference](#api-reference) for provisioning.
+
+2. Pick your integration guide.
+
+   - [OpenClaw / ClawHub](https://mem9.ai/openclaw-memory)
+   - [Hermes Agent](https://github.com/mem9-ai/mem9-hermes-plugin#readme)
+   - [Claude Code](claude-plugin/README.md)
+   - [OpenCode](opencode-plugin/README.md)
+   - [Codex](codex-plugin/README.md)
+   - [DeepSeek Harness](dsh-plugin/README.md)
+   - [Dify](https://github.com/mem9-ai/mem9-dify-plugin#readme)
+   - [Any HTTP client / custom runtime](#api-reference)
+
+3. Set your credentials.
+
+   ```bash
+   # Hosted API
+   export MEM9_API_URL="https://api.mem9.ai"
+   export MEM9_API_KEY="<mem9-api-key>"
+
+   # Self-hosted
+   export MEM9_API_URL="http://localhost:8080"
+   export MEM9_API_KEY="<mem9-api-key>"
+   ```
+
+   For self-hosted deployments, use your server URL and the mem9 API key returned or configured by your provisioning flow.
+
+## Why mem9
+
+mem9 gives coding agents one shared memory layer instead of separate local notebooks and one-off prompt files.
+
+| What mem9 gives you | Why it matters |
+|---|---|
+| Persistent memory across sessions and machines | Your context survives restarts, laptop switches, and long-running projects |
+| Shared memory across agents and workflow platforms | OpenClaw, Hermes Agent, Claude Code, OpenCode, Codex, DeepSeek Harness, Dify apps, and custom clients can recall the same facts |
+| Stateless integrations | Runtime plugins stay thin because storage, search, ingest, and policy live in the server |
+| Hybrid recall and a visual dashboard | Semantic search, keyword search, and inspection workflows stay in one system |
+
+## Supported Platforms and Agent Runtimes
+
+| Platform | Integration shape | Install / docs |
+|---|---|---|
+| OpenClaw | `kind: "memory"` plugin for server-backed shared memory | [OpenClaw / ClawHub install guide](https://mem9.ai/openclaw-memory) |
+| Hermes Agent | Memory provider plugin with setup and activation flow | [mem9-hermes-plugin README](https://github.com/mem9-ai/mem9-hermes-plugin#readme) |
+| Claude Code | Marketplace plugin with hooks and skills | [`claude-plugin/README.md`](claude-plugin/README.md) |
+| OpenCode | Plugin SDK integration loaded from `opencode.json` | [`opencode-plugin/README.md`](opencode-plugin/README.md) |
+| Codex | Marketplace plugin with managed hooks and project overrides | [`codex-plugin/README.md`](codex-plugin/README.md) |
+| DeepSeek Harness | Native DSH/Cordis bundle with recall, smart ingest, and memory tools | [`dsh-plugin/README.md`](dsh-plugin/README.md) |
+| Dify | Tool plugin for Dify Agent apps and Workflow apps, with single-space and multi-space authorization | [mem9-dify-plugin README](https://github.com/mem9-ai/mem9-dify-plugin#readme) |
+| Any HTTP client / custom runtime | Direct REST API integration | [API Reference](#api-reference) |
+
+All supported runtimes and platform integrations expose the same core memory flow: store, search, get, update, and delete against the mem9 server API.
+
+## Why the Hosted API
+
+The hosted mem9 API is the fastest way to put persistent memory behind an agent fleet while keeping the option to self-host later.
+
+| Hosted API capability | Why teams start here |
+|---|---|
+| Hosted mem9 API with instant space provisioning | You can install an agent integration first and skip standing up infrastructure on day one |
+| Shared memory across runtimes and platforms | One space can serve OpenClaw, Hermes Agent, Claude Code, OpenCode, Codex, DeepSeek Harness, Dify apps, and custom clients together |
+| Managed search and storage | Hybrid recall works out of the box without a separate vector stack or sync layer |
+| TiDB Cloud Starter foundation | The hosted path benefits from instant provisioning, native vector search, full-text search, server-side auto-embedding, hybrid search, and MySQL-compatible operational semantics |
+| Same API contract as self-hosted mem9 | Moving to your own deployment is a base-URL and credential change, not a plugin rewrite |
+| Visual dashboard and product onboarding | Teams can inspect and manage memory without building internal tooling first |
+
+Under the hood, the hosted mem9 API runs the same mem9 server model surfaced in this repository, with TiDB Cloud Starter providing managed provisioning, native vector search, full-text search, server-side auto-embedding, hybrid search, and MySQL-compatible storage semantics.
+
+## API Reference
+
+Set `X-Mnemo-Agent-Id` on authenticated memory, import, and session-message requests when you want the server to distinguish which runtime or agent instance is writing and recalling memories inside the same mem9 space. This works on both the tenant-path `v1alpha1` routes and the `v1alpha2` API-key routes.
+
+### Provisioning
+
+Use this endpoint when you want mem9 to auto-provision a new TiDB-backed space.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1alpha1/mem9s` | TiDB auto-provision endpoint when a provisioner is configured. TiDB Zero enables this path by default on `tidb`; TiDB Cloud Pool uses `MNEMO_TIDB_ZERO_ENABLED=false` with `MNEMO_TIDBCLOUD_API_KEY` and `MNEMO_TIDBCLOUD_API_SECRET`. Manual-bootstrap deployments use pre-existing tenants instead of this path. Returns `{ "id" }`. Accepts optional `utm_*` query params for attribution logging |
+
+Prefer `v1alpha2` for all new integrations. It uses `X-API-Key` and is the primary API surface for current runtimes.
+
+### Preferred API (`v1alpha2`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1alpha2/mem9s/memories` | Preferred unified write endpoint. Requires `X-API-Key` header |
+| `GET` | `/v1alpha2/mem9s/memories` | Preferred search endpoint. Requires `X-API-Key` header |
+| `GET` | `/v1alpha2/mem9s/memories/{id}` | Preferred get-by-id endpoint. Requires `X-API-Key` header |
+| `PUT` | `/v1alpha2/mem9s/memories/{id}` | Preferred update endpoint. Requires `X-API-Key` header |
+| `DELETE` | `/v1alpha2/mem9s/memories/{id}` | Preferred delete endpoint. Requires `X-API-Key` header |
+| `GET/POST` | `/v1alpha2/mem9s/webhooks` | Space webhook management. Requires a Space `X-API-Key` |
+| `GET/PATCH/DELETE` | `/v1alpha2/mem9s/webhooks/{webhookID}` | Get, update, or delete a Space webhook |
+| `POST` | `/v1alpha2/mem9s/webhooks/{webhookID}/test` | Queue a signed test delivery |
+| `POST` | `/v1alpha2/mem9s/webhooks/{webhookID}/rotate-secret` | Rotate the webhook signing secret. The new secret is returned once |
+| `GET` | `/v1alpha2/mem9s/webhook-deliveries` | List recent Space webhook deliveries |
+| `GET/POST` | `/v1alpha2/space-chains/{chainID}/webhooks` | Space Chain webhook management. Requires the `chain_` management key in `X-API-Key` |
+| `GET` | `/v1alpha2/space-chains/{chainID}/webhook-deliveries` | List recent Space Chain webhook deliveries |
+
+Webhook events and delivery behavior are documented in [docs/webhooks-api-design.md](docs/webhooks-api-design.md). v1 emits `memory.added`, `memory.deleted`, and `space_chain.fact_routed`.
+
+#### Space Chain Management
+
+Space Chains let you compose ordered multi-space recall and routing pipelines. Every Space Chain has two kinds of `chain_` key, and the server decides which kind a key is. The **management key** can change the chain (nodes, keys, webhooks, deletion) and can also read and write memory. The **memory key** can only read and write memory; it gets `401` on every endpoint below except creating a chain. Use the management key as the `X-API-Key` for all management endpoints below, and give the memory key to anything that only needs to read and write memory. Read nodes via their own Space `X-API-Key`.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1alpha2/space-chains` | Create a Space Chain. No `X-API-Key` required. The `201` response has exactly three fields: `chain` (the chain, with masked keys), `management_binding` and `memory_binding`. Each binding has `id`, `role` and `chain_api_key`; these are the only plaintext keys you will ever get, so store them now. If the server has its [create gate](#space-chain-create-gate) switched on, the request must also carry `Authorization: Bearer <create secret>`, otherwise it gets `401` |
+| `GET` | `/v1alpha2/space-chains/by-key` | Look up a Space Chain by its management key. Requires the management key in `X-API-Key`; a memory key gets `401` |
+| `GET` | `/v1alpha2/space-chains/{chainID}` | Get Space Chain details. Requires the management key |
+| `PATCH` | `/v1alpha2/space-chains/{chainID}` | Update Space Chain name/description. Requires the management key |
+| `DELETE` | `/v1alpha2/space-chains/{chainID}` | Soft-delete a Space Chain. Requires the management key |
+| `GET` | `/v1alpha2/space-chains/{chainID}/nodes` | List all nodes in the chain (ordered by position). Requires the management key |
+| `PUT` | `/v1alpha2/space-chains/{chainID}/nodes` | Replace all nodes in the chain (full replacement). Requires the management key |
+| `PUT` | `/v1alpha2/space-chains/{chainID}/nodes/{nodeID}/routing-policy` | Update routing policy for a specific chain node. Requires the management key |
+| `GET` | `/v1alpha2/space-chains/{chainID}/bindings` | List all keys (bindings) of the chain, each with its `role` and a masked key. Requires the management key |
+| `POST` | `/v1alpha2/space-chains/{chainID}/bindings` | Issue another key for the chain. It is always a memory key; a `role` in the body is ignored. The body is optional: it may carry `chain_api_key` to supply your own key (it must start with `chain_`) and `created_by_user_id`. The `201` response is the new binding: `id`, `chain_id`, `role`, `chain_api_key` (shown only now), `disabled` and `created_at`. Requires the management key |
+| `PATCH` | `/v1alpha2/space-chains/{chainID}/bindings/{bindingID}` | Disable a key. The last active management key cannot be disabled (`400`); memory keys can all be disabled. Requires the management key |
+
+#### Additional v1alpha2 Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1alpha2/mem9s/memories/batch-delete` | Bulk soft-delete memories (max 1000). Accepts `{"ids": ["..."]}`. Requires `X-API-Key` |
+| `GET` | `/v1alpha2/mem9s/session-messages` | List persisted session messages. Requires `X-API-Key`. Query: `session_id`, `limit_per_session` |
+| `POST` | `/v1alpha2/mem9s/imports` | Upload a JSON file for async ingest (multipart, 50MB max). `file_type`: `memory` or `session`. Requires `X-API-Key` |
+| `GET` | `/v1alpha2/mem9s/imports` | List upload tasks with aggregate status. Requires `X-API-Key` |
+| `GET` | `/v1alpha2/mem9s/imports/{id}` | Get single upload task detail. Requires `X-API-Key` |
+| `GET` | `/v1alpha2/status` | Validate the `X-API-Key` header. Returns key status (`active`/`inactive`) without resolving a tenant |
+
+### Legacy Tenant-Path API (`v1alpha1`)
+
+Use these endpoints only when you need compatibility with older tenant-ID-in-path clients.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/v1alpha1/mem9s/{tenantID}/memories` | Legacy unified write endpoint. Tenant key travels in the URL path |
+| `GET` | `/v1alpha1/mem9s/{tenantID}/memories` | Legacy search endpoint for `tenantID`-configured clients |
+| `GET` | `/v1alpha1/mem9s/{tenantID}/memories/{id}` | Legacy get-by-id endpoint |
+| `PUT` | `/v1alpha1/mem9s/{tenantID}/memories/{id}` | Legacy update endpoint. Optional `If-Match` for version check |
+| `DELETE` | `/v1alpha1/mem9s/{tenantID}/memories/{id}` | Legacy delete endpoint |
+
+## Self-Hosting
+
+Before first start, apply the control-plane schema that matches your backend: `server/schema.sql`, `server/schema_pg.sql`, or `server/schema_db9.sql`.
+
+mem9 server supports multiple storage backends. Set `MNEMO_DB_BACKEND` to `tidb`, `postgres`, or `db9`, point `MNEMO_DSN` at that backend, and the rest of the runtime contract stays the same for your agents. TiDB supports three tenant flows: TiDB Zero auto-provisioning is enabled by default on `tidb`; TiDB Cloud Pool auto-provisioning uses `MNEMO_TIDB_ZERO_ENABLED=false` with `MNEMO_TIDBCLOUD_API_KEY` and `MNEMO_TIDBCLOUD_API_SECRET`; manual bootstrap uses pre-existing tenants mode. `postgres` and `db9` use the advanced manual-bootstrap path, which requires an active tenant row in the control-plane DB plus a live tenant database and schema behind it. In `v1alpha2`, `X-API-Key` resolves tenants by ID lookup.
+
+### Build & Run
+
+```bash
+make build
+cd server
+MNEMO_DSN="user:pass@tcp(host:4000)/mnemos?parseTime=true" ./bin/mnemo-server
+```
+
+For local development with automatic rebuild and restart on server source changes:
+
+```bash
+MNEMO_DSN="user:pass@tcp(host:4000)/mnemos?parseTime=true" make dev
+```
+
+For PostgreSQL or db9 deployments, export `MNEMO_DB_BACKEND=postgres` or `MNEMO_DB_BACKEND=db9` before launching the server.
+
+### Docker
+
+`make docker` tags the image as `${REGISTRY}/mnemo-server:${COMMIT}`. This local example builds `local/mnemo-server:dev`:
+
+```bash
+make docker REGISTRY=local COMMIT=dev
+docker run -e MNEMO_DSN="..." -e MNEMO_DB_BACKEND="tidb" -p 8080:8080 local/mnemo-server:dev
+```
+
+### Environment Variables
+
+Minimal runtime config is `MNEMO_DSN`. Everything else is optional or only applies to specific deployment modes.
+
+#### Core Server
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_DSN` | Yes | — | Database connection string |
+| `MNEMO_PORT` | No | `8080` | HTTP listen port |
+| `MNEMO_DB_BACKEND` | No | `tidb` | Database backend: `tidb`, `postgres`, or `db9` |
+| `MNEMO_RATE_LIMIT` | No | `100` | Requests/sec per IP and API key (header or legacy path) |
+| `MNEMO_RATE_BURST` | No | `200` | Burst size |
+| `MNEMO_PROVISION_RATE_PER_MINUTE` | No | `3` | Tenant creation requests/minute per source IP, independently per server process; positive and finite |
+| `MNEMO_PROVISION_RATE_BURST` | No | `2` | Tenant creation burst size; positive |
+| `MNEMO_UPLOAD_DIR` | No | `./uploads` | Directory used for uploaded file storage |
+| `MNEMO_WORKER_CONCURRENCY` | No | `5` | Parallelism for async upload ingest workers |
+| `MNEMO_UTM_ENABLED` | No | `false` | Enable UTM campaign tracking. When enabled, `utm_*` query params on provisioning requests are stored in the control-plane DB. Requires the `tenant_utm` table to exist |
+| `MNEMO_ENV` | No | `development` | Deployment environment. Controls the default CORS origin set (`https://mem9.ai` in production; `https://mem9.ai,http://localhost:4321,http://127.0.0.1:4321` in development). Also settable via `APP_ENV` |
+| `MNEMO_CORS_ALLOWED_ORIGINS` | No | `https://mem9.ai` in production; `https://mem9.ai,http://localhost:4321,http://127.0.0.1:4321` in development | Comma-separated allowed CORS origins. Overrides the `MNEMO_ENV`-based defaults |
+
+API keys must be at most 128 bytes and contain only printable ASCII characters
+without internal whitespace. The limiter stores key fingerprints in a shared map
+of at most 100,000 IP/key buckets. At capacity, requests requiring a new bucket
+receive 429 until stale entries are cleaned up; existing buckets retain their limits.
+Request headers have a 16 KiB budget. JSON bodies are limited to 1 MiB (413 when
+exceeded); multipart imports retain their separate 50 MiB limit.
+
+#### Embedding And Ingest
+
+For built-in multilingual embeddings on TiDB Cloud Starter (AWS), configure:
+
+```bash
+export MNEMO_EMBED_AUTO_MODEL=tidbcloud_free/cohere/embed-multilingual-v3
+export MNEMO_EMBED_AUTO_DIMS=1024
+```
+
+New memory and session tables use Cohere's `search_document` input type and
+`search_query` for searches through TiDB's `input_type@search` option. The model
+has a 512-token / 2,048-character input limit; overlong inputs return an error
+rather than silently truncating stored facts. Existing generated columns keep
+their original model; use fresh Spaces for model comparisons or explicitly
+migrate/re-embed existing tables. `VEC_EMBED_COSINE_DISTANCE` follows each column's
+stored model/options, so changing this setting does not re-embed old Spaces.
+See [TiDB Cohere Auto Embedding](https://docs.pingcap.com/ai/vector-search-auto-embedding-cohere/).
+
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_EMBED_AUTO_MODEL` | No | — | TiDB/db9 `EMBED_TEXT()` model name. When set, it takes precedence over client-side embeddings |
+| `MNEMO_EMBED_AUTO_DIMS` | No | `1024` | Vector dimensions for `MNEMO_EMBED_AUTO_MODEL` |
+| `MNEMO_EMBED_API_KEY` | No | — | Client-side embedding provider API key. Optional for local OpenAI-compatible endpoints when `MNEMO_EMBED_BASE_URL` is set |
+| `MNEMO_EMBED_BASE_URL` | No | `https://api.openai.com/v1` when client-side embeddings are enabled | Custom OpenAI-compatible embedding endpoint |
+| `MNEMO_EMBED_MODEL` | No | `text-embedding-3-small` | Client-side embedding model name |
+| `MNEMO_EMBED_DIMS` | No | `1536` | Client-side embedding vector dimensions |
+| `MNEMO_LLM_API_KEY` | No | — | LLM provider API key. If unset, smart ingest falls back to raw ingest behavior |
+| `MNEMO_LLM_BASE_URL` | No | `https://api.openai.com/v1` when LLM ingest is enabled | Custom OpenAI-compatible chat endpoint |
+| `MNEMO_LLM_MODEL` | No | `gpt-4o-mini` | LLM model for smart ingest |
+| `MNEMO_LLM_TEMPERATURE` | No | `0.1` | LLM temperature for smart ingest |
+| `MNEMO_INGEST_MODE` | No | `smart` | Ingest mode: `smart` or `raw` |
+| `MNEMO_FACT_EXTRACTION_INCLUDE_ASSISTANT` | No | `false` | Include durable facts asserted in assistant turns during smart ingest; system and tool turns remain excluded |
+| `MNEMO_DISABLE_SESSION_SAVE` | No | `false` | Disable raw session row persistence for message ingest while still extracting and reconciling facts |
+| `MNEMO_FTS_ENABLED` | No | `false` | Enable TiDB full-text search path. Only set this on clusters that support TiDB FTS |
+
+#### Search Source Turns
+
+The `MEM9_SOURCE_TURN_*` variables control how many source turn conversations are attached to search results as contextual decorations.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MEM9_SOURCE_TURN_MIN_SCORE` | No | `2` | Minimum term-frequency relevance score for a source turn to be included in search result decorations |
+| `MEM9_SOURCE_TURN_PER_MEMORY_LIMIT` | No | `2` | Maximum source turns attached to a single memory in search results |
+| `MEM9_SOURCE_TURN_TOTAL_LIMIT` | No | `12` | Maximum total source turns across all memories in a single search response |
+
+#### Space Chain Recall
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_CHAIN_RECALL_STOP_SCORE` | No | `0.8` | Stop querying later Space Chain nodes only when an eligible query has a top normalized confidence at or above this threshold. Raw search `score` values do not trigger chain stop. Must be between `0` and `1` |
+| `MNEMO_RECALL_REQUEST_TIMEOUT` | No | `1m` | Total server-owned Recall request budget, including response assembly and write time |
+| `MNEMO_RECALL_RESPONSE_RESERVE` | No | `5s` | Time reserved inside the Recall request budget for response assembly and write; must be shorter than `MNEMO_RECALL_REQUEST_TIMEOUT` |
+
+#### Space Chain Create Gate
+
+By default, anyone who can reach the server can create a Space Chain. The create gate lets an operator require a shared secret, the create secret, for that one request: `POST /v1alpha2/space-chains`. The gate is off by default. While it is off, the `Authorization` header is not looked at and nothing changes.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_SPACE_CHAIN_CREATE_SECRET_REQUIRED` | No | `false` | Turn the create gate on. Accepts the usual boolean spellings such as `true`, `false`, `1` and `0`; surrounding whitespace is ignored and an empty value means off. Any other value stops the server from starting, so a typo cannot leave the gate silently off |
+| `MNEMO_SPACE_CHAIN_CREATE_SECRET` | When the gate is on | — | The create secret. Surrounding whitespace is ignored. The server refuses to start if the gate is on and this is empty. Keep it in a secret store; it is never written to logs, errors or responses |
+
+With the gate on, `POST /v1alpha2/space-chains` must carry `Authorization: Bearer <create secret>`. A request with no credential or a wrong one gets `401` and nothing is created; the answer is the same in both cases. The check runs before the request body is read. Only this one route is affected: every other endpoint, including the ones that use the returned `chain_` keys, works as before, and a successful create returns the response described under Space Chain Management.
+
+#### Provisioning And Pooling
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_TIDB_ZERO_ENABLED` | No | `true` | Enable TiDB Zero auto-provisioning for `tidb` backend. When enabled, it takes precedence over TiDB Cloud Pool provisioning |
+| `MNEMO_TIDB_ZERO_API_URL` | No | `https://zero.tidbapi.com/v1alpha1` | TiDB Zero API base URL |
+| `MNEMO_TIDBCLOUD_API_URL` | No | `https://serverless.tidbapi.com` | TiDB Cloud Pool API base URL |
+| `MNEMO_TIDBCLOUD_POOL_ID` | No | `2` | TiDB Cloud Pool ID used for cluster takeover |
+| `MNEMO_TIDBCLOUD_API_KEY` | No | — | TiDB Cloud Pool API key. Used only when `MNEMO_TIDB_ZERO_ENABLED=false`, `MNEMO_DB_BACKEND=tidb`, and pool takeover is desired |
+| `MNEMO_TIDBCLOUD_API_SECRET` | No | — | TiDB Cloud Pool API secret for digest auth. Same conditions as `MNEMO_TIDBCLOUD_API_KEY` |
+| `MNEMO_TIDBCLOUD_PREFER_PRIVATELINK` | No | `false` | Prefer the TiDB Cloud private endpoint during Pool provisioning when its AWS PrivateLink service name is configured below |
+| `MNEMO_TIDBCLOUD_PRIVATELINK_SERVICE_NAMES` | No | — | Comma-separated AWS PrivateLink service names that this mem9-server can reach. Provisioning falls back to the public endpoint when the returned service name is absent |
+| `MNEMO_TENANT_POOL_MAX_IDLE` | No | `5` | Max idle tenant database connections kept in the in-process tenant pool |
+| `MNEMO_TENANT_POOL_MAX_OPEN` | No | `10` | Max open connections per tenant database handle |
+| `MNEMO_TENANT_POOL_CONNECT_TIMEOUT` | No | `3s` | Timeout for tenant pool cold-connect ping/open attempts |
+| `MNEMO_TENANT_POOL_IDLE_TIMEOUT` | No | `10m` | Idle timeout for tenant database handles |
+| `MNEMO_TENANT_POOL_TOTAL_LIMIT` | No | `200` | Total tenant database handles allowed across the process |
+| `MNEMO_CLUSTER_BLACKLIST` | No | — | Comma-separated TiDB cluster IDs whose spend-limit errors should be translated to HTTP 429 instead of 503 |
+
+#### Auto Spend Limit
+
+These variables control automatic spend-limit increases for TiDB Cloud clusters that hit their cap. The feature progressively raises the limit up to `MNEMO_AUTO_SPEND_LIMIT_MAX` with a configurable cooldown between increments.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_AUTO_SPEND_LIMIT_ENABLED` | No | `false` | Enable automatic spend-limit increases for TiDB Cloud clusters. Requires valid `MNEMO_TIDBCLOUD_API_KEY` and `MNEMO_TIDBCLOUD_API_SECRET` |
+| `MNEMO_AUTO_SPEND_LIMIT_INCREMENT` | No | `500` | Amount to increase the spend limit by each step (in USD cents: 500 = $5.00) |
+| `MNEMO_AUTO_SPEND_LIMIT_MAX` | No | `10000` | Maximum spend limit allowed (in USD cents: 10000 = $100.00). Must be greater than the increment |
+| `MNEMO_AUTO_SPEND_LIMIT_COOLDOWN` | No | `1h` | Minimum time between consecutive spend-limit increases for the same cluster |
+
+#### Metering
+
+These variables configure the legacy server-side API metering writer. It emits `mem9-api` events for successful recall and ingest operations and is separate from runtime usage quota metering.
+
+Metering location is configured as a single destination URL. Supported schemes are:
+
+- `s3://<bucket>/<prefix>/` for compressed JSON batches in S3
+- `http://...` or `https://...` for JSON batch webhooks
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_METERING_ENABLED` | No | `false` | Enable the metering writer. When `false`, the writer is a no-op |
+| `MNEMO_METERING_URL` | No | — | Metering destination URL. Supported forms: `s3://<bucket>/<prefix>/`, `http://...`, or `https://...`. If empty, the writer stays disabled even when `MNEMO_METERING_ENABLED=true` |
+| `MNEMO_METERING_FLUSH_INTERVAL` | No | `10s` | In-memory batch flush interval for the metering writer |
+
+#### Runtime Usage Quota And Metering
+
+Runtime usage is disabled by default. When enabled, the server reserves quota before memory recall/write operations, releases reservations after failed operations, commits reservations after successful operations, and sends console metering events to the runtime usage service. This path uses `MNEMO_RUNTIME_USAGE_BASE_URL` and does not use `MNEMO_METERING_URL`.
+
+The runtime usage outbox uses the control-plane `runtime_usage_outbox` table for pending reservation finalization and metering delivery. It is enabled by default when runtime usage is enabled.
+
+Reservation retries require one of these exact responses with `details.retryable: true`: `409 registry_conflict`; `429 operation_in_progress`, `429 registry_busy`, or `429 reservation_concurrency_limited` with a positive decimal integer-seconds `Retry-After`; or `503 unavailable`. Reservation calls make up to three total attempts. The first retry samples from the base delay through the midpoint, and the second samples from the midpoint through the maximum delay. Retryable 429 responses use the greater of the sampled delay and `Retry-After`. After fail-closed handling stops, recognized or unknown 429 responses remain 429, while exhausted 409/503 responses, terminal `409 operation_conflict`, and unknown 409 responses become 503.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_RUNTIME_USAGE_ENABLED` | No | `false` | Enable runtime usage quota gating and console metering for memory recall/write operations |
+| `MNEMO_RUNTIME_USAGE_PROVIDER_ID` | No | — | Runtime usage provider discriminator returned in runtime-state responses. Mem9 official hosted deployments set `mem9-official`; self-hosted deployments usually leave this empty or use their own provider id. Upstream object-shaped `providerData` is returned independently and interpreted by consumers that recognize the provider id |
+| `MNEMO_RUNTIME_USAGE_BASE_URL` | Yes when enabled | — | Runtime usage service base URL. Must be `http` or `https`; query and fragment are rejected |
+| `MNEMO_RUNTIME_USAGE_INTERNAL_SECRET` | Yes when enabled | — | Bearer token for internal runtime usage service calls |
+| `MNEMO_RUNTIME_USAGE_TIMEOUT` | No | `3s` | Timeout for quota reservation and finalization requests |
+| `MNEMO_RUNTIME_USAGE_RESERVATION_RETRY_BASE_DELAY` | No | `500ms` | Lower bound for Reservation retry jitter. Accepted range: `300ms` through `1s` |
+| `MNEMO_RUNTIME_USAGE_RESERVATION_RETRY_MAX_DELAY` | No | `1s` | Upper bound for Reservation retry jitter. Accepted range: `600ms` through `2s`; must exceed the base delay |
+| `MNEMO_RUNTIME_USAGE_METERING_TIMEOUT` | No | `5s` | Timeout for console metering event delivery requests |
+| `MNEMO_RUNTIME_USAGE_RESERVATION_TTL` | No | `30m` | Parsed into server config, but currently not sent to reservation requests; changing it does not alter reservation lifetimes |
+| `MNEMO_RUNTIME_USAGE_OPERATION_TTL` | No | `30m` | Parsed into server config, but currently not used to expire runtime usage outbox rows; changing it does not alter outbox lifetimes |
+| `MNEMO_RUNTIME_USAGE_FAIL_OPEN` | No | `false` | Allow operations when quota reservation fails with a retryable runtime usage service error. Quota denials and operation conflicts still fail closed |
+| `MNEMO_RUNTIME_USAGE_OUTBOX_ENABLED` | No | same as `MNEMO_RUNTIME_USAGE_ENABLED` | Persist pending reservation and metering steps for retry. If explicitly set to `false` while runtime usage is enabled, `MNEMO_RUNTIME_USAGE_FAIL_OPEN` must be `true` |
+| `MNEMO_RUNTIME_USAGE_NOTICE_TIMEOUT` | No | `1s` | Timeout for best-effort runtime-state lookups used only by success response notices |
+| `MNEMO_RUNTIME_USAGE_NOTICE_CACHE_ENABLED` | No | `true` | Enable API-key-scoped caching for success response runtime-state notices |
+| `MNEMO_RUNTIME_USAGE_NOTICE_CACHE_TTL` | No | `30s` | Fresh TTL for success response runtime-state notice cache entries |
+| `MNEMO_RUNTIME_USAGE_NOTICE_STALE_TTL` | No | `2m` | Maximum stale-cache age used for success notices when the state provider is unavailable |
+
+#### Security And Debugging
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_ENCRYPT_TYPE` | No | `plain` | Encryption type for tenant DB passwords: `plain`, `md5`, or `kms`. One-time deployment decision. |
+| `MNEMO_ENCRYPT_WRITE_FORMAT` | No | `legacy` | Write format for control-plane secrets: `legacy` preserves current `MNEMO_ENCRYPT_TYPE` behavior; `enc_v1` encrypts new values with the keyring mounted at `MNEMO_SPACE_CREDENTIAL_KEYRING_FILE` and requires `secret_field_kids` to map every protected field to one distinct non-Space encryption key. Existing values remain readable in either mode, and switching back to `legacy` after enabling `enc_v1` is safe for reads because readers understand both formats. Enable `enc_v1` only after every instance runs a version that reads it; once `enc_v1` values exist, do not roll back to a binary that predates this setting. |
+| `MNEMO_ENCRYPT_KEY` | No | — | Encryption key for `md5` or KMS key ID for `kms`. Required when `MNEMO_ENCRYPT_TYPE` is not `plain` |
+| `MNEMO_DEBUG_LLM` | No | `false` | Log raw LLM responses for debugging parse errors. Use only in dev/test because responses may contain user data |
+
+##### Secret Field Keyring Slots
+
+`enc_v1` gives each of the four protected control-plane fields its own AES key so a lost or rotated field key does not affect Space credentials or other fields. The keyring still uses one active Space credential key (`encryption_kid`), plus distinct field keys:
+
+```json
+{
+  "hash_version": "v1",
+  "hmac_keys": {"v1": "<base64 32 bytes>"},
+  "encryption_kid": "space-k1",
+  "encryption_keys": {
+    "space-k1": "<base64 32 bytes>",
+    "db-k1": "<base64 32 bytes>",
+    "cu-k1": "<base64 32 bytes>",
+    "wh-k1": "<base64 32 bytes>",
+    "ob-k1": "<base64 32 bytes>"
+  },
+  "secret_field_kids": {
+    "tenants.db_password": "db-k1",
+    "tenants.claim_url": "cu-k1",
+    "webhook_endpoints.secret_ciphertext": "wh-k1",
+    "runtime_usage_outbox.api_key_subject": "ob-k1"
+  }
+}
+```
+
+To rotate one field, add a new kid with distinct key material, change only that field's `secret_field_kids` entry, and keep the old kid in `encryption_keys` until no stored value references it. Decryptors use the kid embedded in each stored value, so old and new values remain readable during rotation.
+
+##### Backfilling Protected Secrets
+
+Existing tenant DB passwords, tenant claim URLs, webhook secrets, and runtime-usage outbox subjects can be moved from the legacy encryption format to `enc_v1` without changing the schema:
+
+```bash
+mnemo-server migrate-secrets --mode=dry-run
+mnemo-server migrate-secrets --mode=backfill --max-rows=10
+mnemo-server migrate-secrets --mode=backfill
+mnemo-server migrate-secrets --mode=verify
+```
+
+`--fields` limits the run to the exact field constants, `--batch-size` controls keyset page size, `--pause` adds a delay between batches, and `--max-rows` caps rows updated per field for a trial run. Recommended order is `dry-run` → `backfill --max-rows=10` → `backfill` → `verify`. Runtime-usage outbox rows keep their `apiKeySubject` values in every status, including `done`, for troubleshooting; `backfill` encrypts them like the other fields.
+
+`backfill` is refused unless the shared configuration already sets `MNEMO_ENCRYPT_WRITE_FORMAT=enc_v1`; switch the servers first, so every instance reads `enc_v1` before rows are rewritten. Each row is decrypted, re-encrypted with its field's kid and checked before a compare-and-swap update, so a concurrent server write wins and re-runs only touch rows still in the legacy format. `verify` exits non-zero while legacy values or undecryptable `enc:` values remain. The migration needs the same database environment and the keyring mounted through `MNEMO_SPACE_CREDENTIAL_KEYRING_FILE`; it never starts the HTTP server or background workers. It only reports aggregate integer counters, not row IDs or secret values.
+
+To find out which key a runtime-usage outbox row belongs to, use the read-only `inspect-outbox` mode. Select one row by `--operation-id`, or the newest rows of a tenant by `--tenant-fingerprint` (the `sha256:` value the server logs as `tenant_id`; `--limit` defaults to 20, at most 200). It decrypts the subjects in memory and prints, per row, the operation id, status, step, timestamps and `sha256:` fingerprints of the tenant and both subjects, never a key or ciphertext. To match a known key, compare its fingerprint, computed locally with `printf %s "$KEY" | shasum -a 256 | cut -c1-24`, prefixed with `sha256:`. It does not need `secret_field_kids`.
+
+```bash
+mnemo-server migrate-secrets --mode=inspect-outbox --tenant-fingerprint=sha256:<24 hex> --limit=20
+mnemo-server migrate-secrets --mode=inspect-outbox --operation-id=<operation uuid>
+```
+
+For Kubernetes, run the existing server image as a Job with the server's `envFrom` reference and keyring mount. Replace every placeholder before use:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: <migration-job-name>
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate-secrets
+          image: <mnemo-server-image>
+          args: ["migrate-secrets", "--mode=dry-run"]
+          envFrom:
+            - configMapRef:
+                name: <server-config-map>
+            - secretRef:
+                name: <server-secret>
+          volumeMounts:
+            - name: keyring
+              mountPath: <keyring-mount-path>
+              readOnly: true
+      volumes:
+        - name: keyring
+          secret:
+            secretName: <keyring-secret-name>
+```
+
+Set `MNEMO_SPACE_CREDENTIAL_KEYRING_FILE` to `<keyring-mount-path>/keys.json`, matching the mounted Secret.
+
+#### AWS KMS Environment
+
+These are only relevant when `MNEMO_ENCRYPT_TYPE=kms`. The server uses the AWS SDK default config chain; the common environment-based inputs referenced in code are:
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `AWS_ACCESS_KEY_ID` | No | — | AWS access key ID for KMS auth when using environment-based AWS credentials |
+| `AWS_SECRET_ACCESS_KEY` | No | — | AWS secret access key for KMS auth when using environment-based AWS credentials |
+| `AWS_REGION` | No | — | AWS region used to create the KMS client |
+
+#### Test-Only
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MNEMO_TEST_DSN` | No | Falls back to `MNEMO_DSN` | Integration-test DSN used by server repository tests |
+
+## Repository Map
+
+| Path | Role |
+|---|---|
+| [`server/`](server/) | Core Go REST API and source of truth for spaces, memories, search, ingest, and tenant provisioning |
+| [`cli/`](cli/) | Standalone Go CLI for exercising mem9 API and ingest flows |
+| [`openclaw-plugin/`](openclaw-plugin/) | OpenClaw memory plugin |
+| [`opencode-plugin/`](opencode-plugin/) | OpenCode plugin |
+| [`claude-plugin/`](claude-plugin/) | Claude Code hooks and skills integration |
+| [`codex-plugin/`](codex-plugin/) | Codex marketplace plugin and managed hooks |
+| [`dsh-plugin/`](dsh-plugin/) | DeepSeek Harness DSH/Cordis bundle |
+| [`site/`](site/) | Public mem9.ai site and published onboarding assets |
+| [`dashboard/`](dashboard/) | Dashboard product frontend and supporting product docs |
+| [`benchmark/`](benchmark/) | Benchmark harnesses and datasets for mem9 evaluation |
+| [`e2e/`](e2e/) | Live end-to-end scripts against a running mem9 server |
+| [`docs/`](docs/) | Architecture notes, design docs, and feature specs |
+
+## Related Repositories
+
+| Repository | What it owns | When to look there |
+|---|---|---|
+| [`mem9`](.) | Core Go API server, agent plugins, CLI, site, dashboard frontend, benchmark harnesses, and docs | You are working on the shared memory server, plugin integrations, or the main product docs |
+| [`mem9-node`](https://github.com/mem9-ai/mem9-node) | Dashboard analysis backend, async jobs, and worker flows | A dashboard feature depends on backend APIs, background jobs, or analysis pipelines |
+| [`mem9-hermes-plugin`](https://github.com/mem9-ai/mem9-hermes-plugin) | Hermes Agent plugin packaging, setup flow, and Hermes-specific docs | You are changing Hermes installation, activation, or runtime-specific behavior |
+| [`mem9-dify-plugin`](https://github.com/mem9-ai/mem9-dify-plugin) | Dify tool plugin, memory tools, authorization modes, and Dify-specific docs | You are changing Dify Agent app, Workflow app, or multi-space plugin behavior |
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
+## License
+
+[Apache-2.0](LICENSE)
+
+---
+
+<p align="center">
+  <a href="https://tidbcloud.com">
+    <img src="assets/tidb-logo.png" alt="TiDB Cloud Starter" height="28" />
+  </a>
+  <br/>
+  <sub>Built on <a href="https://tidbcloud.com">TiDB Cloud Starter</a> for shared memory, vector search, and managed cloud provisioning.</sub>
+</p>

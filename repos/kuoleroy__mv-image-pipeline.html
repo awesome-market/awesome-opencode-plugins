@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kuoleroy/mv-image-pipeline · OpenCode Plugins</title>
+<meta name="description" content="图片烧 MV / 爆款短视频流水线 Skill：用 AI 生成的静态图库制作 MV 与抖音竖屏视频。纯 CPU 渲染，显卡仅在出图与超分时占用。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="mv-image-pipeline, kuoleroy, kuoleroy/mv-image-pipeline, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/kuoleroy__mv-image-pipeline">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="kuoleroy/mv-image-pipeline · OpenCode Plugins">
+<meta property="og:description" content="图片烧 MV / 爆款短视频流水线 Skill：用 AI 生成的静态图库制作 MV 与抖音竖屏视频。纯 CPU 渲染，显卡仅在出图与超分时占用。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/kuoleroy__mv-image-pipeline">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "kuoleroy/mv-image-pipeline", "codeRepository": "https://github.com/kuoleroy/mv-image-pipeline", "url": "https://opencode-plugins.zhuikan.com/repos/kuoleroy__mv-image-pipeline", "description": "图片烧 MV / 爆款短视频流水线 Skill：用 AI 生成的静态图库制作 MV 与抖音竖屏视频。纯 CPU 渲染，显卡仅在出图与超分时占用。", "author": {"@type": "Organization", "name": "kuoleroy", "url": "https://github.com/kuoleroy"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="kuoleroy/mv-image-pipeline" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">kuoleroy/mv-image-pipeline</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="kuoleroy__mv-image-pipeline"><img class="rp-side-av" src="https://github.com/kuoleroy.png?s=300" width="300" height="300" alt="kuoleroy avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">mv-image-pipeline</div>
+      <a class="rp-side-owner" href="https://github.com/kuoleroy">kuoleroy</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/kuoleroy">kuoleroy</a>
+        <span class="rp-sep">/</span><span class="rp-name">mv-image-pipeline</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">图片烧 MV / 爆款短视频流水线 Skill：用 AI 生成的静态图库制作 MV 与抖音竖屏视频。纯 CPU 渲染，显卡仅在出图与超分时占用。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="kuoleroy__ai-drama-storyboard"><img class="rp-same-av" src="https://github.com/kuoleroy.png" alt="" loading="lazy">ai-drama-storyboard</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/kuoleroy/mv-image-pipeline">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">图片烧 MV / 爆款短视频流水线 · Skill
+
+ 本仓库现在只是「技能」 —— 图片烧 MV / 爆款短视频流水线，供 ComfyUI 出图使用。
+ 共享技能的开关管理软件（Skillsmith）已独立成仓：
+ https://github.com/kuoleroy/skillsmith（安装包在它的 Releases 里）。
+
+把「一堆静态图」变成一条有呼吸、有节奏、有字幕的成片。
+
+针对的硬约束只有一个：显卡不行也能出片。显卡只在出图和超分两个环节工作，渲染全程 CPU 跑 ffmpeg，12GB 显存甚至更低都能完成整条链路。
+
+---
+
+ 这个技能解决什么
+
+| 症状 | 根因 | 本技能的做法 |
+|---|---|---|
+| 显卡不够，跑不动视频模型 | 图生视频要吃满显存 | 改成「静态图 + Ken Burns 推移」，渲染零 GPU 占用 |
+| 出图全变成正面站立 | 场景描述缺动作与空间关系 | 强动作 + 前景遮挡 + 物理反应，三件套改写 |
+| 画面像 PPT 幻灯片 | 镜头密度不足 | 每镜压到 2.3–2.4s，相邻不重复景别 |
+| 字幕在暗背景上看不见 | 没量亮度就配了墨字 | 先 bright 采样，再按 ink/light/pale 三档配色 |
+| 相邻两句字幕叠在一起 | 分段生成时末句多吃 2.2s 尾巴 | 内置收紧算法：end 收到 next_start + 0.12 |
+| 人物头顶被切掉 | 人物镜头走了 cover 裁切 | 人物永远 contain，模糊底 + 居中 |
+| 渲染输出帧数爆炸 | 给 zoompan 加了 -loop 1 | 单帧输入，zoompan 的 d=frames |
+| 帧率上不去只能靠 AI 插帧 | 误以为静态图必须插帧 | zoompan 原生算任意帧率，60fps 无复制帧 |
+| 竖屏图里出现横构图 | 提示词没压制 | 负面词加 landscape orientation, letterboxing |
+
+---
+
+ 核心认知：镜头密度 ≠ 图片数量
+
+观感由「每秒切几刀」决定，不由「图有多少张」决定。
+
+| 用途 | 时长 | 镜头数 | 每镜 | 切点依据 |
+|---|---|---|---|---|
+| MV 完整版 | 190s | 80 | 2.4s | 唱词（LRC 行首） |
+| 抖音竖屏 | 86s | 38 | 2.3s | 唱词 |
+| 爆款短视频 | 42s | 45 | 0.9s | 节拍（BPM 网格） |
+
+库要生成到 250+ 张供挑选，但入片镜头数按段落情绪排，不是每张都用。
+
+实测参考：一次实战生成 120 张，入片 80 张，审图后重做 13 张。
+
+---
+
+ 快速开始
+
+bash
+ 1. 出图（需要本地 ComfyUI 跑在 8188）
+python3 scripts/comfy_gen.py --config shots.json
+
+ 2. 审图拼贴，快速过一遍
+python3 scripts/mv_qc.py sheet 机位库 审图.jpg
+
+ 3. 超分到渲染基准（必须用 ComfyUI 的 venv，那里才有 torch+cuda）
+/.venv/bin/python scripts/upscale.py \
+  --src 机位库 --dst 机位库_2k --target 2592,1458
+
+ 4. 时间轴（MV 模式：切点跟唱词）
+python3 scripts/timeline_build.py lrc --lrc 歌词/歌名.lrc --map 映射.json \
+  --audio 原曲.wav --out 时间轴.json
+
+ 5. 渲染
+python3 scripts/mv_render.py --config config.json
+
+ 6. 采样亮度，决定字幕配色
+python3 scripts/mv_qc.py bright 成片.mp4 0,4,10,20,40
+
+ 7. 字幕（先出 ASS，再烧）
+python3 scripts/subs_build.py --config subs.json --out 字幕.ass
+python3 scripts/subs_build.py --config subs.json --burn 无词成片.mp4 --out 带词成片.mp4
+
+ 8. 质检
+python3 scripts/mv_qc.py check 成片.mp4
+
+
+装进 WorkBuddy：
+
+
+WorkBuddy → 设置 → 技能 → 添加本地技能 → 选 mv-image-pipeline 目录
+
+
+---
+
+ 流水线全貌
+
+
+定义机位库 shots.json
+  ↓  comfy_gen.py                          ← ComfyUI 批量出图（幂等，可断点续跑）
+  ↓  mv_qc.py sheet                        ← 审图拼贴（必做，不是可选）
+  ↓  --redo 重做失败镜头
+机位库/.png
+  ↓  upscale.py                            ← 4x 超分后缩到渲染基准，消除二次插值
+机位库_2k/.png
+  ↓  timeline_build.py lrc|beat            ← 段 → 镜头 ID 映射
+时间轴.json
+  ↓  mv_render.py --fps 60                 ← Ken Burns 推移 + xfade 拼接（纯 CPU）
+无词成片.mp4
+  ↓  mv_qc.py bright                       ← 采样亮度
+  ↓  subs_build.py                         ← 分档配色 + 收紧算法 + 烧字幕
+带词成片.mp4
+  ↓  mv_qc.py check                        ← 解码零报错（硬指标）
+成片.mp4
+
+
+---
+
+ 目录结构
+
+
+mv-image-pipeline/
+├── SKILL.md                          核心方法论与完整流程
+├── references/
+│   ├── prompt-craft.md               提示词工程：失败模式与改写对照 ★
+│   ├── rendering.md                  渲染层算法细节与推导 ★
+│   ├── subtitles.md                  libass 硬约束与字幕三档配色 ★
+│   ├── comfy-setup.md                ComfyUI 路径探测与显存配置
+│   └── verified-recipes.md           已验证可用的完整配置样例 ★
+├── scripts/
+│   ├── comfy_gen.py         </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/kuoleroy__mv-image-pipeline.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

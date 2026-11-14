@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>haishishushu/jolu · OpenCode Plugins</title>
+<meta name="description" content="haishishushu/jolu — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="jolu, haishishushu, haishishushu/jolu, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/haishishushu__jolu">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="haishishushu/jolu · OpenCode Plugins">
+<meta property="og:description" content="haishishushu/jolu — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/haishishushu__jolu">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "haishishushu/jolu", "codeRepository": "https://www.npmjs.com/package/jolu", "url": "https://opencode-plugins.zhuikan.com/repos/haishishushu__jolu", "description": "haishishushu/jolu — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "haishishushu", "url": "https://www.npmjs.com/~haishishushu"}, "isAccessibleForFree": true, "dateCreated": "2026-10-21"}</script>
+</head>
+<body data-repo="haishishushu/jolu" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">haishishushu/jolu</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="haishishushu__jolu"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+SjwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">jolu</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~haishishushu">haishishushu</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~haishishushu">haishishushu</a>
+        <span class="rp-sep">/</span><span class="rp-name">jolu</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>15</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-10-21</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/jolu">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">15</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">10</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Jolu
+
+把 AI 编程工具管在一处。
+
+额度常驻桌面灵动岛 · 每日福利一键签到 · 额度用完自动等待、恢复后续跑
+
+
+!Platform
+
+下载安装 · 反馈问题
+
+简体中文 | English
+
+
+  
+  
+
+
+
+
+ 文中的界面图片来自前端预览或本机运行截图，图中的账号、项目和数值多为示例，不代表你的真实用量。实际数据取决于本机留存记录、连接授权和服务商返回结果。
+
+ 三大亮点
+
+ 灵动岛：额度和会话常驻桌面
+
+不用切窗口、不用开网页，屏幕上方的灵动岛随时告诉你：当前账号还剩多少额度、什么时候重置、有几个会话正在跑、这一轮又用了多少 Token。
+
+| 收缩态 | 展开态 |
+| --- | --- |
+|  |  |
+| 5 小时 / 7 天额度、重置倒计时与会话增量 | 订阅额度、运行中的会话明细与本地今日 Token |
+
+- 双击展开或收起；拖向屏幕边缘自动吸附停靠，不挡视线。
+- 最多开启 8 个分身，每个分身显示不同的账号或工具，多账号额度一眼看全。
+- 右键菜单可切换连接、调整显示位置、置顶、免打扰，以及开启或销毁分身；至少保留一个灵动岛。
+- 系统托盘图标右下角的圆点同步显示额度状态：绿色正常、黄色接近上限、红色已耗尽、灰色未知。
+- 左键单击托盘图标打开主窗口；关闭主窗口后，灵动岛、后台采集和自动化调度继续运行，完全退出请使用托盘菜单。
+
+
+
+ 胶囊样式：整颗胶囊就是窗口
+
+在 灵动岛 页把样式切成 胶囊（设置项 island_style，默认仍是经典样式）。两种样式读同一份数据，只是换一种画法：窗口和胶囊一样大，外面没有边框，也没有点不到的空白。
+
+| 胶囊态 | 展开卡片 |
+| --- | --- |
+|  |  |
+| 平台与额度写在胶囊里，写入 Token 时尾部给绿色增量 | 双击展开；额度、会话明细与统计来源都在卡片里 |
+
+- 胶囊里写什么：订阅连接显示平台加额度窗口芯片（5 小时 / 7 天），API Key 连接显示平台、今日 Token 与估算费用。额度到 80% 转橙，用尽时换成红字直接写重置时间。上面截图是 ZCode：它没有额度窗口的概念，胶囊只显示 —，不会凭空画出 5 小时 / 7 天。
+- 展开卡片：双击胶囊展开（圆角 28、0 4px 16px 投影），Esc 或点卡片外面收回；展开态也能直接拖动，拖到屏幕边缘按原有规则吸附，不必先收回。
+- 贴边：只有左右贴边缩成 32px 的迷你胶囊，悬停 140ms 探出完整胶囊；上下贴边保持完整胶囊。贴边和迷你态都不投影，桌面上不多出一块方框。
+- 会话中：有会话正在写入 Token 时，左侧小机器人的眼睛变绿，胶囊尾部出现绿色 +xx.xK 增量；两个及以上会话并行时，胶囊右侧多一个转圈和会话数气泡。增量常驻到跨天或手动刷新。
+- 表情与视线：小机器人按状态换表情，视线跟着鼠标，指针移出窗口也跟；写入时在它身上轮播本段 Token。
+
+ 一键签到：每日福利一次领取
+
+!一键签到
+
+- 按 WorkBuddy、Qoder、Trae 的国内版与国际版分成六张卡片，每张卡片显示今日奖励、本周 / 本月签到天数和账号额度。
+- 点 一键签到 依次领取全部可签到账号；也可以逐个签到，部分失败时单独重试，不会重复领取同一账号。
+- 添加账号时先选供应商，按该供应商的流程授权；同一浏览器中可以添加多个账号，批量管理 支持批量删除。
+- 签到记录与本期累计积分按来源区分官方记录与 Jolu 记录；点眼睛图标可一键隐藏账号，方便截图分享。
+- 当前支持 WorkBuddy 国内版、Qoder 国内 / 国际版、Trae 国内版的手动签到；WorkBuddy AI 完成有效任务后自动结算，Trae 国际版官方暂未开放每日签到。
+
+ 额度用完不中断：恢复后自动续跑
+
+!自动化：等待额度并在恢复后续跑
+
+把任务交给 Claude Code 或 Codex，额度耗尽也不会白跑：
+
+- 执行中额度耗尽：保留已完成的文件修改和会话进度，任务进入「等待额度」，界面显示预计恢复时间和下次检查时间。
+- 额度恢复后：自动重新检查 5 小时与周额度，确认可用后在原会话里继续执行，不会从头重跑；无法安全续跑时标记为需要手动继续。
+- 启动方式：立即执行、定时执行（单次 / 每天 / 每周），或直接设为「额度恢复后执行」，把重活排到额度刷新的那一刻。
+- 同账号排队：同一账号的任务按队列依次执行；运行记录里分开统计执行耗时与等待时长。
+
+!自动化任务列表
+
+- 新建任务时选择执行工具、账号、模型、项目目录和执行会话，可以从会话线程一键带入会话和项目。
+- 执行账号必须是原工具当前登录的账号，Jolu 不会替你切换登录；文件修改权限沿用工具自身的配置。
+- 本地任务需要 Jolu 在后台运行；休眠与关机期间停止调度，错过的定时触发标为「已错过」，由你决定是否补跑。
+
+ 目录
+
+- 三大亮点
+- 核心功能
+- 平台与额度支持
+- 下载与安装
+- 首次使用
+- 各模块怎么用
+- 读懂统计数据
+- 更新与数据保留
+- 隐私与本地存储
+- 常见问题
+- 开发与构建
+- 反馈与许可证
+- Community 社区
+- Star History
+
+ 核心功能
+
+| 模块 | 可以做什么 |
+| --- | --- |
+| 灵动岛 | 常驻桌面查看当前连接的额度、重置时间和会话增量；可置顶、贴边停靠、开启最多 8 个分身；样式可选经典或胶囊 |
+| 供应商 | 连接 Claude Code、Codex、Gemini、Grok 等工具；管理账号，查看订阅额度与 API Key 用量 |
+| 一键签到 | 批量或逐个领取 WorkBuddy、Qoder、Trae 的官方每日奖励，查看签到记录与积分统计 |
+| 用量统计 | 概览、用量分析、调用明细三个视图；按时间、供应商、账号、模型筛选，调用明细可导出 CSV |
+| 会话线程 | 按项目浏览本机会话，搜索标题、会话 ID 或正文；只读查看消息，一键在原工具中继续 |
+| 自动化 | 让 Claude Code / Codex 立即、定时或额度恢复后执行任务；额度耗尽时保留进度，恢复后续跑 |
+| Skills 管理 | 扫描、查看、新建、导入、复制、启停 Claude Code 与 Codex 的 Skills，写入前自动备份 |
+| 模型入口 | 把官方订阅、官方 Key 与第三方 Key 收进同一个本机地址，各工具按「来源/模型」取用；三栏总览、分组排序、Agent 接线与漂移状态、路由流水 |
+| 设置 | 开机启动、主题、CLI 本地代理、数据导入导出与清理、通知与免打扰 |
+
+!Jolu 主窗口 · 用量统计
+
+本地统计与在线额度是两条独立链路：有本机会话不代表能查询账号额度；有账号额度也不代表本机留存了会话记录。
+
+ 平台与额度支持
+
+ AI 工具平台
+
+| 平台 | 已接入的主要能力 | 使用边界 |
+| --- | --- | --- |
+| Claude Code | 本机会话与消息、Token 与费用估算、官方订阅及支持网关的额度查询、在原工具中继续、自动化执行、Ski</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-13T10:22:36Z · Data license Apache-2.0 ·
+<a href="../data/repos/haishishushu__jolu.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

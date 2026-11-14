@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chendykjx/mcdiff · OpenCode Plugins</title>
+<meta name="description" content="每天给麦当劳菜单打一次 commit：git diff 出今天谁涨价、谁下架，消失的餐品进「麦门考古博物馆」">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="mcdiff, chendykjx, chendykjx/mcdiff, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/chendykjx__mcdiff">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="chendykjx/mcdiff · OpenCode Plugins">
+<meta property="og:description" content="每天给麦当劳菜单打一次 commit：git diff 出今天谁涨价、谁下架，消失的餐品进「麦门考古博物馆」">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/chendykjx__mcdiff">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "chendykjx/mcdiff", "codeRepository": "https://github.com/Chendykjx/mcdiff", "url": "https://opencode-plugins.zhuikan.com/repos/chendykjx__mcdiff", "description": "每天给麦当劳菜单打一次 commit：git diff 出今天谁涨价、谁下架，消失的餐品进「麦门考古博物馆」", "author": {"@type": "Organization", "name": "chendykjx", "url": "https://github.com/Chendykjx"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-24", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools"}</script>
+</head>
+<body data-repo="chendykjx/mcdiff" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">chendykjx/mcdiff</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="chendykjx__mcdiff"><img class="rp-side-av" src="https://github.com/Chendykjx.png?s=300" width="300" height="300" alt="chendykjx avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">mcdiff</div>
+      <a class="rp-side-owner" href="https://github.com/Chendykjx">chendykjx</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Chendykjx">chendykjx</a>
+        <span class="rp-sep">/</span><span class="rp-name">mcdiff</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">每天给麦当劳菜单打一次 commit：git diff 出今天谁涨价、谁下架，消失的餐品进「麦门考古博物馆」</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>3</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-24</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Chendykjx/mcdiff">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">🍟 McDiff — 给麦当劳菜单建一个 git 仓库
+
+ 每天给菜单打一次 commit：git diff 出今天谁涨价、谁下架。
+
+ 实测抓到：2026-10-25 05:05，一家门店在 23 分钟里把菜单换了 —— 巨无霸、双层吉士汉堡&quot;下架&quot;，猪柳蛋麦满分、豆浆&quot;上架&quot;，+61 / -64。
+
+
+
+
+
+
+
+
+!demo
+
+
+
+🎮 30 秒在线体验（免登录） · 快速开始 · 它用到的 MCP 工具 · 数据与边界
+
+ 麦当劳程序员创意开发大赛参赛作品 · 非麦当劳官方产品
+
+---
+
+ 这是什么
+
+菜单是会变的：今天 14.9 的随心配明天可能 15.9，上周还在的薯角这周就没了——但没有任何地方留下记录。
+
+McDiff 把一家麦当劳门店的菜单当成代码仓库来管理：
+
+1. 采集：调用麦当劳中国 MCP 的 query-meals，把门店菜单（分类 / 编码 / 标签 / 现价 / 划线价）抓下来，存成一份带校验和的 JSON 快照；
+2. 提交：每次采集都是一次 commit，快照按 门店/日期-餐段 落盘，可以像翻 git log 一样翻菜单史；
+3. diff：任意两次快照对比，输出真·git diff 风格的变更清单——新增、下架、涨价、降价、改名、标签调整、换分类；
+4. 考古：消失的 SKU 进「麦门考古博物馆」，每块墓碑记着它在架多少天、最后卖多少钱、最后一次出现在哪天。
+
+一句话：别人教你今天怎么点省钱，McDiff 记录菜单怎么变。
+
+ 为什么不是又一个「省钱助手」
+
+- 省钱助手回答「今天怎么点最划算」——这个问题每天都有答案，而且答案会过时；
+- McDiff 回答「菜单什么时候变的、变了什么」——这个问题没有公开答案，只能靠自己一天天攒快照；
+- 快照越久越值钱：第 1 天的项目只能 diff 一次，第 100 天的项目拥有一条没人有的价格曲线。
+
+ 👀 输出长这样
+
+diff
+--- 2026-10-25 04:42 深夜
++++ 2026-10-25 05:05 早餐
+@@ 麦当劳深圳湾一店餐厅（1420576） 75 → 72 个 SKU · +61 -64 ↑0 ↓0 ~0 @@
++ 1088         优品豆浆                   ¥9.50  新增
++ 1254         火腿扒麦满分               ¥10.00  新增
++ 2631         脆香油条                   ¥8.50  新增
++ 4437         玉米杯                     ¥13.00  新增
++ 4825         脆薯饼                     ¥8.50  新增
+- 1100         巨无霸                     ¥25.50  下架
+- 1120         双层吉士汉堡               ¥23.00  下架
+- 1401         麦乐鸡                     ¥14.00  下架
+- 1406         板烧鸡腿堡                 ¥23.50  下架
+... 共 61 新上 / 64 下架
+
+
+ 📌 第一手的发现：菜单是「换整本」的，不是「改几条」的
+
+上面这段 diff 来自 2026-10-25 凌晨的真实采集（04:42 → 05:05，间隔 23 分钟）。麦当劳不是在菜单上增删几条，而是在早餐时段开始的那一刻，把整本菜单换掉了：64 个宵夜时段还能点的东西同时消失，61 个早餐 SKU 同时出现——巨无霸和双层吉士汉堡在 5 点整&quot;下架&quot;，猪柳蛋麦满分和豆浆&quot;上架&quot;。
+
+如果没有快照，这件事永远不会被看见；有了快照，它变成一行 - 1100 巨无霸 ¥25.50 下架。
+
+ 仓库里还带了 29 天示例快照（文件内 &quot;synthetic&quot;: true），用于演示多天 diff 与博物馆；真实采集从 2026-10-25 04:42 开始，之后的每一份快照都不可伪造。
+
+ ✨ 核心能力
+
+| 能力 | 说明 | 依赖的 MCP Tool |
+|---|---|---|
+| 菜单快照 | 门店级菜单全量落盘，含分类、标签、价格、划线价、优惠类型，SHA-256 校验和去重 | query-meals |
+| git 式 diff | + 新增 / - 下架 / ~ 涨价降价，中文等宽对齐，可输出 git 文本 / Markdown / JSON | — |
+| 菜单博物馆 | 追踪每个 SKU 的生命周期：首次出现、最后出现、在架天数、价格变化曲线、墓志铭 | — |
+| 价格核验 | 用官方 calculate-price 对指定商品核价（金额单位为分），交叉验证菜单展示价 | calculate-price |
+| 券与促销留痕 | 每次快照同时记录当前门店可用券、满减/折扣规则，方便日后做「券的门槛降了没」 | query-store-coupons、query-promotions |
+| 门店选择 | 按城市 + 关键词找店，自动跳过未营业门店 | query-nearby-stores |
+| 时间基准 | 所有快照带服务器时间与餐段（早餐/午餐/下午茶/夜市/深夜）标签 | now-time-info |
+| 导出 GIF | 任意两次快照 → 终端打字 + 结论卡的动画 GIF，--theme light\|dark、--width、--rows 可调 | — |
+| 静态演示 | 一条命令导出 docs/data.js，纯前端页面可以 diff 任意两个时间点，不需要 Token | — |
+
+ 🚀 快速开始
+
+bash
+ 1) 申请 Token：https://open.mcd.cn/mcp → 手机号登录 → 控制台 → 激活 → 复制
+export MCD_MCP_TOKEN=&quot;你的_token&quot;         Windows: setx MCD_MCP_TOKEN &quot;...&quot;
+
+ 2) 找一家店（city 与 keyword 必须同时给）
+python -m mcdiff stores --city 深圳市 --keyword 麦当劳
+
+ 3) 采集一次
+python -m mcdiff capture --store 1420576 --city 深圳市 --keyword 麦当劳
+
+ 4) 再采一次，然后看 diff
+python -m mcdiff capture --store 1420576
+python -m mcdiff diff
+
+ 5) 看博物馆 / 生成演示页
+python -m mcdiff museum
+python -m mcdiff report      → docs/index.html（双击就能看）
+
+
+想先看效果、没有 Token？仓库里已经带了一份快照：
+
+bash
+python -m mcdiff seed --days 30    生成 29 天示例历史（全部标记 synthetic=tr</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/chendykjx__mcdiff.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

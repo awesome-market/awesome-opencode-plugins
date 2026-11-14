@@ -1,0 +1,507 @@
+# opencode-auth-load-balancer
+
+Load-balance [opencode](https://opencode.ai) across **multiple Claude (Anthropic) and Codex (OpenAI/ChatGPT) OAuth accounts and Kimi Code subscriptions** so you never have to stop and re-login when one account runs out of quota.
+
+Selection is **not** round-robin. It is weighted primarily by **weekly** usage, with a continuous "drain the soonest-resetting account first" rule, per-conversation **session affinity** (to preserve prompt caching), and a proactive switch **before** an account hits 100%.
+
+---
+
+## Features
+
+- **Account pool** — register many Claude / Codex / Kimi Code accounts (Claude also by a long-lived `claude setup-token` token; Kimi also by API key); the plugin manages and rotates them.
+- **Weekly-usage-weighted scheduling** — `urgency = weeklyRemaining / daysUntilWeeklyReset`. A sooner reset (e.g. 3 days) outranks a later one (7 days) at equal headroom; perishable quota is drained progressively, never crammed into the final hour.
+- **Automatic rotation** — on `429`/auth errors an account is cooled down and the next-best is tried; `retry-after` is honored.
+- **Model-tier fallback ladder (Fable, Opus, …)** — Claude Max accounts have *separate* weekly caps per premium model tier. When one is exhausted (a 429 whose `representative-claim` names a tier window, e.g. `seven_day_fable` / `seven_day_opus`), the balancer records a **per-tier** cooldown instead of cooling the whole account down (which used to cascade every account into a false "cooldown" and block *every* model on it). Requests for that tier then **steer to an account with tier headroom** — keeping the model you asked for — and only when the *whole pool* is tier-limited does the request descend **one rung down the fallback ladder**: the next model family in `fable → opus → sonnet → haiku` (order configurable via `OPENCODE_AUTH_LB_ANTHROPIC_FAMILY_ORDER`), picking the **highest-versioned model your provider config actually has** (a capped `claude-fable-5` prefers `claude-opus-4-9` over `claude-opus-4-8`). If that tier is capped too, it descends again (`fable → opus → sonnet`), each step toasted, preferably on the session's pinned account (keeping its prompt cache). Pin a fixed target or disable entirely via `OPENCODE_AUTH_LB_ANTHROPIC_OPUS_FALLBACK_MODEL`.
+- **Durable provider pending** — after model fallback and account rotation are exhausted, a session-bound turn whose whole provider is blocked by account-wide quota stays pending without sending a guaranteed `429`. It resumes when capacity returns, survives an opencode restart as the same user message, and is removed immediately when you cancel with `Esc`. Sessions wait and resume independently; there is no provider-wide FIFO.
+- **Self-updating Claude Code version** — Anthropic gates new models on the client version the request claims, so a pinned version stops working the day a model ships (`Claude Code 2.1.87 does not support this model; version 2.1.251 or newer is required`). The plugin discovers the current version from npm instead, caches it for a day, and never regresses below a version known to work. See [Claude Code version](#claude-code-version).
+- **Session affinity** — a conversation stays pinned to one account so you keep its prompt cache and don't re-send context on every turn.
+- **Proactive migration** — leaves an account at a configurable soft threshold (~95%) instead of waiting for a hard 100% wall (which can break in-flight subagents).
+- **Codex credits** — a Codex account whose plan usage is exhausted keeps serving on its ChatGPT credits, as the Codex CLI and desktop app do. Credits cost money, so plan quota on any account is spent first, and a session running on credits moves back as soon as an account has plan headroom again. The dashboards show what is left beside the exhausted state.
+- **Single-use refresh-token safety** — per-account singleflight refresh; rotated tokens are persisted immediately.
+- **Visibility** — toasts for account switches, model fallback, pending/recovery, and restart restoration; an on-demand `auth_lb_status` tool; and a `bun run status` CLI dashboard.
+- **Gist sync of credentials and OAuth logins** — machines share their Claude tokens, Kimi API keys and (unless switched off) their Claude / Codex / Kimi OAuth logins, encrypted, through a secret GitHub gist, both ways: every machine that follows the link downloads, and one with a GitHub token also uploads its own. See [Sync credentials and OAuth logins between machines](#sync-credentials-and-oauth-logins-between-machines-github-gist).
+
+---
+
+## Requirements
+
+- [Bun](https://bun.com) ≥ 1.3
+- opencode (TUI), with the Anthropic, OpenAI, and/or Kimi For Coding providers available
+
+### OpenCode 1 compatibility
+
+The default server and TUI entries target **OpenCode 1.x** (verified with **1.19.0**).
+The existing account pool is reused; accounts do not need to be registered again.
+Configure the npm package in `opencode.json`:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-auth-load-balancer"]
+}
+```
+
+For a local build, use the package directory or `dist/index.js`. Register the
+existing `tui/auth-load-balancer-tui.ts` entry in `tui.json` as described below.
+On OAuth inference HTTP 401, the plugin refreshes the rejected access token once
+and retries, even if its advertised expiry is still in the future. Refreshes
+share the account lock and adopt a concurrently rotated token; a second 401
+rotates to another account. A revoked refresh token requires re-login.
+
+OpenCode 2 remains an explicit opt-in through `v2.js` (or the npm `./v2`
+export), with the separate `./tui-v2` entry. Its configuration uses `plugins`
+(plural), and it uses different host APIs. Do not load a V2 entry into V1.
+V2 status and account management use server RPC; its Gist sidebar controls
+have not yet been ported from V1.
+
+Verification:
+
+```bash
+bun run typecheck
+bun test
+bun run build
+bun run scripts/smoke-v1.ts . --live  # OpenCode 1, real Opus call using the existing pool
+bun run scripts/smoke-v2.ts . --inference  # OpenCode 2, local mock Anthropic rotation
+```
+
+---
+
+## Install & build
+
+```bash
+bun install
+bun run build      # V1: dist/index.js; V2: dist/v2-entry.js
+```
+
+The V1 bundle imports only Node built-ins and can be installed as one file.
+OpenCode 1 loads the default package entry. OpenCode 2 must explicitly load `v2.js`.
+
+### Load it into OpenCode 1 (local / dev)
+
+opencode auto-loads any `.ts`/`.js` file in a **plugins directory**:
+
+- `.opencode/plugins/` — project-level (recommended; unambiguous on every OS)
+- `~/.config/opencode/plugins/` — global
+
+Copy or symlink the built bundle into your opencode project's plugin dir:
+
+```bash
+# macOS / Linux — symlink so rebuilds are picked up automatically
+mkdir -p .opencode/plugins
+ln -sf "$(pwd)/dist/v1.js" .opencode/plugins/auth-load-balancer.js
+```
+
+```powershell
+# Windows (PowerShell) — copy (symlinks need Developer Mode / admin)
+New-Item -ItemType Directory -Force -Path .opencode\plugins | Out-Null
+Copy-Item dist\v1.js .opencode\plugins\auth-load-balancer.js
+```
+
+Restart opencode to load it. (opencode does **not** hot-reload plugins — see the dev loop below.)
+
+### Install it from npm (once published)
+
+```jsonc
+// opencode.json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-auth-load-balancer"]
+}
+```
+
+opencode installs the package and its dependencies automatically at startup.
+
+---
+
+## Register your accounts
+
+Run opencode's auth flow once **per account**:
+
+1. `opencode auth login`
+2. Choose **"Claude Pro/Max (add account to load balancer)"** (or **"ChatGPT/Codex …"**).
+3. Open the URL, authorize, and paste the result back. For Codex, the browser lands on a `localhost:1455` page that does not load — paste either its whole address-bar URL or just the `code` value from it; both work.
+4. Repeat for every account you want in the pool.
+
+Each login **appends** to the pool (it does not overwrite opencode's single auth slot). If you already logged in with the upstream `opencode-anthropic-auth` plugin, that credential is imported automatically on first run.
+
+The pool lives in a JSON file you can inspect/edit (e.g. to rename labels):
+
+| When | Path |
+|------|------|
+| Default (**every** OS, incl. Windows) | `~/.local/share/opencode/auth-load-balancer.json` |
+| `$XDG_DATA_HOME` set | `$XDG_DATA_HOME/opencode/auth-load-balancer.json` |
+
+opencode resolves its data dir via `xdg-basedir`, which is platform-agnostic — it does **not** use `%LOCALAPPDATA%` on Windows or `Application Support` on macOS (verified with `opencode debug paths`).
+
+Durable turn references live beside the pool as `auth-load-balancer-pending.json`. This file contains only workspace/provider/session/message ids and scheduling timestamps — never prompt text, request bodies, attachments, headers, OAuth tokens, or provider responses. Both files use atomic writes and cross-process locks.
+
+A third file, `auth-load-balancer-cc-version.json`, caches the discovered Claude Code version (`{"version","fetchedAt"}` — see [Claude Code version](#claude-code-version)). It holds no account data and is safe to delete; it is rebuilt on the next start.
+
+[Gist sync](#sync-credentials-and-oauth-logins-between-machines-github-gist) adds four more, none of them part of the pool: `auth-load-balancer-sync.json` (gist id, the **encryption key**, which rows were imported, and which login rows this machine holds or deleted — treat it like the pool file), `auth-load-balancer-sync-origin.json` (this machine's random id in the gist; not secret), `auth-load-balancer-sync-status.json` (the latest outcome, for the TUI; no secrets) and `auth-load-balancer-sync-intent.json` (a one-shot request from the TUI, deleted the moment the plugin reads it).
+
+> **OpenAI/Codex note:** the OpenAI path assumes opencode is configured to use the **Responses API** (the standard ChatGPT/Codex setup); `/responses` requests are routed to the Codex backend.
+
+### Claude long-lived token (`claude setup-token`)
+
+An OAuth login lives on a refresh token that rotates on every refresh, and once it is revoked the row drops to `re-login`. Claude Code's `claude setup-token` mints a token valid for a year that never refreshes, so it cannot be logged out that way. A Claude account can hold both on **one** row, each with one job:
+
+- **setup-token → inference.** Every request is sent with it; the OAuth login is never refreshed on the request path.
+- **OAuth login → usage.** It polls Anthropic's usage endpoint, which a setup-token cannot use (it is scoped to inference only, and the endpoint answers it `403 OAuth token does not meet scope requirement user:profile`).
+
+**An OAuth login does not bring one.** Anthropic only issues the year-long token through its own `setup-token` approval; a refresh grant cannot mint it (see **Minting is off** below). To add one:
+
+1. Run `claude setup-token` and approve it in the browser; it prints a token (`sk-ant-oat01-…`).
+2. `opencode auth login` → **Anthropic** → **"Claude Pro/Max setup-token (add account to load balancer)"**, and paste the token at the prompt. The CLI labels it "authorization code", but paste the token; line breaks from a wrapped terminal are ignored.
+3. Optionally add the OAuth login too (**"Claude Pro/Max (add account to load balancer)"**), before or after the token.
+
+**Pairing.** The token is checked with one request before it joins the pool (the same request seeds its usage), and that request names the organization the token acts for and when the account's usage windows reset. A setup-token has no account identity beyond that. An OAuth login is measured the same way before it lands, so the two halves pair automatically only when they belong to exactly one Claude row lacking that half. The organization must match, and the reset times must not disagree: the weekly window resets at a fixed per-account anchor, and a live 5h window starts with the account's own first request. That is exact for personal Pro/Max accounts (one organization each), and it tells Team/Enterprise seats apart whenever their reset times differ. A working credential is replaced only when the reset times confirm the same account, as with a token renewed before its year is up. To pair explicitly, click the row in the TUI sidebar: a Claude row offers one item per login (**Re-login OAuth / Add OAuth login**, **Replace / Re-login / Add setup-token**). Every completed pair is toasted, and the dashboards tag such rows `token` or `token+oauth`.
+
+**When one half stops working**, the row stays in rotation on the other. The dashboards show why, with the server's own reason (e.g. `400 invalid_grant: …`, `401 authentication_error: OAuth token has expired`) as a `!` line under the `auth_lb_status` table and under the row in the TUI sidebar:
+
+| What happened | Result |
+|---|---|
+| The OAuth login is revoked or expires | The row keeps serving inference on its token and is marked **`oauth re-login`** — in the dashboard state, in the TUI sidebar (with a **Re-login OAuth** menu item), and in the bottom bar — until an OAuth login is paired again. Meanwhile usage falls back to the response headers and, while the account sits idle, Claude Code's own quota check: a one-token `claude-haiku-4-5` request, sent at most once per 5 minutes per account. |
+| The token is revoked or expires (after a year) | The token is dropped, the same request is retried on the OAuth login, and the row is marked **`token re-login`** until a token is added again. |
+| Both are gone, or a token-only row's token answers `401` | The row switches to `re-login`; the TUI's re-login asks for a new token on a token-only row. |
+
+**OAuth logins expire on their own.** Anthropic gives an OAuth login a fixed lifetime that refreshes do not extend: `refresh_token_expires_in` when the token endpoint states it, otherwise the 30 days Claude Code itself assumes. In its last 3 days a row shows **`oauth expires Nd`**, mirroring Claude Code's own "Your login expires in N days" notice. Re-login OAuth then, or pair a setup-token so the expiry only costs usage measurement.
+
+**Minting is off.** Earlier versions asked for the token with a refresh grant (the OAuth login's refresh token, `scope=user:inference`, `expires_in=31536000`) at start-up and every 6 hours. Measured against Anthropic's token endpoint, that grant does not work and does harm:
+
+- The server ignores `expires_in` and answers with an 8-hour token, which is too short to pool (a token must live 60 days or more), so no row ever received one.
+- The grant still rotates the refresh token, and the one it returns is narrowed to `user:inference` for good. The usage endpoint then answers that login `403 … user:profile`, and asking for the full scope again is refused with `400 invalid_scope`.
+- Only a fresh OAuth login restores a narrowed row. Until then it keeps serving inference, and its usage is measured like a setup-token's: from response headers and, while it sits idle, the one-token quota check (at most once per 5 minutes per account).
+
+`OPENCODE_AUTH_LB_ANTHROPIC_AUTO_TOKEN=1` turns the old behaviour back on; do not, unless you are testing the endpoint. The year-long token comes from a pasted `claude setup-token`, which is its own approval and independent of any OAuth login.
+
+### Kimi Code
+
+A Kimi Code subscription joins the pool either through an **OAuth sign-in** (device code) or as a **static API key**. The plugin hooks both deployments in opencode's model catalog, each with its own pool: **Kimi For Coding (kimi.com)** (`kimi-code-plan-cn`, `api.kimi.com/coding/v1`, sign-in at `auth.kimi.com`) and **Kimi For Coding (kimi.ai)** (`kimi-code-plan-global`, `api.kimi.ai/coding/v1`, sign-in at `auth.kimi.ai`).
+
+1. `opencode auth login` → **Kimi For Coding (kimi.com)** (or **(kimi.ai)**), then either:
+   - **"Kimi Code (…) (add account to load balancer)"** — the sign-in: opencode shows a URL, you approve the sign-in there (the code is already in it), and the login completes on its own. Tokens refresh automatically.
+   - **"Kimi Code (…) API key (add account to load balancer)"** — create a key in the console the login links to ([kimi.com](https://www.kimi.com/code/console) / [kimi.ai](https://www.kimi.ai/code/console)) and paste it at the prompt; the CLI labels it "authorization code", but paste the key.
+2. Repeat for every subscription.
+
+Every login is checked against the account behind it (`GET /me`), so one subscription stays one pool row: a second key or a sign-in of the same account replaces that row instead of double-counting its quota. A sign-in is stored in opencode as an `oauth` credential and a key as a plain `api` one; whichever opencode already stores for the provider is imported on first start. Usage (5h + weekly) comes from `/usages` alone — Kimi's inference responses carry no quota headers — polled at most every 5 minutes while requests flow. A revoked key (`401`) or refresh token (`invalid_grant`) switches the row to `re-login` instead of being retried, and the TUI's re-login uses the kind of login the row was added with.
+
+The sign-in identifies itself to Kimi's OAuth host the way Kimi's own clients do, with `X-Msh-*` headers: platform `opencode_auth_load_balancer`, this machine's host name and OS, and a device id hashed from the host name and home directory.
+
+### Sync credentials and OAuth logins between machines (GitHub gist)
+
+Logging in on every machine is tedious, and for Claude every OAuth login is an approval in the browser. Machines can share two kinds of credential through one secret GitHub gist, **both ways**:
+
+- **Static credentials** — the long-lived Claude tokens (pasted `claude setup-token` tokens) and Kimi API keys. A token added on any machine reaches the others, and a token removed on the machine that owns it leaves them.
+- **OAuth logins** — the access + refresh token pair of a Claude, Codex or Kimi sign-in. On by default; switch it off with `OPENCODE_AUTH_LB_SYNC_LOGINS=0` (see [OAuth logins](#oauth-logins-in-the-gist) for what that means and what it risks).
+
+**Members.** A machine joins a gist by creating it (**Create a new secret gist…**) or by following its link (**Follow a gist link**). Every member **always downloads and applies** the gist (at start, every 15 minutes, and on **Sync now**). A member also **uploads its own credentials** when it can: when a GitHub token is discoverable (`GITHUB_TOKEN`, `GH_TOKEN`, or a logged-in [GitHub CLI](https://cli.github.com), whose `gh auth token` is run) *and* that GitHub account may write the gist. A machine with only the link — no GitHub account, no login — downloads and never writes. The sidebar says which it is: `syncing (upload + download)`, `syncing (download only: no GitHub login)`, `syncing (download only: this GitHub account cannot update the gist)`.
+
+**What syncs, and what never does.**
+
+| Syncs | Never syncs |
+|---|---|
+| Claude `inferenceToken` (and its `inferenceExpires`) | Usage windows, cooldowns, sessions, `tokenGen`, pending turns, local row ids |
+| Kimi Code API keys (a row with the static-credential expiry and no refresh token — never an OAuth sign-in, even one that left no refresh token) | A login whose refresh was refused (`oauth re-login`), a disabled row, a row without a refresh token or without a known account id |
+| OAuth logins — Claude, Codex, Kimi sign-in: access token, refresh token, their expiries, the account and organization ids, and the login's version (unless `OPENCODE_AUTH_LB_SYNC_LOGINS` is off) | The share link and key; a Kimi API key or setup-token row is a static credential, not a login |
+| Each row's label and provider, so it can be registered | |
+
+OAuth refresh tokens are single-use and rotate on every refresh, so a shared login is only as good as its **newest** pair: see [OAuth logins](#oauth-logins-in-the-gist) for how the machines agree on which pair that is, and for the risk of sharing one.
+
+**Who owns what (origins).** Every machine has a random **origin** (128 bits, kept in `auth-load-balancer-sync-origin.json`; not secret, not derived from the host name; it survives *Stop syncing*, so rejoining lists as the same machine). An entry in the gist is identified by *(origin, row id)* and is added, changed and removed **only by the machine with that origin**: a machine never deletes another machine's entry. A row's static credential counts as this machine's **own** — and is uploaded — unless sync itself put it there (it is then *imported*, and travels from the machine that has it, never back). If another machine with a smaller origin already lists the same secret, this one does not list a second copy; if that machine later removes it while this one still holds it, this one takes over listing it.
+
+**What each machine does with the others' entries.** A token is verified with the same probe as a pasted `claude setup-token`, then registered on this machine's own OAuth row for that organization if it has one (the usual pairing rules, described above), else as a token-only row. A Kimi key becomes a key row; if this machine is already signed in to that Kimi account by OAuth, that sign-in is left alone. **An account that already has a working token on this machine is never given a second one, and its token is never replaced**: two machines that each minted a token for the same account keep *both* (each uses its own), and an incoming token for it is skipped as redundant. The skip is remembered together with the row that was in the way, so the entry is not probed again every sync; the moment that row loses its token or goes (for example the token it shared was removed on its owner), the skipped entry is imported in the same sync. A machine with no row for the account at all gets exactly one token for it, whichever entry comes first. (This relies on the organization the probe reports: a Team/Enterprise organization with several seats, or a probe that reports none, cannot be matched to one account, and then the token gets a row of its own.)
+
+**One cycle.** Each sync cycle (download, then upload) is in this order: (1) read the **current** gist — with the GitHub token when there is one, which avoids the 60/hour anonymous limit; the token goes only to `api.github.com`; (2) **apply** that snapshot locally; (3) only if this machine may write: list *every other origin's entries untouched* plus this machine's own current entries, and per OAuth login the newer of the gist's copy and this machine's (a login only the gist has is carried over); (4) PATCH **only if those lists differ from what the gist holds**. A machine therefore never uploads on top of a snapshot it has not merged, and an idle machine writes nothing. A write is made a few seconds after this machine's own static credentials or shared OAuth logins change (a token minted, a key added, a row removed, a login made or refreshed), or on **Upload now**. Each write is stamped later than the snapshot it was based on and than this machine's last write, so a machine whose clock runs behind never produces a snapshot the others refuse as "older"; a snapshot older than one a machine already applied is still refused (a gist owner restoring an old ciphertext cannot roll anyone back) — but a member that can write repairs such a gist by writing a newer one over it, and a link-only machine waits for that.
+
+**When a machine cannot write.** There is no extra permission check: the PATCH is attempted, and a `403`/`404` answer means *this GitHub account cannot update the gist* (only the gist's owner account can). The machine then says so once, stops trying for an hour (the back-off is kept in the sync state; **Upload now** tries anyway), and goes on downloading. No GitHub token at all is a quiet download-only state — no message every cycle, only the sidebar line. If the gist holds entries this version cannot read (a newer plugin added a provider), the machine **does not write** — it would silently drop them — and says once: *update this plugin to upload*.
+
+**Two machines writing at once.** A gist has no compare-and-swap, so if two machines write between each other's reads, the later PATCH wins and the earlier one's change is lost from the gist. This heals by itself: every machine re-asserts *its own* entries each cycle (the next one is within 15 minutes, or sooner for a machine whose credentials changed), so a lost entry is written back, and an entry a machine removed that a stale write brought back is removed again — a machine is authoritative for its own origin, and only its own. In the meantime other machines just see the older list.
+
+**Why two machines holding tokens for the same account keep both.** Replacing one token with the other would be correct for one cycle and wrong for the next: each machine would see the other's token as "newer" and take it, for ever. Each machine keeps the token it minted or pasted, shares it, and ignores the other's for that account. A machine that has *no* token for an account (a link-only machine, or one whose token was removed) takes the first one it sees.
+
+**Encryption.** The payload is encrypted with AES-256-GCM (`node:crypto`) under a random 32-byte key, a fresh random nonce on every upload, and the format version authenticated. The key lives only in the link's fragment — `https://gist.github.com/<user>/<id>#<key>` — and a URL fragment is never sent to a server, so GitHub holds ciphertext only. (That also keeps GitHub's secret scanning, and Anthropic's scanning partnership, from seeing a plaintext `sk-ant-…` token and revoking it.) The gist is created **secret** (unlisted, not private: anyone with the URL can read the ciphertext, which is why the key matters). The key is shared by everyone who follows the link, and every member of the gist can read every entry.
+
+> **The link is the secret, and deleting the gist does not take it back.** Anyone who has the whole link, `#key` included, can read these credentials, and anyone who has already read them keeps what they read: deleting the gist or uploading to a new one (new key, new link) only stops *later* reads. If a link may have leaked, treat every credential in it as exposed. Replace the Kimi API keys in Kimi's console (the old ones then stop working). A shared OAuth login is a live session of your account: its leaked pair works until the next refresh replaces it or the provider revokes it, so log in again on every machine (and sign out of the leaked session at the provider where it offers that) once the gist is gone. For Claude tokens, this plugin has no way to revoke a setup-token or a minted token and cannot verify that one was revoked elsewhere: check your Anthropic account for what is available, and until you have, assume the token still works. Then delete the gist and create a new one so the next snapshot is not readable with the old link.
+
+**Set up.**
+
+1. On the machine that has the credentials and a GitHub token: click **Gist sync** at the bottom of the account list in the sidebar → **Create a new secret gist from this pool's credentials** (the new gist holds this pool's static credentials and, unless that is switched off, its shareable OAuth logins). The share link is shown in a dialog, once, because you asked for it; **Show the share link** brings it back on this machine only (the machine that created the gist is the only one that has it to show).
+2. On every other machine: **Gist sync** → **Follow a gist link**, and paste the link. That is all; with a GitHub token on that machine it uploads its own credentials too, without one it only downloads.
+
+**Leaving.**
+
+- An entry that **disappears** from the gist is removed locally **only if it was imported from that gist**. A paired row keeps its own OAuth login and loses just the imported token; a row that existed only for that credential goes. Rows you created yourself are never deleted, and a credential you already held locally is left as yours.
+- If you deleted or re-pointed an imported row yourself, the next sync does not undo it until the gist's token itself changes. A deleted OAuth login row stays deleted until you log in to that account again (see [OAuth logins](#oauth-logins-in-the-gist)).
+- An unreachable, deleted, rotated (new key), tampered, or other-version gist **leaves the pool exactly as it was** and shows one short line in the sidebar. Nothing falls back to plaintext. A gist written by the previous (one-way, version 1) format is reported as written by another version; create a new one.
+- **Stop syncing** forgets the link (and the key) on this machine and nothing else: accounts already imported stay in the pool as ordinary rows, **which this machine will then list as its own if it rejoins** (the origin is kept, so rejoining the same gist does not duplicate entries, but the formerly imported credentials now travel from here).
+
+**Limits.** An unauthenticated download counts against GitHub's 60 requests/hour/IP limit; a poll every 15 minutes uses 4 an hour, and `ETag`/`If-None-Match` makes an unchanged gist a cheap `304` (a machine with a GitHub token reads authenticated, which is not limited that way). On a rate limit (`403`/`429`) the plugin waits as long as GitHub says (at least a minute, at most an hour) instead of retrying; a deleted gist (`404`) is reported and left for the next poll. When the next cycle is due, and any back-off, is kept in the sync-state file, so several opencode windows (and restarts) on one machine share one schedule and one lock: only one of them fetches, and any one of them serves the TUI's request. A response larger than 1 MiB is refused unread. The gist holds at most 64 entries and 64 OAuth logins, and its encrypted file at most 256 KiB. Set `OPENCODE_AUTH_LB_SYNC=0` to turn sync off entirely, or `OPENCODE_AUTH_LB_SYNC_LOGINS=0` to leave OAuth logins out of it.
+
+**Deliberately not an agent tool.** The link embeds the key, so a tool the model could call would put it in the chat history and in every model request. Sync is driven from the TUI sidebar only, the link is never logged, toasted, or written to the pool or pending files (the sync-state file holds it, owner-only where the OS supports modes), and the one-shot request file that carries a pasted link from the TUI to the plugin is deleted as soon as it is read. Until it is read that file holds the link, key included: the TUI withdraws a request nobody answered within 25 seconds, a request older than 10 minutes (or stamped more than a minute ahead) is ignored and deleted, and a server that is busy with another window's run leaves it on disk rather than losing it. On Windows the file mode `0600` gives no ACL guarantee; its protection is the data directory's inherited ACL (the same as the pool file's), so keep that directory private.
+
+#### OAuth logins in the gist
+
+- **What is shared.** Each OAuth login that has a refresh token and a known account id, and that still works (not disabled, not marked `oauth re-login`): provider, label, access token, refresh token, their expiries, the account and organization ids, and the login's version. A login is identified by `<provider>:<account id>`, so the rows of one account on different machines are one login. Usage, cooldowns, sessions, `tokenGen`, the setup-token and local row ids are not shared.
+- **Consent switch.** On by default. `OPENCODE_AUTH_LB_SYNC_LOGINS=0` (or `false` / `no` / `off`) makes this machine neither upload nor import logins. A machine with the switch off still writes the gist when its static credentials change, and then carries the logins already in the gist over unchanged: it never drops another machine's logins.
+- **The newest login wins.** Every login has a revision (1 when the login is made; plus one for each re-login, refresh and token rotation) and the time of that change. Machines order the copies by *(revision, time, a fingerprint of the refresh token)*, the same order everywhere, so all of them pick the same winner. A newer copy from the gist replaces the tokens of the row that holds the same login; the row keeps its label, usage, cooldowns, sessions and setup-token, a manual disable stays, and an automatic `re-login` disable (and the `oauth re-login` mark) is lifted. A row that had fallen back to its setup-token is an OAuth row again. With no such row the login is added like a local one would be (so it pairs onto a token-only row of the same organization), under a label that is unique in the pool. A copy that is not newer is ignored, and a local copy that is newer is uploaded.
+- **Any machine may refresh.** There is no owner of a login. A machine that refreshes it publishes the new pair right after the refresh commits (about a second, outside the refresh lock; if that upload fails, the regular schedule publishes it within a few seconds to minutes), and a login made on a machine that follows a gist is uploaded as soon as it lands, bounded to about 20 seconds so a slow GitHub never holds the login back. Pasting a share link both downloads the gist and uploads this machine's own logins in that same step. The other machines adopt the new pair on their next cycle (within 15 minutes, or at once with **Sync now**).
+- **The risk.** A refresh token is single-use. If two machines refresh the same login at about the same moment, each spends the token the other is about to spend, and the provider may revoke the login for both: both then show `oauth re-login` (or `re-login`) and the account has to be logged in again. Nothing locks a login across machines.
+- **What is mitigated, and what is not.** (1) A refresh is published right after it commits, so the other machines can see it within about a second. (2) A machine that is about to refresh a shared login first reads the gist (inside the account's refresh lock, so only one process per machine does it) and, if the gist holds a newer copy, uses that copy instead and sends **no** request to the provider when it is still valid. (3) If the provider refuses a refresh token and the gist already holds a newer copy, the machine adopts that copy and does not mark the login lost; without one it behaves as before. A failed or unreachable gist read changes nothing: the refresh goes ahead. **Not closed:** the collision window shrinks to the time between one machine's request to the provider and its publish (plus the other machine's read of the gist), but two machines refreshing inside that window can still log each other out, and the provider may revoke the whole login. There is no lease or election between machines. If you cannot accept that, set `OPENCODE_AUTH_LB_SYNC_LOGINS=0` (no logins are uploaded, imported or pulled).
+- **Deleting.** A row you delete stays deleted: sync records which logins this machine holds, and a login whose row you removed is not imported again until you log in to that account again (that fresh login then outranks the copy in the gist). Removal is not propagated: the gist and the other machines keep the login, and **Stop syncing** leaves the imported rows in the pool as ordinary rows.
+- **Compatibility.** A gist that carries logins is payload version 3. A plugin that only knows version 2 refuses it as written by a newer version: it neither reads nor writes the gist until updated, so update every machine that follows the gist. Version 2 gists are still read, and the first write by this version upgrades them. The gist holds at most 64 logins, and a login this version cannot read stops this machine from uploading, as for unreadable entries.
+
+> Not verified against a live GitHub account or a real second machine: the suite and the bundle run against an in-memory (and, for the end-to-end script, file-backed) fake of the gist API. The TUI rendering of the new sidebar lines and menu has been type-checked and unit-tested, not rendered in a live opencode.
+
+---
+
+## See which account is in use
+
+Three surfaces, in increasing detail:
+
+1. **Toast on switch** — when the in-use account changes, opencode shows a toast: `Claude account ▶ claude-work · weekly 45% · 5h 10%`.
+2. **`auth_lb_status` tool** — ask the agent to "show auth load balancer status"; it prints the full dashboard in chat.
+3. **CLI** — run it directly in a terminal:
+
+```bash
+bun run status
+```
+
+```text
+Claude — in use: claude-personal
+  #  account            weekly   5h   resets   state
+  1    claude-work        45%   10%    2d2h  ready
+  2  ▶ claude-personal    72%   38%    1d6h  in use
+  3    claude-burner     100%     -     30m  exhausted
+
+Codex — in use: chatgpt-plus
+  #  account            weekly   5h   resets   state
+  1  ▶ chatgpt-plus       20%    5%   3d18h  in use
+```
+
+The workspace-aware `auth_lb_status` tool also appends durable waits; the standalone TUI layout remains unchanged:
+
+```text
+Pending turns
+  Claude  2 sessions · nearest recovery 3h0m
+  Codex   1 session · checking again 5m
+```
+
+`▶` marks the in-use account; `#` is the rank the scheduler would pick next.
+
+An exhausted Codex account that still has ChatGPT credits stays selectable, ranked after every account with plan headroom, and its state shows the balance: `ready · credits 42.5` here, `full · credits 42.5` in the TUI sidebar. `credits unlimited` and `credits available` (no amount reported) are usable too; `no credits` means the account waits for its plan to reset. Balances come from the `/wham/usage` endpoint and from the `x-codex-credits-*` headers of every Codex response. A turn waiting for quota rechecks at least every five minutes, so credits that appear meanwhile (reported for the first time, or bought) resume it without waiting for the plan reset.
+
+While OpenCode is running, stale usage is checked every five minutes even without inference traffic or a status-tool call. Periodic checks share a machine-wide lock and a next-attempt timestamp in `auth-load-balancer.json.usage-poll.json`, so multiple windows do not multiply periodic requests, including failed attempts. The file contains scheduling metadata only, never credentials.
+
+A fresh usage measurement during re-login or a periodic check clears an obsolete, long quota cooldown when both usage windows have headroom. A successful re-login alone is not enough: exhausted or malformed usage, authentication/transient backoffs, and a newer rejection received during a usage check retain their cooldowns. Provider-side resets are picked up on the next successful check; a failed endpoint request never assumes recovery.
+
+If a usage endpoint rejects an OAuth access token with HTTP 401, the poll uses the same refresh lock and rejected-token recovery as inference, then retries the usage lookup once, even when the advertised access expiry is still in the future. A concurrently refreshed credential is adopted instead of spending its predecessor again. Static API keys are never sent to OAuth refresh, and 403/429 failures do not trigger authentication retries.
+
+A 403 caused by a missing `user:profile` scope requires a fresh OAuth login with browser approval to restore the usage endpoint. Restarting OpenCode or refreshing the same grant cannot restore that missing permission. Until then a Claude row is measured with the same one-token quota check as a setup-token, so its windows and reset times stay current while it sits idle; that measured usage can clear an old quota cooldown.
+
+### Persistent bottom status bar (TUI)
+
+A SolidJS TUI plugin renders a persistent bottom status bar (opencode's always-visible `app_bottom` slot) showing both the in-use account(s) per provider (polled from the pool, e.g. `Claude anthropic-1 58% · 5h 12%`) **and** the current session usage — tokens, % of the model context window, and `$` cost — computed the same way opencode's own footer does. It is **four files**:
+
+| File | Role |
+|------|------|
+| [`tui/auth-load-balancer-tui.ts`](tui/auth-load-balancer-tui.ts) | Plugin **entry** (no JSX). Registered in `tui.json` (below). Inside `tui()` it **lazily** imports the view. |
+| [`tui/auth-load-balancer-tui.view.tsx`](tui/auth-load-balancer-tui.view.tsx) | The SolidJS **view** (JSX). Compiled by opencode's TUI runtime Solid transform, whose loader matches `*.{tsx,jsx}`. |
+| [`tui/auth-load-balancer-tui.logic.ts`](tui/auth-load-balancer-tui.logic.ts) | Pure, non-JSX pool-file logic (read/normalize the pool file, the sidebar's rename/delete mutations, the gist-sync request/status files, and the `pct`/`until`/`winPct`/`tierResets`/`stateOf` display-formatting helpers) split out of the view so it's directly unit-testable, imported unchanged by `.view.tsx`. |
+| [`tui/auth-load-balancer-scoring.ts`](tui/auth-load-balancer-scoring.ts) | A byte-identical copy of [`src/scheduler/score-core.ts`](src/scheduler/score-core.ts) (kept in sync by `bun run build` + a test) so the dashboard ranks accounts with the **exact same** scorer as the server — never a drifting re-implementation. |
+
+Install the four files into a directory the **server does not scan** (anything other than `plugin/` / `plugins/`) and register the entry in `tui.json`:
+
+```bash
+# macOS / Linux
+mkdir -p ~/.config/opencode/tui-plugins
+cp tui/auth-load-balancer-tui.ts tui/auth-load-balancer-tui.view.tsx tui/auth-load-balancer-tui.logic.ts tui/auth-load-balancer-scoring.ts ~/.config/opencode/tui-plugins/
+```
+
+```powershell
+# Windows
+New-Item -ItemType Directory -Force -Path $env:USERPROFILE\.config\opencode\tui-plugins | Out-Null
+Copy-Item tui\auth-load-balancer-tui.ts,tui\auth-load-balancer-tui.view.tsx,tui\auth-load-balancer-tui.logic.ts,tui\auth-load-balancer-scoring.ts $env:USERPROFILE\.config\opencode\tui-plugins\
+```
+
+Then register the entry in `~/.config/opencode/tui.json` (this is how opencode loads TUI plugins) and restart:
+
+```jsonc
+{
+  "plugin": [
+    "file:///absolute/path/to/.config/opencode/tui-plugins/auth-load-balancer-tui.ts"
+  ]
+}
+```
+
+> **Why this shape (it matters):** TUI plugins load from the `plugin` array in `tui.json`, **not** from the server's plugins-dir glob. The server *separately* globs `{plugin,plugins}/*.{ts,js}` and loads every match as a **server** plugin — so a TUI entry dropped in `plugins/` is also loaded by the server, rejected (`must default export … server()`), and logs an error on **every** launch (and a stray scoring `.ts` there would be mis-loaded as a plugin and break provider resolution). Keeping the four files OUTSIDE `plugins/` and registering only via `tui.json` avoids that. The split into a `.ts` **entry** that **lazily imports** a `.tsx` **view** is still required because opencode's runtime SolidJS JSX transform (`@opentui/solid`) only matches `*.{tsx,jsx}` — a `.ts` cannot itself contain JSX, and the lazy import keeps the server plugin worker (which never runs `tui()`) from evaluating the SolidJS module graph. Developed against opencode / `@opencode-ai/plugin` `>=1.18.26` + `@opentui/solid` `0.5.10` originally; development dependencies now use `0.5.17` for V2 compatibility. The `.tsx` view **is** typechecked (`tsconfig.tui.json`) and linted here — its JSX deps (`solid-js` + `@opentui/*`) are installed as devDependencies pinned to those versions — so type/import/prop breaks are caught in CI; only its runtime rendering still needs a live opencode TUI to verify. The toast + `auth_lb_status` tool + `bun run status` CLI cover the same information regardless. (`auth-load-balancer-tui.logic.ts` has no JSX and no TUI-runtime dependency, so it is directly unit-tested rather than only typechecked.)
+
+---
+
+## Configuration
+
+All knobs are environment variables with sane defaults.
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `OPENCODE_AUTH_LB_HOURLY_INFLUENCE` | `0.5` | How much 5h headroom modulates the weekly-urgency score (0–1). |
+| `OPENCODE_AUTH_LB_MIN_RESET_MS` | `300000` | Floor on time-to-reset (caps urgency near a reset). |
+| `OPENCODE_AUTH_LB_WEEK_WINDOW_MS` | `604800000` | Baseline horizon used when a weekly reset time is unknown. |
+| `OPENCODE_AUTH_LB_EXHAUSTED_AT` | `0.999` | Hard exhaustion: at/above this utilization an account is excluded, unless Codex credits keep it serving. |
+| `OPENCODE_AUTH_LB_MIGRATE_AT` | `0.95` | Soft threshold to proactively leave a pinned account (before 100%). |
+| `OPENCODE_AUTH_LB_WEEKLY_DRAIN_TARGET` | `0.98` | Soft threshold for the WEEKLY window: scoring treats weekly quota as "fully drained" past this utilization, and a pinned session proactively migrates once its weekly util crosses it. The 5h window uses `MIGRATE_AT` (~0.95); the weekly window uses this (~0.98). Must be in (`MIGRATE_AT`, `EXHAUSTED_AT`]. |
+| `OPENCODE_AUTH_LB_CHEAP_SWITCH_MAX_BYTES` | `65536` | For non-forced (proactive/drain) switches, only switch when the request body ≤ this many bytes, so a grown conversation isn't re-sent onto a fresh (uncached) account — a full per-account prompt-cache write. `0` disables the gate (always switch). A proactive switch bypasses this gate when the pinned account is within ~1% of hard exhaustion (a forced switch is imminent anyway and the context only grows); forced switches always ignore it. |
+| `OPENCODE_AUTH_LB_DRAIN_MIGRATE` | `false` | Allow switching a healthy session to drain another account whose weekly window is about to reset. |
+| `OPENCODE_AUTH_LB_DRAIN_MIGRATE_MARGIN` | `1.5` | Urgency factor required to justify a drain switch. |
+| `OPENCODE_AUTH_LB_SESSION_TTL_MS` | `21600000` | Session→account assignments older than this are pruned. |
+| `OPENCODE_AUTH_LB_MAX_WAIT_MS` | `305000` | Bounded wait for requests that do **not** carry both an opencode session id and user-message id (provider-internal or external fetches). Session-bound user turns use durable pending instead and wait until provider quota recovers or the user cancels. Auth (`401`/`403`), disabled/re-login accounts, and network failures are never converted into quota waits. `0` makes anonymous requests fail fast. |
+| `OPENCODE_AUTH_LB_ANTHROPIC_OPUS_FALLBACK_MODEL` | *(unset — ladder mode)* | Claude Max accounts have **separate weekly caps per premium model tier** (Fable, Opus, …). When one is exhausted, that tier's requests 429 (`anthropic-ratelimit-unified-representative-claim: seven_day_fable` / `seven_day_opus` / …) even though the account's aggregate 5h/7d windows still have headroom and every other model works. Instead of cooling the **whole account** down (which cascaded every account into "cooldown"), the balancer records a **per-tier** cooldown: requests for that tier steer to accounts with tier headroom, and once the whole pool is tier-limited they descend the **fallback ladder** (next family down, best version in your provider's model list; toasted, never silent). **Unset** = ladder mode (recommended). Set to a **model id** to pin a fixed downgrade target (bypassing the ladder). Set to an **empty string** to disable (revert to the account-wide cooldown). The env name keeps `OPUS` for compatibility but applies to **every** tier. |
+| `OPENCODE_AUTH_LB_ANTHROPIC_FAMILY_ORDER` | `fable,opus,sonnet,haiku` | The fallback ladder's model families, **best first**. A tier-capped request downgrades to the highest-versioned configured model of the next family below the capped one (e.g. capped `fable` → newest `opus`; capped `opus` → newest `sonnet`). A family not in the list (a future top tier) is treated as above the first entry — so when Anthropic ships a new premium tier, a config tweak (or nothing at all, if it slots on top) keeps the ladder correct without a code change. |
+| `OPENCODE_AUTH_LB_ANTHROPIC_AUTO_TOKEN` | `false` | Try to mint each Claude OAuth login a long-lived inference token with a refresh grant. Off, because Anthropic answers that grant with an 8-hour token and narrows the login's refresh token to `user:inference` — see [Minting is off](#claude-long-lived-token-claude-setup-token). `1` / `true` / `yes` / `on` turns it on. |
+| `OPENCODE_AUTH_LB_ANTHROPIC_CLAUDE_CODE_VERSION` | *(unset — auto)* | Pin the Claude Code version the plugin claims to be, bypassing both the npm lookup and the built-in floor. Anthropic **gates new models on this version** — asking for a model newer than the version you report is rejected with `claude_code_version_too_old` — so by default the plugin resolves it automatically, and relearns it from a rejection when the gate moves before npm does (see [Claude Code version](#claude-code-version)). A pin also disables that reactive recovery, since the retry would send the version you pinned. Set this only to pin **forward** (a version npm hasn't tagged `latest` yet) or **back** (to reproduce a failure, or if a future release changes the request fingerprint and the newest version starts failing). Must be a plain `x.y.z`; anything else is ignored. |
+| `OPENCODE_AUTH_LB_SYNC` | `true` | The [gist sync](#sync-credentials-and-oauth-logins-between-machines-github-gist) schedule (a cycle every 15 minutes, one after this machine's own credentials change, serve the TUI's requests). `0` / `false` / `no` / `off` turns it off. |
+| `OPENCODE_AUTH_LB_SYNC_LOGINS` | `true` | Whether gist sync also shares [OAuth logins](#oauth-logins-in-the-gist). `0` / `false` / `no` / `off`: this machine neither uploads nor imports logins, and carries the gist's logins over unchanged when it writes. Two machines refreshing one shared login at once can revoke it for both. |
+| `GITHUB_TOKEN`, `GH_TOKEN` | — | A GitHub token with the `gist` scope (checked in this order, then `gh auth token`). It is what lets a member **upload** its own credentials (and read without the anonymous rate limit); a machine without one still downloads. Sent only to `api.github.com`. |
+| `OPENCODE_AUTH_LB_DIR` | — | Override the pool-file directory (handy for tests). |
+| `OPENCODE_AUTH_LB_DEBUG` | — | `1`/`true` logs each selection to stderr. |
+| `ANTHROPIC_BASE_URL` | — | Route Anthropic requests through a custom base URL. |
+
+### Claude Code version
+
+Anthropic only accepts OAuth (subscription) requests that look like they came from Claude Code, so the plugin reports a version in the `claude-cli/<version>` User-Agent and in the `cc_version=` billing fingerprint. **That version is a gate, not decoration:** requesting a model newer than the version you claim is rejected outright.
+
+```json
+{"type":"error","error":{"type":"invalid_request_error",
+ "message":"Claude Code 2.1.87 does not support this model; version 2.1.251 or newer is required.",
+ "details":{"error_code":"claude_code_version_too_old"}}}
+```
+
+A hard-coded version therefore breaks on *every* model launch, so the plugin resolves it, best-first:
+
+1. **`OPENCODE_AUTH_LB_ANTHROPIC_CLAUDE_CODE_VERSION`** — an explicit pin. Skips the lookup entirely.
+2. **npm** — the `latest` dist-tag of [`@anthropic-ai/claude-code`](https://www.npmjs.com/package/@anthropic-ai/claude-code), cached in the data dir for 24 h.
+3. **A built-in floor** — a version verified to work, used offline and on a cold first run.
+
+The resolved version only ever moves **up**, so a registry blip or a rolled-back `latest` can never drag the plugin below a version already known to work; use the env pin to go down deliberately. The lookup is a single ~56-byte request fired at startup: the loader awaits only the local cache read, never the network, so neither opencode's startup nor your first request waits on npm — and a registry outage just leaves the previous version in place.
+
+**The gate's own rejection is the fourth route, and the only one that cannot lag.** A cache is only as fresh as its TTL, so a model launching *inside* that window is rejected for as long as the TTL has left to run — precisely when you need the new version. No polling cadence fixes that in general either: Anthropic can gate a model before npm tags the release. So the plugin learns from the failure instead. A `claude_code_version_too_old` response is parsed for the minimum it demands, npm is asked for the real `latest` in the same breath (the minimum only clears the model that just failed), the result is cached, and the request is **transparently retried once** — with the new version in both the User-Agent and the body's `cc_version=` fingerprint. The turn succeeds instead of failing, and every later request starts from what was just learned.
+
+The retry is spent only when the reported version actually *changed*, so a 400 for any other reason is passed straight through with its body untouched, and a pinned deployment is unaffected: under an explicit `OPENCODE_AUTH_LB_ANTHROPIC_CLAUDE_CODE_VERSION` the rejection is returned as-is, because a retry would send the very version you pinned.
+
+> Only the version *string* is discovered. The request fingerprint's salt is still compiled in, so if Anthropic ever changes that algorithm, pin a known-good version with the env var and open an issue.
+
+---
+
+## Development
+
+### Scripts
+
+| Script | What it does |
+|--------|--------------|
+| `bun run build` | Bundle `src/index.ts` → `dist/index.js` + emit `.d.ts`. |
+| `bun run dev` | Rebuild the bundle on every change (watch). |
+| `bun run typecheck` | `tsc --noEmit`. |
+| `bun run lint` | Lint with oxlint (DevFive shared config). |
+| `bun run lint:fix` | Auto-fix lint + formatting. |
+| `bun test` | Run the suite **with 100% coverage enforced**. |
+| `bun run test:watch` | Re-run tests on change. |
+| `bun run status` | Print the dashboard for the current pool. |
+
+### Linting & formatting
+
+[oxlint](https://oxc.rs) with the DevFive shared config — `oxlint.config.ts` re-exports `eslint-plugin-devup/oxlint-config` (single quotes, no semicolons, sorted imports, `interface` over `type`). A husky `pre-commit` hook runs `bun lint`.
+
+```bash
+bun run lint        # check
+bun run lint:fix    # auto-fix
+```
+
+### Testing
+
+```bash
+bun test
+```
+
+The unit/integration suite runs with coverage **gated at 100%** (lines and functions) via `bunfig.toml`. They mock the network and isolate the pool file per test, so **no real accounts are needed** to test the logic. Tests live in `src/__tests__/`.
+
+### Dev loop (trying it in a real opencode)
+
+opencode loads plugins once at startup, so the loop is:
+
+1. `bun run dev` — keeps both server entry points rebuilt on every edit.
+2. For V1, register the package in `opencode.json` using `plugin`, or symlink `dist/index.js` into `.opencode/plugins/` (see install above).
+3. Edit code → the watcher rebuilds → **restart opencode** to reload the plugin.
+4. Use it; watch the toasts, run `bun run status`, and set `OPENCODE_AUTH_LB_DEBUG=1` to log selections.
+
+### Project structure
+
+```
+src/
+  index.ts              # plugin entry: 5 exports (Anthropic, OpenAI, Kimi Code ×2, Status-tool)
+  fetch.ts              # load-balanced fetch — the per-request choke point
+  refresh.ts            # singleflight OAuth refresh, invalid_grant handling
+  accounts.ts           # append / bootstrap accounts into the pool
+  pairing.ts            # which row a login lands on (setup-token ↔ OAuth pairing)
+  login-health.ts       # login tags, re-login / expiry warnings, why a login was lost
+  token-mint.ts         # opt-in refresh-grant minting of Claude inference tokens (off by default; see "Minting is off")
+  session.ts            # derive a stable session key (affinity)
+  types.ts              # provider-agnostic data model (accounts, usage windows, pool file)
+  usage-merge.ts        # fixed weekly-anchor preservation / roll-forward
+  util.ts               # shared helpers (sleep, clamp01, JSON guards)
+  status.ts             # ranked status model + text renderer
+  notify.ts             # toast on account switch
+  usage-refresh.ts      # cold-start usage seeding via the usage endpoint
+  prime.ts              # point the in-use marker at the top-ranked account at startup
+  login-rev.ts          # the shared version (loginRev / loginAt) of a row's OAuth login
+  sync/                 # gist sync: crypto, gist client, payload (v3: entries with origins + OAuth logins), own/imported split, merge plan, login export/import, one read-apply-write cycle, state, schedule
+  pending/              # recovery classifier, reference store, per-turn lease, restart coordinator
+  scheduler/            # config, score-core (shared scorer), select
+  pool/                 # data-dir resolution + atomic, serialized pool store
+  providers/            # ProviderAdapter contract + headers
+    anthropic/          #   Claude OAuth + setup-token login + Claude Code request transforms + usage
+    openai/             #   ChatGPT/Codex OAuth + Responses transforms + usage
+    kimi/               #   Kimi Code device-code OAuth + API-key login + /usages (kimi.com + kimi.ai)
+  cli/status.ts         # `bun run status`
+  __tests__/            # all tests
+tui/
+  auth-load-balancer-tui.ts       # TUI plugin ENTRY (registered in tui.json; no JSX)
+  auth-load-balancer-tui.view.tsx # SolidJS view (lazily imported; app_bottom + sidebar slots)
+  auth-load-balancer-tui.logic.ts # pure pool-file logic + display helpers (unit-tested)
+  auth-load-balancer-scoring.ts   # byte copy of src/scheduler/score-core.ts (shared scorer)
+```
+
+---
+
+## How it works
+
+opencode lets an auth plugin's `loader` return a custom `fetch` that **every** request for a provider flows through. That single choke point ([`src/fetch.ts`](src/fetch.ts)) is where the magic happens, per request:
+
+1. capture opencode's session and user-message ids, then derive the session-affinity key;
+2. pick the session's pinned account — or, if it's unavailable / over the soft threshold, the highest **weekly-urgency** account ([`src/scheduler/select.ts`](src/scheduler/select.ts));
+3. refresh the OAuth token if needed (singleflight, rotated token persisted);
+4. apply provider-specific auth + request transforms (Claude Code identity / Codex Responses quirks);
+5. send the request, then record usage from the response headers;
+6. on a model-tier `429`, steer across accounts and descend the configured model-family fallback ladder before considering provider pending;
+7. on an account-wide `429`/`402`, cool that account and rotate through the remaining accounts;
+8. only when every usable account is provider-quota blocked, persist the turn reference before waiting — known exhaustion sends no speculative provider request;
+9. on recovery, retry selection; on `Esc`, delete the reference; on restart, reconcile OpenCode's persisted message/history and resume the same message id without duplicating its prompt parts.
+
+The account pool and durable pending references are separate JSON files (opencode's native auth store holds only one credential per provider). Writes are atomic and serialized both in-process and across processes. No daemon runs while opencode is closed; restoration begins only when opencode starts again.
+
+---
+
+## Limitations
+
+- **Bottom status bar** ([`tui/auth-load-balancer-tui.ts`](tui/auth-load-balancer-tui.ts) + [`.view.tsx`](tui/auth-load-balancer-tui.view.tsx) + [`.logic.ts`](tui/auth-load-balancer-tui.logic.ts) + [`auth-load-balancer-scoring.ts`](tui/auth-load-balancer-scoring.ts)) is a SolidJS TUI artifact compiled by opencode (its JSX deps — `solid-js` + `@opentui/*` — are installed as devDependencies, so the `.tsx` view **is** typechecked via `tsconfig.tui.json` and linted, though not render-tested here since that needs a live opencode TUI; its scorer is a byte-identical copy of the unit-tested [`src/scheduler/score-core.ts`](src/scheduler/score-core.ts), enforced by a sync test). It is written against opencode `>=1.18.26` internals (the `app_bottom` slot + the `subagent-footer` usage computation, verified against source); confirm it renders in your opencode build. The toast/tool/CLI cover the account info regardless.
+- **OpenAI/Codex** assumes the Responses API; chat-completions → responses conversion is out of scope.
+- **Kimi Code** sign-ins must be approved within 15 minutes, or the login fails and has to be started again. A key imported from opencode's store at startup is keyed by the key itself — the import makes no network call to learn its account — so log that subscription in again before adding it a second way, or it can count twice.
+- **Plugin reloads require restart**: opencode loads server plugins once at process startup. After installing a new build, restart the running opencode process once; durable turns are restored on that next start and are never sent while opencode is closed.
+- **Cross-process refresh**: per-process singleflight protects token rotation within one opencode instance. Running two opencode instances at once could still race the single-use refresh token.
+- **Gist sync** shares static credentials and, unless switched off, OAuth logins. A machine that gets only a shared token (a login-sharing switch off somewhere, or a login whose refresh was refused) serves the account on that token alone: its usage comes from response headers and the idle quota check, not the usage endpoint (see the setup-token section). Two machines refreshing one shared login at the same moment can revoke it for both (see [OAuth logins](#oauth-logins-in-the-gist)). The TUI asks the plugin to sync through a small request file beside the pool and shows the plugin's answer from a status file, because the TUI cannot import the plugin; if no opencode server is running, a request waits until one starts and is dropped after 10 minutes. A machine without a GitHub token reads the gist through the unauthenticated API, so an IP behind a busy shared NAT can hit GitHub's 60/hour limit. Gist writes have no compare-and-swap: two machines writing at once can lose one update until the next cycle re-asserts it (see the sync section).
+- **TUI pool writes**: the TUI sidebar's Rename / Delete actions write the pool file atomically (temp + rename) but WITHOUT the cross-process file lock the server uses around its own read-modify-write — so a server usage / cooldown / session / `tokenGen` update committed between the TUI's `readFileSync` and `renameSync` can be silently overwritten. Impact is bounded: the next request re-records usage from response headers, so the window is one cycle of staleness on the affected account; correctness recovers on its own.
+- Live OAuth/login and real-account end-to-end behavior should be smoke-tested in your environment; the test suite mocks the network.
+
+---
+
+## License
+
+MIT

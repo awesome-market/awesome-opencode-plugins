@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iamsamyiok/agents-chat · OpenCode Plugins</title>
+<meta name="description" content="多智能体群聊工具 - 支持 OpenCode/Claude Code/Codex/pi 内核，微信风格聊天界面">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agents-chat, iamsamyiok, iamsamyiok/agents-chat, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/iamsamyiok__agents-chat">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="iamsamyiok/agents-chat · OpenCode Plugins">
+<meta property="og:description" content="多智能体群聊工具 - 支持 OpenCode/Claude Code/Codex/pi 内核，微信风格聊天界面">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/iamsamyiok__agents-chat">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "iamsamyiok/agents-chat", "codeRepository": "https://github.com/iamsamyiok/agents-chat", "url": "https://opencode-plugins.zhuikan.com/repos/iamsamyiok__agents-chat", "description": "多智能体群聊工具 - 支持 OpenCode/Claude Code/Codex/pi 内核，微信风格聊天界面", "author": {"@type": "Organization", "name": "iamsamyiok", "url": "https://github.com/iamsamyiok"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-29", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server"}</script>
+</head>
+<body data-repo="iamsamyiok/agents-chat" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">iamsamyiok/agents-chat</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="iamsamyiok__agents-chat"><img class="rp-side-av" src="https://github.com/iamsamyiok.png?s=300" width="300" height="300" alt="iamsamyiok avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agents-chat</div>
+      <a class="rp-side-owner" href="https://github.com/iamsamyiok">iamsamyiok</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/iamsamyiok">iamsamyiok</a>
+        <span class="rp-sep">/</span><span class="rp-name">agents-chat</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">多智能体群聊工具 - 支持 OpenCode/Claude Code/Codex/pi 内核，微信风格聊天界面</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-08-29</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/iamsamyiok/agents-chat">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">3.52.1</span><a class="rp-dl-a" href="https://www.npmjs.com/package/agents-chat-cli/v/3.52.1">3.52.1 ↓</a><span class="rp-dl-ver">3.52.1</span><span class="rp-dl-date">2026-09-12</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">59</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Agents Chat
+
+一个页面指挥一支 AI 智能体团队：你说需求，管家拆解调度，多个智能体并行干活、互相验收。本地运行、数据不出本机，支持免安装单文件 exe。
+
+ 生态位说明：同类开源工具 Vibe Kanban（28k★）已停止维护、Crystal 已转商业化，Agents Chat 是这个赛道持续维护的免费开源选择，并额外提供定时任务、人工审批、卡牌协作等编排能力。
+
+ 30 秒上手
+
+bash
+ 安装（Node = 18；也可直接下载免安装 exe，见下）
+npm install -g agents-chat-cli
+
+ 启动：自动打开浏览器；首次打开有新手引导，点「一键体验示例」即可看完整流程
+agents-chat
+
+
+没装 AI 内核也能跑：未检测到内核时自动进入演示模式（模拟输出），先体验界面再安装真实内核。
+
+bash
+ 推荐内核（任选其一，装完重启 agents-chat 即真实执行）
+npm install -g opencode-ai
+
+
+ 核心玩法
+
+| 能力 | 说明 |
+|---|---|
+| 群聊编排 | 直接输入需求，管家智能体拆解成阶段计划，调度子智能体并行执行，自动验收不合格返工 |
+| AI 组队 | 一句话描述需求，执行内核自动生成整套智能体团队（名称/图标/技能/提示词），预览后合并或替换应用 |
+| AI 编排 | 多任务编排页「🪄 AI 编排」聊天式编排：描述目标，AI 反问澄清后一键生成带依赖与并行的任务清单，编辑预览后导入看板 |
+| 批量任务 | 粘贴一段文本一次导入多条任务（1. xxx 每行一条），可拖拽排序、批量执行 |
+| 定时任务 | 行首写时间即定时（2026-08-18 13:07 生成日报），到点自动执行，停机错过的启动时补跑，可开机自启 |
+| Git 隔离 | 导入时勾选「Git 隔离执行」：每任务独立 worktree 分支互不污染，完成后逐文件看 diff、一键合并或丢弃 |
+| 人工审批 | 可选在「方案确定后 / 最终交付前」暂停等你点头，超时 10 分钟自动否决；服务重启后未决审批保留并引导断点重跑 |
+| 可靠提交 | 每次执行携带唯一提交 ID：网络闪断自动重试，响应丢失后重发不重复执行（幂等去重，覆盖聊天/任务/单聊/重跑/终端/卡牌） |
+| 成果清单 | 会话产出自动登记成果清单（ARTIFACTS.md），下游智能体按需读取具体文件，上下文体积与成果数量解耦 |
+| 完成通知 | 页面在后台弹系统通知；webhook 转发钉钉/飞书/自建中转 |
+| 单聊工作台 | 与 OpenCode 单体多轮续聊；任务链支持 - 接续上一会话、// 并行执行 |
+| 卡牌协作 | 每个智能体一张卡牌实时直播工作过程，可中途插话纠偏或委派转交 |
+| 三模式标签 | 左上角「👤 单聊 / 👥 群聊 / 🎛 编排」一键切换（编排控制台内嵌主界面），每个标签实时显示完成进度与未读绿点提醒 |
+
+ 安装方式
+
+ npm（推荐）
+
+bash
+npm install -g agents-chat-cli
+
+
+ 旧包名 @iamsamyiok/agents-chat 同步发布，两个包内容一致，命令都叫 agents-chat。
+
+ 免安装单文件 exe
+
+从 Releases 下载 AgentsChat-Portable-.exe（Windows 免安装版），双击即用，数据保存在 exe 旁 .data/ 目录。exe 内置自动更新（agents-chat update 或页面更新提示），Linux / macOS 用户请用 npm 方式安装。
+
+- Windows SmartScreen 提示「已保护你的电脑」→「更多信息」→「仍要运行」
+
+ 常用命令
+
+bash
+agents-chat           启动（后台运行，自动开浏览器）
+agents-chat status    查看运行状态
+agents-chat stop      停止（自动清理执行中的 AI 子进程）
+agents-chat update    一键升级到最新版
+agents-chat autostart on    开机自启（定时任务无人值守推荐开启）
+
+
+ 配置
+
+配置文件位于 ~/.agents-chat/.env（exe 形态在 .data/.env），全部可省略：
+
+bash
+AGENTS_CHAT_WEBHOOK_URL=       任务完成转发地址（钉钉/飞书中转）
+AGENTS_CHAT_PRUNE_DAYS=15      历史数据保留天数
+AGENTS_CHAT_TIMEOUT_MS=600000  单任务超时
+AGENTS_CHAT_AUTO_APPROVE=0     关闭 OpenCode 自动放行
+
+
+完整说明见仓库 .env.example 与页面内「帮助」。
+
+ 支持的执行内核
+
+OpenCode（推荐）/ Claude Code / Codex CLI / pi，页面右上角可切换。多智能体编排深度适配 OpenCode，其余内核以单轮对话方式执行。
+
+ 开发
+
+bash
+git clone https://github.com/iamsamyiok/agents-chat
+cd agents-chat &amp;&amp; npm install
+AGENTS_CHAT_MOCK=1 npm start    演示模式开发，无需内核
+npm test                        92 个测试用例
+
+
+零运行时依赖，Node 原生模块实现（HTTP/SSE/存储均为自研轻量层）。
+
+ License
+
+MIT</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/iamsamyiok/agents-chat/releases"><b>3.52.1</b> <span class="rp-rel-tag">3.52.1</span> <span class="rp-item-extra">2026-09-12</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/iamsamyiok__agents-chat.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+# OpenCode Plugins
+
+Personal [OpenCode](https://opencode.ai) `V2` ([`@opencode/cli`](https://www.npmjs.com/package/@opencode/cli)) Plugins.
+
+## Packages
+
+### [`@mynameistito/opencode-force-input`](packages/opencode-force-input)
+
+Interrupts the active run and force-submits the current prompt with `Ctrl+Enter`.
+
+Install it with OpenCode's plugin command:
+
+```powershell
+opencode2 plugin add "@mynameistito/opencode-force-input@latest" -g
+```
+
+See the [force-input README](packages/opencode-force-input/README.md) for manual configuration and Windows Terminal key bindings.
+
+### [`@mynameistito/opencode-usage-limits`](packages/opencode-usage-limits)
+
+Shows provider usage limits in the sidebar and prompt footer.
+
+Supported providers:
+
+- [Alibaba Token Plan](https://www.alibabacloud.com/help/en/model-studio/token-plan-personal-overview)
+- [ChatGPT Codex](https://chatgpt.com/)
+- [Command Code](https://commandcode.ai/)
+- [DeepSeek](https://www.deepseek.com/)
+- [MiniMax Token Plan](https://platform.minimax.io/subscribe/token-plan)
+- [Moonshot/Kimi API](https://platform.kimi.ai/docs/api/balance) (pay-as-you-go global USD / China CNY balances; distinct from Kimi For Coding subscription quota)
+- [Novita AI](https://novita.ai/)
+- [OpenCode GO](https://opencode.ai/go)
+- [OpenRouter](https://openrouter.ai/)
+- [Qwen](https://qwen.ai/)
+- [Synthetic](https://synthetic.ai/)
+- [ZAI Coding Plan](https://zai.ai/)
+
+Install it with:
+
+```bash
+opencode2 plugin add "@mynameistito/opencode-usage-limits@latest" -g
+```
+
+See the [usage-limits README](packages/opencode-usage-limits/README.md) for provider credentials, configuration, and troubleshooting.
+
+## Project Documentation
+
+The documentation site source lives in [`apps/web/docs/`](apps/web/docs/). Start with the [project overview](apps/web/docs/project.mdx) for the repository layout and packages, or read the [architecture guide](apps/web/docs/architecture.mdx) for plugin runtime flows and deployment boundaries. The same guides are available on the [documentation site](https://opencode-plugins.mynameistito.com/).
+
+## Local Development
+
+Build the packages you want to test, then add their package directories to your TUI config (`~/.config/opencode/cli.json` on this machine). Preserve the rest of your config and use absolute paths for your checkout:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": [
+    "/path/to/opencode-plugins/packages/opencode-force-input",
+    "/path/to/opencode-plugins/packages/opencode-usage-limits",
+  ],
+}
+```
+
+Restart OpenCode after editing the config. In a session, confirm the idle `⏎ send` hint appears, start a prompt and confirm it changes to the `steer` hint, then press `Ctrl+Enter` to verify the active run is interrupted and the prompt is submitted.
+
+## Development
+
+```powershell
+bun install --frozen-lockfile
+bun run typecheck
+bun run check
+bun run test
+bun run build
+```
+
+Use the root Changesets helper for user-facing changes:
+
+```powershell
+bun run changeset-add docs patch "Describe the documentation change"
+bun run changeset-add force-input patch "Describe the change"
+bun run changeset-add usage-limits minor "Describe the change"
+```
+
+Packages are independently publishable. Build output is generated during packaging and is not committed.

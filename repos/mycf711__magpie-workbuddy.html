@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mycf711/magpie-workbuddy · OpenCode Plugins</title>
+<meta name="description" content="WorkBuddy 国服 / 国际服双供应商 magpie 插件：浏览器、桌面与 API Key 登录，动态模型目录，流式推理与工具调用，额度、签到、限时补偿。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-workbuddy, mycf711, mycf711/magpie-workbuddy, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, security, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/mycf711__magpie-workbuddy">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="mycf711/magpie-workbuddy · OpenCode Plugins">
+<meta property="og:description" content="WorkBuddy 国服 / 国际服双供应商 magpie 插件：浏览器、桌面与 API Key 登录，动态模型目录，流式推理与工具调用，额度、签到、限时补偿。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/mycf711__magpie-workbuddy">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "mycf711/magpie-workbuddy", "codeRepository": "https://github.com/MYCF711/magpie-workbuddy", "url": "https://opencode-plugins.zhuikan.com/repos/mycf711__magpie-workbuddy", "description": "WorkBuddy 国服 / 国际服双供应商 magpie 插件：浏览器、桌面与 API Key 登录，动态模型目录，流式推理与工具调用，额度、签到、限时补偿。", "author": {"@type": "Organization", "name": "mycf711", "url": "https://github.com/MYCF711"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-03", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,security,server"}</script>
+</head>
+<body data-repo="mycf711/magpie-workbuddy" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">mycf711/magpie-workbuddy</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="mycf711__magpie-workbuddy"><img class="rp-side-av" src="https://github.com/MYCF711.png?s=300" width="300" height="300" alt="mycf711 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-workbuddy</div>
+      <a class="rp-side-owner" href="https://github.com/MYCF711">mycf711</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/MYCF711">mycf711</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-workbuddy</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">WorkBuddy 国服 / 国际服双供应商 magpie 插件：浏览器、桌面与 API Key 登录，动态模型目录，流式推理与工具调用，额度、签到、限时补偿。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-03</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="mycf711__freebuff-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">freebuff-auth</a><a class="rp-same-link" href="mycf711__magpie-accio-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-accio-auth</a><a class="rp-same-link" href="mycf711__magpie-alysis-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-alysis-auth</a><a class="rp-same-link" href="mycf711__magpie-chatbox-ai"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-chatbox-ai</a><a class="rp-same-link" href="mycf711__magpie-ima-local-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-ima-local-auth</a><a class="rp-same-link" href="mycf711__magpie-intern-ai"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-intern-ai</a><a class="rp-same-link" href="mycf711__magpie-loomy-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-loomy-auth</a><a class="rp-same-link" href="mycf711__magpie-magicrew-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-magicrew-auth</a><a class="rp-same-link" href="mycf711__magpie-marvis"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-marvis</a><a class="rp-same-link" href="mycf711__magpie-officeace"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-officeace</a><a class="rp-same-link" href="mycf711__magpie-opc-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-opc-auth</a><a class="rp-same-link" href="mycf711__magpie-plugin-scaffold"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-plugin-scaffold</a><a class="rp-same-link" href="mycf711__magpie-trustoken-auth"><img class="rp-same-av" src="https://github.com/MYCF711.png" alt="" loading="lazy">magpie-trustoken-auth</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/MYCF711/magpie-workbuddy">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.1.4</span><a class="rp-dl-a" href="https://www.npmjs.com/package/magpie-workbuddy/v/0.1.4">0.1.4 ↓</a><span class="rp-dl-ver">0.1.4</span><span class="rp-dl-date">2026-11-03</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">5</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">WorkBuddy 双区 · magpie 供应商插件
+
+一个插件包，两张供应商卡：workbuddy 接腾讯 WorkBuddy 国服，workbuddy-ai 接 WorkBuddy AI 国际服。登录态、模型目录、额度与签到互不覆盖。
+
+把国服 copilot.tencent.com 与国际服 www.workbuddy.ai 放进同一个 magpie 插件包，做成两个独立供应商、两组登录态、两份模型目录。它保留 magpie-community/plugins WorkBuddy 0.2.20 的完整行为，并补上 Jet Hub 的 scoped 双目录与国服限时补偿。浏览器登录、桌面登录、API Key、刷新、企业头、Messages/Chat 分流和额度由共享核心处理；域名、产品码、图标、静态模型与签到/补偿能力放在两个站点适配器里，互不覆盖。下面先给安装和功能，再解释共享与独立边界、验证证据和已知限制。
+
+
+2 个供应商    浏览器登录 / 桌面登录 / API Key，三选一
+31 条静态模型  登录后跟随账号的 /v3/config 实时上下架
+2 种协议      Claude 走 Anthropic Messages，其余走 OpenAI Chat Completions
+3 个开关      仅免费模型 · 增强模型目录 · 签到后自动领取限时补偿
+318 + 173     社区兼容回归 + 本仓库单元 / 契约测试
+
+
+ 非官方社区插件。WorkBuddy 的接口与客户端指纹可能变化；本仓库不代理、不缓存对话内容，请求直接发往对应站点。
+
+---
+
+ 功能
+
+- 一个包，两个独立供应商：WorkBuddyAuthPlugin 与 WorkBuddyAIAuthPlugin 是两个具名导出，magpie 把每个导出当成独立插件实例；两个 auth、两组账号、两份模型列表，不会串号。两个 provider 共用 WorkBuddy 官方应用图标（取自官方 Windows 客户端安装包的 256×256 圆角方形图标，内嵌 PNG data URI）。
+- 三种登录：
+  - WorkBuddy 官方登录页：插件打开浏览器，按桌面客户端的方式轮询登录状态，最多 5 分钟，不用粘贴。
+  - 桌面客户端登录态：读取本机 WorkBuddy 客户端自己的登录文件，只读不改；5.6 以后加密的版本会明确提示改用浏览器登录。
+  - API Key：在站点 /profile/keys 创建，插件按官方 CLI 的方式同时发送 X-API-Key 与 Authorization: Bearer。
+- 企业 / 团队账号：登录时保留企业 id，之后每个模型、额度与对话请求都带 X-Enterprise-Id / X-Tenant-Id；个人号不会被误当成企业号。
+- 静默续期：一次性 refresh_token 全程单飞，请求前、额度前、magpie 的 auth.refresh 共用同一把锁；刷新结果按合并语义返回，失败不误标账号。
+- 实时模型目录：读账号自己的 /v3/config，按 cli agent 的列表给出模型、上下文、输出上限、思考档位、图片能力、倍率与折扣；读不到时退回内置快照，不会把列表清空。
+- 双协议自动分流：国服 claude- 走 /v1/messages（Anthropic Messages），其余走 /v2/chat/completions；国际服没有 Messages 路由，所有模型走 Chat。
+- 完整流式体验：SSE 原样透传，reasoning、工具调用、content_filter 截断、空工具调用、工具结果后继续对话等社区已处理的情况全部保留。
+- 额度与路由：套餐积分、赠送积分、每日切片、到期时间、企业额度各自成窗口；免费模型与免费窗口单独计算，不让 0 倍率模型把额度条算错。
+- 国服每日签到：北京日每账号一次；已签到幂等，活动未开始 / 已结束 / 资格不符分别返回明确结果。
+- 国服限时补偿：查询 /billing/meter/compensation-status，只有用户显式打开选项才在签到后领取一次；默认关闭，避免悄悄消耗一次性奖励。
+- 国服成长中心全自动：签到那次在后台跑一轮成长中心 —— 任务列表里的可领项、首只 Buddy、猫猫旅行、连登补签与兑换、成长抽奖、新手礼包、活动补偿。每个动作按北京自然日幂等，重复触发只重新读一次列表；小程序族任务按 45 秒 + 0~10 秒抖动上报（连发会被上游回滚），上报后回读进度、达标才领。没有页面、没有按钮、不用在 magpie 里再开什么。
+- 错误分得清：登录失效落 401，模型不可用落 404，账号受限 / 积分耗尽 / 频道拒绝都有专门提示与稳定 code；流式错误保留上游原文。
+
+---
+
+ 两个供应商
+
+| Provider id | 显示名 | API | Messages | 签到 | 限时补偿 |
+|---|---|---|---|---|---|
+| workbuddy | 腾讯 WorkBuddy | https://copilot.tencent.com/v2 | ✅ Claude 系 | ✅ | ✅ |
+| workbuddy-ai | 国际版 WorkBuddy AI | https://www.workbuddy.ai/v2 | ❌ | ❌ | ❌ |
+
+在 agent 中用 / 选择，例如 workbuddy/glm-5.3、workbuddy-ai/gpt-5.5。安装后以 magpie plugin list 和模型页显示的实时目录为准；静态表只用于未登录和接口失败时兜底。
+
+---
+
+ 安装
+
+已发布到 GitHub 与 npm：
+
+bash
+ 从 GitHub 安装（git 源）
+magpie plugin add github:MYCF711/magpie-workbuddy
+
+ 从 npm 安装
+magpie plugin add magpie-workbuddy
+
+
+仓库： · npm：
+
+安装后打开 设置 → 供应商，会看到两张独立的卡：
+
+1. 腾讯 WorkBuddy：扫码/浏览器登录，或导入桌面登录，或粘贴 API Key。
+2. 国际版 WorkBuddy AI：独立登录，不会复用国服账号。
+
+⚠ 不要同时安装 @magpie-community/opencode-workbuddy-auth。两个包声明相同的 provider id，会争用模型列表与登录态。
+
+ 本地验证
+
+bash
+npm test                  Node 单元 / 契约测试
+npm run test:community    社区 318 条兼容回归（用 magpie 自带 Bun）
+node scripts/check.mjs    脚手架合规检查，必须 0 失败
+npm pack --dry-run        检查发布内容
+
+
+test:community 会在临时 HOME 中运行，绝不读取本机真实登录态。
+
+-</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/MYCF711/magpie-workbuddy/releases"><b>0.1.4</b> <span class="rp-rel-tag">0.1.4</span> <span class="rp-item-extra">2026-11-03</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/mycf711__magpie-workbuddy.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

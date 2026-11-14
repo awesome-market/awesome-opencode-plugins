@@ -1,0 +1,407 @@
+# wgm
+
+**An Agent Skill that turns a rough request into working software.**
+
+`wgm` is a portable [Agent Skill](https://agentskills.io). It has been run end to end on **GitHub
+Copilot CLI**, and is contract-fit on the documented behavior of Claude Code, OpenAI Codex CLI,
+Gemini CLI, Cursor, and OpenCode — with Pi and Aider degrading in named ways. Which is which, and
+on what evidence, is recorded in [`compatibility/harnesses.json`](compatibility/harnesses.json) and
+explained in [harness portability](references/harness-portability.md). Point it at a half-formed
+idea and it runs a disciplined lifecycle:
+
+```
+Triage → Grill → Plan → Preflight → Loop(Analyze → Implement → Validate → Review → Record) → Ship/Handoff
+```
+
+It fuses two proven ideas:
+
+- **Grill** — interview you relentlessly, one question at a time, until the plan is unambiguous
+  (after [`grill-me`](https://github.com/mattpocock/skills)).
+- **Ralph loop** — one task per iteration, a persistent plan as shared state, steered by a
+  deterministic pass/fail signal (after the
+  [Ralph playbook](https://github.com/ghuntley/how-to-ralph-wiggum)).
+
+The result is an agent that aligns first, plans on disk, and then builds in small, test-validated
+steps instead of one hopeful mega-edit.
+
+## Stage 10 memory foundation (experimental)
+
+<!-- Stage 10 is a local dogfood surface; its generated state is intentionally gitignored. -->
+
+Maintainers can inspect the repository and record local, evidence-backed memory without making a model call or reading credentials.
+
+Prerequisites: Python 3.10+ and Git; no credentials or network access are required. Run the commands from the repository root:
+
+```bash
+python3 scripts/stage10_memory.py inspect --root .
+python3 scripts/stage10_memory.py lint --root .
+bash scripts/test-stage10-memory.sh
+```
+
+`inspect` writes `.wgm/stage10/observations.jsonl` and `.wgm/stage10/brief.md` and exits `0` on success. `lint` exits `0` for a current, valid brief and nonzero when records are malformed, suspicious, or stale. The canonical memory gate is `bash scripts/test-stage10-memory.sh`; inspect/lint are the real-checkout refresh and diagnostic commands. The brief is the human entry point; raw JSONL is the machine source. The brief is bounded to 120 lines and 16,000 bytes. If lint reports changed sources, rerun inspect; if the current harness is unknown, do not infer it from executable presence. The offline Stage 10 qualification, routing, experiment comparison, learned-policy comparison, and end-to-end gates are documented in [`docs/reference/stage10.md`](docs/reference/stage10.md); the inspection allowlist is `SAFE_ENV_KEYS` in [`scripts/stage10_memory.py`](scripts/stage10_memory.py). Local experiments may create only declared branches/worktrees; live execution, remote mutation, PR creation, merge, deployment, publication, and policy activation remain separate explicit human-authorized boundaries.
+
+> **Offline/fixture-only:** the shipped Stage 10 harnesses create branches/worktrees only in disposable local fixtures. They do not call providers, mutate remotes, create PRs, merge, deploy, publish, or activate policy.
+
+To record a validated lesson after a green check:
+
+```bash
+python3 scripts/stage10_memory.py record --kind lesson --standing validated --scope task \
+  --summary 'The validation target is the cheapest backpressure.' \
+  --source 'CONTRIBUTING.md:40' --evidence 'command:make validate'
+```
+
+Promotion is stricter: `corroborated` needs two independent evidence references, and `promoted` additionally needs a `human-approved:` evidence reference. Token-shaped values are refused; rewrite them as `<redacted>` before recording. The [versioned Stage 10 scope and authority](docs/reference/stage10.md#shipped-scope-and-authority) defines the shipped contract. Local `.wgm/` plans and generated briefs describe one run; they are not portable scope or authorization.
+
+## Install
+
+A skill is just a folder containing `SKILL.md`. Install it **once for your user** (global — the
+default) or **per project**, on Linux, macOS, Windows, or WSL. This also installs the three
+companion skills, `teach-me`, `quiz-me`, and `rugged` (opt out with `--no-companions`).
+
+> **New to wgm?** [Get started](docs/get-started/README.md) walks install through a first validated
+> build in eight steps.
+
+### One-line install
+
+```bash
+# Linux / macOS / WSL
+curl -fsSL https://raw.githubusercontent.com/agent-frontier/wgm/main/scripts/install.sh | bash
+```
+
+```powershell
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/agent-frontier/wgm/main/scripts/install.ps1 | iex
+```
+
+Both default to a **user-level** install into the cross-client `~/.agents/skills/wgm`, plus any
+client dirs they detect (`~/.claude`, `~/.copilot`). The piped script self-fetches the repo (so it
+must be **public**); it installs `main` by default — pin a branch, tag, or `latest` (the newest
+published release) with `WGM_REF` / `--ref`, where a tag or `latest` installs the validated release
+tarball. For all flags, clone the repo and run the script.
+
+### From a clone (full control)
+
+```bash
+git clone https://github.com/agent-frontier/wgm && cd wgm
+./scripts/install.sh                 # user-level, auto-detect clients (default)
+./scripts/install.sh --project       # into ./.agents/skills (+ ./.claude)
+./scripts/install.sh --client all    # agents + claude + copilot
+./scripts/install.sh --dry-run       # preview; change nothing
+./scripts/install.sh --uninstall     # remove it again
+```
+
+```powershell
+pwsh scripts/install.ps1 -Client all
+powershell -File scripts\install.ps1 -Project
+pwsh scripts/install.ps1 -Uninstall
+```
+
+### Where it lands
+
+| Scope | Cross-client (default) | Claude | Copilot CLI |
+|---|---|---|---|
+| **User** (`~` / `%USERPROFILE%`) | `~/.agents/skills/wgm` | `~/.claude/skills/wgm` | `~/.copilot/skills/wgm` |
+| **Project** (`./`) | `./.agents/skills/wgm` | `./.claude/skills/wgm` | via `.agents/skills` |
+
+> **WSL ⇄ Windows:** inside WSL the installer also mirrors into your Windows home so Windows-side
+> agents see wgm (skip with `--no-windows`); on Windows with WSL present, `install.ps1` hands off to
+> the bash installer in WSL (`-NoWsl` to install natively). Re-run to update an existing install.
+
+Then confirm it's discoverable in your agent (e.g. `/skills`) and invoke `/wgm`. To install by hand,
+just copy the `wgm/` folder into any skills dir your client scans.
+
+If it does not appear right away, restart or reload your agent client; many clients rescan skills on
+startup or workspace reload.
+
+## Use it
+
+Invoke as a slash command with an optional **mode** and a request:
+
+```
+/wgm <request>           # full lifecycle on the request
+/wgm <mode> [only] ...   # scope to a phase
+```
+
+| Invocation | What happens |
+|---|---|
+| `/wgm add a dark-mode toggle` | Full lifecycle: grill → plan → build |
+| `/wgm grill only` | Just the alignment interview, then stop |
+| `/wgm analyze only` | Explore code + requirements and report; no implementation |
+| `/wgm plan: add OAuth login` | Write specs + `IMPLEMENTATION_PLAN.md`, then stop |
+| `/wgm build` | Continue the build loop from the existing plan |
+| `/wgm review` | Review the current diff against acceptance criteria and end with a recorded ruggedness verdict; RUGGED passes, FRAGILE/UNKNOWN block |
+
+**Modes:** `grill`, `analyze`, `plan`, `build` (alias `loop`), `review`.
+`grill`, `analyze`, `plan`, and `review` are single-phase entry points and always stop at their
+phase gate; a trailing `only` is accepted for emphasis and is redundant for them. `build` resumes
+the loop and may continue across iterations unless capped. A leading word counts as a mode only if
+it's a known keyword followed by `only`, `:`, or end of input — so `/wgm build the auth module` is
+treated as a request, not `build` mode.
+
+**Your first run, with plan approval** — `/wgm grill: add a dark-mode toggle`:
+1. **Grill** — wgm asks one focused question at a time (e.g. *"persist the choice in `localStorage` —
+   good?"*), each with a recommended answer, then stops at Grill-exit.
+2. **Plan** — invoke `/wgm plan`; it writes and checks the artifacts, then stops at Plan-exit.
+   Review the plan before authorizing code.
+3. **Build** — invoke `/wgm build only` for one checked iteration, or `/wgm build` to continue the loop.
+
+These phase-stopped invocations create the approval pause. A bare `/wgm REQUEST` runs the full
+lifecycle and can advance automatically when its gates pass.
+
+## Companion skills: `/teach-me`, `/quiz-me`, and `/rugged`
+
+wgm can build software faster than its operator can understand it. You take delivery of a working
+repo and own code you cannot explain. Three companion skills close that gap and stress-test the
+result — they install alongside wgm automatically (opt out with `--no-companions` /
+`-NoCompanions`) and work on **any** repo, not just one wgm built.
+
+| Invocation | What happens |
+|---|---|
+| `/teach-me` | Surveys the repo into a **cited** map, tours it in execution order, ends with a real change you validate with the project's own test command |
+| `/teach-me deep: <area>` | One area down to its invariants, failure modes, and the tests that pin it |
+| `/quiz-me` | Grills you one question at a time, grades each answer **against the code**, scores by tier, and drills what you got wrong |
+| `/quiz-me drill: <area>` | Repeated questions on one weak area until it converges |
+| `/rugged` | Read-only review that stress-tests a request, spec, plan, diff, or system against its *actual* operators and environment, ending in one unhedged verdict: RUGGED, FRAGILE, or UNKNOWN |
+
+`teach-me` and `quiz-me` are deliberately a pair: `teach-me` produces the *feeling* of
+understanding; only `quiz-me` tells you whether it was real. Two rules make the score mean
+something:
+
+- **Cite or don't claim** — every statement `teach-me` makes about your repo carries a `path:line`
+  citation, and it *runs* the build rather than repeating what the README claims. No citation, no claim.
+- **Holdout questions** — `quiz-me` draws from what the tour did *not* literally show you, the same
+  anti-gaming discipline as wgm's holdout scenarios. It also reports anything you were
+  **confidently wrong** about separately from "I don't know" — the first is a future incident, the
+  second is just a gap.
+
+`rugged` is a different kind of companion: it never edits anything, and it judges robustness, not
+comprehension. wgm invokes it at Plan-exit and Review as a required gate, with an inline fallback
+when the companion is unavailable. See [Companion skills](docs/companions/README.md) for its full
+lifecycle and the development-practice metaphor its name comes from.
+
+Artifacts land in `.wgm/learning/` (teach-me/quiz-me) and `.wgm/rugged/` (rugged), so a later
+session resumes instead of re-surveying. None of the three modify your code — except `teach-me`'s
+one first-change exercise, which is reverted by default.
+
+## What it writes (and how it stays safe)
+
+`wgm` keeps durable state on disk so any fresh agent can resume:
+
+- `specs/*` — what to build and why (incl. the "magic moment" and smallest end-to-end slice)
+- `IMPLEMENTATION_PLAN.md` — the prioritized task list (the loop's memory)
+- `AGENTS.md` — a lean "how to build & validate" guide
+- `docs/audit/*` — the docs-audit paper trail (committed, never gitignored by default — see Capabilities)
+
+**Safety:** `wgm` never overwrites an existing `AGENTS.md`. If your repo already has any of these
+files, it writes its own under `.wgm/` instead (`.wgm/IMPLEMENTATION_PLAN.md`, `.wgm/specs/`,
+`.wgm/AGENTS.md`). Greenfield repos use the root directly.
+
+## Capabilities
+
+wgm fuses grilling + the Ralph loop with **holdout-scenario judging** (after
+[octopusgarden](https://github.com/foundatron/octopusgarden)), so a build converges on genuinely
+correct software instead of teaching to the test.
+
+```mermaid
+flowchart LR
+  G[Grill] --> P[Plan plus consistency check]
+  P --> F{Preflight ready?}
+  F -- no --> G
+  F -- yes --> A
+  subgraph Loop
+    direction LR
+    A[Analyze] --> I[Implement] --> V[Validate and judge] --> R[Review] --> Rec[Record]
+  end
+  V -- score below target --> W[Wonder, Reflect, escalate]
+  W --> A
+  Rec -- target met and checks green --> S[Ship]
+```
+
+- **Holdout scenarios** — YAML user-journeys graded blind; the **implement step** never reads them
+  (Plan writes them; Validate/Review judge against them) (`references/scenarios.md`).
+- **Satisfaction scoring** — an LLM judge scores 0–100; converge to a threshold (default 95)
+  (`references/scoring.md`).
+- **Preflight** — a readiness gate (≥ 80) before any code is written.
+- **Scale-adaptive tracks** — Triage right-sizes the ceremony to the work: **Quick** (small fix →
+  inline check, skip holdout scenarios + Preflight), **Standard** (the default — the full lifecycle),
+  or **Full** (large / greenfield / high-risk → adds holdout scenarios, stratified scoring, and
+  containerized validation) (`SKILL.md`).
+- **Constitution** — project-wide principles (quality, testing, security) every spec and task is
+  checked against at the Plan gate (`assets/constitution.template.md`).
+- **Consistency gate + no-placeholder rigor** — before any code, a cross-artifact check
+  (specs ↔ plan ↔ scenarios ↔ constitution) catches contradictions and requirement↔task gaps, and
+  every task must name exact files and a runnable validation command.
+- **Stratified validation** — converge tier 1 → 2 → 3 so easy passes can't hide hard failures.
+- **Wonder / reflect + model escalation** — structured stall recovery; start frugal, escalate on a
+  stall (`references/stall-recovery.md`).
+- **Standing loop guardrails** — search-before-implement (no duplicate work) and
+  document-why-each-test (no orphan deletions) on every iteration (`references/ralph-loop.md`).
+- **Memories** — a token-budgeted `.wgm/memories.md` recalled in Analyze and appended in Record, so
+  fresh-context iterations don't relearn the same gotchas, stalls, or dead ends
+  (`assets/memories.template.md`).
+- **Context rotation** — when the window fills, summarize progress into the plan + memories and
+  **rotate to fresh context** rather than grinding on a degraded one (`references/ralph-loop.md`).
+- **Two-stage subagent review (the role swarm)** — twelve role-specialized agents in total (griller ·
+  implementer · spec + quality reviewers · validator · diagnostician · the five-role docs-audit
+  swarm · `wgm-hermes`, the hive courier); the two code reviewers run independently and **preserve
+  dissent** — a minority concern is recorded, never collapsed into a silent PASS
+  (`references/subagents.md`).
+- **Docs-audit paper trail** — a mandatory lifecycle audit of documentation *quality* (not just
+  structure) from four vantage points — junior dev, senior dev, principal dev, PM — consolidated by
+  a technical-writer role into one committed report per run. A compatible host dispatcher owns the
+  persona launch and report gate; the portable runner does not pretend to provide that host service.
+  Every action item is labeled strictly **Agent action** or **Operator action** and the report is
+  indexed with the docs corpus (`references/docs-audit.md`).
+- **Harness capability contract** — "runs on any compatible agent" was unfalsifiable, so wgm now
+  publishes a machine-checked record instead: one entry per harness with its skill-discovery paths,
+  non-interactive invocation contract, subagent capability, named fallback, adapter status, per-OS
+  evidence, and source URLs. Exactly four statuses exist — `Verified` (discovery **and** invocation
+  **and** an end-to-end journey are on record), `Expected`, `Degraded`, `Unknown` — and
+  `scripts/check-harnesses.sh` fails closed on anything else (`references/harness-portability.md`).
+- **Trigger eval** — a hand-curated should/should-not-trigger fixture that catches drift in
+  `SKILL.md`'s mode-parsing rule and the "Use this when"/"Do NOT use this when" boundary
+  (`references/trigger-eval.md`).
+- **Output-quality evals** — given wgm *does* trigger, is the result actually good? A structured
+  `evals/evals.json` fixture (prompt + expected output + assertions), schema-checked by
+  `scripts/check-evals.sh`, graded by a maintainer or `scripts/grade-evals.sh` (an opt-in, real
+  grader-agent + non-regression gate — see `references/evals.md`).
+- **EARS acceptance criteria** — *Easy Approach to Requirements Syntax*: phrase each criterion in a
+  testable trigger/state/response shape (e.g. "When X, the system shall Y") so a check or judge can
+  settle it (`references/artifacts.md`).
+- **Domain glossary** — an optional `specs/CONTEXT.md` of canonical names keeps naming consistent
+  across fresh-context iterations (`assets/context.template.md`).
+- **Token economy** — human-facing artifacts stay readable, while agent-only state may use
+  single-token keys (TOON, a compact serialization for agent-only files) to shrink what the agent
+  must reread each iteration (`references/artifacts.md`).
+- **Self-improvement flywheel (the Hive Growth Loop)** — at handoff, harvest a durable, sanitized,
+  **always-anonymized** lesson from every source (this build's memories, consolidated swarm-stream
+  memories, this project's own GitHub Issues, cross-pollinated external research) and, once a
+  project consents once via a committed `.github/wgm-hive.yml`, report it upstream automatically —
+  no further per-run asking — so wgm grows from every codebase (`references/self-improvement.md`).
+- **Stage 8+ growth** — wgm is independently assessed as an **operational Stage 8.5 / Stage 9
+  candidate**: it can improve its own control plane from evidence, but still requires human/host
+  gates for consent, review, promotion, and rollback. See the
+  [growth-stage record](docs/plans/2026-08-20_WGM_STAGE_8_PLUS_GROWTH.md)
+  and the external [Gas Town stages model](https://docs.gt.villamarket.ai/docs/guides/eight-stages).
+- **Gene transfusion** — seed the build from an exemplar codebase (`references/gene-transfusion.md`).
+- **OCI validation** — run scenarios against the app in a **Podman**-first (Docker-fallback)
+  container (`references/validation-env.md`).
+- **Local devcontainer sandbox** — run the loop *itself* isolated in a disk-conscious local
+  devcontainer (one shared image across every project, never a per-project build) via
+  `loop.sh --devcontainer` (`references/devcontainers.md`).
+
+## Documentation
+
+| I want to… | Go to |
+|---|---|
+| Install and run my first build | **[Get started](docs/get-started/README.md)** |
+| See a complete worked example | [Your first build](docs/get-started/first-build.md) |
+| Drive the loop autonomously | [Run the loop](docs/operator/running-the-loop.md) |
+| Understand a repo wgm built me | [Companion skills](docs/companions/README.md) |
+| Look up an exact flag or path | [Reference](docs/reference/README.md) |
+| Fix something | [Troubleshooting](docs/operator/troubleshooting.md) |
+| Know which agents wgm actually runs on | [Harness portability](references/harness-portability.md) |
+| Contribute docs | [Style guide](docs/style-guide.md) |
+
+Full index: [`docs/`](docs/README.md).
+
+## Optional: the real Ralph loop (`scripts/loop.sh`)
+
+In a single agent session, context accumulates — the opposite of what makes Ralph strong. For
+large or ambiguous builds, run the loop with a genuinely **fresh context per iteration** using the
+bundled adapter. It's host-agnostic: you tell it how to invoke your agent.
+
+```bash
+# Tell it how to run your agent — either a shell-evaluated command…
+export WGM_AGENT='claude --dangerously-skip-permissions -p'   # prompt appended as last arg
+./scripts/loop.sh plan --request "build a small CLI todo app"  # one planning pass
+./scripts/loop.sh build 20            # up to 20 build iterations, fresh context each time
+./scripts/loop.sh build 20 --threshold 95 --stratified --container podman
+export WGM_FRUGAL_AGENT='claude -p'   # cheap model; escalates to $WGM_AGENT on a stall
+./scripts/loop.sh extract --source ../exemplar  # gene transfusion from an exemplar repo
+./scripts/loop.sh build only          # exactly one iteration
+./scripts/loop.sh build --dry-run     # preview the prompt/command; run nothing
+./scripts/loop.sh build --devcontainer  # run the whole loop sandboxed (one shared image; see below)
+# …or pass the agent argv after `--` (invoked without eval — safest):
+./scripts/loop.sh build -- claude -p
+```
+
+**Parallel swarm:** `scripts/swarm.sh` defaults to Git worktrees and one reviewable branch per stream.
+We encourage exploring `--backend jj` for colocated Jujutsu workspaces; Git still owns the commits,
+and wgm never converts a checkout automatically. No speedup is claimed without measurement. This
+is parallelism across *tasks*, distinct from the **role swarm** of subagents. See the [jj setup and
+recovery guide](docs/reference/cli-swarm.md#try-the-jj-backend) and [Git vs jj decision record](docs/plans/2026-10-29_JJ_WORKSPACES_EVALUATION.md).
+
+- Modes match the skill: `grill | analyze | plan | preflight | build | review | extract` (plus
+  `only` for a single pass).
+- `build`/`review` refuse to run without an `IMPLEMENTATION_PLAN.md`.
+- The loop commits only with `--commit` or `--checkpoint-interval`; swarm lanes always use
+  `--commit`. The runner does not push, but the agent **does** edit files during a normal run.
+- In `build` mode the agent is told to drop a `STOP` sentinel when no must-have task remains, so the
+  loop self-terminates. Stop anytime with `Ctrl+C` or by creating `STOP` / `.wgm/STOP`. See
+  `./scripts/loop.sh --help`.
+- Guard long autonomous runs with `--max-runtime-seconds`, `--idle-timeout`, `--checkpoint-interval`
+  (auto-commit), `--max-cost` (stop once cumulative spend from `--cost-cmd` hits a ceiling), and a
+  `--notify "CMD"` lifecycle hook. The runtime limit is checked between iterations, not a global
+  deadline; active work can overrun it. `--agent-timeout-seconds` is the separate per-agent watchdog
+  when GNU `timeout`/`gtimeout` is available.
+- **Survive transient failures:** the loop retries a failed agent call with exponential backoff +
+  jitter (`--max-retries`) and trips a **circuit breaker** after N consecutive failures
+  (`--max-consecutive-failures`) instead of dying on the first hiccup.
+- **Measure the run:** `--metrics FILE` logs a per-iteration TSV (duration, progress, result), with a
+  pluggable `--cost-cmd` for token/cost — for data-driven runs.
+- **Sandbox the loop itself:** `--devcontainer` re-execs the whole invocation inside a disk-conscious
+  local devcontainer via `scripts/devcontainer.sh` — one shared, prebuilt image reused across every
+  project (never a per-project build). See [docs/operator/devcontainers.md](docs/operator/devcontainers.md).
+- **Works from any project:** the loop ships with the installed skill and acts on your current
+  directory — run `~/.agents/skills/wgm/scripts/loop.sh` (or your install path) from your project's
+  root. The `./scripts/loop.sh` examples above assume you're inside this repo.
+
+> Run the loop only in an environment you're comfortable letting an agent operate in autonomously
+> (a sandbox or disposable workspace). Autonomous loops bypass per-step approvals by design.
+
+## Repository layout
+
+```
+wgm/
+├── SKILL.md          # the protocol the agent follows
+├── README.md         # this file
+├── references/       # grilling · ralph-loop · telemetry · stage10-memory · subagents · artifacts · scenarios · scoring · stall-recovery · hard-to-test-domains · gene-transfusion · validation-env · devcontainers · self-improvement · issue-intake · heuristics · docs-audit · adr · trigger-eval · evals · local-models · harness-portability · PLUGIN_PROTOCOL · plugin-integration
+├── compatibility/    # harnesses.json — the per-harness capability/evidence record (gated by scripts/check-harnesses.sh) · agent-adapters.json — the canonical-role -> host-agent-format mapping
+├── adapters/         # host translations of the role subagents, derived from .github/agents/ by scripts/sync-agent-adapters.sh (claude/agents/ today)
+├── assets/           # spec · scenario · IMPLEMENTATION_PLAN · AGENTS · constitution · context · memories · genes · docs-audit-report · adr · morning-report · sprint-status · evals · plugin-template · wgm.example.yml · wgm-hive.template.yml · state.toon · devcontainer/ templates
+├── scripts/          # loop.sh (Ralph loop) · swarm.sh (Git worktrees / opt-in jj workspaces) · audit.sh (portable docs-audit dispatcher) · harvest-hive.sh (hive courier) · devcontainer.sh (local sandbox) · check-trailers.sh (commit governance) · check-doc-sync.sh (doc drift) · check-harnesses.sh (harness contract) · sync-agent-adapters.sh (role adapters) · install.sh · install.ps1
+├── companions/       # teach-me (learn a repo) · quiz-me (be tested on it) · rugged (stress-test a design) — installed as sibling skills
+├── .github/agents/   # the twelve role-specialized subagents (the swarm), incl. the docs-audit swarm + wgm-hermes — canonical source for every host adapter
+└── docs/             # get-started/ · operator/ · companions/ · agent/ · reference/ · style-guide · plans/ · audit/
+```
+
+## Community
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — How to contribute, development prerequisites, and the backpressure suite.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Our community standards and enforcement.
+- [SECURITY.md](SECURITY.md) — How to report security vulnerabilities and our safety model.
+- [Heuristic / learning report](.github/ISSUE_TEMPLATE/heuristic_report.yml) — Share a sanitized trace so wgm can improve its heuristics and docs, including our own dogfood runs.
+
+## Releases
+
+- `main` is the canonical release line.
+- The `SKILL.md` frontmatter version is the public skill version; a release **tag must match it
+  exactly**, prefixed with `v` (version `0.5.1` → tag `v0.5.1`).
+- **To cut a release:** run `python3 scripts/compile_heuristics.py` and commit the rebuilt ledger, then push the matching tag — `git tag v0.5.1 && git push origin v0.5.1`.
+  [`.github/workflows/release.yml`](.github/workflows/release.yml) then verifies the tag against
+  `SKILL.md`, re-runs shellcheck + `skills-ref` + the docs check, packages `wgm-v0.5.1.tar.gz` (plus a
+  stable-named `wgm.tar.gz` for `…/releases/latest/download`), and publishes a GitHub release with
+  auto-generated notes.
+- Pin installs with `WGM_REF` / `--ref` when you want a specific release or commit instead of the
+  moving `main` branch — e.g. `WGM_REF=latest` for the newest release, or `WGM_REF=v0.5.1` for a
+  specific one. A tag or `latest` fetches the published **release tarball**; any other ref uses the
+  codeload source archive.
+- CI validates every push and pull request before release promotion.
+
+## Credits & license
+
+Inspired by Matt Pocock's [`grill-me`](https://github.com/mattpocock/skills) and Geoffrey
+Huntley's Ralph methodology as distilled in
+[how-to-ralph-wiggum](https://github.com/ghuntley/how-to-ralph-wiggum). Licensed under MIT — see
+[LICENSE](LICENSE).

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>asterleedsguild0/astrbot_plugin_webhook_notifier · OpenCode Plugins</title>
+<meta name="description" content="AstrBot Webhook 通知插件：将 Oh My Pi、OpenCode 等 Coding Agent 的任务完成／待处理事件及通用 Markdown 消息，以文本或 HTML 卡片推送到 QQ 私聊或群聊。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="astrbot_plugin_webhook_notifier, asterleedsguild0, asterleedsguild0/astrbot_plugin_webhook_notifier, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, notifications, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/asterleedsguild0__astrbot_plugin_webhook_notifier">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="asterleedsguild0/astrbot_plugin_webhook_notifier · OpenCode Plugins">
+<meta property="og:description" content="AstrBot Webhook 通知插件：将 Oh My Pi、OpenCode 等 Coding Agent 的任务完成／待处理事件及通用 Markdown 消息，以文本或 HTML 卡片推送到 QQ 私聊或群聊。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/asterleedsguild0__astrbot_plugin_webhook_notifier">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "asterleedsguild0/astrbot_plugin_webhook_notifier", "codeRepository": "https://github.com/AsterleedsGuild0/astrbot_plugin_webhook_notifier", "url": "https://opencode-plugins.zhuikan.com/repos/asterleedsguild0__astrbot_plugin_webhook_notifier", "description": "AstrBot Webhook 通知插件：将 Oh My Pi、OpenCode 等 Coding Agent 的任务完成／待处理事件及通用 Markdown 消息，以文本或 HTML 卡片推送到 QQ 私聊或群聊。", "author": {"@type": "Organization", "name": "asterleedsguild0", "url": "https://github.com/AsterleedsGuild0"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-07-08", "license": "https://spdx.org/licenses/MIT.html", "keywords": "notifications,tools"}</script>
+</head>
+<body data-repo="asterleedsguild0/astrbot_plugin_webhook_notifier" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">asterleedsguild0/astrbot_plugin_webhook_notifier</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="asterleedsguild0__astrbot_plugin_webhook_notifier"><img class="rp-side-av" src="https://github.com/AsterleedsGuild0.png?s=300" width="300" height="300" alt="asterleedsguild0 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">astrbot_plugin_webhook_notifier</div>
+      <a class="rp-side-owner" href="https://github.com/AsterleedsGuild0">asterleedsguild0</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/AsterleedsGuild0">asterleedsguild0</a>
+        <span class="rp-sep">/</span><span class="rp-name">astrbot_plugin_webhook_notifier</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">AstrBot Webhook 通知插件：将 Oh My Pi、OpenCode 等 Coding Agent 的任务完成／待处理事件及通用 Markdown 消息，以文本或 HTML 卡片推送到 QQ 私聊或群聊。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>4</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/notifications">notifications</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-07-08</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/AsterleedsGuild0/astrbot_plugin_webhook_notifier">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">4</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">16</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AstrBot Webhook Notifier
+
+AstrBot Webhook 通知插件：将 Oh My Pi（OMP）、OpenCode 的任务完成／待处理事件及通用 Markdown 消息，以文本或 HTML 卡片推送到 QQ 私聊或普通 QQ 群。
+
+   
+
+支持 aiocqhttp 与 QQ 官方 WebSocket；文本模式无需图片渲染服务，HTML 卡片依赖 AstrBot html_render / T2I。
+
+ 推荐使用 QQ 官方 Bot  WebSocket 接入私聊对话：可以直接扫码接入 AstrBot，而且 QQ 官方 Bot 限制了只能和自己私聊，相对不容易被风控。
+
+快速开始 · 支持范围 · 提交问题
+
+ 效果图
+
+ 
+
+
+展开查看多代理与等待时间线
+
+!OMP 多代理与交互观察时间线
+
+
+
+以上为合成数据的实际渲染基准图，不含真实会话或凭据。
+
+---
+
+ 能做什么
+
+| 场景 | 用法 |
+| --- | --- |
+| Coding Agent 通知 | OMP 运行收束时区分正常、失败、中止和未知，并提醒待处理交互；OpenCode 支持完成、失败、权限与问题通知 |
+| 通用 Markdown 推送 | 从脚本或服务发送构建结果、运维摘要等受限 Markdown 消息 |
+
+- 不必一直盯着终端，在 QQ 中查看结果或等待处理的事项。
+- 按 Endpoint 绑定推送目标，Token 可独立轮换、撤销，不允许调用方任意指定收件人。
+- 过滤短时成功任务与成功子任务通知，减少打扰；失败和待处理事件不按时长过滤。
+- OMP 卡片可选浅色／深色主题；HTML 图片链路异常时自动降级为文本。
+- 在认证后的 Plugin Page 复制、编辑、预览、保存、应用或删除自定义 HTML 模板。
+
+---
+
+ 快速开始
+
+ 1. 安装
+
+需要已运行的 AstrBot = 4.26.8、上述受支持平台及 Python = 3.10。AstrBot 4.26.0–4.26.7 用户须先升级 AstrBot。依赖见 pyproject.toml。
+
+| 方式 | 操作 |
+| --- | --- |
+| Release ZIP（推荐） | 从 最新 Release 下载插件 ZIP，在 WebUI 选择“从文件安装” |
+| WebUI 仓库 URL | 在 URL 安装入口填写 https://github.com/AsterleedsGuild0/astrbot_plugin_webhook_notifier |
+| 源码安装 | 执行下方命令，将插件放入 AstrBot/data/plugins |
+
+bash
+git clone https://github.com/AsterleedsGuild0/astrbot_plugin_webhook_notifier.git \
+  AstrBot/data/plugins/astrbot_plugin_webhook_notifier
+
+
+安装后在 WebUI 加载或重载插件，确认插件列表显示已加载。升级前查看公共契约与发布说明。
+
+ 2. 最小配置与 Endpoint
+
+- 进入 AstrBot WebUI → 插件管理 → Webhook Notifier → 配置，保持 enabled: true、render_mode: text。
+- server 默认监听 127.0.0.1:18080，base_path 为 /webhook。按部署方式设置 host、port 与含 base path 的 public_base_url；同机可直连，跨主机或公网建议 HTTPS 反向代理。步骤见端到端部署。
+- 私聊主动通知默认关闭。首次可保留此安全默认值验证 skipped；确认平台规则和风险后，才设 enable_private_notifications: true 并重载，以验证实际送达。
+
+在与 Bot 的私聊中执行（ 默认是 /）：
+
+text
+whn token new private demo
+
+
+省略 --provider 时创建 markdown Endpoint。成功后聊天返回 Endpoint Path，Token 通过独立消息交付；Base URL 从认证后的 Plugin Page 复制，三者分别保存。Coding Agent 使用下一节的专用 Endpoint。
+
+---
+
+ 3. 发送第一条消息
+
+将以下占位值替换为自己的配置；Token 只放 Header，不拼入 URL：
+
+bash
+export WHN_BASE_URL=&#x27;https://example.invalid/webhook&#x27;
+export WHN_ENDPOINT_PATH=&#x27;&#x27;
+export WHN_TOKEN=&#x27;&#x27;
+curl --fail-with-body --silent --show-error \
+  -X POST &quot;${WHN_BASE_URL}/${WHN_ENDPOINT_PATH}&quot; \
+  -H &#x27;Content-Type: application/json&#x27; \
+  -H &quot;Authorization: Bearer ${WHN_TOKEN}&quot; \
+  --data-binary @- whn token new private my-omp --provider omp；要深色卡片可追加 --theme dark。
+2. 在 OMP 依次执行 /marketplace add AsterleedsGuild0/astrbot_plugin_webhook_notifier、/marketplace install omp-webhook-notifier@astrbot-webhook-notifier。
+3. 在启动 OMP 的环境中分别设置 OMP_SESSION_WEBHOOK_URL（Base URL 与 Endpoint Path 组合）和 OMP_SESSION_WEBHOOK_TOKEN，然后重启 OMP。
+4. 在允许通知的目标上运行超过默认 15 秒阈值的任务，确认收到结果。整包手动安装、旧 Hook 迁移、历史环境变量和排障见客户端接入；服务端设置见端到端部署。
+
+ OpenCode
+
+1. 在 Bot 私聊执行 whn token new private my-opencode --provider opencode，分别保存 Base URL、Endpoint Path 与 Token。
+2. 将 webhook-notifier.ts 放到 OpenCode 所在机器，合并 opencode.jsonc 的 plugin tuple，用 {env:...} 或 {file:...} 分别提供 URL 与 Token。
+3. 完全重启 OpenCode Desktop 或 CLI，触发完成、失败和权限请求，核对目标通知。默认 actionContentMode: strict 只发送交互类别／计数；内容模式、实例名、时间线、版本前提及排障见 OpenC</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/asterleedsguild0__astrbot_plugin_webhook_notifier.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

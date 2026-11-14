@@ -1,0 +1,1020 @@
+[English](#) | [简体中文](./README.zh-Hans.md)
+
+# Claude Code Runner
+
+> [!WARNING]
+>
+> - This work is alpha and might have security issues, use at your own risk.
+> - Email [admin@soraharu.com](mailto:admin@soraharu.com) for inquiries.
+
+Run Claude Code, OpenCode, Codex, Kimi Code, or Qwen Code as an autonomous agent inside Docker containers with automatic GitHub integration. Bypass all permissions safely.
+
+## Supported Code Runners
+
+Claude Code Runner supports multiple AI coding assistants:
+
+| Runner | Command | Description |
+|--------|---------|-------------|
+| **Claude Code** | `claude-run` | Anthropic's official Claude Code CLI |
+| **OpenCode** | `claude-run --runner opencode` | Open-source alternative with multi-provider support |
+| **Codex** | `claude-run --runner codex` | OpenAI's Codex CLI |
+| **Kimi Code** | `claude-run --runner kimi` | Moonshot AI's Kimi Code CLI |
+| **Qwen Code** | `claude-run --runner qwen` | Alibaba's Qwen Code CLI |
+
+You can switch between runners using:
+- **CLI flag**: `--runner claude`, `--runner opencode`, `--runner codex`, `--runner kimi`, or `--runner qwen`
+- **Config file**: Set `"codeRunner": "codex"` (or `"kimi"`, `"qwen"`, etc.) in `claude-run.config.json`
+
+## Why Claude Code Runner?
+
+The primary goal of Claude Code Runner is to enable **full async agentic workflows** by allowing Claude Code, OpenCode, Codex, Kimi Code, or Qwen Code to execute without permission prompts. By running the code assistant in an isolated Docker container with dangerous/auto-approve mode flags, the AI can:
+
+- Execute any command instantly without asking for permission
+- Make code changes autonomously
+- Run build tools, tests, and development servers
+- Create commits and manage git operations
+- Work continuously without interrupting the user
+
+Access the code assistant through a **browser-based terminal** that lets you monitor and interact with the AI assistant while you work on other tasks. This creates a truly autonomous development assistant, similar to [OpenAI Codex](https://chatgpt.com/codex) or [Google Jules](https://jules.dev), but running locally on your machine with full control.
+
+## Overview
+
+Claude Code Runner allows you to run Claude Code, OpenCode, Codex, Kimi Code, or Qwen Code in isolated Docker containers, providing a safe environment for AI-assisted development. It automatically:
+
+- Creates a new git branch for each session
+- Monitors for commits made by the AI assistant
+- Provides interactive review of changes
+- Handles credential forwarding securely
+- Enables push/PR creation workflows
+- Runs custom setup commands for environment initialization
+
+## Installation
+
+Install Claude Code Runner globally from npm:
+
+```bash
+npm install -g claude-code-runner
+```
+
+### Prerequisites
+
+- Node.js >= 22.13.0
+- Docker or Podman
+- Git
+
+## Usage
+
+### Quick Start
+
+> [!TIP]
+>
+> For the fastest setup with pre-built image, use the official image by setting `buildImage: false` in your config. The default image will automatically use a tag matching the CLI version (e.g., `ghcr.io/yanranxiaoxi/claude-code-runner:v0.3.2`).
+>
+> To always get the latest runtime components (Claude Code, OpenCode, etc.), enable `useNightlyImage: true` to use the `nightly` tag, which is rebuilt daily with the freshest tooling. Alternatively, set `buildImage: true` to build locally from the latest Dockerfile.
+
+Simply run in any directory:
+
+```bash
+claude-run
+```
+
+This will:
+
+1. Choose a workspace mode (unless `workspaceMode` is set in config)
+2. Start a Docker container with Claude Code
+3. Launch a web UI at `http://127.0.0.1:3456`
+4. Open your browser automatically
+
+> [!IMPORTANT]
+>
+> **Workspace Modes**
+>
+> If `workspaceMode` is not set in `claude-run.config.json`, the CLI asks you to choose:
+>
+> - `shadow` (recommended): files are copied into an isolated Git shadow workspace. Your host directory is not mounted.
+> - `direct`: the current directory is bind-mounted read-write at `/workspace`. Agent edits apply immediately to your host files.
+>
+> The interactive choice is **not written back** to the config file. Set `workspaceMode` explicitly to skip the prompt. When stdin is not a TTY, shadow mode is used with a warning.
+>
+> Direct mode is intentionally restrictive:
+>
+> - Direct mode does not create or switch to a `claude/*` branch; it uses the current host checkout.
+> - Branch/PR options (`--branch`, `--remote-branch`, `--pr`, `targetBranch`, `remoteBranch`, `prNumber`) are rejected.
+> - `.git` is mounted read-only and only read-only Git inspection is allowed. If you initialize Git after the container starts, restart the session so the read-only mount is applied.
+> - The Web UI does not offer commit/push. If the directory is a Git repository and Git is available on the host, the Changes tab still shows read-only file status and diffs; otherwise it reports that change tracking is unavailable.
+> - `setupCommands` require explicit confirmation each run and are skipped without a TTY.
+> - No snapshot or rollback is provided. Commit/stash or back up important work first.
+> - System/home/temp roots are rejected as direct workspaces. This includes `/`, `$HOME`, `/home`, `/tmp`, and on macOS `/System`, `/Library`, `/Users`; on Windows drive roots, `%SystemRoot%`, `%ProgramFiles%`, `%ProgramData%`, and the user home. Subdirectories of those locations are allowed.
+>
+> Direct mode is **not a filesystem sandbox**. The agent has shell access inside the container and the mounted directory is writable. The read-only `.git` mount and Git wrapper are guardrails, not a hard security boundary. Use shadow mode when you need isolation.
+>
+> Rootless Podman uses `keep-id` automatically. Rootless Docker may not map the host UID correctly; a write probe aborts direct mode before the agent starts if the mounted directory is not writable.
+>
+> The read-only Git wrapper is part of the official image. A custom Dockerfile that removes or replaces it will lose that guardrail.
+
+> [!WARNING]
+>
+> **Non-Git Directory Support (Shadow Mode)**
+>
+> In `shadow` mode, if you run `claude-run` in a non-git directory, the tool will prompt you to initialize a git repository. If you agree, it will automatically run `git init`, create an initial commit, and start the container. **Important**: After initialization, you must manually set up a remote repository (e.g., on GitHub) and configure the upstream to save your changes. Use commands like:
+>
+> ```bash
+> git remote add origin <your-repo-url>
+> git push -u origin main
+> ```
+>
+> Without setting up the upstream, your changes will only exist locally in the container. Direct mode does not require Git and does not initialize a repository.
+
+> [!NOTE]
+>
+> **Working with Passphrase-Protected SSH Keys**
+>
+> If your SSH keys are protected with a passphrase, start the SSH agent before running `claude-run`:
+>
+> ```bash
+> eval "$(ssh-agent -s)"
+> ssh-add ~/.ssh/id_rsa  # Enter your passphrase once
+> claude-run  # SSH agent is forwarded to container
+> ```
+>
+> This allows Claude Code to use your SSH keys without repeatedly prompting for the passphrase.
+
+> [!TIP]
+>
+> **Using the Nightly Image**
+>
+> The Docker image bundles Claude Code, OpenCode, Codex, Kimi Code, and Qwen Code. These tools update frequently. To stay current without waiting for a new CLI release, you have two options:
+>
+> 1. **Use the nightly tag** — Set `buildImage: false` and `useNightlyImage: true` in your config. If `dockerImage` has no explicit tag, the tool appends `:nightly` (for the default image this is `ghcr.io/yanranxiaoxi/claude-code-runner:nightly`; for a custom `dockerImage`, the same tag is used on that image). The nightly image is rebuilt on every push to the main branch.
+> 2. **Build locally** — Set `buildImage: true` (the default). This builds from the latest Dockerfile whenever the image is not already cached.
+>
+> ```json
+> {
+>   "buildImage": false,
+>   "useNightlyImage": true
+> }
+> ```
+
+### Commands
+
+#### Shortcuts
+
+The following commands are shortcuts for `claude-run`:
+
+- `clauderun`
+- `ccrun`
+- `ocrun` (OpenCode alias)
+- `opencoderun` (OpenCode alias)
+- `opencode-run` (OpenCode alias)
+- `cxrun` (Codex alias)
+- `codexrun` (Codex alias)
+- `codex-run` (Codex alias)
+- `kmrun` (Kimi Code alias)
+- `kimirun` (Kimi Code alias)
+- `kimi-run` (Kimi Code alias)
+- `qwrun` (Qwen Code alias)
+- `qwenrun` (Qwen Code alias)
+- `qwen-run` (Qwen Code alias)
+
+#### `claude-run` (default)
+
+Start a new container with web UI (recommended):
+
+```bash
+claude-run
+```
+
+#### Using OpenCode
+
+To use OpenCode instead of Claude Code:
+
+```bash
+# Via CLI flag
+claude-run --runner opencode
+
+# Or use OpenCode aliases
+ocrun
+opencoderun
+opencode-run
+```
+
+#### Using Codex
+
+To use OpenAI Codex:
+
+```bash
+# Via CLI flag
+claude-run --runner codex
+
+# Or use Codex aliases
+cxrun
+codexrun
+codex-run
+```
+
+#### Using Kimi Code
+
+To use Moonshot AI's Kimi Code:
+
+```bash
+# Via CLI flag
+claude-run --runner kimi
+
+# Or use Kimi Code aliases
+kmrun
+kimirun
+kimi-run
+```
+
+#### Using Qwen Code
+
+To use Alibaba's Qwen Code:
+
+```bash
+# Via CLI flag
+claude-run --runner qwen
+
+# Or use Qwen Code aliases
+qwrun
+qwenrun
+qwen-run
+```
+
+#### `claude-run start`
+
+Explicitly start a new container with options:
+
+```bash
+claude-run start [options]
+
+Options:
+  -c, --config <path>    Configuration file (default: ./claude-run.config.json)
+  -n, --name <name>      Container name prefix
+  --runner <runner>      Code runner to use: 'claude', 'opencode', 'codex', 'kimi', or 'qwen'
+  --shell <shell>        Shell to start with: 'claude', 'opencode', 'codex', 'kimi', 'qwen', or 'bash'
+  --no-web               Disable web UI (use terminal attach)
+  --no-push              Disable automatic branch pushing
+  --no-pr                Disable automatic PR creation
+```
+
+#### `claude-run attach [container-id]`
+
+Attach to an existing container:
+
+```bash
+# Interactive selection
+claude-run attach
+
+# Specific container
+claude-run attach abc123def456
+
+Options:
+  --no-web               Use terminal attach instead of web UI
+```
+
+#### `claude-run list`
+
+List all Claude Runner containers:
+
+```bash
+claude-run list
+claude-run ls        # alias
+
+Options:
+  -a, --all              Show all containers (including stopped)
+```
+
+#### `claude-run stop [container-id]`
+
+Stop containers:
+
+```bash
+# Interactive selection
+claude-run stop
+
+# Specific container
+claude-run stop abc123def456
+
+# Stop all
+claude-run stop --all
+```
+
+#### `claude-run logs [container-id]`
+
+View container logs:
+
+```bash
+claude-run logs
+claude-run logs abc123def456
+
+Options:
+  -f, --follow           Follow log output
+  -n, --tail <lines>     Number of lines to show (default: 50)
+```
+
+#### `claude-run clean`
+
+Remove stopped containers:
+
+```bash
+claude-run clean
+claude-run clean --force  # Remove all containers
+```
+
+#### `claude-run config`
+
+Show current configuration:
+
+```bash
+claude-run config
+```
+#### `claude-run self-update`
+
+Update Claude Code Runner to the latest version:
+
+```bash
+claude-run self-update
+claude-run update        # alias
+```
+
+This command will automatically update the globally installed package to the latest version available on npm.
+### Configuration
+
+Create a `claude-run.config.json` file (see `claude-run.config.example.json` for reference):
+
+```json
+{
+	"dockerImage": "claude-code-runner:latest",
+	"buildImage": true,
+	"useNightlyImage": false,
+	"workspaceMode": "shadow",
+	"dockerfile": "./custom.Dockerfile",
+	"detached": false,
+	"autoPush": true,
+	"autoCreatePR": true,
+	"autoStartClaude": true,
+	"webUiHost": "127.0.0.1",
+	"webUiPort": 3456,
+	"webUiAllowRemote": false,
+	"envFile": ".env",
+	"environment": {
+		"NODE_ENV": "development"
+	},
+	"setupCommands": ["npm install", "npm run build"],
+	"volumes": ["/host/path:/container/path:ro"],
+	"mounts": [
+		{
+			"source": "./data",
+			"target": "/workspace/data",
+			"readonly": false
+		},
+		{
+			"source": "/home/user/configs",
+			"target": "/configs",
+			"readonly": true
+		}
+	],
+	"allowedTools": ["*"],
+	"maxThinkingTokens": 100000,
+	"bashTimeout": 600000,
+	"containerPrefix": "my-project",
+	"claudeConfigPath": "~/.claude.json",
+	"dockerSocketPath":"/run/user/1000/podman/podman.sock",
+	"forwardSshKeys": true,
+	"forwardGpgKeys": true,
+	"forwardSshAgent": true,
+	"forwardGpgAgent": false,
+	"enableGpgSigning": false
+}
+```
+
+#### Configuration Options
+
+- `dockerImage`: Base Docker image to use (default: `claude-code-runner:latest`; when `buildImage` is `false`, defaults to the official image with a version tag matching the CLI version, e.g., `ghcr.io/yanranxiaoxi/claude-code-runner:v0.3.2`)
+- `buildImage`: Build the image locally (default: true) or pull from registry (set to false)
+- `useNightlyImage`: When `buildImage` is `false` and `dockerImage` has no explicit tag, use the `nightly` tag instead of the versioned tag. This applies to both the official image and a custom `dockerImage` such as a private registry. The nightly image is rebuilt on every push to the main branch and contains the latest versions of all code runners (default: false)
+- `dockerfile`: Path to custom Dockerfile (optional)
+- `detached`: Run container in detached mode
+- `workspaceMode`: `"shadow"` or `"direct"` (omit to be asked at startup; the answer is not persisted)
+- `autoPush`: Automatically push branches after commits
+- `autoCreatePR`: Automatically create pull requests
+- `autoStartClaude`: Start Claude Code automatically (default: true)
+- `webUiHost`: Web UI listen address (default: `127.0.0.1`)
+- `webUiPort`: Web UI listen port (default: `3456`)
+- `webUiAllowRemote`: Allow binding the Web UI to a non-loopback address without an interactive confirmation (default: false)
+- `codeRunner`: Which code runner to use: `"claude"`, `"opencode"`, `"codex"`, `"kimi"`, or `"qwen"` (default: `"claude"`)
+- `defaultShell`: Shell to start with: `"claude"`, `"opencode"`, `"codex"`, `"kimi"`, `"qwen"`, or `"bash"` (default: matches `codeRunner`)
+- `envFile`: Load environment variables from file (e.g., `.env`)
+- `environment`: Additional environment variables
+- `setupCommands`: Commands to run after container starts (e.g., install dependencies)
+- `volumes`: Legacy volume mounts (string format)
+- `mounts`: Modern mount configuration (object format)
+- `allowedTools`: Claude tool permissions (default: all)
+- `maxThinkingTokens`: Maximum thinking tokens for Claude
+- `bashTimeout`: Timeout for bash commands in milliseconds
+- `containerPrefix`: Custom prefix for container names
+- `claudeConfigPath`: Path to Claude configuration file
+- `opencodeConfigPath`: Path to OpenCode configuration file (default: `~/.config/opencode/opencode.json`)
+- `codexConfigPath`: Path to Codex configuration directory (default: `~/.codex`)
+- `kimiConfigPath`: Path to Kimi Code configuration directory (default: `~/.kimi`)
+- `qwenConfigPath`: Path to Qwen Code configuration directory (default: `~/.qwen`)
+- `dockerSocketPath`: Custom Docker/Podman socket path (auto-detected by default)
+- `forwardSshKeys`: Forward SSH keys from `~/.ssh` to container (default: true)
+- `forwardGpgKeys`: Forward GPG keys from `~/.gnupg` to container (default: true)
+- `forwardSshAgent`: Forward SSH agent for passphrase-protected keys (default: true)
+- `forwardGpgAgent`: Forward GPG agent for passphrase-protected GPG keys (default: false, requires explicit enabling)
+- `enableGpgSigning`: Enable GPG commit signing in container (default: false)
+
+#### OpenCode Configuration
+
+To use OpenCode instead of Claude Code, create a config file with:
+
+```jsonc
+{
+	"codeRunner": "opencode",
+	"defaultShell": "opencode",
+	"environment": {
+		// For Anthropic provider
+		"ANTHROPIC_API_KEY": "your-api-key",
+
+		// For custom API endpoint (e.g., proxy services)
+		"ANTHROPIC_BASE_URL": "https://your-proxy-url"
+	}
+}
+```
+
+OpenCode supports multiple providers. See [OpenCode Providers Documentation](https://opencode.ai/docs/providers/) for details on configuring:
+- OpenAI, Anthropic, Google Vertex AI, Azure OpenAI
+- OpenRouter, Groq, Together AI, and many more
+- Local models via Ollama or LM Studio
+
+##### Using oh-my-opencode Plugin
+
+The container includes [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) pre-installed. To enable it:
+
+**1. Create configuration on your host machine** (recommended approach):
+
+Create `~/.config/opencode/opencode.json` on your host:
+
+```jsonc
+{
+	"plugin": ["oh-my-opencode"],
+	"agents": {
+		"sisyphus": { "model": "anthropic/claude-opus-4-6" }
+	}
+}
+```
+
+The configuration will be automatically copied to the container when it starts.
+
+**2. Run the installer inside the container:**
+
+```bash
+# Inside the container
+npx oh-my-opencode install --no-tui --claude=yes --gemini=no --copilot=no
+```
+
+> **Note**: Creating the config on your host machine is preferred because:
+> - The config file typically contains sensitive API keys
+> - You can keep it out of git tracking (add `opencode.json` to `.gitignore`)
+> - The same config can be reused across multiple containers
+> - You can customize the path using `opencodeConfigPath` in your `claude-run.config.json`
+
+For detailed configuration options, see the [oh-my-opencode installation guide](https://github.com/code-yeongyu/oh-my-opencode/blob/master/docs/guide/installation.md).
+
+#### Codex Configuration
+
+To use OpenAI Codex, create a config file with:
+
+```jsonc
+{
+	"codeRunner": "codex",
+	"defaultShell": "codex",
+	"environment": {
+		"OPENAI_API_KEY": "your-openai-api-key"
+	}
+}
+```
+
+Codex runs with `--dangerously-bypass-approvals-and-sandbox` mode in the container. You can also authenticate via `codex login` inside the container.
+
+Configuration is stored in `~/.codex/` (including `config.toml` and `auth.json`). You can customize the config path using `codexConfigPath` in your `claude-run.config.json`.
+
+See [Codex CLI Documentation](https://github.com/openai/codex) for more details.
+
+#### Kimi Code Configuration
+
+To use Moonshot AI's Kimi Code, create a config file with:
+
+```jsonc
+{
+	"codeRunner": "kimi",
+	"defaultShell": "kimi",
+	"environment": {
+		"KIMI_API_KEY": "your-kimi-api-key",
+		"KIMI_BASE_URL": "https://api.kimi.com/coding/v1"
+	}
+}
+```
+
+Kimi Code runs with `--yolo` mode (auto-approve all operations) in the container. You can also configure the default model and other options in `~/.kimi/config.toml`.
+
+Configuration is stored in `~/.kimi/`. You can customize the config path using `kimiConfigPath` in your `claude-run.config.json`.
+
+See [Kimi Code CLI Documentation](https://github.com/MoonshotAI/kimi-cli) for more details.
+
+#### Qwen Code Configuration
+
+To use Alibaba's Qwen Code, create a config file with:
+
+```jsonc
+{
+	"codeRunner": "qwen",
+	"defaultShell": "qwen",
+	"environment": {
+		"DASHSCOPE_API_KEY": "your-dashscope-api-key"
+	}
+}
+```
+
+Qwen Code runs with `--yolo` mode (auto-approve all operations) in the container. It supports multiple model providers by configuring `~/.qwen/settings.json`.
+
+Configuration is stored in `~/.qwen/`. You can customize the config path using `qwenConfigPath` in your `claude-run.config.json`.
+
+Qwen Code also supports `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, and `GEMINI_API_KEY` via the `modelProviders` configuration in `settings.json`.
+
+See [Qwen Code Documentation](https://github.com/nicepkg/qwen-code) for more details.
+
+#### Mount Configuration
+
+The `mounts` array allows you to mount files or directories into the container:
+
+- `source`: Path on the host (relative paths are resolved from current directory)
+- `target`: Path in the container (relative paths are resolved from /workspace)
+- `readonly`: Optional boolean to make the mount read-only (default: false)
+
+Example use cases:
+
+- Mount data directories that shouldn't be in git
+- Share configuration files between host and container
+- Mount build artifacts or dependencies
+- Access host system resources (use with caution)
+
+#### Using Pre-built Container Images
+
+By default, Claude Code Runner builds the Docker image locally. If you prefer to pull a pre-built image from a registry instead:
+
+**Option 1: Use the Official Pre-built Image (Recommended)**
+
+The easiest way is to use the official maintained image. Just set `buildImage: false`:
+
+```json
+{
+	"buildImage": false
+}
+```
+
+The official image will be used automatically with a version tag matching the CLI version (e.g., `ghcr.io/yanranxiaoxi/claude-code-runner:v0.3.2`).
+
+Then run:
+
+```bash
+claude-run
+```
+
+**Available Official Images:**
+
+- **GitHub Container Registry** (Default): `ghcr.io/yanranxiaoxi/claude-code-runner:v<version>`
+- **Docker Hub**: `docker.io/yanranxiaoxi/claude-code-runner:v<version>`
+- **GitLab Registry**: `registry.gitlab.soraharu.com/xiaoxi/claude-code-runner:v<version>`
+
+> **Note**: The `<version>` in the image tag automatically matches the CLI version (e.g., `v0.3.2`). A `:latest` tag is also available for each release.
+
+All images are:
+- ✅ Regularly maintained and updated
+- ✅ Pre-configured and tested
+- ✅ Ready to use out of the box
+- ✅ Faster startup time
+- ✅ No need to specify the full image URL when using the default (GitHub Container Registry)
+- ✅ Image tag automatically matches the CLI version for consistency
+
+To use Docker Hub:
+
+```json
+{
+	"buildImage": false,
+	"dockerImage": "docker.io/yanranxiaoxi/claude-code-runner:v0.3.2"
+}
+```
+
+To use GitLab Registry instead:
+
+```json
+{
+	"buildImage": false,
+	"dockerImage": "registry.gitlab.soraharu.com/xiaoxi/claude-code-runner:v0.3.2"
+}
+```
+
+**Option 2: Use Your Own Custom Image**
+
+If you maintain your own image in a registry:
+
+```json
+{
+	"dockerImage": "myregistry.com/claude-code-runner:latest",
+	"buildImage": false
+}
+```
+
+**Option 3: Build Locally (Default)**
+
+Build the image from the Dockerfile in your repository:
+
+```json
+{
+	"dockerImage": "claude-code-runner:latest",
+	"buildImage": true
+}
+```
+
+This is useful for:
+
+- **Development**: Customizing the image locally
+- **Team workflows**: Building consistent environments
+- **CI/CD pipelines**: Generating custom versions
+
+## Features
+
+### Podman Support
+
+Claude Code Runner now supports Podman as an alternative to Docker. The tool automatically detects whether you're using Docker or Podman by checking for available socket paths:
+
+- **Automatic detection**: The tool checks for Docker and Podman sockets in standard locations
+- **Custom socket paths**: Use the `dockerSocketPath` configuration option to specify a custom socket
+- **Environment variable**: Set `DOCKER_HOST` to override socket detection
+
+> [!IMPORTANT]
+>
+> If you're using Podman in rootless mode, you need to enable the Podman socket service:
+>
+> ```bash
+> systemctl --user enable --now podman.socket
+> ```
+>
+> Verify the socket is running:
+>
+> ```bash
+> systemctl --user status podman.socket
+> ```
+
+Example configuration for Podman:
+
+```json
+{
+	"dockerSocketPath": "/run/user/1000/podman/podman.sock"
+}
+```
+
+The tool will automatically detect and use Podman if:
+
+- Docker socket is not available
+- Podman socket is found at standard locations (`/run/podman/podman.sock` or `$XDG_RUNTIME_DIR/podman/podman.sock`)
+
+### SSH and GPG Key Support
+
+Claude Code Runner automatically forwards your SSH and GPG keys to the container, enabling seamless git operations with any remote repository (GitHub, GitLab, Bitbucket, self-hosted, etc.).
+
+#### Automatic SSH Key Forwarding
+
+By default, your `~/.ssh` directory is automatically mounted into the container with proper permissions:
+
+- ✅ Supports all git hosting providers (not just GitHub)
+- ✅ Works with SSH protocol (`git@github.com:user/repo.git`)
+- ✅ Automatically handles key permissions
+- ✅ Supports multiple SSH keys
+
+**For passphrase-protected SSH keys**, start SSH agent on your host before running `claude-run`:
+
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa  # Enter your passphrase
+claude-run  # SSH agent is forwarded to container
+```
+
+The container will use your host's SSH agent, so you don't need to enter the passphrase again.
+
+> [!NOTE]
+>
+> **Troubleshooting: SSH Agent Connection Failed**
+>
+> If running `ssh-add -l` inside the container shows "communication with agent failed":
+>
+> 1. **Verify host agent**: Ensure `ssh-add -l` works on your host machine
+> 2. **Check startup logs**: Look for "✓ SSH agent forwarding enabled via socat relay" when container starts
+> 3. **Fallback option**: Disable agent forwarding and use keys directly:
+>    ```json
+>    {
+>      "forwardSshAgent": false,
+>      "forwardSshKeys": true
+>    }
+>    ```
+>    (This may prompt for passphrase on first use if keys are password-protected)
+
+#### GPG Key Support
+
+GPG keys from `~/.gnupg` are automatically forwarded to the container. **GPG commit signing is disabled by default** to avoid passphrase prompts in non-interactive environments.
+
+**Three ways to use GPG:**
+
+1. **Direct GPG key usage (recommended for keys without passphrase)**
+   - GPG key files are automatically copied to the container
+   - No additional configuration needed
+   - Only works for keys without a passphrase
+
+2. **GPG agent forwarding (recommended for password-protected keys)**
+   - Enable in your config:
+   ```json
+   {
+     "forwardGpgAgent": true,
+     "enableGpgSigning": true
+   }
+   ```
+   - Host GPG agent is automatically forwarded when container starts
+   - Supports password-protected keys (no need to enter passphrase in container)
+   - Requires `gpg-agent` running on your host machine
+
+3. **Completely disable GPG signing**
+   - Default behavior (if you don't set `enableGpgSigning`)
+   - GPG signing will be disabled even if your host `.gitconfig` has `commit.gpgsign = true`
+   - This prevents signing failures in containerized environments where `/dev/tty` is not accessible
+
+> [!NOTE]
+>
+> For security, consider using SSH commit signing (if your Git server supports it). This way you don't need to configure GPG at all.
+
+#### Disabling SSH/GPG Forwarding
+
+If you don't want to forward your keys, you can disable this feature:
+
+```json
+{
+  "forwardSshKeys": false,
+  "forwardGpgKeys": false,
+  "forwardSshAgent": false,
+  "forwardGpgAgent": false
+}
+```
+
+#### Git Configuration
+
+Your git configuration (name, email, etc.) is automatically copied from the host. The container is pre-configured to:
+
+- Accept all SSH host keys automatically (for security, verify manually on first connection)
+- Use SSH agent for authentication
+- Support both SSH and HTTPS protocols
+
+**For HTTPS with tokens**, set the `GITHUB_TOKEN` environment variable or use the built-in token discovery from `gh` CLI.
+
+### Web UI Terminal
+
+Launch a browser-based terminal interface to interact with Claude Code:
+
+```bash
+claude-run --web
+```
+
+This will:
+
+- Start the container in detached mode
+- Launch a web server on `http://127.0.0.1:3456` by default
+- Open your browser automatically
+- Provide a full terminal interface with:
+  - Real-time terminal streaming
+  - Copy/paste support
+  - Terminal resizing
+  - Reconnection capabilities
+
+You can change the listen address and port with `webUiHost` and `webUiPort`. Binding to a non-loopback address (for example `0.0.0.0` or a LAN IP) triggers a confirmation prompt unless `webUiAllowRemote` is set to `true`.
+
+> **Security warning:** The Web UI has no authentication and no TLS. When bound to a non-loopback address, anyone who can reach it can open a terminal in the container, run arbitrary commands as the container user, read/modify/delete files in the mounted workspace, and access forwarded credentials, SSH keys, and environment variables. The container user also has passwordless sudo. Prefer an SSH tunnel, VPN, firewall, or authenticated reverse proxy, and only expose the Web UI on trusted networks.
+
+Perfect for when you want to monitor Claude's work while doing other tasks.
+
+### Automatic Credential Discovery
+
+Claude Code Runner automatically discovers and forwards:
+
+**Claude Credentials:**
+
+- Anthropic API keys (`ANTHROPIC_API_KEY`)
+- macOS Keychain credentials (Claude Code)
+- AWS Bedrock credentials
+- Google Vertex credentials
+- Claude configuration files (`.claude.json`, `.claude/`)
+
+**GitHub Credentials:**
+
+- GitHub CLI authentication (`gh auth`)
+- GitHub tokens (`GITHUB_TOKEN`, `GH_TOKEN`)
+- Git configuration (`.gitconfig`)
+
+### Sandboxed Execution
+
+- Code runners use their respective dangerous/auto-approve mode flags (safe in container):
+  - Claude Code: `--dangerously-skip-permissions`
+  - OpenCode: no flag needed (interactive TUI; auto-approval only in non-interactive `-p` mode)
+  - Codex: `--dangerously-bypass-approvals-and-sandbox`
+  - Kimi Code: `--yolo`
+  - Qwen Code: `--yolo`
+- Creates isolated branch for each session
+- Full access to run any command within the container
+- Files are copied into container (not mounted) for true isolation
+- Git history preserved for proper version control
+
+### Commit Monitoring
+
+When Claude makes a commit:
+
+1. Real-time notification appears
+2. Full diff is displayed with syntax highlighting
+3. Interactive menu offers options:
+   - Continue working
+   - Push branch to remote
+   - Push branch and create PR
+   - Exit
+
+### Working with Multiple Containers
+
+Run multiple Claude instances simultaneously:
+
+```bash
+# Terminal 1: Start main development
+claude-run start --name main-dev
+
+# Terminal 2: Start feature branch work
+claude-run start --name feature-auth
+
+# Terminal 3: List all running containers
+claude-run list
+
+# Terminal 4: Attach to any container
+claude-run attach
+```
+
+## Docker Environment
+
+### Default Image
+
+The default Docker image includes:
+
+- AlmaLinux 10
+- Git, GitHub CLI
+- Node.js, npm
+- Python 3
+- Claude Code
+- OpenCode (with oh-my-opencode plugin)
+- Codex (OpenAI)
+- Kimi Code CLI
+- Qwen Code
+- Build essentials
+
+### Custom Dockerfile
+
+Create a custom environment:
+
+```dockerfile
+FROM claude-code-runner:latest
+
+# Add your tools
+RUN apt-get update && apt-get install -y \
+    rust \
+    cargo \
+    postgresql-client
+
+# Install project dependencies
+COPY package.json /tmp/
+RUN cd /tmp && npm install
+
+# Custom configuration
+ENV CUSTOM_VAR=value
+```
+
+Reference in config:
+
+```json
+{
+	"dockerfile": "./my-custom.Dockerfile"
+}
+```
+
+## Workflow Example
+
+1. **Start Claude Runner:**
+
+   ```bash
+   cd my-project
+   claude-run
+   ```
+
+2. **Interact with Claude:**
+
+   ```
+   > Help me refactor the authentication module to use JWT tokens
+   ```
+
+3. **Claude works autonomously:**
+
+   - Explores codebase
+   - Makes changes
+   - Runs tests
+   - Commits changes
+
+4. **Review and push:**
+   - See commit notification
+   - Review syntax-highlighted diff
+   - Choose to push and create PR
+
+## Security Considerations
+
+- Credentials are mounted read-only
+- Containers are isolated from host
+- Branch restrictions prevent accidental main branch modifications
+- All changes require explicit user approval before pushing
+
+## Troubleshooting
+
+### Docker permission issues
+
+Add your user to the docker group:
+
+```bash
+sudo usermod -aG docker $USER
+# Log out and back in for changes to take effect
+```
+
+### Container cleanup
+
+Remove all Claude Runner containers and images:
+
+```bash
+npm run purge-containers
+```
+
+### Credential discovery fails
+
+Set credentials explicitly:
+
+```bash
+export ANTHROPIC_API_KEY=your-key
+export GITHUB_TOKEN=your-token
+```
+
+Or use an `.env` file with `envFile` config option.
+
+### Build errors
+
+Ensure you're using Node.js >= 22.13.0:
+
+```bash
+node --version
+```
+
+## Development
+
+### Building from Source
+
+To build and develop Claude Code Runner from source:
+
+```bash
+git clone https://gitlab.soraharu.com/XiaoXi/claude-code-runner.git
+cd claude-code-runner
+npm install
+npm run build
+npm link  # Creates global 'claude-run' command
+```
+
+### Available Scripts
+
+- `npm run build` - Build TypeScript to JavaScript
+- `npm run dev` - Watch mode for development
+- `npm start` - Build and run the CLI
+- `npm run lint` - Run ESLint
+- `npm run fix` - Run ESLint and fix formatting errors
+- `npm run purge-containers` - Clean up all containers
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run linter: `npm run lint`
+5. Submit a pull request
+
+## Acknowledgments
+
+[claude-code-sandbox](https://github.com/textcortex/claude-code-sandbox)
+
+## License
+
+MIT

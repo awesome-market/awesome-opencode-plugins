@@ -1,0 +1,626 @@
+# shinystat / medstat-core: Headless Biostatistical Engine & Autonomous Agent Skill
+
+[![skills.sh](https://img.shields.io/badge/skills.sh-shinystat-black?logo=vercel&logoColor=white)](https://skills.sh/NTWKKM/shinystat-skills/shinystat)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+> [!IMPORTANT]
+> **Prerequisites**: Users only need [`uv`](https://docs.astral.sh/uv/) installed. All Python dependencies are automatically resolved on the fly via `uv run --with-requirements` per the pinned stack in `SKILL.md`—no manual virtual environments or system-wide package installations required across macOS, Linux, and Windows.
+
+`medstat-core` is a pure headless Python biostatistical calculation engine and CLI tool paired with the unified `shinystat` and `shinystat-cloud` autonomous decision-making agent skills, decoupled from interactive UI frameworks and licensed under the permissive **Apache-2.0** license.
+
+---
+
+## Key Highlights
+
+- **Pure Permissive Licensing (Apache-2.0)**: Replaced copyleft GPL dependencies (specifically `pingouin`) with native, pure-Python / NumPy / SciPy algorithms, including a full two-way ANOVA Intraclass Correlation Coefficient (ICC) implementation covering all 6 variants ($ICC(1,1), ICC(2,1), ICC(3,1), ICC(1,k), ICC(2,k), ICC(3,k)$) with exact F-tests and McGraw & Wong (1996) 95% confidence intervals.
+- **Diagnostic Risk Reclassification (NRI & IDI)**: Full implementation of Pencina et al. (2008, 2011) Continuous and Categorical Net Reclassification Improvement (NRI) and Integrated Discrimination Improvement (IDI), complete with $K \times K$ contingency matrices for events, non-events, and combined cohorts, relative IDI, miscalibration guards ($p \in [0, 1]$), and Kerr & Pepe (2014) separate event/non-event reporting.
+- **Time-Dependent ROC ($\text{AUROC}(t)$)**: Cumulative/Dynamic Inverse Probability of Censoring Weighting (IPCW) ROC estimator (Uno et al., 2007; Heagerty et al., 2000) using Kaplan-Meier censoring distribution $G(t)$, supporting competing risk adjustments, longitudinal $\text{AUROC}(t)$ trajectories with bootstrap 95% CI bands, optimal Youden cutoffs per milestone horizon, and paired dual-model trajectory comparisons ($\Delta\text{AUROC}(t)$).
+- **TRIPOD+AI Bootstrap Internal Validation & Uniform Shrinkage**: Full optimism-corrected bootstrap validation across $B \ge 200$ resamples (`medstat.diagnostic.validation`), computing optimism ($\text{boot} - \text{test}$) and optimism-corrected metrics ($\text{apparent} - \text{optimism}$) for AUROC, Brier score, Nagelkerke $R^2$, calibration-in-the-large, and calibration slope. Computes uniform shrinkage factor $\hat{s} = \text{clip}(\bar{\beta}_{\text{cal, test}}, 0.01, 1.0)$, shrunk coefficients $\hat{\beta}_{\text{shrunk}} = \hat{s} \cdot \hat{\beta}_{\text{orig}}$, and numerically re-estimates the intercept $\alpha_0$ preserving sample event prevalence, with clinical alerts for low EPP ($<10$), severe overfitting ($\hat{s} < 0.80$), and bootstrap convergence.
+- **Model Recalibration & Updating**: Population-level model updating for clinical prediction rules, supporting intercept-only updating (calibration-in-the-large, shifting mean predicted risk to sample incidence while fixing slope=1), logistic recalibration ($\alpha$, $\beta$), and dual comparison with pre- vs post-recalibration Brier scores, Emax, ICI/Eavg, and AUROC invariance.
+- **Minimum Sample Size for Clinical Prediction Models (Riley et al. 2020) & Diagnostic AUROC (Obuchowski 1998)**: Analytical determination of required sample size across all 4 criteria of Riley et al. (BMJ 2020;368:m441), with numerical quadrature derivation of Cox-Snell $R^2$ from C-statistic or Nagelkerke $R^2$. Diagnostic AUROC sample size testing against null benchmarks per Obuchowski (1998, 2004) and Hanley & McNeil (1982).
+- **Pure Python Firth Penalized Models**: First-class support for penalized logistic and Cox proportional hazards regression via `firthmodels >= 0.8.2` with Profile Likelihood confidence intervals and penalized Likelihood Ratio Tests (LRT), resolving quasi-complete and complete separation in sparse clinical datasets.
+- **Causal Inference & Weighting (IPTW)**: Inverse Probability of Treatment Weighting supporting ATE, ATT, ATC, and Overlap Weights (ATO; Li et al., 2018), stabilized weights, quantile truncation, Kish's Effective Sample Size ($N_{\text{eff}}$), Huber-White robust sandwich SEs, and 3-way Love plots (`Unadjusted` vs `Matched` vs `IPTW`).
+- **Competing Risks Survival Analysis**: Non-parametric Aalen-Johansen Cumulative Incidence Functions (`fit_competing_risks_cif`, `plot_cif`, `plot_dual_cif`), dual Cause-Specific Cox models (etiology), Fine-Gray Subdistribution Hazard models (`fit_competing_risks_regression`) via IPCW counting process expansion (prognosis), and Naive $1 - \text{Kaplan-Meier}$ overestimation bias auditing.
+- **Restricted Cubic Splines (RCS)**: Non-linear relationship modeling and hazard ratio contrast curves via `patsy.cr` natural cubic splines.
+- **Audited Participant Sample Flow**: Explicit missing data handling (`complete-case`, `mice`, `knn`, `indicator`) tracking attrition flows ($N_{initial} \to N_{excluded} \to N_{analyzed}$) conforming to CONSORT, STROBE, and TRIPOD standards.
+- **Dual-Toggle HTML Reports & Publication Figures**: Single-file, zero-dependency self-contained HTML clinical reports featuring segmented toggle switches between interactive exploratory Plotly.js charts (hover tooltips, zoom, pan) and publication-grade 300 DPI Matplotlib PNGs (ICMJE/NEJM/APA styling). Includes offline CDN fallback resilience, print-media CSS parity (`@media print`), and direct one-click high-resolution PNG and raw source CSV data exports.
+- **Unified Click CLI & Adaptive Scripting**: Comprehensive subcommands (`clean`, `table1`, `model`, `diag`, `causal`, `meta`, `agreement`, `sample-size`, `report`) accepting Statistical Analysis Plans (`analysis_plan.yaml`), complemented by autonomous Python script adaptation for complex clinical datasets.
+
+---
+
+## Architecture & Code Layout
+
+```
+shinystat-skills/
+├── pyproject.toml              # PEP 517/621 packaging (requires-python >= 3.12)
+├── LICENSE                     # Apache-2.0 License
+├── README.md                   # Project documentation
+├── ARCHITECTURE.md             # System architecture & structural diary
+├── CONTEXT.md                  # Domain vocabulary & naming diary
+├── DESIGN.md                   # Architectural Decision Records (ADRs 1–66)
+├── skills/                     # Canonical Agent Skills (Single Source of Truth)
+│   ├── _shared/
+│   │   └── references/         # Shared heuristics, flows, house styles, report builder
+│   ├── shinystat/              # Flagship autonomous biostatistical engine (local CLI/library)
+│   │   ├── SKILL.md            # Autonomous decision core (5 pillars + Grilling Gate)
+│   │   ├── requirements.txt    # Pinned Python 3.12 runtime stack
+│   │   ├── references/         # Synced shared references & medstat figure guides
+│   │   └── scripts/            # Bundled medstat CLI & engine
+│   └── shinystat-cloud/        # Zero-medstat standalone skill for cloud sandboxes
+│       ├── SKILL.md            # Autonomous decision core (Cloud sandbox edition)
+│       └── references/         # Cloud-native figures.md & modular Recipes 1–24 (recipes/01..05)
+├── agents/
+│   └── figure-tester.md        # Autonomous publication figure QA subagent
+├── scripts/
+│   ├── install-skills.sh       # Canonical SSOT linker & global agent installer
+│   └── package-cloud-skill.sh  # Builds standalone packaging/cloud/shinystat-cloud.zip
+├── src/medstat/
+│   ├── __init__.py             # Public package exports
+│   ├── config.py               # Headless configuration manager
+│   ├── logging.py              # Headless structured logging & performance tracking
+│   ├── theme/
+│   │   └── palette.py          # Centralized clinical theme and palette constants
+│   ├── data/
+│   │   ├── loader.py           # Universal tabular ingestion (CSV, TSV, XLSX, Parquet)
+│   │   ├── clean.py            # Missingness audits, Little's MCAR & outlier handling
+│   │   ├── missing.py          # Complete-case, MICE, KNN, and indicator strategies
+│   │   └── retention.py        # Participant sample flow tracking (CONSORT/STROBE)
+│   ├── stats/
+│   │   ├── descriptive.py      # Parametric and non-parametric summary statistics
+│   │   ├── bivariate.py        # T-tests, Mann-Whitney, Chi-square, Fisher, ANOVA, Kruskal
+│   │   └── correlation.py      # Pearson, Spearman, Kendall correlation matrices & CIs
+│   ├── models/
+│   │   ├── glm.py              # Linear (OLS), Logistic, Poisson, Negative Binomial
+│   │   ├── survival.py         # Kaplan-Meier, Cox PH, Competing Risks (CIF, Cause-Specific, Fine-Gray)
+│   │   ├── firth.py            # Firth penalized logistic & Cox with Profile Likelihood CIs
+│   │   ├── splines.py          # Restricted cubic splines (RCS) & HR contrast curves
+│   │   ├── ordinal.py          # Proportional odds cumulative logit & Brant test
+│   │   ├── multilevel.py       # GEE with robust sandwich SEs & random-intercept MixedLM
+│   │   └── sensitivity.py      # E-value sensitivity analysis for unmeasured confounding
+│   ├── diagnostic/
+│   │   ├── accuracy.py         # 2x2 contingency, Sens, Spec, PPV, NPV, LR+, LR-, DOR, Wilson CIs
+│   │   ├── roc.py              # ROC curves, AUC, Youden, DeLong CIs, Continuous/Categorical NRI, IDI, Time-Dependent ROC (AUROC(t))
+│   │   ├── dca.py              # Decision Curve Analysis (net benefit across decision thresholds)
+│   │   ├── calibration.py      # Calibration curves, Brier score, ICI, Hosmer-Lemeshow
+│   │   └── validation.py       # TRIPOD+AI bootstrap internal validation, shrinkage & recalibration
+│   ├── causal/
+│   │   ├── psm.py              # Propensity score matching, caliper, nearest neighbor
+│   │   ├── iptw.py             # Inverse Probability Weighting (ATE, ATT, ATC, ATO overlap weights)
+│   │   └── balance.py          # Standardized Mean Differences (SMD), 2-way and 3-way Love plots
+│   ├── meta/
+│   │   ├── models.py           # Fixed-effect, Random-effects (DerSimonian-Laird), I^2, Tau^2
+│   │   ├── forest.py           # Forest plot data generation
+│   │   └── bias.py             # Funnel plots, Egger's regression test, Begg's test
+│   ├── agreement/
+│   │   ├── icc.py              # Pure SciPy/NumPy two-way ANOVA ICC (ICC1, ICC2, ICC3, 95% CIs)
+│   │   ├── bland_altman.py     # Bland-Altman mean bias, limits of agreement (LoA) & CIs
+│   │   └── kappa.py            # Cohen's and Fleiss' Kappa inter-rater agreement
+│   ├── power/
+│   │   └── sample_size.py      # Sample size & power calculations (means, proportions, survival)
+│   ├── figures/
+│   │   ├── base.py             # FigureResult contract and automatic CSV data export
+│   │   ├── styles.py           # 300 DPI publication styles & colorblind-safe palettes
+│   │   ├── forest.py           # Publication-grade forest plots (OR, RR, HR)
+│   │   ├── survival.py         # Kaplan-Meier curves & Cumulative Incidence Functions (plot_cif)
+│   │   ├── roc.py              # Empirical ROC curves with DeLong CIs, reclassification scatter, & Time-Dependent ROC (curves/trajectory)
+│   │   ├── calibration.py      # Decile calibration curves with Wilson score CIs
+│   │   ├── dca.py              # Decision Curve Analysis net benefit plots
+│   │   ├── agreement.py        # Bland-Altman agreement with 1999 large-sample CIs
+│   │   ├── balance.py          # Austin 2009 Love plots for PSM/IPTW balance (0.10 SMD)
+│   │   ├── retention.py        # STROBE/CONSORT participant retention flowcharts
+│   │   ├── diagnostics.py      # Missingness heatmaps & Schoenfeld residual plots
+│   │   └── html/               # Dedicated mirror submodule for Dual / Toggle View
+│   │       ├── base.py         # DualFigureResult (Plotly JSON + 300 DPI Matplotlib PNG)
+│   │       ├── roc.py          # Interactive & static ROC curve, risk reclassification, & time-dependent ROC generators
+│   │       ├── survival.py     # Interactive & static Kaplan-Meier & CIF generators
+│   │       ├── calibration.py  # Interactive & static calibration curve generator
+│   │       ├── dca.py          # Interactive & static DCA net benefit generator
+│   │       ├── agreement.py    # Interactive & static Bland-Altman generator
+│   │       ├── forest.py       # Interactive & static forest plot generator
+│   │       └── balance.py      # Interactive & static Love plot generator
+│   └── reporting/
+│       ├── ir.py               # Report Intermediate Representation (SSOT document tree)
+│       ├── integrity.py        # Reporting integrity audit (Pillar 5, numerical/Zero-PHI)
+│       ├── table1.py           # Baseline characteristics Table 1 with SMDs and auto-testing
+│       ├── tables.py           # APA 7, NEJM, JAMA HTML/text table formatters (including NRI & TD-ROC)
+│       ├── narrative.py        # Automated Statistical Methods narrative generation
+│       ├── checklists.py       # STROBE, CONSORT, TRIPOD, STARD, PRISMA audits
+│       └── renderers/          # Multi-format report renderers
+│           ├── html.py         # Self-contained HTML with Dual-Toggle & print parity
+│           ├── docx.py         # Native Microsoft Word with 3-rule borders
+│           ├── pptx.py         # Native PowerPoint 16:9 widescreen presentation
+│           ├── pdf.py          # Publication PDF via Playwright headless Chromium
+│           └── markdown.py     # GitHub Flavored Markdown with linked assets
+└── tests/
+    ├── conftest.py             # Pytest forwarding wrapper & shared fixtures
+    ├── fixtures/               # Synthetic clinical datasets
+    ├── unit/                   # Comprehensive unit tests & skill parity tests
+    ├── benchmarks/             # R oracle parity benchmarks
+    └── e2e/                    # Clinical workflow CLI end-to-end tests
+```
+
+---
+
+## Autonomous Agent Skills: `shinystat` & `shinystat-cloud`
+
+This project ships two unified agent skills in `skills/` (`skills/shinystat/` for local Python/CLI environments and `skills/shinystat-cloud/` for zero-`medstat` cloud Python sandboxes), designed following `writing-for-agents` principles with **Hybrid Progressive Disclosure**. Rather than forcing agents through rigid canned CLI commands or fragmented multi-skill handoffs, `shinystat` empowers coding agents to exercise autonomous biostatistical judgment across 5 core pillars:
+
+### The 5 Decision Pillars
+
+1. **Pillar 1: Data Reality Inspection**: Audits raw geometry, headers, missingness, and candidate sample sizes directly on raw data (`.csv`, `.xlsx`, `.tsv`, `.parquet`) without assuming pre-cleaned tidy shapes.
+2. **Pillar 2: Research & Estimand Triangulation**: Triangulates research proposals (PICO/PECO) against 10 clinical study archetypes (Cohort, Case-Control, RCT, Diagnostic Accuracy, Ordinal, Survival, Agreement, Clustered, Causal Inference IPTW/PSM, Competing Risks) documented in `references/decision-heuristics.md`.
+3. **Pillar 3: Adaptive Python Scripting (Autonomous Authority)**: Generates and adapts custom Python scripts combining `medstat` core calculation modules (or standalone Recipes 1–24 in `shinystat-cloud`) with standard scientific libraries (`pandas`, `scipy.stats`, `statsmodels`, `lifelines`, `scikit-learn`), supporting automated upgrades to mixed-type MICE, Firth penalized regression, proportional odds ordinal regression with Brant Wald testing, Harrell restricted cubic splines (RCS), clustered GEE with sandwich SEs & Design Effect, Inverse Probability of Treatment Weighting (ATE/ATT/ATC/ATO), Competing Risks analysis (Aalen-Johansen CIF, Cause-Specific Cox csHR, Fine-Gray SHR), and DerSimonian-Laird random-effects meta-analysis.
+4. **Pillar 4: Biostatistical Safety Invariants**: Strictly enforces clinical safety rules:
+   - **Numeric 0/1 encoding** for binary endpoints and survival event indicators (accepting explicitly mapped text labels like `"Yes"/"No"` or `"Dead"/"Alive"`, while rejecting unmapped text labels to eliminate clinical event inversion). Multi-state competing risk events strictly follow integer encoding (`0 = Censored, 1 = Event of Interest, 2+ = Competing Event`).
+   - **Sample retention flow** ($N_{initial} \to N_{excluded} \to N_{analyzed}$) with explicit exclusion tracking.
+   - **Zero silent listwise deletion**: Missingness audits (Little's MCAR) and justified handling (`complete-case`, `mice`, `knn`). Primary outcomes are never imputed.
+   - **Wilson score 95% CIs** for proportions and 2×2 diagnostic test metrics.
+   - **DeLong variance** for empirical ROC AUC comparisons.
+   - **Distinct EPV rules**: $\text{EPV}_{\text{binary}} = \frac{\min(N_1, N_0)}{P}$ vs $\text{EPV}_{\text{Cox}} = \frac{N_{\text{failures}}}{P}$.
+   - **Caliper 0.2×SD of logit propensity** for PSM, with Austin (2009) balance requirement (absolute SMD < 0.10).
+5. **Pillar 5: Reporting Integrity, Publication Figures & Multi-Format Documents**: Enforces Zero-PHI regex filtering, strict zero-tolerance numerical traceability (`len(untraced_numbers) == 0` with `allowed_untraced` whitelist and P-value floor verification), 300/600 DPI publication standards, colorblind-safe palettes, and multi-format document rendering (HTML Dual-View, Word `.docx`, PowerPoint `.pptx`, PDF, Markdown).
+
+### Deterministic Grilling Gate
+
+If requirements, outcome directions, missingness strategies, or statistical assumptions are ambiguous, unsupported by data, or affected by severe sparsity (EPV < 10 or quasi-complete separation), the agent **halts immediately** and executes an interactive interview (`❓ Q1 ... ➡️ Recommended`) before proceeding with code execution.
+
+### Skills Directory Structure
+
+Following the open `SKILL.md` standard with progressive disclosure:
+
+```text
+skills/
+├── _shared/
+│   └── references/                       # Shared heuristics, flows, house styles, report builder
+├── shinystat/
+│   ├── SKILL.md                          # Autonomous decision core (5 pillars + Grilling Gate)
+│   ├── requirements.txt                  # Pinned runtime dependencies
+│   ├── references/                       # Archetype heuristics, figures, report builder
+│   └── scripts/                          # Bundled medstat CLI & engine
+└── shinystat-cloud/
+    ├── SKILL.md                          # Autonomous decision core (Cloud sandbox edition)
+    └── references/
+        ├── figures.md                    # Standalone zero-medstat publication figures guide
+        └── recipes/                      # Modular standalone Python recipes (Recipes 1–24)
+            ├── 01-data-missing-table1.md
+            ├── 02-regression-firth-ordinal.md
+            ├── 03-survival-competing-risks.md
+            ├── 04-causal-iptw-psm.md
+            ├── 05-diagnostic-accuracy-agreement.md
+            ├── 06-reclassification-tdroc.md
+            └── 07-validation-samplesize-meta.md
+```
+
+#### Standalone Cloud Recipe Index (Recipes 1–24)
+
+For the standalone `shinystat-cloud` skill, 24 zero-`medstat` standalone Python recipes (`Recipe 1` through `Recipe 24`: Table 1, 2x2/ROC/tdROC/NRI/IDI diagnostics, calibration/DCA/recalibration, TRIPOD+AI bootstrap validation, Riley/Obuchowski sample size, logistic/Firth/ordinal/RCS/GEE regression, KM/Cox/competing-risks CIF & Fine-Gray, PSM/IPTW/E-values, MICE, Bland-Altman/ICC, and meta-analysis) are grouped into 7 progressive disclosure modules (`01-data-missing-table1.md` to `07-validation-samplesize-meta.md`). See the canonical mapping table in [`skills/shinystat-cloud/SKILL.md`](skills/shinystat-cloud/SKILL.md#recipe-index--file-mapping-recipes-124).
+
+### Installing Skills for Your AI Coding Agent
+
+#### 1. Instant 1-Line Install via skills.sh (Recommended)
+
+Both `skills/shinystat/` and `skills/shinystat-cloud/` are fully self-contained physical directories vendored in Git (no dangling symlinks or missing sibling dependencies). You can install either skill directly across all supported AI coding agents (**Claude Code**, **Cursor**, **Windsurf**, **Antigravity**) using the open [skills.sh](https://skills.sh) package manager:
+
+```bash
+# Interactive selection (pick shinystat, shinystat-cloud, or both)
+npx skills add NTWKKM/shinystat-skills
+
+# Install the flagship full-featured biostatistical engine
+npx skills add NTWKKM/shinystat-skills --skill shinystat --yes
+
+# Install the standalone cloud-recipe skill (lightweight / sandbox)
+npx skills add NTWKKM/shinystat-skills --skill shinystat-cloud --yes
+
+# Install globally across all agents on your machine (-g)
+npx skills add NTWKKM/shinystat-skills -g --yes
+```
+
+#### 2. Local Repository Installer & Synchronization Scripts
+
+`./scripts/sync-skills.sh` maintains Single Source of Truth (SSOT). It copies canonical shared references (`skills/_shared/references/`) and the `medstat` core engine (`src/medstat/`) into `skills/shinystat/` and `skills/shinystat-cloud/` as committed physical files, ensuring zero git drift and immediate offline usability in hospital network environments.
+
+`./scripts/install-skills.sh` automates local and global agent installations, safely cleans legacy mirror directories (`.agent/`, `.agents/`, `.claude/`, `.cursor/`), and copies standalone skills into your global agent directories without touching user-managed skills:
+
+```bash
+# Synchronize SSOT into self-contained skill directories
+./scripts/sync-skills.sh
+
+# Verify skills are synchronized without git drift (used in CI)
+./scripts/sync-skills.sh --check
+
+# Install standalone skills globally (Antigravity, Claude Code, Cursor)
+./scripts/install-skills.sh --global
+./scripts/install-skills.sh --global --target antigravity
+./scripts/install-skills.sh --global --target claude
+./scripts/install-skills.sh --global --target cursor
+
+# Package standalone shinystat-cloud.zip for cloud sandboxes (e.g., Claude Web)
+./scripts/package-cloud-skill.sh
+```
+- `--global`: Install standalone dereferenced skills into global configuration directories.
+- `-s, --scope <workspace|global>`: Installation scope (default: `workspace`). In workspace scope, duplicate harness mirrors are no longer created (SSOT, ADR 49).
+- `-t, --target <all|antigravity|claude|cursor>`: Target AI harness for global installation (default: `all`).
+- `--dry-run`: Print all sync, packaging, and legacy mirror deletion actions without modifying the filesystem.
+
+Pick your platform and follow the corresponding manual setup if needed:
+
+<details>
+<summary><strong>Google Antigravity</strong> (Desktop / CLI / IDE)</summary>
+
+Install into your global Antigravity skills directory or link into a project workspace:
+
+```bash
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills
+./scripts/install-skills.sh --global --target antigravity
+```
+
+This installs dereferenced copies of `shinystat` and `shinystat-cloud` into `~/.gemini/config/skills/` and `~/.gemini/antigravity/skills/`.
+
+</details>
+
+<details>
+<summary><strong>Claude Code</strong> (Anthropic CLI)</summary>
+
+Install skills into your Claude Code skills directory:
+
+```bash
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills
+./scripts/install-skills.sh --global --target claude
+```
+
+Claude Code discovers skills in `~/.claude/skills/` (global) or `.claude/skills/` (project). Each `SKILL.md` with valid YAML frontmatter registers as an available skill.
+
+</details>
+
+<details>
+<summary><strong>Claude Web</strong> (claude.ai)</summary>
+
+Upload the cloud skill as a `.zip` file via **Upload a skill**:
+
+```bash
+# Option 1: Package dedicated cloud skill for Claude Web (recommended, includes standalone Recipes 1–24)
+./scripts/package-cloud-skill.sh ~/Desktop
+
+# Option 2: Package local skill with dereferenced symlinks
+./scripts/install-skills.sh --copy
+(cd skills && zip -r ~/Desktop/shinystat.zip shinystat)
+```
+
+Then in [claude.ai](https://claude.ai): Navigate to **Customize** → **Skills** → **+** → **Create skill** → **Upload a skill** and select `shinystat-cloud.zip`. Ensure **Code execution and file creation** is enabled. Claude reads the YAML frontmatter from `SKILL.md` inside the skill archive.
+
+> **Note:** The dedicated cloud package (`packaging/cloud/shinystat-cloud.zip`) contains 24 modular pure-Python standalone recipes in `references/recipes/01-*.md` through `07-*.md`, standalone figure helpers in `references/figures.md`, and multi-format report generators (`.md`, `.html`, `.docx`, `.pptx`, `.pdf`) + `verify_standalone_integrity` in `references/report-builder.md` so cloud sandboxes can execute all analyses using standard scientific libraries (`pandas`, `scipy.stats`, `statsmodels`, `lifelines`, `scikit-learn`) without `medstat-core` installed.
+
+</details>
+
+<details>
+<summary><strong>OpenAI Codex</strong> (CLI)</summary>
+
+Codex uses `AGENTS.md` and `.agents/skills/` for project-level instructions:
+
+```bash
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills && ./scripts/install-skills.sh --copy
+
+# Copy into your project's .agents/skills/
+mkdir -p /path/to/your-project/.agents/skills
+cp -RL skills/shinystat skills/shinystat-cloud /path/to/your-project/.agents/skills/
+```
+
+Codex discovers `AGENTS.md` and `.agents/` directories by walking up from the CWD.
+
+</details>
+
+<details>
+<summary><strong>OpenClaw / Pi / Hermes / Meta Muse Code</strong></summary>
+
+All `SKILL.md`-compatible agents can copy the dereferenced canonical skills from `skills/`:
+
+```bash
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills && ./scripts/install-skills.sh --copy
+
+# Global install (OpenClaw / Pi)
+mkdir -p ~/.agents/skills
+cp -RL skills/shinystat skills/shinystat-cloud ~/.agents/skills/
+
+# Or Hermes global install
+mkdir -p ~/.hermes/skills
+cp -RL skills/shinystat skills/shinystat-cloud ~/.hermes/skills/
+```
+
+</details>
+
+### Enforced Clinical Rules (All Platforms)
+
+Regardless of which agent platform you use, `shinystat` enforces:
+
+- **Strict numeric 0/1 encoding**: outcome/event columns must be numeric `0`/`1` — explicitly mapped text labels like `"Dead"`/`"Alive"` or `"Yes"`/`"No"` are converted to 0/1, while unmapped text labels are rejected to eliminate event inversion.
+- **Audited sample retention flow**: every analysis tracks $N_{initial} \to N_{excluded} \to N_{analyzed}$ with documented clinical justification; excluding records with missing primary outcomes requires reviewing the protocol's disposition (e.g., ITT vs per-protocol vs sensitivity analysis) rather than relying on a general complete-case justification alone.
+- **No silent missing data deletion**: missingness audits (Little's MCAR) and explicit handling strategies are required; primary outcomes are never imputed.
+- **Wilson score CIs only** for sensitivity/specificity and binomial proportions (not Wald).
+- **DeLong variance only** for empirical ROC AUC confidence intervals and comparisons.
+- **Separate EPV rules**: $\text{EPV}_{\text{binary}} = \frac{\min(N_1, N_0)}{P}$ vs $\text{EPV}_{\text{Cox}} = \frac{N_{\text{failures}}}{P}$.
+- **Caliper 0.2×SD of logit propensity** for PSM, with Austin (2009) balance requirement (absolute SMD < 0.10).
+- **Deterministic Grilling Gate**: mandates an interactive interview whenever ambiguity or conflicting study-data assumptions arise.
+
+---
+
+## Installation
+
+### Option 1: Using `uv` (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills
+
+# Sync environment with dev dependencies
+uv sync --all-extras
+
+# Run CLI directly
+uv run medstat --help
+```
+
+### Option 2: Standard `venv` & `pip`
+
+```bash
+# Clone the repository
+git clone https://github.com/NTWKKM/shinystat-skills.git
+cd shinystat-skills
+
+# Create a virtual environment (Python >= 3.12 required)
+python3.12 -m venv .venv
+source .venv/bin/activate
+
+# Install editable with dev dependencies
+pip install -e '.[dev]'
+
+# Optional extras for causal ML and automated PDF rendering:
+pip install -e '.[dev,causal,pdf]'
+
+# Verify CLI
+medstat --help
+```
+
+---
+
+## Quickstart
+
+### Pure-SciPy Intraclass Correlation Coefficient (ICC)
+```python
+import pandas as pd
+from medstat.agreement.icc import calculate_icc
+
+df = pd.DataFrame(
+    {
+        "Subject": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5],
+        "Rater": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],
+        "Score": [9, 6, 8, 7, 10, 8, 7, 7, 6, 9],
+    }
+)
+
+# Calculate all 6 ICC variants with 95% CIs via pure SciPy
+icc_table = calculate_icc(df, targets="Subject", raters="Rater", ratings="Score")
+print(icc_table[["Type", "Description", "ICC", "F", "df1", "df2", "pval", "CI95%"]])
+```
+
+### Firth Penalized Logistic Regression
+```python
+import numpy as np
+import pandas as pd
+from medstat.models.firth import fit_firth_logistic
+
+# Dataset with complete separation
+X = pd.DataFrame({"age": [20, 25, 30, 35, 40], "biomarker": [0, 0, 1, 1, 1]})
+y = pd.Series([0, 0, 1, 1, 1])
+
+res = fit_firth_logistic(y, X, ci_method="pl")
+print("Odds Ratios & Profile Likelihood 95% CIs:")
+print(res["summary_df"][["estimate", "odds_ratio", "ci_lower", "ci_upper", "p_value"]])
+```
+
+### Dual-Toggle HTML Visualizations (Plotly.js + 300 DPI Publication PNG)
+```python
+from medstat.figures.html import plot_dual_roc_curve
+
+# Generates both a 300 DPI publication PNG and an interactive Plotly figure specification
+dual_res = plot_dual_roc_curve(
+    y_true=[0, 0, 1, 1, 1],
+    y_score=[0.1, 0.4, 0.35, 0.8, 0.9],
+    title="Biomarker Diagnostic Performance (ROC)",
+    output_path="figures/roc_curve.png",
+)
+
+print(f"Publication PNG (300 DPI): {dual_res.png_path}")
+print(f"Audited Source CSV:        {dual_res.csv_path}")
+print(f"Interactive Plotly Figure: {dual_res.plotly_fig is not None}")
+```
+
+### Causal Inference with IPTW & 3-Way Love Plot
+```python
+import pandas as pd
+from medstat.causal.iptw import compute_iptw_weights, fit_iptw_outcome_model
+from medstat.causal.balance import compute_balance_table
+from medstat.figures.balance import plot_love
+
+# 1. Estimate propensity scores and compute stabilized ATE weights
+res = compute_iptw_weights(
+    df,
+    treatment_col="treatment",
+    covariates=["age", "bmi", "creatinine"],
+    estimand="ATE",
+    stabilized=True,
+    truncate_quantiles=(0.01, 0.99),
+)
+print(f"Kish's Effective Sample Size: {res.effective_sample_size}")
+
+# 2. Check covariate balance & render 3-Way Love Plot (Unadjusted vs Matched vs IPTW)
+bal_table = compute_balance_table(
+    res.df,
+    treatment="treatment",
+    covariates=["age", "bmi", "creatinine"],
+    weights_col="iptw_weight",
+)
+love_fig = plot_love(bal_table, threshold=0.10, out_path="figures/love_plot.png")
+
+# 3. Fit causal outcome model with robust Huber-White sandwich standard errors
+outcome_res = fit_iptw_outcome_model(
+    res.df,
+    outcome_col="mortality",
+    treatment_col="treatment",
+    weights_col="iptw_weight",
+    outcome_type="binary",
+)
+print(f"Causal Odds Ratio: {outcome_res['odds_ratio']:.3f} (95% CI: {outcome_res['or_ci_lower']:.3f} - {outcome_res['or_ci_upper']:.3f})")
+```
+
+### Competing Risks Survival Analysis (Aalen-Johansen CIF & Regression)
+```python
+import pandas as pd
+from medstat.models.survival import fit_competing_risks_cif, fit_competing_risks_regression
+from medstat.figures.survival import plot_cif
+
+# 1. Non-parametric Aalen-Johansen CIF with Naive 1 - KM overestimation audit
+cif_res = fit_competing_risks_cif(
+    durations=df["follow_up_months"],
+    event_observed=df["event_code"],  # 0: Censored, 1: Primary Event, 2: Competing Risk
+    event_of_interest=1,
+    competing_event=2,
+)
+plot_cif(cif_res, out_path="figures/cif_curves.png")
+
+# 2. Multivariable regression: Cause-Specific Cox (etiology) & Fine-Gray (prognosis)
+reg_res = fit_competing_risks_regression(
+    df=df,
+    duration_col="follow_up_months",
+    event_col="event_code",
+    covariates=["treatment", "age", "stage"],
+    event_of_interest=1,
+    competing_event=2,
+)
+print("Cause-Specific HR vs Fine-Gray SHR Comparison:")
+print(reg_res["comparison_table"][["covariate", "cs_hr", "cs_p", "fg_shr", "fg_p"]])
+```
+
+### Diagnostic Risk Reclassification (NRI & IDI)
+```python
+import numpy as np
+from medstat.diagnostic.roc import compute_reclassification_metrics
+from medstat.figures.html.roc import plot_dual_reclassification
+from medstat.reporting.tables import format_reclassification_table
+
+# Compare baseline clinical risk vs updated biomarker model
+y_true = np.array([1, 1, 0, 0, 1, 0, 1, 0])
+p_old = np.array([0.45, 0.55, 0.30, 0.20, 0.65, 0.40, 0.70, 0.15])
+p_new = np.array([0.65, 0.75, 0.20, 0.10, 0.85, 0.30, 0.90, 0.10])
+
+# Compute continuous & categorical NRI, IDI, and KxK contingency matrices
+reclass = compute_reclassification_metrics(
+    y_true, p_old, p_new, thresholds=[0.20, 0.50], n_bootstrap=100
+)
+
+print(f"Continuous NRI: {reclass['nri_continuous']['total']['estimate']:.3f} (p = {reclass['nri_continuous']['total']['p_value']:.4f})")
+print(f"Event NRI:      {reclass['nri_continuous']['events']['estimate']:.3f}")
+print(f"Non-event NRI:  {reclass['nri_continuous']['nonevents']['estimate']:.3f}")
+print(f"IDI:            {reclass['idi']['estimate']:.3f} (p = {reclass['idi']['p_value']:.4f})")
+
+# Render dual publication/interactive shift plot and JAMA/NEJM table
+dual_fig = plot_dual_reclassification(reclass, out_path="figures/reclass_plot.png")
+table_html = format_reclassification_table(reclass, title="Table 3. Risk Reclassification")
+```
+
+### Time-Dependent ROC & Longitudinal $\text{AUROC}(t)$ Trajectory
+```python
+import numpy as np
+from medstat.diagnostic.roc import compute_time_dependent_roc
+from medstat.figures.html.roc import plot_dual_time_dependent_roc
+from medstat.reporting.tables import format_time_dependent_roc_table
+
+# Follow-up times, event indicators, and baseline biomarker scores
+durations = np.array([12.5, 24.0, 6.2, 36.0, 18.3, 48.0, 8.1, 30.5])
+events = np.array([1, 0, 1, 0, 1, 0, 1, 0])  # 1 = death/event, 0 = censored
+scores = np.array([0.85, 0.20, 0.75, 0.30, 0.90, 0.15, 0.65, 0.40])
+
+# Estimate IPCW-weighted ROC curves across milestone follow-up horizons
+td_roc = compute_time_dependent_roc(
+    durations=durations,
+    events=events,
+    scores=scores,
+    time_horizons=[12.0, 24.0, 36.0],
+    n_bootstrap=100,
+)
+
+for h in [12.0, 24.0, 36.0]:
+    res_h = td_roc["results_by_horizon"][h]
+    print(f"Horizon t={h}m: AUROC(t) = {res_h['auroc']:.3f} (95% CI: {res_h['ci_lower']:.3f}-{res_h['ci_upper']:.3f}) | Cutoff: {res_h['optimal_threshold']:.2f}")
+
+# Render interactive & 300 DPI trajectory plot and STARD/TRIPOD table
+dual_td = plot_dual_time_dependent_roc(td_roc, mode="auroc_trajectory", out_path="figures/td_roc_trajectory.png")
+td_table_html = format_time_dependent_roc_table(td_roc, title="Table 4. Time-Dependent Discrimination")
+```
+
+### End-to-End CLI & YAML Statistical Analysis Plan (SAP)
+```bash
+# Execute end-to-end Statistical Analysis Plan from YAML
+medstat model --spec analysis_plan.yaml --output results/report.json
+
+# Execute diagnostic risk reclassification (NRI & IDI)
+medstat diag --data cohort.csv --gold outcome --p-old pred_old --p-new pred_new --thresholds 0.2,0.5 --reclassification
+
+# Execute time-dependent ROC across clinical milestones
+medstat diag --data survival_cohort.csv --gold death --test biomarker --time-dependent-roc --time-col time_to_event --event-col death --time-horizons 12,24,36
+
+# Standalone causal IPTW with balance check and Love plot
+medstat causal iptw --data cohort.csv --treatment treatment --covariates age,bmi --estimand ATE --love-plot figures/love.png
+
+# Competing risks analysis with CIF plot
+medstat model --data oncology.csv --time months --outcome event --type competing_risks --covariates treatment,stage --cif-plot figures/cif.png
+```
+
+### Self-Contained Clinical Reporting with Dual-View Figures
+```python
+from medstat.reporting.ir import FigureBlock, HeadingBlock, ParagraphBlock, ReportDocument
+from medstat.reporting.renderers.html import render_html
+
+# Assemble document with DualFigureResult blocks
+doc = ReportDocument(
+    title="Clinical Diagnostic Study Report",
+    metadata={"authors": ["Clinical Research Team"], "study_design": "Diagnostic Accuracy"},
+    blocks=[
+        HeadingBlock(text="Biomarker Performance", level=2),
+        ParagraphBlock(text="Evaluation of diagnostic accuracy with empirical ROC and DeLong 95% CIs."),
+        FigureBlock(figure_res=dual_res, caption="Figure 1: Empirical ROC Curve with optimal Youden cutoff."),
+    ],
+)
+
+# Render single-file HTML with interactive/static tabs, CSV export, and print styles
+html_content = render_html(doc, output_path="reports/diagnostic_report.html")
+```
+
+---
+
+## Testing
+
+The project includes an automatic forwarding wrapper in `tests/conftest.py` that transparently forwards execution to the Python 3.12 virtual environment (`.venv/bin/pytest`) even if executed from older system Python environments.
+
+```bash
+# Run the full test suite
+uv run pytest
+
+# Run unit tests for Reclassification & Time-Dependent ROC
+uv run pytest tests/unit/test_reclassification_and_tdroc.py
+
+# Run CLI E2E tests for Reclassification, Time-Dependent ROC, and IPTW
+uv run pytest tests/e2e/test_reclassification_tdroc_cli.py tests/e2e/test_iptw_competing_risks_cli.py
+
+# Run numerical parity benchmarks against R oracle
+uv run pytest tests/benchmarks/
+```
+
+---
+
+## License
+
+Apache-2.0. See `LICENSE` for details.

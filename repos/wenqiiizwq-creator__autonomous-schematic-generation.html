@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wenqiiizwq-creator/autonomous-schematic-generation · OpenCode Plugins</title>
+<meta name="description" content="KiCad 原理图生成与评审 Agent Skill：结构化电路表示、功能布局与避障布线、已有工程重排流程，原生 ERC/网表/几何/渲染验证">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="autonomous-schematic-generation, wenqiiizwq-creator, wenqiiizwq-creator/autonomous-schematic-generation, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__autonomous-schematic-generation">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="wenqiiizwq-creator/autonomous-schematic-generation · OpenCode Plugins">
+<meta property="og:description" content="KiCad 原理图生成与评审 Agent Skill：结构化电路表示、功能布局与避障布线、已有工程重排流程，原生 ERC/网表/几何/渲染验证">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__autonomous-schematic-generation">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "wenqiiizwq-creator/autonomous-schematic-generation", "codeRepository": "https://github.com/wenqiiizwq-creator/Autonomous-Schematic-Generation", "url": "https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__autonomous-schematic-generation", "description": "KiCad 原理图生成与评审 Agent Skill：结构化电路表示、功能布局与避障布线、已有工程重排流程，原生 ERC/网表/几何/渲染验证", "author": {"@type": "Organization", "name": "wenqiiizwq-creator", "url": "https://github.com/wenqiiizwq-creator"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="wenqiiizwq-creator/autonomous-schematic-generation" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">wenqiiizwq-creator/autonomous-schematic-generation</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="wenqiiizwq-creator__autonomous-schematic-generation"><img class="rp-side-av" src="https://github.com/wenqiiizwq-creator.png?s=300" width="300" height="300" alt="wenqiiizwq-creator avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">autonomous-schematic-generation</div>
+      <a class="rp-side-owner" href="https://github.com/wenqiiizwq-creator">wenqiiizwq-creator</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/wenqiiizwq-creator">wenqiiizwq-creator</a>
+        <span class="rp-sep">/</span><span class="rp-name">autonomous-schematic-generation</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">KiCad 原理图生成与评审 Agent Skill：结构化电路表示、功能布局与避障布线、已有工程重排流程，原生 ERC/网表/几何/渲染验证</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>3</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="wenqiiizwq-creator__pcb-layout"><img class="rp-same-av" src="https://github.com/wenqiiizwq-creator.png" alt="" loading="lazy">pcb-layout</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/wenqiiizwq-creator/Autonomous-Schematic-Generation">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Autonomous-Schematic-Generation (ASG)
+
+ ASG：从需求文档出发，基于 KiCad 自主绘制可读、电气正确、经 KiCad 导出验证的原理图
+
+Autonomous-Schematic-Generation（简称 ASG）是一套面向 Codex、Claude 等 Agent 的 Skill。
+从需求文档出发，按六个能力模块（C1–C6）完成一块板的原理图设计，再生成设计报告和固定交付目录。
+模块可以按给定输入单独运行，也可以串联；上游变化后按指纹重跑受影响的模块。
+ASG 负责设计完成并只做自检；独立审查交给 schematic-review。
+
+模块划分，各模块的任务、给定输入和产出只写在 SKILL.md 的「架构」与「主流程」，本页不重复；
+各脚本做什么见 scripts/README.md。
+
+其他：多页核对用 audit_project.py、verify_reference_contract.py（见 project-verification.md）；
+夹具与草稿用的低层生成器 generate_schematic.py 见 schematic-generation.md，
+它不出交付页。上游借鉴（schematic-trace-solver、kicad-mcp-pro、SKiDL、circuit-synth）见 上游来源。
+
+ 运行一个样例
+
+bash
+python3 scripts/verify_schematic.py board.kicad_sch --intent electrical-intent.json --out runs/verify-01
+python3 scripts/deliver.py            参数在 /record/deliver.json
+
+python3 -m unittest discover -s tests -v
+
+
+AUTOMATED_PASS 仅表示自动检查通过；图面审阅和数据手册审查仍须完成。
+
+ 安装
+
+将本仓库放入 Agent 的 skills 目录，例如：
+
+bash
+git clone https://github.com/wenqiiizwq-creator/Autonomous-Schematic-Generation.git \
+  ~/.codex/skills/autonomous-schematic-generation
+
+
+SKILL.md 为入口，frontmatter 中的 name 为 autonomous-schematic-generation。
+已有旧版 kicad 安装时，迁移到新目录，避免保留两份可被扫描的安装。
+
+依赖：KiCad CLI 和符号库（实测 KiCad 10.0.7；本技能文档中的 KiCad 版本以此处为准，换版本需用 KiCad 导出复跑全部合成测试）；Python 3.10+ 标准库；
+PDF 目检渲染用 pdftoppm，完整 PDF 页数核对用 Poppler pdfinfo（未安装时明确返回检查不足）。
+
+ 设计约定
+
+以 SKILL.md 的「ASG 纲要」为核心标准（核心原则与绘图纲要），修改纲要须先经人确认。
+
+维护约定：
+
+- 纲要改动先写草案交人确认，确认后在 纲要确认记录 最上面加一行，python3 scripts/check_ledger.py 核对。
+- 每处改动附复现问题的合成测试，python3 -m unittest discover -s tests 全部通过才提交。
+
+ 免责声明
+
+本仓库为 EDA 自动化辅助工具，自动绘图结果应以 KiCad 官方输出、器件数据手册以及有资质工程师的人工复核为准。
+作者不对直接用于生产投板造成的损失承担责任。
+
+ License
+
+MIT License
+
+Copyright (c) 2026 wenqiii.zwq
+
+改编部分另保留 tscircuit Inc. 和 Osman Aslan 的 MIT 声明，见
+上游许可证。
+
+ 共用层
+
+共用规范 G01–G10（G01–G09 设计准则、G10 降额与应力规范）在硬件设计知识框架的 设计准则/ 维护，同步进本技能的 references/shared/ 等受控文件，技能内不得编辑。
+维护源是框架 设计准则/ 下的 准则登记/、规范正文/G10_元器件降额与应力规范/ 和 工具/（含 包说明/）；
+技能内有哪些共用文件、谁读、怎样核对见 共用层说明。
+
+ 知识包
+
+准则以外的设计知识也在硬件设计知识框架维护，同步进本技能的 references/knowledge/，技能内不得编辑；
+依据的框架版本以根目录 knowledge-sync.json 为准，各模块查哪部分见 知识包。
+
+框架更新后重新同步（共用层和知识包一起换，只有这一步读框架目录；技能运行时只读自己这一份，离开框架目录也能用）：
+
+bash
+python3 scripts/knowledge_package.py sync        加 --dry-run 只看差异
+python3 scripts/knowledge_package.py verify-installed
+python3 scripts/guideline_criteria.py verify-installed
+
+
+同步把与上一次的差异写进 docs/knowledge-sync/.md：新增、改了、删除、搬了位置的条目和准则。这份差异是技能要消化的清单，按它改查阅表、关卡和说明，再跑全量测试。
+同步后再跑 python3 scripts/knowledge_coverage.py --write，重写 知识到关卡的对照表：知识包里每类可核对的内容有多少项、关卡现在核对到哪一步，“核对到内容”为“否”的是技能还没吃进去的知识。</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/wenqiiizwq-creator__autonomous-schematic-generation.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

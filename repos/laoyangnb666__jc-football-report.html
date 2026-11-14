@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>laoyangnb666/jc-football-report · OpenCode Plugins</title>
+<meta name="description" content="竞彩足球机构级分析报告 Skill：把盘口去水还原成概率，用泊松 + Dixon-Coles 拟合比分矩阵，对比公众资金流找出结构性定价偏离，并为每一场在售比赛输出可复算的书面判断与 PDF 报告。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="jc-football-report, laoyangnb666, laoyangnb666/jc-football-report, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/laoyangnb666__jc-football-report">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="laoyangnb666/jc-football-report · OpenCode Plugins">
+<meta property="og:description" content="竞彩足球机构级分析报告 Skill：把盘口去水还原成概率，用泊松 + Dixon-Coles 拟合比分矩阵，对比公众资金流找出结构性定价偏离，并为每一场在售比赛输出可复算的书面判断与 PDF 报告。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/laoyangnb666__jc-football-report">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "laoyangnb666/jc-football-report", "codeRepository": "https://github.com/laoyangnb666/jc-football-report", "url": "https://opencode-plugins.zhuikan.com/repos/laoyangnb666__jc-football-report", "description": "竞彩足球机构级分析报告 Skill：把盘口去水还原成概率，用泊松 + Dixon-Coles 拟合比分矩阵，对比公众资金流找出结构性定价偏离，并为每一场在售比赛输出可复算的书面判断与 PDF 报告。", "author": {"@type": "Organization", "name": "laoyangnb666", "url": "https://github.com/laoyangnb666"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="laoyangnb666/jc-football-report" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">laoyangnb666/jc-football-report</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="laoyangnb666__jc-football-report"><img class="rp-side-av" src="https://github.com/laoyangnb666.png?s=300" width="300" height="300" alt="laoyangnb666 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">jc-football-report</div>
+      <a class="rp-side-owner" href="https://github.com/laoyangnb666">laoyangnb666</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/laoyangnb666">laoyangnb666</a>
+        <span class="rp-sep">/</span><span class="rp-name">jc-football-report</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">竞彩足球机构级分析报告 Skill：把盘口去水还原成概率，用泊松 + Dixon-Coles 拟合比分矩阵，对比公众资金流找出结构性定价偏离，并为每一场在售比赛输出可复算的书面判断与 PDF 报告。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/laoyangnb666/jc-football-report">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">竞彩足球机构级分析报告
+
+ 一个把中国体育彩票「竞彩足球」盘口还原成概率、并与公众资金流对比、找出结构性定价偏离的分析 Skill。
+ 产出可复算的 PDF 报告，每一场在售比赛都给出明确判断。
+
+
+!Node
+!Skill
+
+
+项目官网：laoyangnb666.github.io/jc-football-report　（源码见 docs/）
+
+---
+
+ 这是什么
+
+这不是「预测谁会赢」的工具，而是一套定价与风险视角的分析流程：
+
+- 把赔率去水（de-vig）还原成市场隐含概率
+- 用泊松 + Dixon-Coles 拟合出比分矩阵，一次性导出胜平负、让球、总进球、双方进球等市场的概率
+- 把「模型概率」「盘口去水概率」「公众支持率」三者对比，找出结构性偏离
+- 对每一场比赛写出可复算的判断，带具体选项、赔率和数字理由
+
+核心立场：目标是校准，不是预测。 预测对错不重要，长期概率估准、看清抽水在哪里，才有意义。
+
+ 核心特征
+
+| 特征 | 说明 |
+|---|---|
+| 逐场综合预测 | 每场按可靠度从高到低给出：胜平负 → 总进球（区间 + 8 桶）→ 比分 top-5 分布 |
+| 独立强度模型 | 用主客分离的得失球（比率法 + 样本量收缩）建立与盘口无关的概率，不再复述盘口 |
+| 市场映像融合 | 市场 λ 与独立 λ 按 k=0.35 融合，λ 三个来源全部披露 |
+| 回测驱动 | 每轮先用已完赛场次跑 backtest()，把「实际命中率 vs 盘口隐含概率」写进报告，再据此改阈值 |
+| 去水定价 | 把 13%+ 的抽水还原，得到可比的市场真实概率 |
+| 锐利盘口基准 | 做 value 判断时以低 margin 的锐利庄去水价为基准，不用竞彩价当基准 |
+| 数据可溯源 | 每个进入模型的数字都要能追到源；追不到的不进模型，只进文字并标「待验证」 |
+| 多源交叉校验 | 赔率三源对齐、伤停双源确认、xG 单一口径 |
+| 只沉淀方法 | Skill 本身不含任何具体赔率、场次或结论，那些属于当次报告产出，用完即弃 |
+
+ 快速开始
+
+ 1. 安装 Skill
+
+把本仓库复制到你的 agent skills 目录：
+
+bash
+ Trae / Claude Code 全局 skill 目录
+git clone https://github.com/laoyangnb666/jc-football-report.git \
+  ~/.trae-cn/skills/jc-football-report
+
+
+目录名必须是 jc-football-report，与 SKILL.md 的 frontmatter name 一致。
+
+ 2. 运行核心脚本
+
+脚本零依赖，只要有 Node.js：
+
+bash
+node scripts/analyze.js
+
+
+输出内置自检样例（虚构对阵，仅验证函数可运行）：
+
+
+示例A｜关注｜主胜 2.10｜缺口 -16pp，需基本面无反向佐证
+  λ= 2.73 w= 0.570 model= 45.0/27.5/27.5 bias= 0.73pp
+  top5= 1-1 13.1% 2-1 9.3% 1-0 9.0% 2-0 7.9% 0-0 7.7%
+  rqEV= -1.6/-18.2/-11.9
+示例B｜回避｜客胜 5.50｜人气溢价 +28pp，价格不含补偿
+
+
+ 3. 作为库调用
+
+js
+const { predictMatch, backtest } = require(&#x27;./scripts/analyze.js&#x27;);
+
+const row = {
+  no: &#x27;周一004&#x27;, lg: &#x27;意甲&#x27;, home: &#x27;亚特兰大&#x27;, away: &#x27;帕尔马&#x27;,
+  kickoff: &#x27;2026-11-03 03:45&#x27;, hc: -1,
+  spf: [1.30, 4.65, 6.45], rq: [2.07, 3.40, 2.76],
+  supSPF: [78, 13, 9], zjq: [17, 7, 4.25, 3.10, 4.20, 7.20, 15, 20],
+  team: {
+    home: { home: {gf: 15, ga: 6, p: 5}, away: {gf: 8, ga: 9, p: 5} },
+    away: { home: {gf: 7, ga: 10, p: 5}, away: {gf: 5, ga: 13, p: 5} },
+    form: { home: {gf: 9, ga: 6, p: 5}, away: {gf: 4, ga: 12, p: 5} },
+  },
+};
+
+const p = predictMatch(row);
+console.log(p.lambdaTotal, p.w);          // 融合 λ 与主队份额
+console.log(p.forecast.spf, p.forecast.goals, p.forecast.scores);
+console.log(p.verdict.level, p.verdict.reason);
+
+// 回测：把预测与实际比分对照
+const bt = backtest([p], { &#x27;周一004&#x27;: [3, 1] });
+console.log(bt.hit);                       // 逐市场命中率
+
+
+ 目录结构
+
+
+jc-football-report/
+├── SKILL.md                         Skill 主入口：铁律、流程、判定规则
+├── references/
+│   ├── model-and-calibration.md     模型数学定义 + 33 场回测校准结果（改阈值看这里）
+│   ├── analysis-framework.md        完整分析逻辑清单（八节检查表）
+│   ├── data-collection.md           数据源清单与采集口径
+│   └── report-template.md           报告七层结构与排版 token
+├── scripts/
+│   └── analyze.js                   去水 / Dixon-Coles / 独立强度 / 融合 / 综合预测 / 回测
+├── LICENSE
+└── README.md
+
+
+ 分析方法论（七层）
+
+| 层 | 内容 |
+|---|---|
+| 1 回测校准 | 上一轮逐市场命中率、实际 vs 盘口隐含、待验证项状态 |
+| 2 核心定价引擎 | margin、去水、λ 三来源（市场/独立/融合）、比分矩阵、总进球逐桶 EV |
+| 3 基本面情报 | 官方伤停、历史交锋、盘路、天气场地 |
+| 4 市场情报 | 初盘到现价（欧赔+亚盘+大小球）、竞彩 vs 国际定价偏离、人气税 |
+| 5 细分市场 | 让球盘 EV、大小球、比分与半全场原则 |
+| 6 逐场综合预测 | 每场：比分 </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/laoyangnb666__jc-football-report.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

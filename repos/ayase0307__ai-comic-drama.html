@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ayase0307/ai-comic-drama · OpenCode Plugins</title>
+<meta name="description" content="Agent Skill: turn novels/stories into character-consistent AI comic dramas — script, storyboard, prompts, image &amp; video (MiniMax H3 ready)">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ai-comic-drama, ayase0307, ayase0307/ai-comic-drama, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ayase0307__ai-comic-drama">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ayase0307/ai-comic-drama · OpenCode Plugins">
+<meta property="og:description" content="Agent Skill: turn novels/stories into character-consistent AI comic dramas — script, storyboard, prompts, image &amp; video (MiniMax H3 ready)">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ayase0307__ai-comic-drama">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ayase0307/ai-comic-drama", "codeRepository": "https://github.com/ayase0307/ai-comic-drama", "url": "https://opencode-plugins.zhuikan.com/repos/ayase0307__ai-comic-drama", "description": "Agent Skill: turn novels/stories into character-consistent AI comic dramas — script, storyboard, prompts, image & video (MiniMax H3 ready)", "author": {"@type": "Organization", "name": "ayase0307", "url": "https://github.com/ayase0307"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-16", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="ayase0307/ai-comic-drama" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ayase0307/ai-comic-drama</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ayase0307__ai-comic-drama"><img class="rp-side-av" src="https://github.com/ayase0307.png?s=300" width="300" height="300" alt="ayase0307 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ai-comic-drama</div>
+      <a class="rp-side-owner" href="https://github.com/ayase0307">ayase0307</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/ayase0307">ayase0307</a>
+        <span class="rp-sep">/</span><span class="rp-name">ai-comic-drama</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agent Skill: turn novels/stories into character-consistent AI comic dramas — script, storyboard, prompts, image &amp; video (MiniMax H3 ready)</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-16</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/ayase0307/ai-comic-drama">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">4</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">5</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AI Comic Drama
+
+給 AI Agent 用的漫劇製作技能：把小說一路做成角色一致、有導演思維的 AI 漫劇。
+
+An agent skill that turns novels into consistent, director-grade AI comic dramas.
+
+
+!Tests
+!Python
+!Agent Skill
+!MiniMax H3
+
+
+特色 · 架構 · 快速開始 · 八階段 · h3d 指令 · 環境變數 · Roadmap · 文件
+
+
+
+ [!NOTE]
+ 這不是一個按一下就出片的 App，而是一套 Agent 技能：Agent 讀規則文件做創作判斷，Python 腳本做確定性檢查，你在每個階段的審核點拍板。純文字的改編、劇本、分鏡與提示詞可以獨立交付；圖片與影片生成取決於 Agent 當下能用的工具或已連線的後端（例如 FreeVideo），本技能不假設 Agent 內建影片能力。
+
+ 目錄
+
+- 為什麼需要它
+- 特色
+- 架構
+- 快速開始
+- 八階段流水線
+- h3d：單一入口
+- 風格鎖定錨
+- 專案結構
+- 環境變數
+- Roadmap
+- 文件索引
+- 搭配專案
+
+ 💡 為什麼需要它
+
+把小說交給 AI 做成影片，最常壞在三個地方：事件被秒數壓掉、角色每鏡長得不一樣、改了一處卻不知道哪些要重做。 這個技能的做法是把「需要判斷的事」和「可以驗證的事」分開：
+
+| 交給 Agent（讀規則做判斷） | 交給腳本（確定性、可重跑） | 交給你（拍板） |
+|---|---|---|
+| 改編取捨、劇本、鏡頭意圖、逐鏡提示詞 | 時長量子、證據分級、依賴帳本、失敗目錄、站位 lint | 定調、角色設定圖、音色、每階段核准 |
+
+ ✨ 特色
+
+| | |
+|---|---|
+| 🧠 純 Agent 技能 | SKILL.md 與 references/ 是 Agent 的工作規則；scripts/ 只做確定性檢查與檔案轉換，不替 Agent 寫創作內容（例如階段 5 的五小節提示詞必須逐鏡親手寫，h3d author 會擋套句與偷懶）。 |
+| 🧭 八階段＋審核鎖 | 階段 0–7 每段都有審核頁、人工核准與輸入 hash 鎖；上游一改，下游核准自動失效。不知道下一步就跑 h3d next，它只給你一條指令。 |
+| 🎛️ h3d 單一入口 | 30 多個子命令一個入口：next 指路、decide 記定案、bind 綁參考圖、compile 編譯、qa 驗收、status 看全局。只做路由，規則留在各自模組。 |
+| 🔒 四道確定性檢查 | 時長量子 17n+5 影格、證據分級 VERIFIED／PARTIAL／UNVERIFIED、segment 級依賴帳本、失敗目錄＋ack 憑證（綁定提示詞 hash，改稿即失效）。 |
+| 🎞️ 雙影片後端 | 預設 ref2va（FreeVideo，獨立 Ref2VA、程式預設單人裁切）；可選 remix（家機 REMIX 角色包）。remix 的綁定、refcheck、站位閘門、REMIX 三欄提示詞輸出（R5）已接上，送件 adapter（R7）尚未完成。 |
+| 🎬 導演級分鏡 | 每鏡先寫 shot_intent 再定技術值，焦距與物距成對寫；站位／視線／運鏡 lint D06–D14；階段 4 構圖用你選的生圖工具（h3d imagegen 偵測環境裡可用的 Codex 分鏡／Qwen 鉛筆九宮格／手繪上傳，由你選、不替你預設），一律走同一個 hash 門禁。 |
+| 🎨 創作 lens（只建議、不擋關） | AI 漫劇爆款方法論、荒木飛呂彥、Robert McKee、Scott McCloud，另有 Murch／Hamilton 剪輯 lens；報告寫進 review/craft/，不改任何門禁。 |
+| 🧪 實測驅動 | 規則標 measured／sourced／inferred；外部方法未經 H3 實測前只警告不擋。 |
+
+ 🏗️ 架構
+
+四層各管一件事：規則寫在文件裡、判斷交給 Agent、檢查交給腳本、生成交給後端。
+
+mermaid
+flowchart TB
+    subgraph L1[&quot;① 規則層：Agent 讀的文件&quot;]
+        direction LR
+        SK[&quot;SKILL.md操作首頁&quot;] ~~~ REF[&quot;references/改編・分鏡・H3・一致性&quot;] ~~~ LENS[&quot;references/craft/創作 lens（只建議）&quot;]
+    end
+    subgraph L2[&quot;② 判斷層：Agent 做創作決定&quot;]
+        direction LR
+        AG[&quot;改編取捨・劇本鏡頭意圖・逐鏡提示詞&quot;] |&quot;收件匣／定案&quot;| USER([&quot;使用者定調・核准・音色&quot;])
+    end
+    subgraph L3[&quot;③ 確定性層：h3d ＋ scripts&quot;]
+        direction LR
+        H3D[&quot;h3d.py單一入口・只做路由&quot;] -- CHK[&quot;四道檢查量子・證據帳本・失敗目錄&quot;] -- STATE[(&quot;project-state.json階段狀態＋hash 鎖&quot;)]
+    end
+    subgraph L4[&quot;④ 生成層：後端與產物&quot;]
+        direction LR
+        FV[&quot;FreeVideoref2va／remix&quot;] ~~~ MEDIA[&quot;FFmpeg・H3 原生音訊生圖工具&quot;] ~~~ OUT[&quot;劇本・分鏡segments・成片&quot;]
+    end
+    L1 --|&quot;讀規則與 reference&quot;| L2
+    L2 |&quot;呼叫 h3d・回報下一步&quot;| L3
+    L3 --|&quot;送件・QA・組裝&quot;| L4
+    style L1 fill:none,stroke:94a3b8,stroke-dasharray:4 4
+    style L2 fill:none,stroke:94a3b8,stroke-dasharray:4 4
+    style L3 fill:none,stroke:94a3b8,stroke-dasharray:4 4
+    style L4 fill:none,stroke:94a3b8,stroke-dasharray:4 4
+    classDef rule fill:eef2ff,stroke:6366f1,color:1e1b4b
+    classDef agent fill:fef3c7,stroke:d97706,color:78350f
+    classDef det fill:dcfce7,stroke:16a34a,color:14532d
+    classDef gen fill:fce7f3,stroke:db2777,color:831843
+    classDef user fill:fff7ed,stroke:ea580c,color:7c2d12
+    </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/ayase0307__ai-comic-drama.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

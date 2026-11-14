@@ -1,0 +1,480 @@
+<p align="center">
+  <img src="assets/logo.svg" width="96" height="96" alt="Cadence logo: five rhythm bars of uneven height, one in red">
+</p>
+
+<h1 align="center">Cadence</h1>
+
+<p align="center"><b>Catches writing that sounds robotic, and shows you why. Then rewrite it in a voice you choose, in any AI agent or from the command line.</b></p>
+
+<p align="center">
+  <a href="https://github.com/wuisabel-gif/Cadence/actions/workflows/ci.yml"><img src="https://github.com/wuisabel-gif/Cadence/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/cadence-deslop"><img src="https://img.shields.io/npm/v/cadence-deslop?color=2348a1&label=npm%20%C2%B7%20cadence-deslop" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2348a1" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/dependencies-0-2348a1" alt="zero dependencies">
+</p>
+
+<p align="center"><b>Ready to use in:</b></p>
+
+<p align="center">
+  <a href="#install"><img src="https://img.shields.io/badge/Claude%20Code-plugin-2348a1?logo=anthropic&logoColor=white" alt="Claude Code plugin"></a>
+  <a href="integrations/codex/README.md"><img src="https://img.shields.io/badge/Codex-skill-2348a1?logo=openai&logoColor=white" alt="Codex skill"></a>
+  <a href="integrations/grok/README.md"><img src="https://img.shields.io/badge/Grok%20Build-skill-2348a1?logo=x&logoColor=white" alt="Grok Build skill"></a>
+  <a href="integrations/gemini/README.md"><img src="https://img.shields.io/badge/Gemini%20CLI-extension-2348a1?logo=googlegemini&logoColor=white" alt="Gemini CLI extension"></a>
+  <a href="integrations/deepseek/README.md"><img src="https://img.shields.io/badge/DeepSeek-skill-2348a1?logo=deepseek&logoColor=white" alt="DeepSeek skill"></a>
+  <a href="extension/README.md"><img src="https://img.shields.io/badge/Chrome-extension-2348a1?logo=googlechrome&logoColor=white" alt="Chrome extension"></a>
+  <a href="integrations/vscode/README.md"><img src="https://img.shields.io/badge/VS%20Code-extension-2348a1?logo=visualstudiocode&logoColor=white" alt="VS Code extension"></a>
+  <a href="https://www.npmjs.com/package/cadence-deslop"><img src="https://img.shields.io/badge/CLI-npx%20cadence--deslop-2348a1?logo=npm&logoColor=white" alt="command-line tool"></a>
+</p>
+
+> 📐 **Verified by Cadence** — this README's own prose scores grade A on the detector. The slop quoted in the examples below is there on purpose.
+
+You can usually tell when a machine wrote something. Not from any single word — from
+the texture. The sentences come out the same length. Every paragraph opens with a
+transition. The point gets hedged, then the hedge gets hedged. There are three
+examples where one would have landed harder. You may not be able to underline the
+broken part, but you feel it, and the moment you feel it you start to skim.
+
+Cadence exists to strip that signature out. The enemy is not machines, it is flat,
+hollow writing. When a person writes that way it reads just as badly, and Cadence
+flags it the same. It does not care who wrote the text, only how the text reads.
+
+[![The hosted score page grading a paragraph of AI marketing copy at grade D, with every tell named](docs/screenshots/score-page.png)](https://wuisabel-gif.github.io/Cadence/check.html)
+
+*The [hosted score page](https://wuisabel-gif.github.io/Cadence/check.html): paste anything, see the grade and every tell, all in your browser. On a phone, tap Share then Add to Home Screen — it installs as an app and runs offline.*
+
+## Built with Cadence
+
+Three of my other projects lean on Cadence for their writing quality:
+
+- **[linkedin-message-drafter](https://github.com/wuisabel-gif/linkedin-message-drafter)** drafts LinkedIn outreach from the command line. It handles the outreach plumbing (batch and CSV input, the hard 300-character connection-note limit) and hands voice-matching and de-slop back to Cadence.
+- **[readme-auto-update](https://github.com/wuisabel-gif/readme-auto-update)** builds and refreshes GitHub READMEs from what a repo actually does, then runs the prose through Cadence so it doesn't read robotic.
+- **[elegance](https://github.com/wuisabel-gif/elegance)** builds PHP + Bootstrap websites, and runs the site copy through Cadence so a small-business site reads like a person wrote it, not a machine.
+
+## What it's for
+
+Two things. It scores prose for how machine-made it reads, and it recasts prose so it
+reads like a person wrote it. The score is your baseline and your to-do list. The
+recast is the fix.
+
+**The one rule it never breaks:** Cadence works on the words, not the meaning or the
+layout. It changes how a sentence reads. It does not touch what the sentence claims, or
+how the document is built. A smoother line that quietly drops a fact is a failure, not
+a win.
+
+## How it works
+
+Three steps, and one rule holding them together.
+
+First, **diagnose.** The checker reads your text, scores it, and names each tell it
+found: the flat rhythm, a hedge stacked on a hedge, a point padded out well past where
+it landed. You see what reads as machine-made, and why.
+
+Second, **recast the words, not the meaning.** Rewrite the flagged lines yourself, or
+hand them to an AI writing in a voice you chose. What a sentence claims stays fixed;
+only how it reads changes.
+
+Third, **verify.** Score the rewrite. If the rhythm variance hasn't moved, nothing has.
+You swapped synonyms and stopped. The number has to be earned.
+
+The rule under all three: the checker is deterministic and it shows its work. A low
+score means the prose genuinely reads like a person wrote it, not that it slipped past
+a filter. That is the line Cadence stays on. It is here to make honest writing read
+like you, not to disguise what a machine wrote as something it isn't.
+
+## Why rhythm, not grammar
+
+Slop isn't a grammar problem. AI prose is often spotless and still obviously synthetic,
+because the tell is rhythmic. Real writing breathes — a long, winding clause that earns
+its commas, then a stop. Machine writing flatlines at one comfortable length, sentence
+after sentence after sentence.
+
+So the number Cadence watches hardest is **rhythm variance** (CV). Even, same-length
+sentences are the loudest fingerprint there is. If a rewrite doesn't move the variance,
+it didn't rewrite anything; it swapped synonyms and called it done.
+
+## Why bother
+
+Flat prose costs you the reader. People trust writing that sounds like a person meant
+it. The moment a page reads as generated, your argument inherits the doubt — even a
+good argument, even a true one.
+
+A clean score is not the goal, though. Clarity is. A spotless score on an empty point
+is still an empty point. Find the real thing you have to say, say it in a voice, and
+let the low score fall out as a side effect.
+
+## Commands
+
+You type these in Claude Code as `/cadence <command>`:
+
+| Command | What it does |
+|---|---|
+| `learn <sample>` | Reads a book/article/URL and extracts a reusable **voice profile** |
+| `write <brief>` | Drafts new prose in a chosen voice |
+| `recast <text>` | Rewrites existing text into a chosen voice, keeping the meaning |
+| `deslop <text>` | Scores text and reports every AI tell — diagnose, then optionally fix |
+| `voices` | Lists the voices you've learned plus the shipped seeds |
+
+New here? **[MANUAL.md](MANUAL.md)** is the full guide — install, the workflows, and
+every command and flag, in one place.
+
+## Examples
+
+Every score below comes straight from `skills/cadence/scripts/deslop.mjs`. Reproduce them
+with the commands shown.
+
+### `deslop` then `recast` — strip the AI tells
+
+Start with raw model marketing copy:
+
+> In today's world, finding the right productivity app can be a daunting task. Our
+> cutting-edge platform leverages powerful AI to seamlessly streamline your
+> workflow. Whether you're a busy professional or a student, our comprehensive
+> solution empowers you to do more. It's not just an app, it's a game-changer.
+> When it comes to getting things done, we've got you covered.
+
+```bash
+node skills/cadence/scripts/deslop.mjs before.txt
+```
+```
+Cadence de-slop  ·  score 61/100  ·  grade D
+  banned-phrase (4): "In today's world", "When it comes to", "game-changer", "Whether you're"
+  hollow-confidence (5): "seamlessly", "powerful", "comprehensive", "cutting-edge", "streamline"
+  negation-pivot (1): "It's not just an app, it's a game-changer."
+  cliche-opener (1): "When it comes to getting things done…"
+```
+
+`/cadence recast` into the **plain** voice, fixing each named tell:
+
+> Most productivity apps add work instead of removing it. This one starts with your
+> real day. It reads what's due and what's blocking you, then shows the single next
+> thing to do. Students use it. So do people running teams. You won't get a
+> dashboard to admire. You'll get fewer open tabs.
+
+```
+Cadence de-slop  ·  score 0/100  ·  grade A     (61 → 0)
+```
+
+### `write` — one idea, two voices
+
+Brief: *"reassure someone who feels they're falling behind their peers."* Same
+thought, two profiles. Notice the structure change, not just the wording.
+
+**`/cadence write --voice counsel`** (reframes the question; long-wind-then-snap rhythm):
+
+> You open the app and everyone is ahead of you. Engaged, promoted, somewhere
+> sunlit. Underneath is a quiet arithmetic: they have more, so I have less, so I
+> must be less.
+>
+> But notice what that smuggles in. It assumes one shared finish line, and that
+> the people posting are reporting rather than performing. Neither holds. Nobody
+> posts the afternoon they spent staring at the ceiling.
+>
+> Here is a question to set beside "am I falling behind?" — behind whom, and
+> toward what? Name the finish line and you usually can't. The race dissolves.
+
+`score 0/100 · grade A · rhythm CV 0.57`
+
+**`/cadence write --voice reckoning`** (scene first, hard truth, aphoristic close):
+
+> At your ten-year reunion someone will have the house, the title, the symmetrical
+> children, and you will do the math on the drive home. Here is what the math
+> leaves out. Every person in that room ran a different race on a different track,
+> and the clock you keep reading was never theirs to begin with. The comparison
+> isn't wrong. It is measuring nothing. You are not behind. There is no line to be
+> behind.
+
+`score 0/100 · grade A`
+
+### `learn` — add your own voice
+
+```
+/cadence learn https://example.com/an-essay-you-love
+/cadence learn ~/writing/my-best-newsletter.txt
+```
+
+Cadence reads the sample, measures its real rhythm with the detector, and writes a
+profile to `voices/<name>.md`. The shipped **counsel** voice was built this way.
+`voices/counsel.md` shows what a learned profile looks like.
+
+## Voices that ship with it
+
+- **counsel** — a philosopher answering a private worry; reframes your question
+  into a better one.
+- **reckoning** — scene first, then a hard truth.
+- **measured-academic** — careful first-person reasoning that concedes before it
+  concludes.
+- **plain** — say it once, in the fewest honest words.
+- **punchy** — high contrast; long build, short hit.
+- **seminar** — a professor demystifying a hard text; direct, wry, metaphor-driven.
+- **dispatch** — narrative science-journalism: open on a scene, then land the idea.
+- **column** — calm analytical essay: a fact, the reasoning, a usable principle.
+- **kin** — a parent's unsparing letter to a child; every truth anchored in the
+  body, landing on a short imperative.
+- **essence** — first-principles tech-blog writing: strip a domain to its
+  laws, reason up, and land on conviction.
+
+Add your own with `/cadence learn`. Profiles are plain markdown in `voices/`. Read
+them, edit them, share them.
+
+## The checker
+
+The checker is the front door. Try it in five seconds, no install:
+
+```bash
+npx cadence-deslop draft.txt          # any file: .txt .md .pdf .html .docx .epub
+npx cadence-deslop ./some-repo        # scan a whole folder/repo, ranked worst-first
+npx cadence-deslop page.html          # scores the visible text of a web page
+npx cadence-deslop https://a.blog/post  # fetch a live URL and score it
+pbpaste | npx cadence-deslop          # score whatever's on your clipboard
+npx cadence-deslop --json draft.txt   # machine-readable JSON
+npx cadence-deslop --strict draft.txt # exit 1 if score > 25 (CI gate)
+```
+
+Prefer a browser? The [hosted score page](check.html) runs the same checker on
+anything you paste, entirely on-device. On a phone it installs to your home screen
+and works offline, so it behaves like a small app.
+
+`deslop.mjs` is the engine. Pure Node, zero dependencies. It only reaches the
+network if you hand it a URL. Run it from a clone the same way:
+
+```bash
+node skills/cadence/scripts/deslop.mjs draft.txt
+cat draft.txt | node skills/cadence/scripts/deslop.mjs
+```
+
+It measures sentence-length variance (the strongest tell), a banned-phrase list,
+hollow-confidence words, triad density, negation pivots, hedge-stacking, adverb and
+em-dash rates. It returns a transparent 0–100 score plus a letter grade. Same
+text, same score, every time.
+
+## Why trust the score
+
+The score is deterministic. Same text, same number, every time, and it names every
+tell it found, so you can check its work by eye. That is the honesty: not a
+confidence percentage you have to take on faith, but a list of exactly what it
+flagged and where. It is not guessing who wrote your text. It measures how the
+writing reads.
+
+If you want authorship numbers anyway, they exist. On a fresh held-out set it left
+30 of 35 human passages clean but caught only 5 of 35 AI samples. Most AI prose that
+avoids the common tells scores grade A. That recall gap does not
+worry us, because catching every machine is not the job. Catching slop is, whoever
+wrote it. Run `npm run bench` for the full table, or read [benchmark/](benchmark/).
+CI fails if the numbers regress.
+
+## Train a humanizer (LoRA-Cadence)
+
+Once a detector exists, it can become a training signal, and that raises an honest
+question worth testing: can a small local model learn to humanize slop as well as a
+prompt on a frontier model already does? [lora/](lora/) puts it to the test. It
+fine-tunes a rank-16 QLoRA to rewrite AI slop into clean prose, then grades the
+result with the real `deslop.mjs`.
+
+**Why grade it this way.** Most self-improvement loops grade their own output,
+which proves nothing. Cadence's detector was written before and independently of
+this adapter, so it judges the work instead of reflecting it. The rig scores three
+arms on the same held-out text (the base model, the adapter, and the prompt-based
+`recast`) and reports the slop score next to rhythm CV and the per-tell breakdown.
+That pairing is the honesty check: a lower score that came from deleting flagged
+phrases, rather than learning to vary sentence length, shows up as flat rhythm
+variance instead of hiding.
+
+**Why it is worth doing.** A local adapter is private and cheap where an API call
+is neither, and the result answers something a prompt cannot: whether this skill is
+learnable, not just promptable. Training pairs are filtered to detector-verified
+grade-A targets, and a Kaggle notebook runs the whole flow on a free GPU. Whatever
+the numbers say, a partial or negative result included, that is the reportable
+outcome. The measurement half needs no GPU and reproduces anywhere Node runs.
+
+**Grounding in the literature.** The adapter is a QLoRA ([Dettmers et al., NeurIPS
+2023](https://arxiv.org/abs/2305.14314)) over low-rank adapters ([Hu et al.,
+2021](https://arxiv.org/abs/2106.09685)). The insistence on an independent grader
+and verified targets is not fussiness: training on recursively generated data can
+degrade a model into *model collapse*, shown by [Shumailov et al., Nature
+2024](https://www.nature.com/articles/s41586-024-07566-y). Filtering every synthetic
+target through a detector the model cannot influence is the disciplined way to train
+on generated data without inheriting that failure.
+
+## Install
+
+**The full plugin.** It writes in voices and learns new ones from samples. Cadence is
+a Claude Code plugin, and this repo is its own marketplace; plugins are free, with no
+store and no fee:
+
+```
+/plugin marketplace add wuisabel-gif/Cadence
+/plugin install cadence@cadence
+```
+
+Then `/cadence write …`, `/cadence deslop …`, `/cadence learn …`, etc. are available
+in a new session. New voices you create with `/cadence learn` are written to a
+`voices/` folder in whatever project you're working in. (Developing on Cadence? Point
+the marketplace at a local clone instead: `/plugin marketplace add ~/cadence`.)
+
+**Also in this marketplace: [README Auto Update](https://github.com/wuisabel-gif/readme-auto-update).**
+It builds evidence-based GitHub profile and project READMEs with free structural templates — no
+agent, no API key — and pairs with Cadence: generate the README's structure there, then humanize its
+prose here.
+
+```
+/plugin install readme-auto-update@cadence
+```
+
+`/cadence` not recognized? It runs only in **Claude Code** — not the claude.ai
+website or the desktop app's regular chat. [MANUAL.md](MANUAL.md#1-install--activate)
+covers that and the rest of the activation pitfalls.
+
+**In a regular Claude conversation (claude.ai or the desktop app).** That chat doesn't
+read the plugin marketplace — it takes an uploaded skill bundle instead. Build one and
+drag it in:
+
+```bash
+npm run build:claude-skill   # writes cadence-skill.zip (SKILL.md + scripts + voices)
+```
+
+Then **Settings → Skills → Add → Upload skill**, and drop in `cadence-skill.zip`. The
+voices and de-slop guidance work immediately; the live detector runs only where that
+conversation has code execution — otherwise score in a terminal with
+`npx cadence-deslop`.
+
+**Just the detector.** Score prose anywhere, no plugin needed:
+
+```bash
+npx cadence-deslop draft.txt     # run it without installing
+npm install -g cadence-deslop    # or install the `cadence-deslop` / `deslop` command
+```
+
+**In Codex.** Install once from this checkout:
+
+```bash
+npm run install:codex                         # user-wide: ~/.agents/skills/cadence
+npm run install:codex -- --project /path/to/repo  # or just one project
+```
+
+Start a new Codex session and ask: *“Use Cadence to recast README.md in the essence
+voice.”* The skill loads the shared rules and profile, scores the original, edits
+the prose, then reports the measured result. It bundles the detector, so scoring
+needs no npm download. No project instructions are overwritten. See the
+[Codex guide](integrations/codex/README.md) for npm installation.
+
+**Pick the host you already use.** Install for Kimi Code CLI or ZCode. Claude
+Code and OpenCode take the same skill. So does Grok Build:
+
+```bash
+npm run install:kimi       # Kimi Code CLI
+npm run install:zcode      # ZCode Agent
+npm run install:claude     # standalone Claude Code skill
+npm run install:opencode   # OpenCode
+npm run install:grok       # Grok Build CLI
+```
+
+These use one shared skill and the same detector. Keep the model already selected
+in your host; Cadence does not change provider settings or ask for API keys. Kimi
+K3 and GLM-5.3 need no model-specific rules. See the [agent guide](integrations/agents/README.md)
+for discovery paths, project scope, and safe upgrades. If the Claude Code plugin
+already works, a different model provider does not require a second install.
+
+**In Gemini CLI.** There's an installable extension at
+[`integrations/gemini/`](integrations/gemini/README.md) — symlink it into
+`~/.gemini/extensions/cadence` and the `GEMINI.md` context loads every session.
+
+**With Grok.** `npm run install:grok` installs the shared skill for Grok Build
+CLI at `~/.grok/skills/cadence`. grok.com cannot load that folder. For Grok Bot,
+pack files for `/workspace` with `npm run grok-bot:pack` and save a private skill
+in the app; see [Grok Bot](integrations/grok-bot/README.md). For an xAI API
+client, `npm run build:grok` still exports the local function-calling bridge.
+See the [Grok guide](integrations/grok/README.md).
+
+**In DeepSeek.** DeepSeek's Skills are markdown you toggle from the drawer. Paste in
+[`integrations/deepseek/cadence-skill.md`](integrations/deepseek/cadence-skill.md) and
+score drafts in a terminal with `npx cadence-deslop`.
+
+**In VS Code.** There's an extension at
+[`integrations/vscode/`](integrations/vscode/README.md) — a live grade in the status
+bar, the AI tells squiggled inline, and a score-on-demand report. Build it with
+`npm run build:vscode`, then press **F5** to try it or package a `.vsix` to install.
+
+**In your inbox and chats.** The Chrome extension at
+[`extension/`](extension/README.md) works in Gmail, WhatsApp Web, Telegram, LinkedIn,
+Instagram and Facebook: it scores your reply as you type — on-device — and, with your
+own Anthropic key, drafts one in your voice. It writes, scores the draft locally, then
+redrafts to clear any AI tells before dropping it in the box. A "Learn my voice"
+button reads what you've written on the page — your posts on Instagram, Facebook or
+LinkedIn, or your own sent messages on WhatsApp and Telegram — and distills your
+sentence-usage traits into that voice profile. Build it with
+`npm run build:extension`, then load the folder unpacked.
+
+![The in-page Cadence panel drafting a birthday message that draws on the pasted conversation, marked grade A](docs/screenshots/extension-panel.png)
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [MANUAL.md](MANUAL.md) | The full guide: install & activation, workflows, and every command, flag, and exit code |
+| [docs/embed.md](docs/embed.md) | Score on another website: browser copy of the detector, or a Node handler you host |
+| [tutorials/scan-a-repo.md](tutorials/scan-a-repo.md) | Tutorial: audit and de-slop an entire repo, then gate it in CI |
+| [extension/README.md](extension/README.md) | The Chrome extension — score prose anywhere, plus a live impression check and draft-in-your-voice in Gmail, WhatsApp Web, Telegram, LinkedIn and Instagram |
+| [integrations/vscode/README.md](integrations/vscode/README.md) | The VS Code extension — live grade, inline tells, and a score report |
+| [integrations/codex/README.md](integrations/codex/README.md) | Install the Codex skill once, choose a voice, and verify prose edits |
+| [integrations/agents/README.md](integrations/agents/README.md) | The shared skill and installer targets for Kimi, ZCode, Claude Code, OpenCode, and Grok Build |
+| [integrations/grok/README.md](integrations/grok/README.md) | Grok Build skill, Grok Bot pack, and local function-calling bridge |
+| [integrations/grok-bot/README.md](integrations/grok-bot/README.md) | Clone or pack Cadence onto a Grok Bot computer, then save a private skill |
+| [SCORING.md](SCORING.md) | Detector scoring formulas, thresholds, grade boundaries, and calibration guidance |
+| [SECURITY.md](SECURITY.md) | Vulnerability reporting, permissions, network boundaries, and privacy guidance |
+| [benchmark/README.md](benchmark/README.md) | The accuracy benchmark: labeled corpus, published precision and recall, and the CI gate |
+| [benchmark/EVALUATION.md](benchmark/EVALUATION.md) | Evaluation protocol for regression fixtures, provenance, leakage, and held-out data |
+| [lora/README.md](lora/README.md) | LoRA-Cadence: train a slop-humanizing QLoRA graded by the detector, plus the Kaggle notebook |
+| [lora/DATASET_FEASIBILITY.md](lora/DATASET_FEASIBILITY.md) | License, provenance, leakage, and evaluation gate for external LoRA datasets |
+| [PHILOSOPHY.md](PHILOSOPHY.md) | The thinking behind it — *The Age of Taste* |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How the project is built and how to add a rule, voice, or command |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [docs/RELEASING.md](docs/RELEASING.md) | Version checks, package smoke tests, and the release checklist |
+| [LICENSE](LICENSE) | MIT |
+
+The main prose docs are scored on every push by `npm run check:docs`.
+
+## Layout
+
+```
+cadence/
+├── .claude-plugin/
+│   ├── plugin.json              # plugin manifest
+│   └── marketplace.json         # marketplace catalog (this repo lists itself)
+├── skills/
+│   └── cadence/
+│       ├── SKILL.md             # router, shared writing laws, setup (Claude Code)
+│       ├── AGENTS.md            # shared writing rules for installable agent skills
+│       ├── reference/           # one file per command + the voice schema
+│       └── scripts/
+│           ├── deslop.mjs       # the detector (real code, tested)
+│           └── extract-text.mjs # pure-Node prose extraction from .pdf/.txt/.md
+├── voices/                      # shipped voice profiles (seed set)
+├── check.html                   # hosted score page, installable as an offline app
+├── manifest.webmanifest         # PWA manifest + sw.js + assets/icons for the app
+├── benchmark/                   # accuracy benchmark: corpus + bench.mjs + CI gate
+├── lora/                        # LoRA-Cadence: eval rig + Kaggle training notebook
+├── docs/screenshots/            # example shots used in this README
+├── extension/                   # the Chrome extension (generated detector)
+├── integrations/                # installable agent skills and editor integrations
+│   └── vscode/                  # the VS Code extension (generated detector)
+└── tests/                       # `npm test`
+    ├── deslop.test.mjs
+    └── extract-text.test.mjs
+```
+
+## Test
+
+```bash
+npm test          # detector, extractors, integrations, and UI error handling
+npm run check:docs  # dogfood: the repo's own docs must score grade A
+npm run bench       # accuracy benchmark: precision, recall, and the tell breakdown
+npm run release:check  # tests + docs + benchmark + packaged agent installs
+```
+
+## Status
+
+v0.7.0 is released. Scores change from 0.6.0: a vocabulary-variety signal
+catches more AI text with no new false alarms on held-out human text. The
+desktop app can score the clipboard from any app. Notes are in
+[docs/releases/v0.7.0.md](docs/releases/v0.7.0.md). GPU
+training remains an experiment, not a verified release feature.

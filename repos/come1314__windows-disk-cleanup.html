@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>come1314/windows-disk-cleanup · OpenCode Plugins</title>
+<meta name="description" content="Windows C drive cleanup skill for AI agents: whitelist-driven, per-item confirmation, a .vhdx-aware denylist, and a post-cleanup reconciliation step. 删之前必须你点头。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="windows-disk-cleanup, come1314, come1314/windows-disk-cleanup, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/come1314__windows-disk-cleanup">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="come1314/windows-disk-cleanup · OpenCode Plugins">
+<meta property="og:description" content="Windows C drive cleanup skill for AI agents: whitelist-driven, per-item confirmation, a .vhdx-aware denylist, and a post-cleanup reconciliation step. 删之前必须你点头。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/come1314__windows-disk-cleanup">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "come1314/windows-disk-cleanup", "codeRepository": "https://github.com/come1314/windows-disk-cleanup", "url": "https://opencode-plugins.zhuikan.com/repos/come1314__windows-disk-cleanup", "description": "Windows C drive cleanup skill for AI agents: whitelist-driven, per-item confirmation, a .vhdx-aware denylist, and a post-cleanup reconciliation step. 删之前必须你点头。", "author": {"@type": "Organization", "name": "come1314", "url": "https://github.com/come1314"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools"}</script>
+</head>
+<body data-repo="come1314/windows-disk-cleanup" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">come1314/windows-disk-cleanup</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="come1314__windows-disk-cleanup"><img class="rp-side-av" src="https://github.com/come1314.png?s=300" width="300" height="300" alt="come1314 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">windows-disk-cleanup</div>
+      <a class="rp-side-owner" href="https://github.com/come1314">come1314</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/come1314">come1314</a>
+        <span class="rp-sep">/</span><span class="rp-name">windows-disk-cleanup</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Windows C drive cleanup skill for AI agents: whitelist-driven, per-item confirmation, a .vhdx-aware denylist, and a post-cleanup reconciliation step. 删之前必须你点头。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/come1314/windows-disk-cleanup">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">windows-disk-cleanup
+
+ 一个给 Windows 清理磁盘空间的 WorkBuddy / AI Agent skill，核心特征是删之前必须你点头，且只能删登记过的东西。
+
+ A whitelist-driven, confirmation-first disk cleanup skill for Windows. It refuses to delete anything outside a curated catalog, and every deletion needs per-item human approval.
+
+
+
+
+---
+
+ English quick start
+
+Requires Windows 10/11 and PowerShell 5.1+ (already installed on every modern Windows).
+No admin needed. The script is pure ASCII and works on non-English systems.
+
+powershell
+ 1. safety self-check - must print SELFTEST OK
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode selftest
+
+ 2. read-only scan (writes disk-scan.json, deletes nothing)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode scan
+
+ 3. report - add -Lang en for English, -OutFile to save it
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode report -Lang en
+
+ 4. dry run with the numbers you picked from the report (nothing is deleted)
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode clean -Keys 25,48
+
+ 5. only after you approve the dry-run output
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode clean -Keys 25,48 -Confirm
+
+ 6. reconcile: deleted vs actually freed
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cleanup.ps1 -Mode verify
+
+
+What it will never do: touch Documents/Desktop/Downloads/Pictures/Videos, system folders,
+.vhdx/.vmdk disk images (including ones hidden inside a cache folder), or delete anything
+without an explicit -Confirm. The docs below are in Chinese; the tool itself is not.
+
+---
+
+ 为什么会有这个东西
+
+起因是一次真实的翻车：帮用户清 C 盘，删掉了 43.7 GB 缓存，可用空间却只多了 22.2 GB。
+
+排查后发现真凶不在系统里，而在删除动作本身——AI 编程助手为了&quot;可撤销&quot;，会在删除前把文件
+复制一份到 sessions\\modify_backup\。那次留下了 24,152 个文件、23.19 GB，
+刚好等于消失的那部分空间。
+
+市面上讲&quot;怎么清 C 盘&quot;的内容很多，但几乎没人讲清完之后怎么对账，也没人把
+&quot;哪些绝对不能删&quot;写成代码。这个项目想同时解决这两件事：
+
+1. 不让 AI 凭感觉判断&quot;这个目录是不是缓存&quot;
+2. 清完之后能说清楚&quot;为什么释放的数字对不上&quot;
+
+ 安全设计
+
+五层，任意一层独立生效：
+
+| 层 | 机制 | 作用 |
+|---|---|---|
+| 1 | 白名单 | clean 模式只认目录清单里的条目。计划文件只提供&quot;编号 → key&quot;的映射，路径一律从运行时重新计算的目录表取——伪造或过期的计划文件也选不到清单外的东西 |
+| 2 | 黑名单 | Test-DeniedPath() 在代码里硬拦 WinSxS、System32、Installer、Program Files、用户文档、pagefile、.vhdx 等，无论谁来要求都拒绝 |
+| 3 | 子树校验 | Get-DeniedDescendant() 把黑名单套用到目标的每一层子项。白名单目录里如果藏着 .vhdx（Docker 的 AppData\Local\Docker\wsl 就是典型），整项拒绝，不会递归删下去；真删除时再用 Test-DeletableChild() 逐文件过一遍，两道都拦不住才轮到 unlink |
+| 4 | 试运行 | 不加 -Confirm 只打印将要删除的路径和体积，一个字节都不动 |
+| 5 | 审计 | 每次操作追加写入 cleanup-audit.jsonl |
+
+第 3 层是补上的一刀：黑名单原本只检查「要删的那个目录」，可递归删除会一路删进子目录，
+子目录里的 .vhdx 根本不会再被问一次。Docker 的 WSL 存储目录看起来完全像个缓存目录，
+却装着 docker_data.vhdx 和 ext4.vhdx——删了就是删掉所有镜像和容器。现在它被降级为
+「特殊操作」，脚本直接拒绝，清理 Docker 空间请用 docker system prune -a。
+
+另外 -Mode selftest 会跑 83 项断言，验证黑名单确实拒绝坏路径、白名单确实放行好路径、过宽的规则不会误伤深层缓存目录、
+所有目录条目都在安全根目录内、嵌套的 .vhdx 会被子树校验拦下、编号与 key 都能解析到同一项，
+以及真实的删除路径（在 %TEMP% 的临时树上跑，确认缓存被删、vhdx 保留、junction 不穿透）。
+改完代码先跑自检，再跑真机。
+
+ 安装
+
+ 作为 WorkBuddy skill
+
+bash
+ 用户级（所有项目可用）
+git clone https://github.com/come1314/windows-disk-cleanup.git ~/.workbu</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/come1314__windows-disk-cleanup.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

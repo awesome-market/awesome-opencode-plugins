@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>calm-d/oc-tps-hud · OpenCode Plugins</title>
+<meta name="description" content="透明浮层显示 OpenCode 桌面版输出速度（tok/s），只读本地数据库">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="oc-tps-hud, calm-d, calm-d/oc-tps-hud, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/calm-d__oc-tps-hud">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="calm-d/oc-tps-hud · OpenCode Plugins">
+<meta property="og:description" content="透明浮层显示 OpenCode 桌面版输出速度（tok/s），只读本地数据库">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/calm-d__oc-tps-hud">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "calm-d/oc-tps-hud", "codeRepository": "https://github.com/Calm-D/oc-tps-hud", "url": "https://opencode-plugins.zhuikan.com/repos/calm-d__oc-tps-hud", "description": "透明浮层显示 OpenCode 桌面版输出速度（tok/s），只读本地数据库", "author": {"@type": "Organization", "name": "calm-d", "url": "https://github.com/Calm-D"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-04", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models"}</script>
+</head>
+<body data-repo="calm-d/oc-tps-hud" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">calm-d/oc-tps-hud</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="calm-d__oc-tps-hud"><img class="rp-side-av" src="https://github.com/Calm-D.png?s=300" width="300" height="300" alt="calm-d avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">oc-tps-hud</div>
+      <a class="rp-side-owner" href="https://github.com/Calm-D">calm-d</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Calm-D">calm-d</a>
+        <span class="rp-sep">/</span><span class="rp-name">oc-tps-hud</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">透明浮层显示 OpenCode 桌面版输出速度（tok/s），只读本地数据库</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-04</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Calm-D/oc-tps-hud">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">7</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">oc-tps-hud
+
+在 OpenCode 桌面版窗口角落显示实时输出速度（tokens/s）的小浮层。背景透明、只有文字，贴在客户端右下角，跟着窗口走。
+
+!screenshot
+
+两种布局，配置项 layout 切换：
+
+| bar（默认，一行细长条） | block（四行方块） |
+|---|---|
+| !bar | !block |
+
+ 非官方项目。 与 OpenCode 的作者无关，不使用其商标作为产品名。
+
+ 它是什么
+
+- 一个独立小程序，不是 OpenCode 插件，不改它的代码、不注入它的进程。
+- 只读它自己的本地 SQLite（opencode.db），不写库、不联网、无遥测。
+- 数据来源是 OpenCode 自己记录的 token 数与时间戳，不是估算 token；只有流式过程中的瞬时值才是估算。
+
+ 当前支持范围
+
+| 项 | 状态 |
+|---|---|
+| 操作系统 | 仅 Windows（窗口跟随、色键透明、取色都依赖 Win32） |
+| 客户端 | OpenCode 桌面版（靠窗口定位，CLI 不适用） |
+| 数据库结构 | 需要 session / message / part 三张表（见 docs/DATA-MODEL.md） |
+| 已验证版本 | OpenCode 桌面版 1.19.0（2026-10） |
+| Python | 3.9+，且带 tkinter（python.org 官方安装包自带；Microsoft Store 版没有） |
+
+结构不匹配时不会静默显示 0，而是直接提示“数据库结构不支持”，并在 error.log 记下缺了哪张表。
+
+ 怎么算的
+
+OpenCode 把一次模型调用拆成若干 part：
+
+
+message(assistant) = 一步
+  ├─ step-start        起点时间
+  ├─ reasoning / text  流式文本
+  └─ step-finish       tokens.output + tokens.reasoning + 结束时间
+
+
+- 精确值（一步结束后）：(output + reasoning) / (finish - start)，含首字延迟，不含工具执行时间。
+- 实时值（生成过程中）：Δ加权字符 × 校准系数 / Δt。
+  - 加权字符：CJK 记 1，其它记 0.25；
+  - 4 秒滑窗 + 指数平滑（0.55/0.45），静默时按 0.75 衰减；
+  - 校准系数按模型在线学习（calibration.json），两三个步骤后即贴近真实值。
+- 第二行显示的“近 8 步中位”：单步速度的中位数，比加权平均更抗“某一步卡在工具上”的拖累。
+
+只统计输出侧，不含输入 token，也不等于花费。
+
+ 安装与运行
+
+需要带 tkinter 的 Python。
+
+bash
+git clone 
+cd oc-tps-hud
+python oc-tps-hud.pyw           无控制台窗口
+ 或
+python -m venv .venv &amp;&amp; .venv/Scripts/pip install -e .
+oc-tps-hud
+
+
+数据库默认自动探测，顺序为：
+
+1. --db 参数
+2. 环境变量 OPENCODE_DB
+3. $XDG_DATA_HOME/opencode/opencode.db
+4. ~/.local/share/opencode/opencode.db
+5. Windows 额外尝试 %LOCALAPPDATA%\opencode\opencode.db
+6. macOS 额外尝试 ~/Library/Application Support/opencode/opencode.db
+
+ 窗口层级
+
+默认把浮层登记为 OpenCode 窗口的附属窗口（owned window），行为是：
+
+- 永远压在 OpenCode 之上（客户端在动，它就跟着浮在上面）；
+- 你切到浏览器、游戏、别的程序时，它跟着 OpenCode 一起退到后面，不会盖住别人；
+- OpenCode 最小化时它一起隐藏，还原时再出现。
+
+位置默认贴在输入框上方那条空隙里（距窗口底边 12 + bottom_offset 像素），不会压住发送按钮等控件。
+条形自带一层与背景同色的底板（颜色实时取自窗口底下的像素），所以即使正文滚到它下面，
+也不会出现两层文字糊在一起的情况。
+觉得高了或低了：右键菜单「整体上移 / 下移 20px」，调完自动记住。
+
+如果确实希望它在任何程序之上，右键勾选「始终置顶（会盖住其他程序）」，等价于配置 topmost: true。
+
+ 退出与重启
+
+- 退出：右键点在文字上 → 退出。进程结束，OpenCode 不受任何影响。
+- 重启：退出后再双击入口（桌面图标或 oc-tps-hud.pyw）。
+- 取消开机自启：删掉启动文件夹里的 OpenCode-TPS.pyw；不影响程序本体。
+
+ 配置
+
+首次运行会在下列位置创建配置目录，可手改 config.json（改完重启生效）：
+
+- Windows：%APPDATA%\oc-tps-hud\
+- 其它：$XDG_CONFIG_HOME/oc-tps-hud/ 或 ~/.config/oc-tps-hud/
+
+| 键 | 默认 | 说明 |
+|---|---|---|
+| layout | &quot;bar&quot; | bar 一行细长条（居中）/ block 四行方块 |
+| follow | &quot;br&quot; | br 右下 / bl 左下 / custom 自定义位置（仍跟随）/ free 不跟随 |
+| theme | &quot;auto&quot; | auto 按窗口底下亮度切换 / light / dark |
+| alpha | 0.95 | 0.5 ~ 1.0 |
+| topmost | false | true = 盖住所有程序；false = 只压在客户端之上 |
+| language | &quot;auto&quot; | auto / zh / en |
+| db_path | &quot;&quot; | 空 = 自动探测 |
+| poll_ms | 400 | 刷新间隔 |
+| window | {width:268,height:128,bar_width:640,bar_height:26,margin:12,bottom_offset:112} | 两种布局各自的尺寸，以及距底边的抬升量（避开输入框） |
+| fonts | {ui:&quot;&quot;,number:&quot;&quot;} | 空 = 按平台选择（Win 雅黑 / mac PingFang / Linux Noto） |
+| client_min_size | [480,360] | 小于此尺寸的窗口不认作客户端主窗口 |
+| debug | false | 预留 |
+
+右键菜单可切换停靠方式、配色、置顶、不透明度，选择会写回配置。
+
+ 命令行
+
+bash
+python -m oc_tps --dump         不显示界面，把状态打到终端（排查用）
+python -m </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/calm-d__oc-tps-hud.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

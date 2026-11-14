@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aduoer/magpie-github-proxy · OpenCode Plugins</title>
+<meta name="description" content="让 magpie 里的 GitHub 资源——应用更新、插件、MCP、Skill——走你配置的代理或镜像前缀（页面插件，带自检与一键重启）">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-github-proxy, aduoer, aduoer/magpie-github-proxy, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/aduoer__magpie-github-proxy">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="aduoer/magpie-github-proxy · OpenCode Plugins">
+<meta property="og:description" content="让 magpie 里的 GitHub 资源——应用更新、插件、MCP、Skill——走你配置的代理或镜像前缀（页面插件，带自检与一键重启）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/aduoer__magpie-github-proxy">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "aduoer/magpie-github-proxy", "codeRepository": "https://github.com/aduoer/magpie-github-proxy", "url": "https://opencode-plugins.zhuikan.com/repos/aduoer__magpie-github-proxy", "description": "让 magpie 里的 GitHub 资源——应用更新、插件、MCP、Skill——走你配置的代理或镜像前缀（页面插件，带自检与一键重启）", "author": {"@type": "Organization", "name": "aduoer", "url": "https://github.com/aduoer"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools,server"}</script>
+</head>
+<body data-repo="aduoer/magpie-github-proxy" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">aduoer/magpie-github-proxy</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="aduoer__magpie-github-proxy"><img class="rp-side-av" src="https://github.com/aduoer.png?s=300" width="300" height="300" alt="aduoer avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-github-proxy</div>
+      <a class="rp-side-owner" href="https://github.com/aduoer">aduoer</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/aduoer">aduoer</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-github-proxy</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">让 magpie 里的 GitHub 资源——应用更新、插件、MCP、Skill——走你配置的代理或镜像前缀（页面插件，带自检与一键重启）</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/aduoer/magpie-github-proxy">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">GitHub 代理（magpie 页面插件）
+
+给 magpie 装一个页面，在里面把 GitHub 的下载全部接上你自己的代理或镜像前缀。装好以后：magpie 侧边栏 →「插件」→ GitHub 代理，也可以直接开 。
+
+bash
+magpie plugin add github:aduoer/magpie-github-proxy
+ 或者从本地文件夹（改代码时用这个）：
+magpie plugin add ./magpie-github-proxy
+
+
+卸载：magpie plugin rm github:aduoer/magpie-github-proxy。
+
+!在 magpie 的沙箱与 CSP 下渲染
+
+ 它改的是什么
+
+magpie 自己有一套代理机制（internal/netproxy）：它把 http.DefaultTransport 的 Proxy 换成自己的函数，
+顺序是 设置里的 proxy → 环境变量（HTTPS_PROXY / ALL_PROXY）→ 系统代理。
+所以只要把 settings.json 的 proxy 写对，magpie 自己发出的所有 HTTP 请求就都在代理下，
+包括检查更新、下载更新包、插件市场、插件安装（npm 与 github: 两种源）、Skill、MCP，
+以及 magpie 拉起的 bun / node / npx 子进程（它会注入 HTTPS_PROXY、NODE_USE_ENV_PROXY=1）。
+
+settings.Load() 是按文件内容记忆化的，文件一变就重读 —— 写 settings.json 立即生效，不用重启 magpie。
+
+这个插件就是给这套机制配一个界面，另外补两个它盖不到的地方（见下）。
+
+ 三条通道
+
+| 通道 | 写到哪 | 管什么 | 什么时候生效 |
+| --- | --- | --- | --- |
+| ① 代理 | settings.json 的 proxy（顺带 proxyCustom，与 magpie 设置页自己的写法一致） | magpie 自己的全部 HTTP：更新、市场、插件、Skill、MCP、子进程 | 立即 |
+| ② 镜像 | settings.json 的 updateMirror；可选写用户环境变量 MAGPIE_MIRRORS=on、MAGPIE_GITHUB_MIRROR= | 两条路：updateMirror 管应用更新与更新包；MAGPIE_ 管插件市场、插件安装、Skill、MCP 的 GitHub 地址（internal/source 的 URLs） | updateMirror 立即；两个变量要重启 magpie —— 界面上的「应用并重启 magpie」会一次做完 |
+| ③ git | git config --global http.https:///.proxy（只给 GitHub 的 6 个域名） | magpie 装 git 型 Skill 时直接调 git，而 internal/library/skillgit.go 的 gitEnv() 只加了 GIT_TERMINAL_PROMPT / LC_ALL / LANGUAGE，不注入代理环境 —— 这是 magpie 自己漏掉的一条路 | 立即 |
+
+②的镜像前缀是直接拼在 GitHub 原地址前面（prefix + raw，见 internal/update/mirror.go），
+所以前缀必须以 / 结尾；插件会自动补。
+
+ 镜像只是「回退」，不是「优先」
+
+internal/source/source.go 的 URLs()（127–147 行）是官方地址在前、镜像追加在后，Do() 只在官方失败
+（429 / 5xx / 403 且 rate-limit 为 0 / 连不上）时才按顺序试镜像。除了「国内镜像」开关管的 npm、bun、
+jsDelivr、hf-mirror 会被前置，GitHub 的四个域名没有「镜像优先」的开关。想做到「一次都不碰官方」只有两条路：
+改那 20 行源码自己编译一份 magpie，或者在 settings.proxy 上挂一个本地改写代理（MITM，要往系统里装自签 CA）。
+
+ 不用打开页面，它也会把自己修对
+
+lib/hook.mjs：宿主每次被 magpie 拉起，延迟 8 秒检查「用户环境里有 MAGPIE_MIRRORS=on、当前这个 magpie 进程读到了吗」，
+没读到就替用户重启一次（变量直接放进新进程，不依赖启动器传环境），30 分钟冷却，不会来回重启；已经生效就什么也不做。
+关掉它：magpie plugin options  &#x27;{&quot;autoApply&quot;:false}&#x27;。
+
+ 为什么插件要分「页面 + 本地服务」两层
+
+magpie 的插件页面跑在 sandbox=&quot;allow-scripts&quot; 的框架里，CSP 是
+connect-src &#x27;none&#x27;; frame-src &#x27;none&#x27;，也不能用存储 —— 页面自己发不出任何请求，也改不了 magpie 的配置。
+唯一被允许的联网动作是把自身导航到别的地址（官方文档原话）。所以：
+
+- page/index.html + page/boot.js：magpie 里看到的那一页，只做一件事 —— 把框架导航到本地服务；
+- index.mjs：作为 OpenCode v1 插件被 magpie 的 Bun 宿主加载，加载时在 127.0.0.1:3478 起服务；
+- ui/：真正的界面，跑在自己的 origin 上，没有那些 CSP 限制；
+- lib/：读配置、写配置、探测、git、注册表环境变量。
+
+ 用法
+
+1. 侧边栏打开「GitHub 代理」。最上面那张「现在生效」就是 magpie 此刻真正在用的配置：每条通道的设置值、现在走不走、什么时候生效，每 8 秒自己重读一次。
+2. 第 1 节填代理地址（127.0.0.1:7897、http://…、socks5://127.0.0.1:1080 都行，裸 host:port 按 http 处理），点应用。
+3. 第 3 节点「用代理写进 git」，让 git 型 Skill 也走代理。
+4. 第 4 节点「全部自检」：每个 GitHub 地址分别从「直连」和「经代理」探一次。直连红、经代理绿，就说明代理真的在起作用。
+   下面「测一遍前缀」是同一批地址拼上前缀再取一次响应头。
+   前缀那一列没有 objects.githubusercontent.com（release 资产域）：它只给带签名的临时地址（?X-Amz-Signature=…），根路径什么都没有，探了也只能看到 404；而且走前缀下载更新包时是前缀自己去取资产再流回来，根本不经过这个域名。它只影响「代理能不能连上」，所以在「全部自检」里看，那里 403/404 也算通，5xx 与超时才算不通。
+   下面的「测一遍前缀」是同一批地址拼上现在的前缀再取一次响应头，看镜像站这条路通不通。
+
+代理和镜像可以同时设，也可以只设一个，它们是两条独立的路：
+
+</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/aduoer__magpie-github-proxy.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

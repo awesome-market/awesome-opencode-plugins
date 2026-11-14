@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zdwl001/h3-prompt-director · OpenCode Plugins</title>
+<meta name="description" content="Story-to-MiniMax-H3 video prompt director skill: shot planning, segment packing, consistency assets, six-section Ref2VA prompts, and QA.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="h3-prompt-director, zdwl001, zdwl001/h3-prompt-director, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/zdwl001__h3-prompt-director">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="zdwl001/h3-prompt-director · OpenCode Plugins">
+<meta property="og:description" content="Story-to-MiniMax-H3 video prompt director skill: shot planning, segment packing, consistency assets, six-section Ref2VA prompts, and QA.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/zdwl001__h3-prompt-director">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "zdwl001/h3-prompt-director", "codeRepository": "https://github.com/zdwl001/h3-prompt-director", "url": "https://opencode-plugins.zhuikan.com/repos/zdwl001__h3-prompt-director", "description": "Story-to-MiniMax-H3 video prompt director skill: shot planning, segment packing, consistency assets, six-section Ref2VA prompts, and QA.", "author": {"@type": "Organization", "name": "zdwl001", "url": "https://github.com/zdwl001"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-03", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="zdwl001/h3-prompt-director" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">zdwl001/h3-prompt-director</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="zdwl001__h3-prompt-director"><img class="rp-side-av" src="https://github.com/zdwl001.png?s=300" width="300" height="300" alt="zdwl001 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">h3-prompt-director</div>
+      <a class="rp-side-owner" href="https://github.com/zdwl001">zdwl001</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/zdwl001">zdwl001</a>
+        <span class="rp-sep">/</span><span class="rp-name">h3-prompt-director</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Story-to-MiniMax-H3 video prompt director skill: shot planning, segment packing, consistency assets, six-section Ref2VA prompts, and QA.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-03</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/zdwl001/h3-prompt-director">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">H3 Prompt Director
+
+简体中文 | English
+
+把一篇故事、小说、剧本或人物设定，变成一份可直接投喂 MiniMax H3 Ref2VA（R2V）的分镜与提示词交付文件。
+
+它不只是一段提示词，而是从故事到成片的完整工作流：拆镜头、算时长、装箱分段、出资产表、写六段提示词、过质检。默认面向 ComfyUI 本地 Ref2VA 工作流 + MiniMaxH3AddGuide 跨段接续。
+
+ 这是围绕 MiniMax H3 的独立工作流层，不是官方项目，也不隶属于 MiniMax。
+
+ 它解决什么
+
+官方 h3-prompt-writing 解决“怎么写一条 H3 提示词”：字段、标签、语法、参考关系。
+
+本 skill 解决官方不管的那一层：
+
+- 一篇几千字的故事，怎么拆成可拍的镜头；
+- 每个镜头多长，怎么装进 3.75–14.38 秒的生成段；
+- 跨段的 22 帧怎么接，尾音频怎么锚定；
+- 角色、场景、道具、音色怎么变成可复用的资产；
+- 每段的六段提示词怎么和连接清单一一对应；
+- 写完之后，按哪张清单质检、出问题怎么排障。
+
+ 核心能力
+
+| 能力 | 说明 |
+|---|---|
+| 六阶段流程 | 故事解析 → 分镜与时长预算 → 分段装箱 → 一致性资产 → 提示词成文 → 质检与交付 |
+| 双通道 | R2V 参考输入（ /  /  / ）与 AddGuide 引导通道分离，引导片段不占标签 |
+| 接段模式 B | 上一段末 22 帧 → 本段 AddGuide image（frame_idx=0）+ 同源尾音频；成片拼接裁前 22 帧 |
+| 时长网格 | 24 FPS 下 17k+5 帧，3.75–14.38 秒；时间戳与总览表严格一致 |
+| 装箱三原子性 | 镜头不跨段、连续对白不跨段、每段参考 ≤9 图 / 3 视频 / 3 音频 |
+| 资产规范 | 角色多视图、12 格场景图、道具多形态图、音色参考音频 |
+| 质检与排障 | 完整检查清单 + 故障速查表 + 级联重生成规则 |
+
+ 快速开始
+
+ 1. 安装 skill
+
+Cherry Studio
+
+把整个目录复制到：
+
+
+/Skills/h3-prompt-director/
+
+
+Cherry 会自动同步技能目录。
+
+Claude Code / 其他 agent
+
+放到用户级或项目级 skills 目录：
+
+bash
+ 用户级
+cp -r h3-prompt-director ~/.claude/skills/
+
+ 或项目级
+cp -r h3-prompt-director .claude/skills/
+
+
+任何能读取 SKILL.md 与本地文件的 agent 都可以使用。
+
+ 2. 拉取官方语法文档
+
+官方三文档不随本仓库分发（原因见 references/official/README.md）。在仓库根目录运行：
+
+bash
+bash scripts/fetch-official.sh
+
+
+Windows：
+
+powershell
+powershell -ExecutionPolicy Bypass -File scripts/fetch-official.ps1
+
+
+脚本会要求确认接受 MiniMax H3 Community License，然后把 official-skill.md、base-en.txt、ref-en.txt 下载到 references/official/。这些文件已被 .gitignore 忽略。
+
+ 3. 给故事
+
+
+把下面这个故事做成 H3 视频提示词，按 h3-prompt-director 的流程走：
+
+清晨的湖边，老渔夫阿禾收起最后一张渔网。网里只有一片枯叶。
+他怔了一下，把枯叶放回水里，低声说：“又是空网。”然后摇橹离开。
+
+
+skill 会产出一个 Markdown 文件，包含：
+
+1. 改编说明、全局参数、决策记录
+2. 解析与分镜计划表（人物 / 场景 / 镜头 / 形态变化 / 台词核算）
+3. 总览表（段号、镜头构成、网格时长、参考槽位、引导来源）
+4. 资产表（含每张图的生图提示词或用户提供标记）
+5. 逐段区块（参数、连接清单、说话人映射、六段提示词、拼接说明）
+6. 跨段终检结论
+
+完整示例见 examples/。
+
+ 输出示例
+
+每段提示词固定六节：
+
+text
+subject_definitions:
+...
+
+summary:
+[reference generation] ...
+
+retention_analysis:
+ (appears in [Shot 1], [Shot 2]): fully_preserved - ...
+
+detailed_description:
+[Shot 1] ...
+[Shot 2] At 00:03.500, ...
+
+overall_soundscape:
+...
+
+non_diegetic_music:
+...
+
+
+ 目录结构
+
+
+h3-prompt-director/
+├── SKILL.md                      触发描述 + 六阶段 + 不变量 + 文件路由
+├── references/
+│   ├── 00-workflow.md            流程、装箱、交付结构、完整质检清单
+│   ├── 01-grammar.md             Ref2VA 语法底线、时长网格、节点参数
+│   ├── 02-assets.md … 09-transition.md
+│   ├── 10-troubleshooting.md
+│   └── official/                 官方三文档（安装时拉取，不随仓库分发）
+├── assets/delivery-template.md   交付文件骨架
+├── scripts/                      官方文档拉取脚本（bash / PowerShell）
+└── examples/                     完整交付示例
+
+
+ 兼容性
+
+- 不依赖 MiniMax Hub、外部 API 或在线知识库；
+- 只需本地文件读写工具；
+- 可在 Cherry Studio、Claude Code、Claude Agent SDK、Cursor、Windsurf 或任何读取 SKILL.md 的 harness 中运行；
+- 生成执行端为 ComfyUI 本地 Ref2VA + MiniMaxH3AddGuide；skill 只负责产出提示词文本。
+
+ 官方文档与许可
+
+- 官方仓库：https://github.com/MiniMax-AI/MiniMax-H3
+- 官方文档适用 MiniMax H3 Community License Agreement：https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE
+- 该协议授权范围限于 Applicable Territ</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/zdwl001__h3-prompt-director.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

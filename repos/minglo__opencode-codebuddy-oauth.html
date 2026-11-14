@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>minglo/opencode-codebuddy-oauth · OpenCode Plugins</title>
+<meta name="description" content="OpenCode plugin for CodeBuddy (IOA) authentication">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-codebuddy-oauth, minglo, minglo/opencode-codebuddy-oauth, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, security, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/minglo__opencode-codebuddy-oauth">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="minglo/opencode-codebuddy-oauth · OpenCode Plugins">
+<meta property="og:description" content="OpenCode plugin for CodeBuddy (IOA) authentication">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/minglo__opencode-codebuddy-oauth">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "minglo/opencode-codebuddy-oauth", "codeRepository": "https://github.com/minglo/opencode-codebuddy-oauth", "url": "https://opencode-plugins.zhuikan.com/repos/minglo__opencode-codebuddy-oauth", "description": "OpenCode plugin for CodeBuddy (IOA) authentication", "author": {"@type": "Organization", "name": "minglo", "url": "https://github.com/minglo"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-22", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,security,server"}</script>
+</head>
+<body data-repo="minglo/opencode-codebuddy-oauth" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">minglo/opencode-codebuddy-oauth</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="minglo__opencode-codebuddy-oauth"><img class="rp-side-av" src="https://github.com/minglo.png?s=300" width="300" height="300" alt="minglo avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-codebuddy-oauth</div>
+      <a class="rp-side-owner" href="https://github.com/minglo">minglo</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/minglo">minglo</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-codebuddy-oauth</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode plugin for CodeBuddy (IOA) authentication</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>5</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-08-22</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/minglo/opencode-codebuddy-oauth">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">5</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-codebuddy-oauth
+
+ 致谢：本插件基于 HunkYuan/opencode-codebuddy-plugin 的灵感修改而来，感谢原作者的设计思路与贡献。
+
+为 CodeBuddy（即 IOA，腾讯编程助手）提供 OpenCode 插件，将 CodeBuddy 作为已认证 provider 接入 OpenCode。
+
+支持 两种鉴权模式：
+
+- OAuth — 走 IOA /v2/plugin/auth/state → 浏览器 → 轮询拿 token 流程。
+- API Key — 直接粘贴在 CodeBuddy 官网生成的 ck_xxx Key，模型通过 opencode.json 配置。
+
+---
+
+ 安装
+
+本插件开箱即用 — 自动创建 codebuddy provider、提供 OAuth 登录入口、自动发现模型。支持以下安装方式：
+
+ 版本要求：3.x 仅支持 OpenCode V2（插件 API @opencode/plugin，对应 opencode 2.0.4+）。
+ OpenCode V1 用户请使用 2.2.0（V1 线最终版本，npm install opencode-codebuddy-oauth@2）；2.x 不再新增功能，仅作兼容保留。
+ 3.1.0 起修复模型缓存隔离、发现失败回退、元数据变更刷新、11133 重试超时与请求快照释放。
+
+ 方式 1 — npm 包（推荐）
+
+在项目（或全局 ~/.config/opencode/opencode.json）的 plugins 数组中声明：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;plugins&quot;: [&quot;opencode-codebuddy-oauth&quot;]
+}
+
+
+ 方式 2 — 本地目录（无需发布到 npm）
+
+plugins 支持目录形式，但目录内必须有 index.js 入口（OpenCode V2 不读取 main 字段来解析目录形式的插件）。本仓库根目录已提供 index.js，因此可以直接指向仓库（或 dist/ 所在目录）：
+
+jsonc
+{
+  &quot;plugins&quot;: [&quot;/absolute/path/to/opencode-codebuddy-oauth&quot;]
+}
+
+
+npm run build 之后新 dist/index.js 在 OpenCode 下次启动时自动生效（index.js 仅 re-export ./dist/index.js）。
+
+ 命令行认证
+
+OAuth 流程可以完全在 TUI 内完成：
+
+1. 运行 /connect codebuddy，选择 IOA 登录 (浏览器)。
+2. 终端会输出 url 与 instructions（&quot;请在浏览器中完成 IOA 登录&quot;）——在任意浏览器中打开该 URL，完成 IOA 登录。
+3. 插件随即轮询 GET /v2/plugin/auth/token?state=（3 秒间隔、10 分钟超时），拿到 token 后由 OpenCode 核心凭证系统保存，认证完成。
+
+对应源码：src/integration.ts 的 authorize（申请 state）与 src/auth-flow.ts 的 pollForToken（轮询拿 token）。
+
+---
+
+ 特性
+
+- OAuth 登录 — 直接在编辑器内走 IOA 流程：/v2/plugin/auth/state → 浏览器 → 轮询拿 token。
+- API Key 登录 — 在 /connect codebuddy 处粘贴 ck_xxx Key；无需浏览器、不轮询、不刷新。
+- 自动模型发现 — OAuth 模式启动时调用 GET /v3/config（5 秒超时），提取 craft agent 的模型列表并注册为 provider 模型（5 分钟 TTL 缓存 + 并发单飞去重；缓存与并发单飞按连接身份 credential: / env: 隔离，token 轮换不触发重新发现，切换账号会先失效切换到的账号的陈旧缓存）；API Key 模式下模型回退内置 auto。
+- 401/403 自动刷新 token — 凭证由 OpenCode 核心 integration 管理；插件注册 refresh 回调调 /v2/plugin/auth/token/refresh 拿新 token，核心负责刷新调度、并发去重与重试（src/integration.ts）。
+- 瞬时 400（code 11133）自动重试 — CodeBuddy 网关偶发把上游厂商的瞬时校验失败包装成 HTTP 400 {&quot;code&quot;:11133,&quot;msg&quot;:&quot;Invalid request parameters&quot;} 返回（实测为服务端侧故障窗口，同构请求稍后重发即成功）。http.response hook 识别到该错误时按 1s → 4s → 10s → 25s 退避幂等重发（最多 4 次额外尝试，总等待 ≤40s，重试总预算上限 45s），把偶发故障对对话的影响从「回合中断」降级为「无感重试」；重试阶段的超时只约束重试过程，与成功响应体的流式读取分离，恢复成功的长回答不会被重试预算截断；其他 400（如 11101 参数解析错误）不受影响、原样透传。
+- 模型兼容 — compatibility.requireReasoning 让核心为历史 assistant 消息补 reasoning_content（code 11155 兜底：带 tools 请求要求回传该字段，上游可跳过推理导致 400）；variants 直通上游 supportedEfforts（实测组合为 low/high/xhigh/max，UI 档位与上游档位一一对应，不再归一）。
+- SSE 缓冲 — 流式响应按阈值/换行/标点/最大延迟合并分块输出，降低 UI 渲染频率；reasoning_content 与 content 混排保留。
+- session 级 X-Conversation-ID 稳定化 — 同一个 OpenCode session 内所有请求复用同一 UUID，跨 turn、跨 tool call 一致，提升上游 prompt cache 命中率（session.compacted / session.deleted 时清掉 LRU 条目）。
+- 环境自动切换 — 同一份插件同时支持 copilot.tencent.com（国内版，默认）和 www.codebuddy.ai（国际版）；可通过 CODEBUDDY_NETWORK 切换，或直接用 CODEBUDDY_ENDPOINT 覆盖完整 URL。
+
+---
+
+ 架构
+
+插件通过 Plugin.define({ id: &quot;codebuddy&quot;, setup }) 注册（OpenCode V2 插件 API），分为 3 个域 + 共享状态：
+
+| 注册点 | 作用 |
+| ---- | ---- |
+| ctx.integration.transform</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/minglo__opencode-codebuddy-oauth.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

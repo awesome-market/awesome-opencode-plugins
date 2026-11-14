@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>m1908293028-boop/knowledge-teacher · OpenCode Plugins</title>
+<meta name="description" content="Knowledge Teacher 能够根据你的知识水平自适应调整讲解深度，生成系统、完整的教学文档。它遵循&quot;课本式&quot;教学框架，从直觉引入到原理推导，支持对话、Markdown、HTML三种输出格式，适合学习、工作和研究场景。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="knowledge-teacher, m1908293028-boop, m1908293028-boop/knowledge-teacher, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, memory">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/m1908293028-boop__knowledge-teacher">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="m1908293028-boop/knowledge-teacher · OpenCode Plugins">
+<meta property="og:description" content="Knowledge Teacher 能够根据你的知识水平自适应调整讲解深度，生成系统、完整的教学文档。它遵循&quot;课本式&quot;教学框架，从直觉引入到原理推导，支持对话、Markdown、HTML三种输出格式，适合学习、工作和研究场景。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/m1908293028-boop__knowledge-teacher">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "m1908293028-boop/knowledge-teacher", "codeRepository": "https://github.com/m1908293028-boop/Knowledge-Teacher", "url": "https://opencode-plugins.zhuikan.com/repos/m1908293028-boop__knowledge-teacher", "description": "Knowledge Teacher 能够根据你的知识水平自适应调整讲解深度，生成系统、完整的教学文档。它遵循\"课本式\"教学框架，从直觉引入到原理推导，支持对话、Markdown、HTML三种输出格式，适合学习、工作和研究场景。", "author": {"@type": "Organization", "name": "m1908293028-boop", "url": "https://github.com/m1908293028-boop"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-07-06", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,memory"}</script>
+</head>
+<body data-repo="m1908293028-boop/knowledge-teacher" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">m1908293028-boop/knowledge-teacher</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="m1908293028-boop__knowledge-teacher"><img class="rp-side-av" src="https://github.com/m1908293028-boop.png?s=300" width="300" height="300" alt="m1908293028-boop avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">knowledge-teacher</div>
+      <a class="rp-side-owner" href="https://github.com/m1908293028-boop">m1908293028-boop</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/m1908293028-boop">m1908293028-boop</a>
+        <span class="rp-sep">/</span><span class="rp-name">knowledge-teacher</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Knowledge Teacher 能够根据你的知识水平自适应调整讲解深度，生成系统、完整的教学文档。它遵循&quot;课本式&quot;教学框架，从直觉引入到原理推导，支持对话、Markdown、HTML三种输出格式，适合学习、工作和研究场景。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>17</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/memory">memory</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-07-06</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/m1908293028-boop/Knowledge-Teacher">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">17</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Knowledge Teacher
+
+
+
+
+
+ 一个智能的 Agent Skill，能够根据你的知识水平自适应调整讲解深度，生成系统、完整的教学文档。
+
+ 什么是 Knowledge Teacher？
+
+Knowledge Teacher 是一个专为 Agent 设计的智能教学助手Skill。它能够：
+
+- 理解你的问题：当你询问任何概念、原理或技术时，自动识别你的学习意图
+- 评估你的水平：通过智能问答了解你的知识背景（零基础/有自学基础/科班出身）
+- 生成个性化教学：根据你的水平生成适合的教学内容，从通俗解释到严格推导
+- 提供完整输出：支持对话、Markdown 文档、HTML 页面三种输出格式
+
+ 核心优势
+
+ 1. 自适应背景检测
+问题：传统教学文档要么太浅（对专业人士无用），要么太深（让初学者困惑）。
+
+解决方案：Knowledge Teacher 会智能询问你的背景，根据回答调整讲解深度：
+- 零基础：从最基础的概念开始，每个术语都解释
+- 有自学基础：识别并确认你已知的概念，跳过重复解释
+- 科班出身：直接进入高级内容，提供严谨的数学推导
+
+ 2. 系统性讲解框架
+问题：零散的知识点难以形成完整的理解。
+
+解决方案：遵循&quot;课本式&quot;教学框架：
+1. 认知起点：从你已知的概念出发
+2. 定义与直觉：先建立直觉理解，再给出严格定义
+3. 原理推导：一步步展示知识是如何得出的
+4. 示例验证：通过具体例子加深理解
+5. 总结与拓展：强化记忆，指明学习方向
+
+ 3. 多格式输出支持
+问题：不同场景需要不同的文档格式。
+
+解决方案：支持三种输出格式：
+- 对话输出：快速阅读，适合即时学习
+- Markdown 文档：便于保存、分享和二次编辑
+- HTML 页面：精美排版，支持数学公式，适合正式文档
+
+ 4. 智能内容拆分
+问题：复杂主题（如&quot;Transformer&quot;）涉及多个子概念，单文档难以承载。
+
+解决方案：自动分析主题复杂度，智能拆分：
+- 简单主题 → 单文档输出
+- 复杂主题 → 生成目录页 + 多个子文档
+
+ 5. 前置研究与参考文献
+问题：教学内容的可信度和权威性不足。
+
+解决方案：撰写前自动搜索权威来源：
+- 从维基百科、学术论文、官方文档获取准确信息
+- 整理为标准学术格式的参考文献列表
+- 在正文中交叉引用，增强可信度
+
+ 6. 质量自检机制
+问题：生成的文档可能存在逻辑跳跃或错误。
+
+解决方案：自动审查文档质量：
+- 逻辑连贯性检查
+- 推导完整性验证
+- 术语一致性审查
+- 公式正确性校验
+
+ 具体作用
+
+ 学习场景
+- 概念理解：快速理解复杂概念（如&quot;反向传播算法&quot;、&quot;注意力机制&quot;）
+- 技术对比：对比相似技术（如&quot;PPO vs DPO&quot;、&quot;CNN vs Transformer&quot;）
+- 知识体系：构建完整的知识框架（如&quot;机器学习基础&quot;、&quot;深度学习原理&quot;）
+
+ 工作场景
+- 技术文档：生成专业的技术文档，供团队参考
+- 培训材料：创建个性化的培训内容，适应不同水平的员工
+- 知识沉淀：将个人理解系统化，形成可复用的知识资产
+
+ 研究场景
+- 文献调研：快速了解新领域的核心概念和最新进展
+- 论文写作：获取准确的定义、公式和参考文献
+- 学术交流：生成清晰的概念解释，便于与他人讨论
+
+ 工作流程
+
+ 完整流程图
+
+
+用户提问 → 意图识别 → 背景评估 → 前置研究 → 内容生成 → 质量自检 → 输出文档
+    ↓           ↓           ↓           ↓           ↓           ↓           ↓
+&quot;讲解反向传播&quot;  识别为学习请求  询问用户水平  搜索权威来源  生成教学内容  检查逻辑性  输出HTML/MD
+
+
+ 详细步骤
+
+ 第一步：意图识别
+触发条件：当用户询问以下类型的问题时自动触发：
+- 概念定义：&quot;什么是注意力机制？&quot;
+- 原理解释：&quot;Transformer 的原理是什么？&quot;
+- 技术对比：&quot;DPO 和 PPO 的区别是什么？&quot;
+- 学习请求：&quot;给我讲一下反向传播算法&quot;
+
+识别逻辑：即使用户没有明确说&quot;讲解&quot;，只要意图是理解某个概念的本质和运作原理，也会触发。
+
+ 第二步：背景评估
+首次对话：
+1. 检查记忆存储中是否包含用户背景信息
+2. 若不存在，使用 question 工具询问用户基础：
+   
+   在开始讲解之前，我想先了解一下你的基础，以便调整讲解的起点和深度。
+   选项：
+   - 零基础：完全零基础，只需要通俗易懂的入门讲解
+   - 有自学基础：有一定了解但不系统（如自学过一些片段）
+   - 科班出身：相关专业科班出身，可以接受严谨的数学推导与术语
+   
+3. 询问输出形式偏好（对话/Markdown/HTML/自定义）
+4. 将所有信息写入记忆存储
+
+后续对话：
+1. 从记忆存储中读取用户背景信息
+2. 询问是否保持当前存储结构（默认保持不变）
+3. 直接使用已保存的背景信息，跳过询问步骤
+
+ 第三步：前置研究
+搜索内容：
+- 知识点的核心定义：从权威来源获取准确的定义
+- 历史背景：搜索该知识点的提出者、提出时间、关键论文
+- 最新进展：搜索该领域的最新研究或应用
+- 常见误解：搜索人们对该知识点的常见疑问和误解
+
+搜索示例：
+
+websearch({ query: &quot;反向传播算法 历史 1986 Rumelhart&quot; })
+websearch({ query: &quot;backpropagation algorithm original paper&quot; })
+
+
+参考文献整理：
+将搜索到的可靠来源整理为标准学术格式：
+
+ 参考文献
+
+1. Rumelhart, D. E., Hinton, G. E., &amp; Williams, R. J. (1986). Learning representations by back-propagating errors. Nature, 323(6088), 533-536.
+
+
+ 第四步：内容生成
+讲解框架：
+1. 认知起点：从最相关的前置概念切入
+2. 定义与直觉：给出精确定义，立即用通俗语言构建直觉画面
+3. 推导或原理展开：一步不跳地展示该知识是如何得出的
+4. 示意性示例：通过极简案例将原理具象化
+5. 重要性质或适用条件：总结该知识在什么前提下成立
+6. 与已知知识的联结：若用户背景中有可连接的点，简短提及
+7. 总结：用一两句话回归本质
+
+教学方法：
+- 直觉引入：从可感知的问题出发，不使用任何学科专有名词
+- 历史脉络：用故事化但严谨的方式叙述知识的发展历程
+- 核心思想：在给出任何公式之前，先用纯文字概括核心思想
+- 从特例到一般：先选取极简特例手工演算，再给出一般化形式
+
+ 第五步：质量自检
+检查项目：
+1. 逻辑连贯性：每一节是否自然引出下一节？是否存在逻辑跳跃？
+2. 推导完整性：从前提到结论是否每一步都有交代？
+3. 术语一致性：同一概念是否使用了统一的术语和符号？
+4. 口吻适当性：语气是否正式但不生硬？
+5. 例子充分性：每个抽象概念是否有具体例子支撑？
+6. 公式正确性：数学公式是否语法正</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/m1908293028-boop__knowledge-teacher.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

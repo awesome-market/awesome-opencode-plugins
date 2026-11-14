@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ruodou233/zhangfen-daily · OpenCode Plugins</title>
+<meta name="description" content="涨粉榜日报：B站、抖音、小红书、快手、YouTube、X 涨粉榜与视频号热度榜作者的作品数据、文案（字幕/口播转写/正文）和热评，无头 Chrome 后台采集。Daily creator-growth digest across 7 platforms.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="zhangfen-daily, ruodou233, ruodou233/zhangfen-daily, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ruodou233__zhangfen-daily">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ruodou233/zhangfen-daily · OpenCode Plugins">
+<meta property="og:description" content="涨粉榜日报：B站、抖音、小红书、快手、YouTube、X 涨粉榜与视频号热度榜作者的作品数据、文案（字幕/口播转写/正文）和热评，无头 Chrome 后台采集。Daily creator-growth digest across 7 platforms.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ruodou233__zhangfen-daily">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ruodou233/zhangfen-daily", "codeRepository": "https://github.com/ruodou233/zhangfen-daily", "url": "https://opencode-plugins.zhuikan.com/repos/ruodou233__zhangfen-daily", "description": "涨粉榜日报：B站、抖音、小红书、快手、YouTube、X 涨粉榜与视频号热度榜作者的作品数据、文案（字幕/口播转写/正文）和热评，无头 Chrome 后台采集。Daily creator-growth digest across 7 platforms.", "author": {"@type": "Organization", "name": "ruodou233", "url": "https://github.com/ruodou233"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="ruodou233/zhangfen-daily" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ruodou233/zhangfen-daily</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ruodou233__zhangfen-daily"><img class="rp-side-av" src="https://github.com/ruodou233.png?s=300" width="300" height="300" alt="ruodou233 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">zhangfen-daily</div>
+      <a class="rp-side-owner" href="https://github.com/ruodou233">ruodou233</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/ruodou233">ruodou233</a>
+        <span class="rp-sep">/</span><span class="rp-name">zhangfen-daily</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">涨粉榜日报：B站、抖音、小红书、快手、YouTube、X 涨粉榜与视频号热度榜作者的作品数据、文案（字幕/口播转写/正文）和热评，无头 Chrome 后台采集。Daily creator-growth digest across 7 platforms.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/ruodou233/zhangfen-daily">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">涨粉榜日报｜Daily Creator-Growth Digest across Chinese &amp; Global Platforms
+
+Collect daily creator-growth leaderboards from Bilibili, Douyin, Xiaohongshu, Kuaishou, YouTube and X (plus a popularity chart for WeChat Channels), then fetch each rising creator&#x27;s recent works, metrics, scripts (subtitles, speech transcripts, post text) and top comments into one daily report.
+
+每天谁在涨粉？靠的是哪条作品？作品里说了什么，观众又在评论什么？这个 Skill 把 B站、抖音、小红书、快手、YouTube、X 的涨粉榜和视频号热度榜的前列作者拉下来，找到他们榜期附近的作品和数据，再把代表作的文案取齐（平台字幕、口播转写、笔记和推文正文），生成一份能直接读的日报。Agent 读完文案，在日报末尾写几段观察。
+
+采集全部在后台进行：浏览器用无头模式启动，不弹窗口、不抢焦点，也不碰你正在用的 Chrome。
+
+ 日报长什么样
+
+markdown
+ 涨粉榜日报 2026-11-03
+
+B站 滚动7日（11-03） ｜ 抖音 日榜（11-02） ｜ 小红书 日榜（11-02） ｜ YouTube 日榜（11-01） ｜ …
+
+ 抖音 · 日榜 · 2026-11-02
+
+| 排名 | 作者 | 涨粉 | 总粉 | 窗口作品数 | 代表作 | 文案 |
+|---|---|---|---|---|---|---|
+| 1 | 某某 连续 3 天 | +71.6万（6%） · 峰值 10-31 | 1203万 | 4 | 〔峰值〕某条作品 赞 52万另一条作品 赞 30万 | 简介+转写 1830字简介 120字 |
+...
+
+ 观察
+
+（Agent 根据代表作文案和热评补写）
+
+
+同时输出 data.json（完整结构化数据）。文案存成单独的 txt，末尾附前 10 条热评，按作品 ID 缓存；同一位作者连续几天上榜时，已经取过的文案不会重复下载和转写。
+
+ 工作方式
+
+| 平台 | 涨粉榜来源 | 作品与数据 | 文案 |
+|---|---|---|---|
+| B站 | zeroroku 滚动 7 日 | 投稿列表 + 视频详情 | AI 字幕；没有字幕就转写音频 |
+| 抖音 | 飞瓜公开日榜 | 无头浏览器打开创作者主页 | 简介 + 口播转写 |
+| 小红书 | 千瓜公开日榜 | 无头浏览器搜索作者（比对头像、昵称、粉丝量确认身份）→ 主页 → 笔记详情 | 标题 + 正文；视频笔记再加转写 |
+| 快手 | 新榜快手涨粉日榜（需登录新榜免费账号；未登录时只有新快预览的近 7 日前 3 名） | 无头浏览器打开快手直播站主页 | 描述 + 口播转写 |
+| 视频号 | 友望指数热度日榜（视频号不公开粉丝数，没找到可核验的公开涨粉榜，这是最接近的替代） | 友望作品列表（需微信扫码登录友望） | 作品描述 |
+| YouTube | viewstats 昨日涨订阅榜（只看创作者频道，不含儿童、音乐和影视预告频道） | 频道 RSS + yt-dlp | 原语言字幕；没有字幕就转写音频 |
+| X | xpaiming 昨日涨粉榜（跟踪约 700 个账号的快照差，默认取中文内容分组） | 无头浏览器打开主页时间线（需登录 x.com） | 推文全文；视频推文再转写 |
+
+- 榜期：每轮取各榜最新一期已发布的榜，并写明真实榜期。飞瓜、千瓜都在次日约 8 点发布前一天的榜，所以建议每天 9 点以后运行。榜单当天还没更新时，报告会注明沿用的是哪一期。
+- 在榜情况：和前一天的 data.json 比对，标出「新进」或「连续 N 天」。
+- 作品窗口与代表作：只看榜期结束日前 14 天内发布的作品。能拿到逐日涨粉曲线的平台（B站、抖音、YouTube、X）会标出窗口内的涨粉峰值日，并优先选峰值日前后发布的作品作代表作（标〔峰值〕，表示时间上最接近，不代表就是它带来的涨粉），其余名额按点赞选。YouTube 的公开订阅数是取整后的，它的峰值其实是订阅数跳变的日子。
+- 热评：B站、小红书、YouTube、X 的代表作附前 10 条热评。
+- 登录态：每轮把日常 Chrome 的 Cookies 用 SQLite 快照复制到一个临时目录，用正版 Chrome 以无头模式启动。一个平台一个实例，跑完关闭，并删掉临时目录。
+- 转写：本地 mlx-whisper 加 whisper-large-v3-turbo，不上传任何音频，按作品语言识别。会过滤 whisper 在纯音乐上常编出的句子（如「字幕志愿者 ×××」「Thanks for watching」），这类视频显示「未转出有效语音」。超过 30 分钟的视频只转写前 30 分钟，文案末尾会注明。
+- 并行与资源：两个平台同时跑，转写排队、同一时刻只跑一个。实测整棵进程树峰值约 3.7GB；七个平台冷启动约 20 分钟，作者连续上榜、文案有缓存时约 6 分钟。
+- 出错时：某个平台或作者失败，就在日报里写明原因，继续跑其余部分。整轮有时间预算（默认 45 分钟），超出后不再开始新的作者或文案。
+- 作者身份：确认过的身份缓存在 /cache/，同一位作者再上榜时不用重新找。
+
+ 环境要求
+
+- macOS，Apple Silicon（mlx-whisper 需要）
+- Google Chrome，并在里面登录要跑的平台：B站、抖音、小红书、快手、x.com；快手榜单要登录 新榜，视频号作品要登录 友望（都是免费账号）
+- Node.js ≥ 22（只用内置模块，不需要 npm install）
+- 装好 mlx-whisper 和 yt-dlp 的 Python，以及 ffmpeg：
+
+  bash
+  pip install mlx-whisper &quot;yt-dlp[default]&quot;
+  brew install ffmpeg
+  huggingface-cli download mlx-community/whisper-large-v3-turbo
+  
+
+  脚本会自动寻找能 import mlx_whisper 的 Python；找不到时用 --python 或环境变量 ZF_PYTHON 指定。yt-dlp 可用 ZF_YTDLP 指定可执行文件。
+- 访问 YouTube、X 需要网络能连上这两个站。
+
+ 安装
+
+把仓库放进 Agent 的 skills 目录：
+
+bash
+git clone https://github.com/ruodou233/zhangfen-daily.git ~/.workbuddy/skills/zhangfen-daily    WorkBuddy
+git clone </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/ruodou233__zhangfen-daily.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

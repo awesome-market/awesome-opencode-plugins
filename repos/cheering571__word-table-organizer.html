@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cheering571/word-table-organizer · OpenCode Plugins</title>
+<meta name="description" content="一个 Agent Skill：把文本粘贴的英文单词/短语清单整理成三列（单词 | 音标 | 词性与释义）xlsx 单词表，支持增量追加、去重与多词性合并；与 english-word-extractor（图片提取）配套使用。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="word-table-organizer, cheering571, cheering571/word-table-organizer, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cheering571__word-table-organizer">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cheering571/word-table-organizer · OpenCode Plugins">
+<meta property="og:description" content="一个 Agent Skill：把文本粘贴的英文单词/短语清单整理成三列（单词 | 音标 | 词性与释义）xlsx 单词表，支持增量追加、去重与多词性合并；与 english-word-extractor（图片提取）配套使用。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cheering571__word-table-organizer">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cheering571/word-table-organizer", "codeRepository": "https://github.com/Cheering571/word-table-organizer", "url": "https://opencode-plugins.zhuikan.com/repos/cheering571__word-table-organizer", "description": "一个 Agent Skill：把文本粘贴的英文单词/短语清单整理成三列（单词 | 音标 | 词性与释义）xlsx 单词表，支持增量追加、去重与多词性合并；与 english-word-extractor（图片提取）配套使用。", "author": {"@type": "Organization", "name": "cheering571", "url": "https://github.com/Cheering571"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-04", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="cheering571/word-table-organizer" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cheering571/word-table-organizer</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cheering571__word-table-organizer"><img class="rp-side-av" src="https://github.com/Cheering571.png?s=300" width="300" height="300" alt="cheering571 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">word-table-organizer</div>
+      <a class="rp-side-owner" href="https://github.com/Cheering571">cheering571</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Cheering571">cheering571</a>
+        <span class="rp-sep">/</span><span class="rp-name">word-table-organizer</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">一个 Agent Skill：把文本粘贴的英文单词/短语清单整理成三列（单词 | 音标 | 词性与释义）xlsx 单词表，支持增量追加、去重与多词性合并；与 english-word-extractor（图片提取）配套使用。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-04</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Cheering571/word-table-organizer">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Word Table Organizer（单词清单 → 三列表格 Skill）
+
+一个 WorkBuddy / Claude 风格的 Agent Skill：把文本粘贴的英文单词/短语清单整理成排版规范的三列表格 Excel（.xlsx）文件，并支持往同一张表里反复增量追加。
+
+ 姊妹项目：english-word-extractor —— 负责图片里的单词提取。本 Skill 负责文本清单。两者共用同一份表格构建脚本，产出的表可以混用、交替追加。
+
+ 为什么需要它
+
+把单词抄进 Excel 是个纯粹的体力活：补音标、查词性、拆多义项、合并单元格、每次都要保证和上一批格式一致。而且下一批新词来了，还得手工往后接，一不小心就重复、串行、样式漂移。
+
+这个 Skill 把整套约定固化成流程 + 脚本：
+
+- 你只要说「整理单词」，粘贴清单；
+- 它负责解析、补音标、查释义、去重、合并单元格；
+- 默认追加到已有的单词表，格式与上一批完全一致；
+- 数据源单独存一份 JSON，随时可重算、可回滚。
+
+ 功能特性
+
+- 解析脏清单：自动剥掉序号/项目符号（1. ① -），拆分「单词 + 词性 + 释义」，修掉 liberalismn. 这类词性与单词粘连的笔误
+- 单词 / 短语分流：单词补 IPA 音标，短语（含 ...、sb、sth 的搭配）音标列留空，不硬塞
+- 多词性纵向合并：单词列与音标列跨该词所有词性行合并，释义列每词性一行（n. … / v. …）
+- 增量追加 + 去重：按 word.lower() 去重，同词不同词性自动并进同一条，已存在的词条不会重复出现
+- 一词多音标注：separate 这类形容词/动词读音不同的词，音标列分开标注
+- 屈折形式溯源：blazes dubbed campuses 保留原拼写，释义后括注原形与形式（campus 的复数）
+- 格式统一：所有表格由同一个 build_word_table.py 生成，不会因为分批而版式漂移
+- 占用自愈：表格正在编辑器里打开时不会崩，返回明确的处置提示（退出码 2），数据仍安全落盘
+
+ 输出示例
+
+| 单词 | 音标 | 词性与释义 |
+|------|------|-----------|
+| cruise | 美 /kruːz/ | n. 乘船游览；巡游 |
+|        |           | v. 乘船游览；巡游；慢速行驶 |
+| quick fix |  | 应急措施；权宜之计 |
+| fuse | 美 /fjuːz/ | v. 熔化 |
+|      |            | n. 保险丝 |
+
+cruise、fuse 的单词与音标单元格各跨两行纵向合并；短语 quick fix 音标列为空。
+
+ 版式规格
+
+| 元素 | 规格 |
+|---|---|
+| 表头 | 单词 音标 词性与释义，等线 12pt 加粗，底色 D9E2F3，细边框，居中 |
+| 单词列 A | Calibri 12pt 加粗，居中，自动换行，列宽 16 |
+| 音标列 B | Calibri 11pt 斜体，字色 404040，居中，列宽 24 |
+| 释义列 C | 等线 12pt，左对齐，自动换行，列宽 48 |
+| 边框 | 全表 B0B0B0 细线 |
+
+ 目录结构
+
+
+word-table-organizer/
+├── SKILL.md                        Skill 定义（触发边界 + 完整执行流程）
+└── scripts/
+    ├── build_word_table.py         JSON → xlsx（版式真值来源）
+    └── merge_and_build.py          增量合并 + 去重 + 重建 + 占用检测
+
+
+ 安装
+
+ 方式一：让 Agent 直接安装（推荐）
+
+把仓库链接发给你的 AI 助手（如 WorkBuddy）：
+
+
+帮我安装这个 Skill：https://github.com/Cheering571/word-table-organizer
+
+
+ 方式二：手动安装
+
+bash
+git clone https://github.com/Cheering571/word-table-organizer.git
+
+
+把整个 word-table-organizer 文件夹复制到用户级 Skill 目录：
+
+
+Windows: C:\Users\\.workbuddy\skills\word-table-organizer
+Linux/macOS: ~/.workbuddy/skills/word-table-organizer
+
+
+重启会话（或新开会话）后生效。
+
+ 使用方法
+
+装好后直接说「整理单词」或「把这些单词加上去」，然后粘贴清单：
+
+
+blazes
+quarterly
+compensate v. 补偿，赔偿
+quick fix 应急措施，权宜之计
+
+
+带不带释义都能处理：没给释义时由 Skill 查证补全，已给释义时优先采用并在必要时补上词性。
+
+ 仅使用脚本（不装 Skill）
+
+bash
+pip install openpyxl
+
+ 增量追加并重建表格
+python scripts/merge_and_build.py \
+  --add   _add.json \
+  --store _words.json \
+  --xlsx  单词表_11.3.xlsx
+
+ 只重建（改了 store 之后，或上次因文件占用失败时重试）
+python scripts/merge_and_build.py \
+  --store _words.json --xlsx 单词表_11.3.xlsx --rebuild-only
+
+
+_add.json 与 _words.json 结构一致：
+
+json
+[
+  {
+    &quot;word&quot;: &quot;fuse&quot;,
+    &quot;phonetic&quot;: &quot;美 /fjuːz/&quot;,
+    &quot;entries&quot;: [
+      {&quot;pos&quot;: &quot;v.&quot;, &quot;meaning&quot;: &quot;熔化&quot;},
+      {&quot;pos&quot;: &quot;n.&quot;, &quot;meaning&quot;: &quot;保险丝&quot;}
+    ]
+  }
+]
+
+
+phonetic 可留空（短语就该留空）；entries 每个元素对应一个词性行。
+
+脚本输出 JSON 摘要：
+
+json
+{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;added&quot;: 44,
+  &quot;store_before&quot;: 8,
+  &quot;new_entries&quot;: 44,
+  &quot;total_words&quot;: 52,
+  &quot;total_rows&quot;: 59
+}
+
+
+目标文件被 Excel / 编辑器占用时返回 &quot;status&quot;: &quot;locked&quot; 且退出码为 2，关闭占用后用 --rebuild-only 重跑即可。
+
+ 与 english-word-extractor 的分工
+
+| 输入 | 该用哪个 Skill |
+|---|---|
+| 图片 / 截图 | english-word-extractor |</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cheering571__word-table-organizer.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

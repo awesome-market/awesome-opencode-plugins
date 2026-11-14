@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>robbsluo/coding2api · OpenCode Plugins</title>
+<meta name="description" content="robbsluo/coding2api — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="coding2api, robbsluo, robbsluo/coding2api, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/robbsluo__coding2api">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="robbsluo/coding2api · OpenCode Plugins">
+<meta property="og:description" content="robbsluo/coding2api — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/robbsluo__coding2api">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "robbsluo/coding2api", "codeRepository": "https://www.npmjs.com/package/coding2api", "url": "https://opencode-plugins.zhuikan.com/repos/robbsluo__coding2api", "description": "robbsluo/coding2api — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "robbsluo", "url": "https://www.npmjs.com/~robbsluo"}, "isAccessibleForFree": true, "dateCreated": "2026-09-11"}</script>
+</head>
+<body data-repo="robbsluo/coding2api" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">robbsluo/coding2api</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="robbsluo__coding2api"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+QzwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">coding2api</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~robbsluo">robbsluo</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~robbsluo">robbsluo</a>
+        <span class="rp-sep">/</span><span class="rp-name">coding2api</span>
+      </h1>
+      <div class="rp-head-chips"><a class="rp-board-chip" href="../?board=new">new <b>#122</b></a></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>35</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-09-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/coding2api">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">35</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">17</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">11</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Coding2API
+
+
+
+
+
+
+十路渠道——CodeBuddy（国内 + 国际，两个独立渠道）、TRAE SOLO、OpenCode Zen、Kilo、Qoder、CodeArts、OfficeAce、小浣熊、灵犀——封装成 OpenAI 兼容 API：公共凭证池、统一模型名与调度、按人用量统计。
+
+ [!WARNING]
+ 逆向接口，仅供学习研究，未做安全审计；公网部署需反向代理 + 鉴权 + IP 白名单。
+
+ 特性
+
+- OpenAI 兼容出口：/v1/chat/completions（流式 / 非流式）、/v1/responses（Codex CLI）、/v1/messages（Claude Code）、/v1/models（含单模型查询）、/v1/user/balance。
+- 统一调度：扁平名按健康度选号；模型@渠道 强制。优先级：免费渠道 → 在途最少 → 到期额度 → 健康度 + 分级冷却 → 余额多者。管理员可给凭证设权重（-1000..1000）：只在同一健康档内重排（正数优先、负数当备用），不会把冷却/耗尽的号顶上来。目录里的 x0 会被最近 24h 的实测扣费校准（上游改计费不改目录时不至于永远占住免费档）。模型级限流只避让该模型；多轮对话粘同一凭证，出错才轮换。
+- 到期额度优先：主窗口（默认 36h）先烧将过期额度；打平再比 7 天窗口。单位统一积分。
+- 模型列表按凭证加载：只列有可用凭证的渠道 → 无幽灵模型。
+- 公共凭证池：admin 维护、全员共享、加密入库（APP_SECRET）；设备码登录、多账号切换、额度探测、签到、token 预刷新。
+- 三角色：admin / operator / viewer，存 SQLite；一次性激活链接、首登强制改密、改角色 / 停用即时吊销会话；登录与写操作留审计。
+- 成长中心（仅 CodeBuddy）：领礼、派 Buddy、领任务奖、断登补登、连登兑换、开盲盒。不可逆动作 GROWTH_IRREVERSIBLE_ACTIONS=false 关停。
+- 脱敏统计：不存对话；明细 90 天、小时汇总永久；按人 / 渠道 / 模型 / 凭证可视化；成本按 OpenRouter 刊例价估算；速度分正文 / 总产出；明细走 SSE。
+- 月度账单（operator 起）：按月按人 / 按 API Key 汇总请求、token 与成本；CSV（按人）/ JSONL（逐条明细）导出并写审计。按 Key 明细受 90 天保留期限制。
+- 工具调用健壮性：id 缺失按 index 补并记忆；DeepSeek DSML 泄漏回读成结构化调用并改写 finish_reason；非流式坏 arguments fail-closed（400，不冷却凭证）。
+- 渠道 ToS 风险登记：导入凭证时展示 green / gray / red 与理由（运营判断），审计留等级；只提示不阻断调度。
+- 出口 IP 粘性（可选）：CREDENTIAL_PROXY_POOL 非空时一号一出口（sha256 稳定分配，重启不漂移）；推理、探活、签到、预刷新、成长、管理台单条动作都走同一出口。
+- 上游状态聚合：并排官方状态页，区分「上游故障」与「本服务凭证 / 额度问题」。只解释、不调度；只存内存。
+- 侧栏数据提醒：待办角标（需重登 / 耗尽、未恢复告警、任务失败、异常上游、待激活账号、将到期 Key、目录陈旧），按角色裁剪。口径
+- 管理台加固：登录限流、CSRF、请求体上限、Host 白名单。
+- 窄屏表格转卡片： 登录；加人走「用户管理」页。
+
+ 用 python -m src.main 而不是 uvicorn src.main:build_app：前者读 .env 的 HOST/PORT，并持有单实例锁（data/.instance.lock）。同一 DATA_DIR 只能起一个进程——两个实例会各自跑后台任务、重复探测凭证并互相覆盖统计。第二个实例会打印「另一个实例已在使用 data（PID xxx）」后干净退出。
+
+scripts/create_user.py 直写 SQLite（--db 或 DATA_DIR；默认 data/coding2api.sqlite3）。老部署 secrets/users.txt 启动导入一次，不覆盖已存在。
+
+Docker：
+
+bash
+cat  .env  + :latest。
+
+容器跑在有公网 IP 的 VPS 上要 https 入口 → 见「公网部署（Docker + Caddy 自动 HTTPS）」。
+
+ 用户与角色
+
+账号存 SQLite users 表；「用户管理」页（仅管理员）增删改。
+
+| 角色 | 能做什么 |
+|---|---|
+| admin | 用户管理、任务与配置、凭证读写、全部统计、审计日志、服务端日志、上游状态、模型列表 |
+| operator | 凭证读写（导入 / 删除 / 启停 / 签到 / 成长 / 切换账号）、全部统计、上游状态、模型列表 |
+| viewer | 只读：仪表盘、凭证列表、统计、Playground |
+
+「月度账单」与「上游状态」「模型列表」同门槛（operator 起）：账单是池级数据，viewer 只在自己的统计里看到本人用量。
+
+- 加人：用户名 + 角色 → 一次性激活链接（24 小时有效，只显示一次）；对方开 /activate 自设密码。无「管理员知道、用户不知道」的初始密码；重置同理。
+- 改角色 / 停用：即时作废该账号全部会话 Cookie。停用 = 可逆的默认「删人」（用量统计仍归该用户名）；硬删只在 CLI。
+- 自助改密：右上角用户菜单 →「修改密码」，需当前密码。
+- 防锁死：不能停用 / 降级最后一个活跃管理员；不能对自己降级或停用。
+
+CLI 兜底（无 Web / 管理员全失联）：
+
+bash
+python3 scripts/create_user.py alice --role admin    交互输入密码
+python3 scripts/create_user.py --list
+python3 scripts/create_user.py alice --delete --force    硬删，不可逆
+python3 scripts/create_user.py --db data/x.sqlite3 ...
+echo &quot;$PASSWORD&quot; | python3 scripts/create_user.py alice --role admin --password-stdin
+
+
+ADMIN_USERNAMES 与 secrets/users.txt 仅引导期生效（首个管理员、老部署升级）；此后角色只来自 DB。引导期的判据是「库里还没有活跃 admin」——有了之后 env 不再改写任何人的角色，管理台做的降级不会被下一次重启撤销。
+
+ 审计
+
+「审计日志」页（仅管理员）记登录 + 写操作，按操作者 / 动作筛选、分页。类型：登录（成败都记）、账号变动、凭证写、告警处置。每条：时间 / 操作者 / 动</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-13T10:22:36Z · Data license Apache-2.0 ·
+<a href="../data/repos/robbsluo__coding2api.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

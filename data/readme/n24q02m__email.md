@@ -1,0 +1,488 @@
+# email
+
+mcp-name: io.github.n24q02m/email
+
+**IMAP/SMTP email for AI agents -- read, send, organize, and manage attachments across accounts.**
+
+<!-- Badge Row 1: Status -->
+![Mode](https://img.shields.io/badge/mode-stdio_%C2%B7_http_bearer-5C6BC0)
+[![CI](https://github.com/n24q02m/email/actions/workflows/ci.yml/badge.svg)](https://github.com/n24q02m/email/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/n24q02m/email/graph/badge.svg?token=O2GWBWCZGF)](https://codecov.io/gh/n24q02m/email)
+[![npm](https://img.shields.io/npm/v/@n24q02m/email?logo=npm&logoColor=white)](https://www.npmjs.com/package/@n24q02m/email)
+[![Docker](https://img.shields.io/docker/v/n24q02m/email?label=docker&logo=docker&logoColor=white&sort=semver)](https://hub.docker.com/r/n24q02m/email)
+[![License: Apache-2.0](https://img.shields.io/github/license/n24q02m/email)](LICENSE)
+
+<!-- Badge Row 2: Tech -->
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](#)
+[![Node.js](https://img.shields.io/badge/Node.js-5FA04E?logo=nodedotjs&logoColor=white)](#)
+[![IMAP/SMTP](https://img.shields.io/badge/IMAP%2FSMTP-005FF9?logo=maildotru&logoColor=white)](#)
+[![semantic-release](https://img.shields.io/badge/semantic--release-e10079?logo=semantic-release&logoColor=white)](https://github.com/python-semantic-release/python-semantic-release)
+[![Renovate](https://img.shields.io/badge/renovate-enabled-1A1F6C?logo=renovatebot&logoColor=white)](https://developer.mend.io/)
+
+<!-- BEGIN: AUTO-GENERATED-CROSS-PROMO -->
+<details>
+  <summary><strong>Sister projects from n24q02m</strong> (click to expand)</summary>
+
+| Project | Tagline | Tag |
+|---|---|---|
+| [agent-chat-plugin](https://github.com/n24q02m/agent-chat-plugin) | Peer AI agents chat in a shared folder — no human relay, no orchestrator, wor... | Tooling |
+| [better-code-review-graph](https://github.com/n24q02m/better-code-review-graph) | Knowledge graph for token-efficient code reviews -- semantic search and call-... | MCP |
+| [better-drive](https://github.com/n24q02m/better-drive) | 2-way Google Drive sync with .driveignore filter — rclone engine, Windows tray | Tooling |
+| [email](https://github.com/n24q02m/email) | IMAP/SMTP email for AI agents -- read, send, organize folders, and manage att... | MCP |
+| [better-godot-mcp](https://github.com/n24q02m/better-godot-mcp) | Composite MCP server for Godot Engine -- 17 composite tools for AI-assisted g... | MCP |
+| [better-notion-mcp](https://github.com/n24q02m/better-notion-mcp) | Markdown-first Notion for AI agents -- pages, databases, blocks, and comments... | MCP |
+| [better-semantic-release](https://github.com/n24q02m/better-semantic-release) | Drop-in python-semantic-release fork with built-in release-safety guards (orp... | Tooling |
+| [better-telegram-mcp](https://github.com/n24q02m/better-telegram-mcp) | Telegram for AI agents -- messages, chats, media, and contacts across both bo... | MCP |
+| [better-workspace-mcp](https://github.com/n24q02m/better-workspace-mcp) | Google Workspace MCP server (Docs/Drive/Calendar/Gmail/Sheets/Slides/Tasks/Ch... | MCP |
+| [claude-plugins](https://github.com/n24q02m/claude-plugins) | Claude Code plugin marketplace for the n24q02m MCP servers -- install web sea... | Marketplace |
+| [imagine-mcp](https://github.com/n24q02m/imagine-mcp) | Image and video understanding + generation for AI agents -- across Gemini, Op... | MCP |
+| [jules-task-archiver](https://github.com/n24q02m/jules-task-archiver) | Chrome Extension for bulk operations on Jules tasks via batchexecute API -- a... | Tooling |
+| [mcp-core](https://github.com/n24q02m/mcp-core) | Shared foundation for building MCP servers -- Streamable HTTP transport, OAut... | MCP |
+| [mnemo-mcp](https://github.com/n24q02m/mnemo-mcp) | Persistent AI memory with hybrid search and embedded sync. Open, free, unlimi... | MCP |
+| [qwen3-embed](https://github.com/n24q02m/qwen3-embed) | Lightweight Qwen3 text embedding and reranking via ONNX Runtime and GGUF | Library |
+| [skret](https://github.com/n24q02m/skret) | Secrets without the server. | CLI |
+| [tacet](https://github.com/n24q02m/tacet) | A self-distilling neuro-symbolic cascade that amortises LLM cost across knowl... | Tooling |
+| [web-core](https://github.com/n24q02m/web-core) | Shared web infrastructure package for search, scraping, HTTP security, and st... | Library |
+| [wet-mcp](https://github.com/n24q02m/wet-mcp) | Open-source MCP server for AI agents: web search, content extraction, and lib... | MCP |
+
+</details>
+<!-- END: AUTO-GENERATED-CROSS-PROMO -->
+
+## Table of contents
+
+- [Features](#features)
+- [Install](#install)
+- [CLI](#cli)
+- [Smithery](#smithery)
+- [Documentation](#documentation)
+- [Tools](#tools)
+- [Comparison](#comparison)
+- [Remote (HTTP Mode)](#remote-http-mode)
+- [Outlook OAuth Device Code (HTTP mode)](#outlook-oauth-device-code-http-mode)
+- [Configuration](#configuration)
+- [Security](#security)
+- [Build from Source](#build-from-source)
+- [Trust Model](#trust-model)
+- [License](#license)
+
+
+
+<a href="https://glama.ai/mcp/servers/n24q02m/better-email-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/n24q02m/better-email-mcp/badge" alt="Better Email MCP server" />
+</a>
+
+## Features
+
+- **Multi-account support** -- manage 6+ email accounts (Gmail, Outlook, Yahoo, iCloud, Zoho, ProtonMail, custom IMAP)
+- **App Passwords** -- no OAuth2 setup required for most providers; clone and run in 1 minute
+- **4 composite tools** (plus `help`) -- search, read, send, reply, forward, organize, and credential status in single calls
+- **Auto-discovery** -- provider settings detected from email address, custom IMAP host supported
+- **Thread-aware** -- reply/forward maintains In-Reply-To and References headers
+- **Tiered token optimization** -- compressed descriptions + on-demand `help` tool + MCP Resources
+
+## Install
+
+The server runs in two modes: **stdio** (default, single-user, credentials from env vars) and **HTTP** (opt-in, single-user with a bearer token). For stdio, add it to your MCP client config:
+
+```jsonc
+{
+  "mcpServers": {
+    "email": {
+      "command": "npx",
+      "args": ["--yes", "@n24q02m/email@latest"],
+      "env": {
+        "EMAIL_CREDENTIALS": "user@gmail.com:app-password"
+      }
+    }
+  }
+}
+```
+
+The package is `@n24q02m/email` (formerly `@n24q02m/better-email-mcp`; old package
+receives one final release then freezes). The MCP Registry id is
+`io.github.n24q02m/email`; the entry published earlier as
+`io.github.n24q02m/better-email-mcp` stays frozen under that old name, because
+registry versions are immutable. The legacy `better-email-mcp` command is kept as
+an alias of `email`.
+
+Multiple accounts are comma-separated: `user1@gmail.com:pass1,user2@outlook.com:pass2`, or listed in an [accounts file](#accounts-file-single-and-multi-account). See [Configuration](#configuration) for all env vars, and [Remote (HTTP Mode)](#remote-http-mode) to run a hosted server.
+
+Most providers use an **App Password** (no OAuth setup); Outlook/Hotmail/Live use a bundled OAuth device-code flow in HTTP mode. Settings (IMAP/SMTP host, port) are auto-discovered from the email domain.
+
+### Install matrix
+
+| Client | Install |
+|:-------|:--------|
+| Claude Code | `/plugin marketplace add n24q02m/claude-plugins` + `/plugin install email@n24q02m-plugins` (stdio; prompts for `EMAIL_CREDENTIALS`), or an `mcpServers` entry in `.mcp.json` / client settings |
+| Codex CLI | `[mcp_servers.email]` block in `~/.codex/config.toml` (stdio `command`/`args` or HTTP `type`/`url`) |
+| OpenCode | `mcpServers` block in `opencode.json` |
+| Cursor / Windsurf / Gemini CLI / any MCP client | `mcpServers` JSON in the client's config — same shape as the example above |
+
+Full per-client walkthroughs: [docs.n24q02m.com/servers/email/setup/](https://docs.n24q02m.com/servers/email/setup/).
+
+## CLI
+
+The package ships one binary, `email` (run via `npx @n24q02m/email`), also installed under its legacy name `better-email-mcp`. With no arguments it starts the MCP server over stdio. Every MCP tool is also a subcommand, so the same handlers run with or without an MCP client.
+
+### Server and operator commands
+
+| Invocation | Description |
+|:-----------|:------------|
+| `email` | Start the MCP server over **stdio** (default). Reads credentials from `EMAIL_CREDENTIALS`, or from `EMAIL_USER` + `EMAIL_APP_PASSWORD` |
+| `email --http` | Start the server in **HTTP** (single-user, bearer token) mode. Equivalent to `MCP_TRANSPORT=http` or `TRANSPORT_MODE=http` |
+| `email auth [outlook] <email> [--client-id=<id>]` | Authenticate an Outlook/Hotmail/Live account via OAuth2 Device Code flow. Tokens are saved to `~/.email/tokens.json`. The `outlook` provider positional is optional (email has a single OAuth2 provider); `--client-id` overrides `OUTLOOK_CLIENT_ID` for a self-hosted Azure AD app |
+| `email logout [<email>]` | Clear the locally stored Outlook token(s). Omit `<email>` to clear every stored token |
+| `email config status` / `email status` | Report whether a stored credential file exists (never prints credential values) |
+| `email config delete --yes` | Delete the stored credential file |
+| `email doctor` | Node, credential backend, store-directory, and session checks |
+
+### Tool commands
+
+Each tool keeps its MCP name and actions; its JSON-Schema properties become `--flags`, so the CLI cannot accept an argument the tool does not take. Output is human-readable text, or the tool's exact JSON envelope with `--json`. A failure prints one message to stderr and exits 1.
+
+| Command | Actions | Example |
+|:--------|:--------|:--------|
+| `email messages <action>` | `search`, `read`, `mark_read`, `mark_unread`, `flag`, `unflag`, `move`, `archive`, `trash`, `new`, `reply`, `forward` | `email messages search --query "UNREAD FROM boss@company.com" --limit 5 --json` |
+| `email folders <action>` | `list`, `status` | `email folders list --account user@gmail.com` |
+| `email attachments <action>` | `list`, `download` | `email attachments download --account user@gmail.com --uid 42 --filename invoice.pdf --json` |
+| `email config-tool <action>` | `status`, `setup_status`, `setup_start`, `setup_reset`, `setup_complete`, `set`, `cache_clear` | `email config-tool cache_clear --json` |
+| `email help <tool_name>` | - | `email help messages` |
+
+`config-tool` is the MCP `config` tool; the bare `email config` command stays the operator command for the stored credential file (its `status`/`delete` actions predate the tool surface). `email --help` lists tool commands and operator commands as separate groups, and `email <command> --help` prints that command's actions and flags.
+
+```bash
+# stdio server (normally launched by your MCP client, not by hand)
+EMAIL_CREDENTIALS="user@gmail.com:app-password" npx @n24q02m/email
+
+# HTTP multi-user server
+npx @n24q02m/email --http
+
+# One-off Outlook OAuth device-code sign-in
+npx @n24q02m/email auth user@outlook.com
+
+# Sign out of a single account (or omit the email to clear all)
+npx @n24q02m/email logout user@outlook.com
+
+# Search, read, and organize mail through the same handlers the MCP tools use
+npx @n24q02m/email messages search --query UNREAD --limit 5 --json
+npx @n24q02m/email messages read --uid 4211 --preview --max_chars 800
+npx @n24q02m/email messages mark_read --uids 12,13,14
+npx @n24q02m/email folders list --account user@gmail.com
+
+# Attachments and credential state
+npx @n24q02m/email attachments list --account user@gmail.com --uid 42 --json
+npx @n24q02m/email config-tool status --json
+
+# Per-command actions and flags come from the tool schema
+npx @n24q02m/email messages --help
+```
+
+`auth`/`logout` are only for Outlook/Hotmail/Live addresses -- other providers use an App Password in `EMAIL_CREDENTIALS`. See [Remote (HTTP Mode)](#remote-http-mode) for the HTTP config.
+
+## Smithery
+
+Published with a [Smithery](https://smithery.ai) config ([`smithery.yaml`](smithery.yaml)). Smithery runs the server over **stdio** with no build config required; credentials come from the environment (see [Configuration](#configuration)). The start command is:
+
+```yaml
+startCommand:
+  type: stdio
+  commandFunction: |-
+    (config) => ({ command: 'npx', args: ['-y', '@n24q02m/email'] })
+```
+
+## Documentation
+
+Full docs at **[docs.n24q02m.com/servers/email/](https://docs.n24q02m.com/servers/email/)**:
+
+- [Setup](https://docs.n24q02m.com/servers/email/setup/) -- install methods for Claude Code, Codex, Gemini CLI, Cursor, Windsurf, mcp.json
+
+**Install with AI agent** -- paste this to your AI coding agent:
+
+> Install MCP server `email` following the steps at
+> https://raw.githubusercontent.com/n24q02m/claude-plugins/main/plugins/email/setup-with-agent.md
+
+## Tools
+
+### Public tool rename
+
+The public `send` tool is replaced by `messages` with `action: new`, `reply`, or `forward`.
+This follows the MCP N+2 standard: sending is an action in the messages domain, so keeping a
+separate `send` entry would duplicate that domain and add redundant tool-list and help-topic
+surface. The old name is removed directly; there is no compatibility alias.
+
+| Old public name | New public name | Reason | Alias removal |
+|:----------------|:----------------|:-------|:---------------|
+| `send` | `messages` (`action: new \| reply \| forward`) | N+2 domain-tool rule: outbound mail is part of the `messages` mega-tool, not a second action-level tool. | Removed directly in the Unreleased release; no alias |
+
+| Tool | Actions | Description |
+|:-----|:--------|:------------|
+| `messages` | `search`, `read`, `mark_read`, `mark_unread`, `flag`, `unflag`, `move`, `archive`, `trash`, `new`, `reply`, `forward` | Search, read, organize, compose, reply to, and forward emails |
+| `folders` | `list`, `status` | List mailbox folders or read targeted IMAP STATUS metadata |
+| `attachments` | `list`, `download` | List and download email attachments |
+| `config` | `status`, `setup_status`, `setup_start`, `setup_reset`, `setup_complete`, `set`, `cache_clear` | Credential status and setup guidance, reset, re-resolve, cache clear |
+| `help` | - | Get full documentation for any tool |
+
+### MCP Resources
+
+| URI | Description |
+|:----|:------------|
+| `email://docs/messages` | Message operations reference |
+| `email://docs/folders` | Folder operations reference |
+| `email://docs/attachments` | Attachment operations reference |
+| `email://docs/help` | Full documentation |
+| `email://docs/config` | Credential setup and runtime configuration reference |
+
+## Comparison
+
+How email stacks up against direct competitors in each pillar:
+
+| Capability | email | [email-mcp](https://github.com/codefuturist/email-mcp) | [Gmail-MCP-Server](https://github.com/GongRzhe/Gmail-MCP-Server) | [mcp-mail-server](https://github.com/yunfeizhu/mcp-mail-server) |
+|---|---|---|---|---|
+| IMAP/SMTP (provider-agnostic) | Yes | Yes | No (Gmail API only) | Yes |
+| Multi-account | Yes (comma-separated creds) | Yes | No (single global credential) | No (single account per instance) |
+| App Passwords | Yes (no OAuth setup) | Yes | No (OAuth2 only) | Yes |
+| Auto-discovery from email address | Yes | Yes (8 providers) | n/a (Gmail only) | No (manual host/port) |
+| Bundled Outlook OAuth (no user Azure app) | Yes (device-code, Thunderbird-pattern client) | partial (OAuth2 XOAUTH2, experimental) | No (user-supplied Google OAuth) | No |
+| Attachments (list + download) | Yes | Yes | Yes | Yes |
+| HTTP mode (single-user, bearer token; self-hostable) | Yes | No (stdio only) | No (stdio only) | No (stdio only) |
+
+## Remote (HTTP Mode)
+
+Run as a single-user HTTP server, authenticated with a shared bearer token:
+
+```jsonc
+{
+  "mcpServers": {
+    "email": {
+      "type": "http",
+      "headers": { "Authorization": "Bearer <your-token>" },
+      "url": "https://<your-host>/mcp"
+    }
+  }
+}
+```
+
+### Self-Hosting (HTTP Mode)
+
+Single-user mode: one shared bearer token. Accounts come from an [accounts file](#accounts-file-single-and-multi-account), the env vars, or `email auth outlook <address>`. The mode (`single`/`multi`) applies here too: with several accounts, a single-target tool requires `account`, and a fan-out read still returns the healthy accounts when one fails.
+
+```bash
+export EMAIL_MCP_TOKEN_HASH='scrypt$...'  # required: the container binds 0.0.0.0 and refuses to start without it
+export EMAIL_CREDENTIALS='you@gmail.com:app-password'
+docker run -p 8080:8080 \
+  -e PORT=8080 \
+  -e EMAIL_MCP_TOKEN_HASH \
+  -e EMAIL_CREDENTIALS \
+  -e HOME=/data \
+  -v email-data:/data \
+  n24q02m/email:latest
+```
+Mint the hash with `printf '%s' "$TOKEN" | email token hash`; the token is read from stdin, never argv. Clients send the raw token as `Authorization: Bearer <token>`. Saved Outlook tokens live under `/data/.email/` and persist when the `/data` volume is kept.
+
+### Self-Hosting with Docker Compose
+
+The repository ships `docker-compose.http.yml`, which builds the `http` image target and
+publishes it on host loopback only (`127.0.0.1:8082`):
+
+```bash
+export EMAIL_MCP_TOKEN_HASH='scrypt$...'   # required; see the note above
+export EMAIL_CREDENTIALS='you@gmail.com:app-password'
+docker compose -f docker-compose.http.yml up
+```
+
+The server is then reachable at `http://localhost:8082`. To serve other machines, put your own TLS reverse proxy on the same host in front of the loopback port. Prebuilt multi-arch images are published to Docker Hub (`n24q02m/email`)
+and GHCR (`ghcr.io/n24q02m/email`).
+
+## Outlook OAuth Device Code
+
+Outlook/Hotmail/Live accounts use OAuth2 device-code. Run `email auth outlook <address>` once. On first use:
+
+1. The CLI prints a device code and a Microsoft login URL
+2. Open the URL in a browser and enter the code
+3. Sign in and authorize the app
+4. Tokens are saved to `~/.email/tokens.json` (created with mode 0600 on POSIX). In Docker that path is `/data/.email/tokens.json`. A token file from an earlier release (`~/.better-email-mcp/tokens.json`) is copied forward on the next start; the old file is left in place.
+
+OAuth uses the bundled public Azure client (`d56f8c71-9f7c-43f4-9934-be29cb6e77b0`, Thunderbird-pattern) -- no user-side Azure registration needed.
+
+In **stdio mode**, Outlook accounts use an **App Password** instead (Outlook Account Settings → Security → Advanced security options → App passwords).
+
+## Configuration
+
+To trust mise configuration automatically, set `trusted_config_paths` in the user-level config at `~/.config/mise/config.toml`; do not add it to this project's `.mise.toml`.
+
+| Variable | Required | Default | Description |
+|:---------|:---------|:--------|:------------|
+| `EMAIL_ACCOUNTS_FILE` | Alternative (stdio) | `~/.email/accounts.toml` when it exists | Path to the [accounts file](#accounts-file-single-and-multi-account). `off`, `none`, `false` or `0` disables file lookup entirely. When a file is found it wins over `EMAIL_CREDENTIALS` and `EMAIL_USER` |
+| `EMAIL_CREDENTIALS` | Alternative (stdio) | - | Email credentials, `email:app-password` per account, comma-separated for multi-account. Optional custom IMAP host/port: `email:password:imap_host:imap_port` |
+| `EMAIL_USER` | Alternative (stdio, single-account) | - | Email address. Used with `EMAIL_APP_PASSWORD` as a per-field alternative to `EMAIL_CREDENTIALS`; merged into `EMAIL_CREDENTIALS` at boot |
+| `EMAIL_APP_PASSWORD` | Alternative (stdio, single-account) | - | App password (Gmail/Yahoo/iCloud) or Outlook App Password; used with `EMAIL_USER` |
+| `EMAIL_DATA_DIR` | No | `$HOME` | Base directory for this server's own files. Saved Outlook tokens live in `<dir>/.email/tokens.json`, so the default is `~/.email/tokens.json` (the Docker image sets `HOME=/data`); a file an earlier release wrote under `<dir>/.better-email-mcp/` is copied forward on startup. A relative value is resolved under `$HOME` and must stay inside it; use an absolute path to point at a mounted volume |
+| `PORT` | No | `0` (OS-assigned) | Server port (http mode); set explicitly (e.g. `8080`) to bind a fixed port |
+| `HOST` | No | - | Bind address (http mode) |
+| `EMAIL_MCP_TOKEN_HASH` | No (http; required when not bound to loopback) | - | scrypt hash of the shared bearer token, minted with `email token hash`. Without it, HTTP runs unauthenticated only on loopback |
+| `EMAIL_MCP_DRAFT_ONLY` | No | - | Set to `1` for agents that read untrusted mail: every `new`/`reply`/`forward` is saved to the account's Drafts folder instead of being sent (as if called with `draft: true`), and `move`/`archive`/`trash`/`setup_reset` are removed from the tool list (and refused if called anyway). Search, read and flag changes still work |
+| `OUTLOOK_CLIENT_ID` | No | `d56f8c71-9f7c-43f4-9934-be29cb6e77b0` (bundled public client) | Override the bundled Azure AD public client for self-hosted Outlook OAuth2 (or `--client-id=<id>` on `auth`, which overrides this env var) |
+| `OUTLOOK_EMAIL` | No | - | Workaround when Microsoft device-code response omits the email field |
+| `OUTLOOK_TENANT` | No | `consumers` (stdio/CLI), `common` (http device-code) | Microsoft directory to sign in against, used for **both** the device-code and the token-refresh endpoint. Set `common` for a work/school (Entra ID) mailbox, or a tenant GUID / verified domain to pin one directory |
+| `OUTLOOK_SCOPES` | No | `https://outlook.office.com/IMAP.AccessAsUser.All https://outlook.office.com/SMTP.Send offline_access` | Space-separated scope list. Narrow it (e.g. drop `SMTP.Send`) for a read-only deployment — a grant consented with fewer scopes cannot be refreshed against the full list |
+| `OUTLOOK_EXTRA_DOMAINS` | No | - | Comma-separated domains routed to OAuth in addition to `outlook.com`/`hotmail.com`/`live.com`. Needed for a Microsoft 365 mailbox on your own domain, which otherwise looks like a password account |
+
+### Account modes
+
+Whatever the credential source, the server runs in one of two account modes, and
+reports which one is active:
+
+| Mode | When | Behaviour |
+|:-----|:-----|:----------|
+| `single` | exactly one enabled account | Every tool uses that account. `account` may be omitted, and is used to name it when given |
+| `multi` | two or more enabled accounts | Read tools (`folders list`, `messages search`, `messages read`) fan out over every enabled account. A tool that acts on one mailbox (`send`, `reply`, `forward`, `move`, `trash`, `attachments`) requires `account`; omitting it is rejected with the list of accounts to choose from instead of guessing |
+
+`config status` returns `mode` (`single`, `multi`, or `none` when nothing is
+configured or every row is disabled), `accounts` with the enabled addresses, and
+`disabled_accounts` when the accounts file opts a row out.
+
+**Isolation guarantee.** In `multi` mode one failing account never hides the
+others: a fan-out read that fails for one account (wrong password, IMAP connect
+error, missing or expired OAuth token) still returns every other account's
+results, and the failed entry carries its own `account_id`/`account_email` and
+error message. A single-target action is only rejected when the account is
+genuinely ambiguous, and the rejection names the accounts.
+
+### Accounts file (single and multi account)
+
+For a deployment that keeps its mailboxes in a file rather than a comma-separated
+env var, point `EMAIL_ACCOUNTS_FILE` at a TOML file (the same shape hull uses for
+its `users.toml`):
+
+```toml
+[accounts.personal]
+email = "me@gmail.com"
+password = "app-password"
+
+[accounts.work]
+email = "me@company.com"
+password = "app-password"
+imap_host = "imap.company.com"    # optional; skips provider auto-discovery
+imap_port = 993                   # optional, default 993 with a custom host
+smtp_host = "smtp.company.com"    # optional, default: guessed from imap_host
+smtp_port = 587                   # optional
+smtp_security = "starttls"        # optional: tls | ssl | starttls | none
+enabled = true                    # optional; false keeps the row but skips it
+```
+
+When `EMAIL_ACCOUNTS_FILE` is unset, `~/.email/accounts.toml` is used if it
+exists (relative paths resolve against `$HOME`; the directory is
+`$EMAIL_DATA_DIR/.email/` when `EMAIL_DATA_DIR` is set). Set
+`EMAIL_ACCOUNTS_FILE=off` (or `none`/`false`/`0`) to disable file lookup and use
+the env vars only. A file that is selected explicitly and cannot be read is a
+boot error rather than a silent fallback.
+
+Validation is strict, so a typo cannot degrade into "no accounts configured":
+unknown keys, a duplicate mailbox, an empty file, a file with no
+`[accounts.<id>]` table, and a row whose IMAP/SMTP cannot be resolved are all
+errors that name the file (and the offending account id).
+
+Precedence, highest first: accounts file → `EMAIL_CREDENTIALS` →
+`EMAIL_USER` + `EMAIL_APP_PASSWORD` → legacy encrypted `config.enc` → saved
+Outlook tokens.
+
+### Multiple Accounts
+
+```bash
+EMAIL_CREDENTIALS=user1@gmail.com:pass1,user2@outlook.com:pass2,user3@yahoo.com:pass3
+```
+
+For more than a couple of mailboxes, prefer the [accounts file](#accounts-file-single-and-multi-account):
+it carries per-account host/port/security settings and can disable a row without
+deleting it.
+
+### Custom IMAP Host
+
+```bash
+# Custom hostname (default port 993, implicit TLS)
+EMAIL_CREDENTIALS=user@custom.com:password:imap.custom.com
+
+# Custom hostname with a custom port
+EMAIL_CREDENTIALS=user@custom.com:password:imap.custom.com:1993
+
+# Local IMAP proxy -- "localhost" is accepted as a host, even without a dot
+EMAIL_CREDENTIALS=user@custom.com:password:localhost:1993
+```
+
+Each account can use its own host and port. A non-993 port is treated as
+plaintext/STARTTLS -- the usual shape for a local IMAP proxy (for example
+[email-oauth2-proxy](https://github.com/simonrob/email-oauth2-proxy)).
+
+### Microsoft 365 work/school accounts
+
+A mailbox in a Microsoft 365 organisation -- including one on your own domain --
+signs in through Entra ID rather than the consumer directory, and Microsoft
+disabled basic auth for Exchange Online in 2024, so an App Password is not an
+option. Two settings make it work:
+
+```bash
+# Sign in against the directory that owns the mailbox
+OUTLOOK_TENANT=common                      # or a tenant GUID / verified domain
+
+# Route your own domain to OAuth instead of asking for a password
+OUTLOOK_EXTRA_DOMAINS=company.com
+```
+
+`OUTLOOK_TENANT` applies to the token refresh as well as the initial sign-in --
+refreshing a work/school token against the consumer directory fails with
+`AADSTS7000012: The grant was obtained for a different tenant`.
+
+If the mailbox was consented with a narrower grant (say IMAP but no SMTP), match
+it with `OUTLOOK_SCOPES` so the refresh does not ask for more than was granted.
+
+### Search Query Language
+
+| Query | Description |
+|:------|:------------|
+| `UNREAD` | Unread emails |
+| `FLAGGED` | Starred emails |
+| `SINCE 2024-01-01` | Emails after date |
+| `FROM boss@company.com` | Emails from sender |
+| `SUBJECT meeting` | Emails matching subject |
+| `UNREAD SINCE 2024-06-01` | Compound filter |
+
+### Supported Providers
+
+| Provider | Auth | Save-to-Sent |
+|:---------|:-----|:-------------|
+| Gmail | App Password | Auto (skipped) |
+| Yahoo | App Password | Auto (skipped) |
+| iCloud/Me.com | App-Specific Password | Auto (skipped) |
+| Outlook/Hotmail/Live | OAuth2 (Device Code) | IMAP APPEND |
+| Zoho | App Password | IMAP APPEND |
+| ProtonMail | ProtonMail Bridge | IMAP APPEND |
+| Custom | Via `email:pass:imap.host` | IMAP APPEND |
+
+## Security
+
+- **Credential sanitization** -- Passwords never leaked in error messages
+- **App Passwords** -- Uses app-specific passwords, not regular passwords
+- **Token storage** -- Outlook OAuth tokens are written with mode 0600 on POSIX (not enforced on Windows)
+- **IMAP validation** -- Search queries validated before execution
+
+## Build from Source
+
+```bash
+git clone https://github.com/n24q02m/email.git
+cd email
+bun install
+bun run dev
+```
+
+## Trust Model
+
+Credentials are single-user: whoever runs the server (or your OS user for stdio) can read them. Storage depends on the deployment mode:
+
+| Mode | Storage | Encryption | Who can read your data? |
+|---|---|---|---|
+| HTTP (Docker) | Env vars (`EMAIL_CREDENTIALS`) and saved Outlook tokens in `$HOME/.email/tokens.json` (the `/data` volume) | Tokens: plain JSON, POSIX file mode 0600 | Server operator |
+| stdio | Env vars; saved Outlook tokens in `~/.email/tokens.json`; legacy `config.enc` from earlier releases is still read | Tokens: plain JSON, POSIX file mode 0600 | Only your OS user |
+
+## License
+
+Apache-2.0 -- See [LICENSE](LICENSE).

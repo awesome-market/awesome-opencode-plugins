@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>solplum/anything2video · OpenCode Plugins</title>
+<meta name="description" content="🎬 代码驱动自动化视频生成引擎：输入文本主题，全自动编排分镜、对齐旁白音轨并渲染 Remotion 动画视频。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="anything2video, solplum, solplum/anything2video, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/solplum__anything2video">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="solplum/anything2video · OpenCode Plugins">
+<meta property="og:description" content="🎬 代码驱动自动化视频生成引擎：输入文本主题，全自动编排分镜、对齐旁白音轨并渲染 Remotion 动画视频。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/solplum__anything2video">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "solplum/anything2video", "codeRepository": "https://github.com/solplum/anything2video", "url": "https://opencode-plugins.zhuikan.com/repos/solplum__anything2video", "description": "🎬 代码驱动自动化视频生成引擎：输入文本主题，全自动编排分镜、对齐旁白音轨并渲染 Remotion 动画视频。", "author": {"@type": "Organization", "name": "solplum", "url": "https://github.com/solplum"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-28", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="solplum/anything2video" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">solplum/anything2video</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="solplum__anything2video"><img class="rp-side-av" src="https://github.com/solplum.png?s=300" width="300" height="300" alt="solplum avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">anything2video</div>
+      <a class="rp-side-owner" href="https://github.com/solplum">solplum</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/solplum">solplum</a>
+        <span class="rp-sep">/</span><span class="rp-name">anything2video</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">🎬 代码驱动自动化视频生成引擎：输入文本主题，全自动编排分镜、对齐旁白音轨并渲染 Remotion 动画视频。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>6</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-28</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="solplum__agent-git-workflow-skills"><img class="rp-same-av" src="https://github.com/solplum.png" alt="" loading="lazy">agent-git-workflow-skills</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/solplum/anything2video">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">6</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">anything2video
+
+把一个想法、一篇文章或一份产品资料，做成有画面、有配音的视频。
+
+想讲清一个知识点，介绍自己的产品，或把一个故事讲得更有画面感？anything2video 是一套给 AI 助手使用的视频制作工具包，把调研、写稿、配音、动画、审片和交付串成完整流程。
+
+你提供材料、选择喜欢的画风、确认内容，助手负责继续制作。最后拿到视频，也保留后续能改稿、换镜头、重新导出的工程文件。
+
+能做什么 · 怎么使用 · 全部风格 · 开始安装 · 常见问题
+
+ 能做什么
+
+| 你的想法 | 可以做成 |
+|---|---|
+| “这篇文章很有意思，想让更多人看懂” | 有旁白、有图解的知识短片，把重点和来龙去脉讲清楚 |
+| “想介绍我的产品，但不想只是翻几张图” | 围绕使用场景、功能和卖点展开的产品视频 |
+| “想讲一个历史、文化或品牌故事” | 有统一画风和叙事节奏的故事片，也可结合有来源的图片与档案影像 |
+| “课程里的这个概念，总是解释不明白” | 用动作、对比和流程展示原理的教学动画 |
+
+支持中文、英文旁白和中英双语字幕。可以做横屏或竖屏；不同画幅会分别安排画面。它更适合图解、动画与素材合成，以实拍采访或真人口播剪辑为主的任务需要其他工具配合。
+
+ 怎么使用
+
+使用前，需要在一个能读写文件、运行制作工具的 AI 编程助手 中安装并配置环境，例如 Codex、Claude Code 等。准备好后，你可以直接用自然语言提需求；具体安装步骤放在上手指南。
+
+1. 给材料：一个主题、一篇文章、一份产品介绍都可以。补充“讲给谁听、想让观众记住什么、大概多长、发在哪里”。
+2. 选画风：往下看全部风格，告诉助手喜欢哪一种，也可以请它按你的主题推荐。
+3. 定内容、看小样：先讨论文案方向，再确认全文；选好声音和音乐后，先看开头、复杂中段和结尾的小样，再继续制作。
+4. 拿到视频和可修改文件：交付目标包括视频、字幕、封面、工程与素材来源。以后想改一句话或一个镜头，可以接着修改和重新制作。
+
+比如，你可以这样开口：
+
+ 请用 anything2video，把“自来水怎样到我家”做成一条约一分钟的中文科普视频，给小学生看。想要黏土小镇的感觉，横屏。先和我确认文案，再给我看几个关键片段，最后交付视频、字幕和封面。
+
+想先按制作方式找入口？看 八条制作路线：图解讲解、产品演示、原理拆解、档案叙事、绘画动画、角色动画、空间长镜与节奏短片。每条都有自己的准备、打样与检查；此前参考与候选增量 也单独保留。
+
+下面的样片可以帮你判断画风。选中某个风格后，内容、构图和节奏会围绕你的主题重新设计。
+
+画风和剪辑方式可以分开选。 例如“纸艺画风＋匹配剪辑与节拍接力”：保留你选的画风，用有含义的形状或动作串联镜头，先做低成本节拍预演，再细化画面。这是可选剪辑模式，不是新增风格或所有视频的默认模板；已有流程不变。
+
+
+ 全部风格
+
+68 种风格全部列在下面，其中 67 种有实际视频预览。 点击图片或播放链接看动态效果；GitHub 未内嵌播放时，可以下载查看。同一家族的变体并排展示，你可以直接用中文名告诉助手想选哪一种；原称与 ID 保留，旧链接仍有效。
+
+图文讲解 · 夜色与未来 · 纸艺与手绘 · 立体与微缩 · 古典与东方 · 光影与绘画 · 图形与幻想 · 印刷与装饰
+
+缩略图均来自随仓库分发的真实样片，没有自动播放。多数是短片段，完整音频与来源见 样片说明；铜版雕刻是 12 秒无声材质研究，档案灯台是 12 秒无声试验，选项冒险与线路叙事是 18 秒无声原型（标准 Remotion CLI 待验证），青花显影是 14 秒无声原型（标准 CLI 启动受阻），卡牌对抗是 16 秒无声原型（标准 CLI 待验证）；机械剖解暂缺样片并明确标出。
+
+ 图文讲解
+
+从白板板书到大字排版，让文字、图形和重点信息走到画面前。
+
+| 风格预览 | 风格预览 |
+|:---:|:---:|
+| 瑞士版式原称：版式黑白红大字配整齐留白，像会动的海报播放瑞士版式样片 | 粉笔黑板原称：黑板深绿黑板配粉笔字，擦写之间带出课堂感播放粉笔黑板样片 |
+| 工程蓝图原称：蓝图深蓝底上铺开白色线稿，像在读工程图纸播放工程蓝图样片 | 贴纸小人原称：贴纸人白边贴纸串起信息，跟着镜头边走边看播放贴纸小人样片 |
+| 综艺花字原称：花字彩色大字蹦进竖屏，带着综艺式热闹节奏播放综艺花字样片 | 一笔线绘原称：线条细线一笔笔画出轮廓，黑金配色干净舒展播放一笔线绘样片 |
+| 颗粒插画原称：颗粒扁平平涂色块配细碎颗粒，人物动作富有弹性播放颗粒插画样片 | 彩笔白板原称：白板彩色笔尖边讲边画，像面对面在白板说明播放彩笔白板样片 |
+| 节奏大字原称：字动重点词跟着节奏跳出来，让文字成为主角播放节奏大字样片 | 几何实验室原称：数学屋让几何图形动起来，把抽象规律画给你看播放几何实验室样片 |
+| 档案灯台冷光灯台上对照纸质档案，放大镜查细节、红笔圈差异播放档案灯台样片 | 线路叙事一条线先到站，另一条仍在路上；等到会合，道岔才打开播放线路叙事样片 |
+
+ 夜色与未来
+
+暗色背景、发光线条和复古电子屏，呈现不同的科技氛围。
+
+| 风格预览 | 风格预览 |
+|:---:|:---:|
+| 深空青光原称：深空暗色信息设计家族深黑底配冷青亮色，让产品画面更醒目播放深空青光样片 | 紫夜讲堂原称：夜航暗色信息设计家族黑底紫色章节卡，沿着清晰步骤展开讲解播放紫夜讲堂样片 |
+| 雨夜霓虹原称：霓虹霓虹亮边映着雨夜反光，像走进发光街景播放雨夜霓虹样片 | 复古终端原称：终端黑底绿字逐字敲出，重现老式电脑屏幕播放复古终端样片 |
+| 像素街机原称：街机彩色方块拼出画面，找回老街机的趣味播放像素街机样片 | 极光磨砂原称：玻璃柔光在暗处慢慢漂移，磨砂玻璃卡片透亮播放极光磨砂样片 |
+| 霓虹公路原称：公路夜网格公路通向落日，带着旧录像带的色差播放霓虹公路样片 | 未来仪表原称：锁定雷达圆环扫描锁定，像电影中的未来仪表播放未来仪表样片 |
+
+ 纸艺与手绘
+
+撕纸、折页、涂鸦和弹跳小人，保留手工制作的趣味。
+
+| 风格预览 | 风格预览 |
+|:---:|:---:|
+| 手作拼贴原称：拼贴撕纸边、胶带和叠放纸片，拼出手作感播放手作拼贴样片 | 波普漫画原称：波普粗黑线配鲜艳网点，爆炸框带出漫画冲劲播放波普漫画样片 |
+| 纸艺立体书原称：立体书牛皮纸场景随书页翻起，像打开立体绘本播放纸艺立体书样片 | 手绘颤线原称：线沸线条轻轻抖动、色块略微错位，像手绘草稿播放手绘颤线样片 |
+| 律动涂鸦原称：舞线涂鸦小人跟着节拍蹦跳，画面充满活力播放律动涂鸦样片 | 橡皮管动画原称：橡皮管软软的手脚摇摆伸展，像早期卡通动画播放橡皮管动画样片 |
+
+ 立体与微缩
+
+从玩具般的小镇到影棚物件，用空间、材质和镜头讲故事。
+
+| 风格预览 | 风格预览 |
+|:---:|:---:|
+| 黏土小镇原称：黏土微缩等距场景家族像手捏出来的黏土小镇，柔软圆润又亲切播放黏土小镇样片 | 等轴小城原称：等轴微缩等距场景家族斜看微缩城市，楼房一座座长出并移过播放等轴小城样片 |
+| 影棚一</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/solplum__anything2video.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

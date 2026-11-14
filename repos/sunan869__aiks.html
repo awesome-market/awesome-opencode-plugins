@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sunan869/aiks · OpenCode Plugins</title>
+<meta name="description" content="sunan869/aiks — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="aiks, sunan869, sunan869/aiks, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/sunan869__aiks">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="sunan869/aiks · OpenCode Plugins">
+<meta property="og:description" content="sunan869/aiks — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/sunan869__aiks">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "sunan869/aiks", "codeRepository": "https://www.npmjs.com/package/aiks", "url": "https://opencode-plugins.zhuikan.com/repos/sunan869__aiks", "description": "sunan869/aiks — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "sunan869", "url": "https://www.npmjs.com/~sunan869"}, "isAccessibleForFree": true, "dateCreated": "2026-09-15"}</script>
+</head>
+<body data-repo="sunan869/aiks" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">sunan869/aiks</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="sunan869__aiks"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+QTwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">aiks</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~sunan869">sunan869</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~sunan869">sunan869</a>
+        <span class="rp-sep">/</span><span class="rp-name">aiks</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-09-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/aiks">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">12</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AIKS · AI Knowledge Sync
+
+
+  
+
+
+
+  
+  
+  
+  
+
+
+让 AI 对话不再是一次性消耗。 AIKS 是面向开发者的本地优先 AI 知识库：汇集 Claude Code、Codex CLI、Cursor、OpenCode 等编程助手的本地历史会话，以及 ChatGPT、Claude、DeepSeek 等平台的公开分享链接，将有价值的 AI 协作经验整理为可搜索、可追溯、可复用的知识。
+
+16 类本地 AI 编程 / Agent 来源 + 8 类网页公开分享来源 = 24 类来源。 本地 Provider 只读、按需启用；AI 提炼和 Embedding 可选，默认不开启。支持全文搜索、可选语义检索、项目关联及 SiYuan 文档同步。
+
+⬇️ 下载最新版本 · 快速开始 · English · 数据源兼容矩阵 · 问题反馈
+
+ AIKS 能帮你做什么？
+
+| 汇集 AI 会话 | 提炼知识 | 搜索和复用 |
+| --- | --- | --- |
+| 在一个入口浏览多种 AI 助手的历史工作记录，无需手动复制粘贴 | 对话清洗、无损分块、AI 提炼，形成知识条目并关联项目、标签及来源 | 全文检索、可选语义搜索及「问 AIKS」，也可以按需同步到 SiYuan |
+
+不是另一个聊天机器人，也不只是聊天记录查看器。 AIKS 的目标是让你下次遇到相似问题时，能找到之前与 AI 协作形成的解决过程和结论。
+
+ 快速开始
+
+1. 从 Releases 下载适合 Windows、macOS 或 Linux 的安装包（以对应 Release 的实际资产为准）。
+2. 打开 数据源，仅启用你要导入的本地工具并扫描会话；也可导入支持的公开分享链接。
+3. 在 工作记录中浏览内容；若希望自动提炼知识，在 设置中主动配置并启用 AI 模型，再到 处理中心 / 知识查看结果。Embedding 与 SiYuan 同步可按需配置。
+
+ 隐私和功能边界： AIKS 不会自动访问网页账号中的私密聊天记录；本地 Provider 不修改来源文件。未配置 AI 服务时仍可浏览导入的会话，但不能自动提炼新知识。具体格式兼容性见支持矩阵。
+
+ 产品界面
+
+下面是 AIKS 的实际 Windows 桌面界面，展示从数据源采集、任务处理到知识复用的主要流程。
+
+
+  
+    
+      
+      数据源管理 — 多种 AI 工具统一接入
+    
+    
+      
+      处理中心 — 同步、提炼和异常状态可追踪
+    
+  
+  
+    
+      
+      知识库 — 结构化知识与原始会话关联
+    
+    
+      
+      问 AIKS — 从历史经验中找答案
+    
+  
+
+
+ 🌐 支持哪些 AI 数据源？
+
+无需将不同平台的对话逐条复制到笔记软件：AIKS 统一读取支持的本地会话，并允许用户导入支持的网页公开分享链接。
+
+ 16 种本地 AI 编程 / Agent 会话
+
+| | | | |
+| --- | --- | --- | --- |
+| Claude Code | OpenAI Codex CLI | Gemini CLI | OpenCode |
+| Cursor | Cursor Agent | GitHub Copilot | Antigravity |
+| Cline | Roo Code | Kilo Code | WorkBuddy |
+| Kimi Code | Qwen Code | Continue | Aider |
+
+本地来源默认关闭，由用户按需启用。 Provider 仅读取允许范围内的会话文件，不修改上游原始记录。不同工具版本、文件格式、安装路径的实际兼容范围有所不同，参见 详细支持矩阵。
+
+ 8 种网页 AI 对话公开分享来源
+
+| | | | |
+| --- | --- | --- | --- |
+| ChatGPT | Claude | Gemini | DeepSeek |
+| 豆包 Doubao | Kimi | 腾讯元宝 Yuanbao | 通义千问 Qwen |
+
+可通过分享链接导入所支持的公开对话内容，无需统一登录各平台账户；网页结构变化可能导致特定链接解析失败。此处是公开分享链接导入，不是读取浏览器登录账户中的所有私有聊天历史。
+
+ 一条对话如何变成可复用的知识？
+
+text
+本地 AI 编程会话（16 类）       网页公开分享链接（8 类）
+              \                  /
+               多来源统一导入与去重
+                        ↓
+             清洗、无损分块、AI 提炼
+                        ↓
+         知识条目 · 标签 · 项目关联 · 来源追溯
+                        ↓
+         全文搜索 · 可选语义搜索 · 问 AIKS
+                        ↓
+                  SiYuan 文档同步
+
+
+AI 提炼和 Embedding 可按需配置，默认不启用；没有模型服务也能管理已导入的会话。SiYuan 文档存在人工编辑冲突时，AIKS 不会直接覆盖。
+
+---
+ 为什么需要 AIKS？
+
+我们已经习惯让 AI 协助排查故障、讨论架构、编写代码和完善方案。但这些对话分散在不同的助手和工作区里：问题解决了，结论却往往留在历史记录中。过几周遇到类似问题，又要重新寻找上下文、重新解释、重新推理。
+
+AIKS 解决的不只是“把聊天记录集中起来”，而是把 AI 协作过程变成一套可以持续复用的个人知识资产：
+
+- 找回过程：从多个 AI 工具只读采集 Session，不需要逐条复制粘贴。
+- 提炼结果：把冗长对话中的问题背景、关键步骤、解决方案整理为结构化知识，而不只保存摘要。
+- 连接上下文：知识能够关联来源会话、项目和文档，必要时追溯原始讨论。
+- 在下一次工作中使用：通过关键词、可选的向量语义检索和知识问答，复用过去解决过的问题。
+- 始终由用户掌控：本地优先、处理过程可观察，错误知识可管理；作废时清理 AIKS 管理的知识和索引，保留以后重新导入的可能。
+
+ 一句话：从“AI 帮我完成一次任务”，走向“每次与 AI 协作都在积累下次可用的经验”。
+
+ 值得关注的核心亮点
+
+ 01 · 多种 AI 工具，一个工作记录入口
+
+不同助手的数据格式各不相同。AIKS 通过 Provider 适配器统一为 Canonical Session，支持本地历史记录与部分公开分享对话导入。可以在工作记录中按来源浏览、预览、筛选并定位原始上下文，不需要重新打开各个工具逐条翻找。
+
+
+ 02 · 不止归档：自动把长对话提炼成知识
+
+采集只是第一步。AIKS 的持久化流水线会按步骤进行解析、清洗、切分、AI 提炼以及可选的向量索引构建；知识条目可以包含标题、分类、摘要、正文和标签。大段技术排查</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-13T10:22:36Z · Data license Apache-2.0 ·
+<a href="../data/repos/sunan869__aiks.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

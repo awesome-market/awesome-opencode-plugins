@@ -1,0 +1,171 @@
+# oh-my-coding-maas-gateway
+
+LiteLLM proxy routing Huawei MaaS models to opencode, Codex CLI, Claude
+Code CLI, and Pi agent — with virtual keys, multi-key load balancing,
+dual-format endpoints, and Prometheus + Grafana observability.
+
+---
+
+## What Is This?
+
+A self-hosted gateway that sits between your coding tools and Huawei ModelArts
+MaaS, giving you load balancing, virtual keys, budget tracking, and
+observability — all through a single local proxy.
+
+```
+  Tools               LiteLLM (:4000)                  Huawei MaaS
+  ─────               ───────────────                  ────────────
+
+  opencode    ──→ /v1/chat/completions ──→ openai/ provider    ──→ MaaS OpenAI endpoint
+  Codex CLI   ──→ /v1/responses        ──→ openai/ provider    ──→ MaaS OpenAI endpoint
+  Claude Code ──→ /v1/messages         ──→ anthropic/ provider ──→ MaaS Anthropic endpoint
+  Pi agent    ──→ /v1/chat/completions ──→ openai/ provider    ──→ MaaS OpenAI endpoint
+
+  LiteLLM: load-balances across N MaaS keys · PostgreSQL (internal :5432, not published)
+  Observability: LiteLLM ──/metrics──→ Prometheus (:9090) ──→ Grafana (:3000)
+```
+
+**2 models:** glm-5.3 (reasoning core), deepseek-v4.1-flash-1017 (accepts image
+input — first multimodal model)
+
+---
+
+## Install
+
+The bootstrap script is the only installation method. It handles
+everything — prerequisites, Docker stack, coding tools, virtual keys,
+companion skill + agent tool bundles (default-on), then validation.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash
+```
+
+Bootstrap will prompt for your Huawei MaaS API key, show an interactive
+menu to select which coding tools to install, auto-install prerequisites,
+deploy the proxy + observability stack, configure each tool with its own
+virtual key, install (default-on; interactive runs confirm) the companion skill
+and agent tool bundles, then run validation.
+
+### Non-interactive
+
+```bash
+# Fresh install with API key (no prompts)
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash -s -- -y --api-key=sk-xxxx
+
+# Upgrade existing install (pull updates, regenerate configs)
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash -s -- -y
+
+# Non-interactive with specific tools only
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash -s -- -y --api-key=sk-xxxx --tool=litellm,opencode
+```
+
+Non-interactive upgrades discard local repo changes if `git pull` fails —
+bootstrap prints a warning counting what is being discarded before
+resetting to `origin/main`. `.env`, the generated LiteLLM config, and
+Docker volumes are preserved; tracked repo files, including config
+templates, are reset.
+
+Estimated time: ~5 min fresh, ~2 min upgrade. For flags and non-interactive
+usage, see [INSTALLATION.md](./INSTALLATION.md).
+
+### After install
+
+```bash
+opencode          # or:  codex  or:  claude --bare  or:  pi
+```
+
+Monitor at `http://localhost:3000` (Grafana) or `http://localhost:4000/ui`
+(LiteLLM Admin).
+
+---
+
+## Upgrade
+
+Same command — bootstrap detects existing install, compares versions, and
+pulls updates. All secrets and data preserved.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash
+```
+
+Or non-interactive:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wallacelw/oh-my-coding-maas-gateway/main/scripts/bootstrap.sh | bash -s -- -y
+```
+
+In non-interactive mode, if `git pull` fails, bootstrap warns about the
+local commits and uncommitted changes it is discarding, then resets to
+`origin/main` — `.env`, the generated LiteLLM config, and Docker volumes
+are preserved; tracked repo files, including config templates, are reset.
+
+After upgrade, restart any running coding tools — plugin/preset changes
+are not hot-reloaded.
+
+### Update coding tools only
+
+To check and update individual components (opencode, Codex, Claude Code,
+Pi, LiteLLM, Grafana, Prometheus; PostgreSQL is listed as pinned and
+display-only, never auto-updated) without re-running the full pipeline:
+
+```bash
+./scripts/update.sh              # interactive: show versions, select which to update
+./scripts/update.sh --check      # show version table only
+./scripts/update.sh --all        # update all with updates available
+./scripts/update.sh --dry-run    # show what would be updated, no changes
+```
+
+Does not touch passwords, API keys, or virtual keys. Note: updating
+Docker images or slim plugin modifies `docker-compose.yml` and
+`scripts/03a_opencode.sh` in-place — changes are auto-committed.
+
+---
+
+## Companion Skill
+
+During installation (step 04), bootstrap installs (default-on; interactive runs
+confirm) [SKILL.md](./SKILL.md) (plus the REA/drawio bundles) into each detected
+coding agent. These include two agent tool bundles: **REA** (reverse-engineering MCP +
+skill) and **drawio** (diagramming MCP + skill). The companion skill gives your agents
+operational guidance — health diagnosis, key/model management, debug
+routing, observability, and recovery. Bundles are default-on and can be
+declined with `--no-bundles`; everything runs locally (see the data-flow
+audit in [REFERENCE.md](./REFERENCE.md)).
+
+```bash
+./scripts/04_skills_mcps.sh --yes    # install skills + bundles manually anytime
+```
+
+---
+
+## Uninstall
+
+```bash
+./scripts/uninstall.sh --all --dry-run   # preview
+./scripts/uninstall.sh --tool=opencode   # remove one agent
+./scripts/uninstall.sh --all             # remove everything
+```
+
+---
+
+## Backup
+
+```bash
+./scripts/06_backup.sh                  # dump LiteLLM DB (spend history, keys, budgets)
+./scripts/06_backup.sh --restore FILE   # restore from a dump
+./scripts/07_dashboard_shots.sh         # capture Grafana dashboard screenshots (visual verification)
+```
+
+Run before `docker compose down -v` — the DB volume is destroyed otherwise.
+
+---
+
+## Documentation
+
+| File | For | Description |
+|------|-----|-------------|
+| **[INSTALLATION.md](./INSTALLATION.md)** | Everyone | Install process, pipeline, flags, env vars, prerequisites, per-tool usage, monitoring, remote access, recovery, upgrade |
+| **[SKILL.md](./SKILL.md)** | Agents | Operational companion: install, upgrade, diagnose, key/model management, recovery |
+| **[REFERENCE.md](./REFERENCE.md)** | Everyone | Architecture, config, env vars, tool integration, repair guide, lifecycle |
+| **[CHANGELOG.md](./CHANGELOG.md)** | Everyone | Version history |
+| **[AGENTS.md](./AGENTS.md)** | Contributors | Development rules, validation, commit conventions |

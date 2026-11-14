@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bencibr/bugx · OpenCode Plugins</title>
+<meta name="description" content="bencibr/bugx — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="bugx, bencibr, bencibr/bugx, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/bencibr__bugx">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="bencibr/bugx · OpenCode Plugins">
+<meta property="og:description" content="bencibr/bugx — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/bencibr__bugx">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "bencibr/bugx", "codeRepository": "https://www.npmjs.com/package/bugx", "url": "https://opencode-plugins.zhuikan.com/repos/bencibr__bugx", "description": "bencibr/bugx — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "bencibr", "url": "https://www.npmjs.com/~bencibr"}, "isAccessibleForFree": true, "dateCreated": "2026-11-10"}</script>
+</head>
+<body data-repo="bencibr/bugx" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">bencibr/bugx</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="bencibr__bugx"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+QjwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">bugx</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~bencibr">bencibr</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~bencibr">bencibr</a>
+        <span class="rp-sep">/</span><span class="rp-name">bugx</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-11-10</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/bugx">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">---
+audience: 开发者、安全工程师与 AI 编程宿主
+status: DOCUMENTATION_UNVERIFIED
+version: 0.1.0
+last-verified: 2026-11-10
+website: https://bugx.dev
+description: &quot;BugX 是面向开发者和 AI 编程宿主的本地优先、证据驱动 AI 代码审计与漏洞挖掘 CLI，支持 MCP/ACP 宿主集成、缺陷复现、发现验证和安全报告。&quot;
+keywords: &quot;AI 代码审计, 应用安全, 代码安全审查, 漏洞挖掘, 漏洞检测, 缺陷复现, MCP, ACP, Claude Code, OpenAI Codex, OpenCode, Cline, ZCode, Python CLI, Node.js CLI, npm, PyPI&quot;
+---
+
+
+  
+    
+  
+
+
+
+  简体中文 · English · 项目官网
+
+
+
+  
+  
+  
+  
+
+
+ BugX
+
+ 搜索摘要 —— BugX 是面向开发者和 AI 编程宿主的本地优先、证据驱动 AI 代码审计与漏洞挖掘 CLI。它可连接 Claude Code、OpenAI Codex、OpenCode、Cline、ZCode 等 MCP/ACP 宿主，检查真实源代码、复现缺陷、验证发现，并生成有证据支撑的安全报告。
+
+ 项目官网： bugx.dev
+
+BugX 是一个面向真实软件项目的、源码可见且证据驱动的安全工具。它把 AI 辅助代码审查、应用安全测试、漏洞挖掘和已验证缺陷复现放进同一套本地优先工作流。
+
+BugX 不会把模型回答、ready 状态或零退出码当作审计完成的证明。它把项目状态保存到私有的 .bugx/ 目录，通过本地 Supervisor 协调受支持的 AI 宿主与 Worker，并记录覆盖率、生命周期 receipt、Finding 决策、执行工件和恢复状态。
+
+简单说：BugX 帮助开发者发现深层 Bug 和安全缺陷，复现问题，并把真实验证证据与模型文本区分开。
+
+ 为什么使用 BugX？
+
+- 证据优先的审计： 跟踪覆盖率、执行 receipt、Finding 决策、工件哈希和完成门禁状态。
+- AI 宿主集成： 把支持 MCP/ACP 的编程宿主接入结构化审计生命周期。
+- 可复现结果： 将项目状态、报告、缺陷复现工件和恢复信息统一保存。
+- 本地优先控制： 云端上传、诊断、反馈和同步都必须显式执行。
+
+本仓库当前语义版本为 0.1.0。文档与当前源码树保持同步，但真实宿主 ACP、自治端到端运行、远端云同步和跨平台安装仍需要在对应环境中单独验证。
+
+ Host Banner 与能力矩阵
+
+BugX 可以集成多个 AI 编程宿主，但宿主能力是分开计算的。“可安装/可检测”不等于已经有 ready engine plugin，也不等于支持 ACP 或自治审计。
+
+| 能力 | 当前宿主 |
+| --- | --- |
+| 安装与检测适配器 | ChatGPT、Claude Code、Cline、OpenAI Codex、DSH、FunIDE、OpenCode、Pi、Qoder、Trea、WorkBuddy、ZCode |
+| Ready engine plugin | OpenCode、OpenAI Codex、Cline、DSH、Claude Code、Pi、ZCode |
+| ACP 已就绪 | Cline、OpenCode |
+| 自治 CLI 选项 | Claude Code、OpenAI Codex、OpenCode、DSH、Cline、ZCode |
+
+请以当前机器检测结果为准：
+
+bugx hosts --root . --json
+
+完整说明见：Host、MCP 和 ACP 能力矩阵。
+
+ 环境要求与安装
+
+- Python =3.11：Python 包和 CLI 需要。
+- Node.js =18：使用 npm wrapper 时需要。
+
+从 npm 或 PyPI 安装：
+
+bash
+python -m pip install bugx-cli
+ 或
+npm install -g bugx-cli
+
+
+部分能力提供可选 Python extras：tui、graph 和 crypto。基础包不会隐式安装这些可选依赖。
+
+ 安全的首次运行
+
+在目标项目根目录先初始化本地状态，再只安装你打算使用的宿主：
+
+bash
+bugx init --root . --cloud-sync local
+bugx install --root . --agent opencode
+bugx doctor --root . --strict
+bugx engine --root . status
+
+
+--agent 必须使用当前安装/检测适配器中的名称。使用 bugx hosts 查看本机宿主矩阵。在非交互 shell 中，bugx init 需要明确指定 --cloud-sync local|sync，除非 preset 已经提供选择。
+
+宿主能力按集成类别区分；请以上方矩阵和本机的 bugx hosts 输出为准，不要从“可安装”推断 ACP 或自治能力。
+
+ 执行审计
+
+公开 engine 入口位于 engine 命名空间下：
+
+bash
+bugx engine --root . pre
+bugx engine --root . status --json
+bugx engine --root . post
+
+
+按目标执行：
+
+bash
+bugx autonomous --root . --host opencode
+bugx goal --root . --host opencode &quot;audit the project&quot;
+
+
+退出码或模型响应本身不代表审计完成。只有当生命周期、覆盖率、证据 receipt、Finding 决策和完成门禁一致时，才能交付审计结果。bugx audit 可能只启动一个等待原生 Agent 的图流程；ready 不等于 complete。
+
+ BugX 会记录什么？
+
+每次审计都会保留理解过程和复现结果所需的证据：
+
+- 项目范围与覆盖率；
+- 生命周期、Worker 和 Host receipt；
+- 命令、退出码、工件路径与 SHA-256 哈希；
+- Finding 候选、独立验证以及确认/拒绝决策；
+- 报告、checkpoint 与可恢复状态。
+
+这套证据模型让安全审查结果更容易检查、复现和交接。
+
+ 文档
+
+- 用户指南：安装、配置、宿主能力、生命周期、MCP/ACP、云端范围、结果与恢复。
+- 命令参考：命令、选项、默认值、作用域、副作用和退出行为。
+- 故障排查：按症状诊断、证据收集和可恢复的下一步。
+- AI 参考：面向机器的 MCP、生命周期、状态、证据与失败契约。
+- 文档索引：架构与文档导航。
+- 项目官网：产品介绍与公开入口。
+
+ 数据与安全边界
+
+项目状态保存在 .bugx/ 下；全局引擎、凭据、知识库、缓存、遥测和云配置使用 BugX 用</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-12T15:40:49Z · Data license Apache-2.0 ·
+<a href="../data/repos/bencibr__bugx.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aifcoding/opencode-memory · OpenCode Plugins</title>
+<meta name="description" content="Local-first persistent memory plugin for opencode: three-layer memory (long-term knowledge / episodic summary / working memory) with SQLite + Chinese-aware retrieval (RAG), fully local.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-memory, aifcoding, aifcoding/opencode-memory, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, memory">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/aifcoding__opencode-memory">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="aifcoding/opencode-memory · OpenCode Plugins">
+<meta property="og:description" content="Local-first persistent memory plugin for opencode: three-layer memory (long-term knowledge / episodic summary / working memory) with SQLite + Chinese-aware retrieval (RAG), fully local.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/aifcoding__opencode-memory">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "aifcoding/opencode-memory", "codeRepository": "https://github.com/aifcoding/opencode-memory", "url": "https://opencode-plugins.zhuikan.com/repos/aifcoding__opencode-memory", "description": "Local-first persistent memory plugin for opencode: three-layer memory (long-term knowledge / episodic summary / working memory) with SQLite + Chinese-aware retrieval (RAG), fully local.", "author": {"@type": "Organization", "name": "aifcoding", "url": "https://github.com/aifcoding"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-10", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,memory"}</script>
+</head>
+<body data-repo="aifcoding/opencode-memory" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">aifcoding/opencode-memory</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="aifcoding__opencode-memory"><img class="rp-side-av" src="https://github.com/aifcoding.png?s=300" width="300" height="300" alt="aifcoding avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-memory</div>
+      <a class="rp-side-owner" href="https://github.com/aifcoding">aifcoding</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/aifcoding">aifcoding</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-memory</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Local-first persistent memory plugin for opencode: three-layer memory (long-term knowledge / episodic summary / working memory) with SQLite + Chinese-aware retrieval (RAG), fully local.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>5</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/memory">memory</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-10</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/aifcoding/opencode-memory">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">5</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">15</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-memory
+
+简体中文 | English
+
+
+
+
+
+本地优先的通用 AI 记忆内核与适配器集合，OpenCode 是首个适配器。@aifcoding/memory-core 提供框架无关的记忆 API；@aifcoding/opencode-memory 将其接入 OpenCode。
+
+通过长期知识、情景摘要、会话工作记忆三层模型，让 AI 在不同生命周期内保存和检索信息。默认实现将数据保存在本地 SQLite 中，中文检索由 jieba-wasm 与 SQLite FTS5 提供，无需数据库服务器、向量服务或外部 API。
+
+!记忆插件演示
+
+保存 → 新会话召回 → 固定 → 每轮注入（真实工具输出）
+
+ 选择使用方式
+
+| 目标 | 使用包 | 状态 |
+|---|---|---|
+| 给 OpenCode 增加记忆 | @aifcoding/opencode-memory | 已实现 |
+| 在自己的 Bun/TypeScript 应用中使用 | @aifcoding/memory-core | 已实现 |
+| 给 Claude Code、Cursor、Hermes 等 MCP 客户端使用 | @aifcoding/memory-mcp | 已实现，待发布 |
+| 使用 HTTP/SSE 或 CLI 管理记忆 | 后续能力 | 规划中，尚未实现 |
+
+ 三层记忆模型
+
+| 层级 | 数据表 | 生命周期 | 典型内容 | OpenCode 工具 | Core API |
+|---|---|---|---|---|---|
+| 长期知识 | memories | 跨会话持久保存 | 技术偏好、环境事实、架构决策、经验教训、团队约定 | memory_ | storeMemory / recallMemories |
+| 情景摘要 | session_summaries | 会话压缩后自动归档 | 历史会话的目标、进展、结论和未完成事项 | recall_summaries | archiveSummary / recallSummaries |
+| 会话工作记忆 | session_kv | 按 sessionID 隔离（持久） | 当前需求编号、临时约束、中间状态 | kv_ | setContextValue / getContextValue / listContextValues / deleteContextValue |
+
+固定记忆不是第四层，而是长期知识的一种使用方式：通过 memory_pin 将指定长期记忆设为每轮自动注入。
+ 核心特性
+
+- 三层记忆模型：长期知识、情景摘要、会话工作记忆。
+- 本地优先：SQLite + Bun，无需数据库服务器或外部服务。
+- 中文友好检索：jieba-wasm + SQLite FTS5 BM25，并支持代码标识符。
+- 显式 Pin：full/summary、渲染长度配额和非持久化上下文注入。
+- 自动归档：OpenCode compaction 摘要自动幂等保存并可跨会话检索。
+- 可复用 Core：异步 MemoryManager 与可注入 Tokenizer。
+- 分层召回：默认返回标题+摘要（L1），字符预算控制长度，超出预算的候选以轻量标题列表导航，按需 readMemory 取全文。
+- 安全辅助提取（默认关闭）：从会话生成低信任候选，必须人工审批后才成为正式记忆。
+
+ 快速开始
+
+ 使用 OpenCode 适配器
+
+同一份包同时支持 OpenCode v1 和 v2。
+
+v1（1.18.29+） 使用 plugin：
+
+jsonc
+{
+  &quot;plugin&quot;: [&quot;@aifcoding/opencode-memory&quot;]
+}
+
+
+v2（2.x） 使用 plugins：
+
+jsonc
+{
+  &quot;plugins&quot;: [{ &quot;package&quot;: &quot;@aifcoding/opencode-memory&quot; }]
+}
+
+
+v1 走对象入口的 server()，v2 走 setup(ctx)；工具、Pin、自动提取和摘要归档在两边都可用。v2 没有 TUI Toast，自动更新提示改写到服务端日志；本地插件路径必须是目录。
+
+OpenCode 启动时会通过 Bun 自动安装并缓存插件。
+
+直接对 OpenCode 说：
+
+text
+记住：这个项目统一使用 Bun，不使用 npm 或 yarn。安装依赖和运行脚本都使用 bun。
+
+
+插件会调用 memory_store，并返回类似结果：
+
+text
+已记住 (id=1) Bun 包管理约定
+
+
+最小配置（可选）写入 ~/.config/opencode/opencode-memory.jsonc；tuple options 优先于文件配置：
+
+jsonc
+{ &quot;dbPath&quot;: &quot;/Users/you/.local/share/opencode/memory/memory.db&quot;, &quot;pinQuota&quot;: 8000 }
+
+
+ 使用 Headless Core
+
+bash
+bun add @aifcoding/memory-core
+
+
+ts
+import { createSqliteMemoryManager } from &#x27;@aifcoding/memory-core/sqlite&#x27;;
+const manager = createSqliteMemoryManager({ dbPath: &#x27;/tmp/memory.db&#x27; });
+const memory = await manager.storeMemory({ title: &#x27;运行约定&#x27;, content: &#x27;项目使用 Bun。&#x27;, summary: &#x27;使用 Bun&#x27;, type: &#x27;convention&#x27; });
+console.log((await manager.recallMemories({ query: &#x27;Bun&#x27; })).memories);
+await manager.pinMemory({ id: memory.id, pinMode: &#x27;summary&#x27; });
+console.log((await manager.getPinnedContext()).text);
+await manager.close();
+
+
+可通过 options.tokenizer 注入自定义分词器：
+
+ts
+const tokenizer = { tokenize: (text: string) = text.toLowerCase().split(/\s+/u).join(&#x27; &#x27;) };
+const manager = createSqliteMemoryManager({ dbPath: &#x27;/tmp/memory.db&#x27;, tokenizer });
+
+
+Tokenizer 是数据库索引格式的一部分，更换时请导出数据并用新的空数据库重新导入。
+@aifcoding/memory-core/sqlite 使用 bun:sqlite，仍要求 Bun 运行时。
+
+ 从源码运行
+
+前置条件：OpenCo</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/aifcoding__opencode-memory.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

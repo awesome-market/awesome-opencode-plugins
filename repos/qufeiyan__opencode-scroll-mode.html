@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>qufeiyan/opencode-scroll-mode · OpenCode Plugins</title>
+<meta name="description" content="OpenCode TUI scroll mode plugin — toggle edit/scroll states with vim keys, message search, and line-precise visual selection/copy">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-scroll-mode, qufeiyan, qufeiyan/opencode-scroll-mode, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, workflow, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/qufeiyan__opencode-scroll-mode">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="qufeiyan/opencode-scroll-mode · OpenCode Plugins">
+<meta property="og:description" content="OpenCode TUI scroll mode plugin — toggle edit/scroll states with vim keys, message search, and line-precise visual selection/copy">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/qufeiyan__opencode-scroll-mode">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "qufeiyan/opencode-scroll-mode", "codeRepository": "https://github.com/qufeiyan/opencode-scroll-mode", "url": "https://opencode-plugins.zhuikan.com/repos/qufeiyan__opencode-scroll-mode", "description": "OpenCode TUI scroll mode plugin — toggle edit/scroll states with vim keys, message search, and line-precise visual selection/copy", "author": {"@type": "Organization", "name": "qufeiyan", "url": "https://github.com/qufeiyan"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,workflow,server,tui"}</script>
+</head>
+<body data-repo="qufeiyan/opencode-scroll-mode" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">qufeiyan/opencode-scroll-mode</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="qufeiyan__opencode-scroll-mode"><img class="rp-side-av" src="https://github.com/qufeiyan.png?s=300" width="300" height="300" alt="qufeiyan avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-scroll-mode</div>
+      <a class="rp-side-owner" href="https://github.com/qufeiyan">qufeiyan</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/qufeiyan">qufeiyan</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-scroll-mode</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode TUI scroll mode plugin — toggle edit/scroll states with vim keys, message search, and line-precise visual selection/copy</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/qufeiyan/opencode-scroll-mode">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.3.4</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-scroll-mode/v/0.3.4">0.3.4 ↓</a><span class="rp-dl-ver">0.3.4</span><span class="rp-dl-date">2026-11-10</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-scroll-mode
+
+OpenCode TUI 的「对话滚动模式」插件：一键切换编辑 / 滚动两种状态，滚动时支持 vim 键位、消息搜索与 visual 选区复制。
+
+ 安装
+
+ npm（推荐）
+
+sh
+opencode plugin add opencode-scroll-mode
+
+
+opencode plugin add 会从 npm 安装并写入全局 opencode.json(c) 的 plugins。也可以锁定版本：
+
+sh
+opencode plugin add opencode-scroll-mode@0.3.3
+
+
+升级 / 移除：
+
+sh
+opencode plugin update opencode-scroll-mode
+opencode plugin remove opencode-scroll-mode
+
+
+ 手动配置
+
+在 opencode.json(c) 的 plugins 中加入包名，OpenCode 会在启动时自动安装缺失的 npm 包：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;plugins&quot;: [&quot;opencode-scroll-mode&quot;]
+}
+
+
+ 本插件同时包含 server 与 TUI 入口，因此配置在 opencode.json(c)；只含 TUI 的插件才放在 cli.json。
+
+ 如果不使用 npm 包，也可以把插件目录放在自动加载路径（如 ~/.config/opencode/plugins/scroll-mode/），无需再写进 plugins。
+
+ 功能
+
+- ctrl+[（默认，可用 toggleKey 配置）在「编辑模式」与「滚动模式」之间切换。
+  - 编辑模式：输入框保留原生 readline 键位。
+  - 滚动模式：导航键位移动 transcript 中的行 / 字符游标；只有游标到达视口边缘时才让宿主滚动，并启用 vim 键位与搜索。
+  - 滚动模式会锁定输入框：进入时让编辑器失焦、隐藏编辑光标，并全局吞掉按键，避免滚动时误把字符打进 prompt；退出时恢复焦点、光标与输入。当其他组件（命令面板、搜索、选择等对话框）获得焦点时，滚动键位会整体挂起，把键盘交给对话框，避免在面板里打字时后台游标乱跳。
+- 滚动全部委托给 OpenCode 内置的 session. 命令，不自行计算偏移，避免与 transcript 分页冲突。
+- 状态存于内存：每次 TUI 启动重置，插件热重载时保留。
+
+ 键位（仅滚动模式下生效）
+
+| 键 | 动作 |
+| --- | --- |
+| ctrl+[ | 开 / 关滚动模式（默认，可用 toggleKey 改） |
+| j / k | 上 / 下移动行游标（到视口边缘时滚动一行） |
+| h / l、← / → | 左 / 右移动字符游标 |
+| w / b / e | 下一个词首 / 上一个词首 / 词尾 |
+| 0 / $ | 行首 / 行尾 |
+| ctrl+d / ctrl+u | 下 / 上半页（游标保持屏幕行） |
+| ctrl+f / ctrl+b | 下 / 上整页（游标保持屏幕行） |
+| gg / G | 跳到首条 / 末条消息 |
+| [ / ] | 上 / 下一条用户消息 |
+| / / ? | 打开搜索（正 / 反向） |
+| n / N | 下 / 上一个匹配 |
+| v / V | 从当前游标位置进入 charwise / linewise visual 选区 |
+| y | 普通状态复制游标行；visual 中 yank 选区 |
+| Y | 普通状态复制当前视口所有可复制行；visual 中按整行 yank |
+| q | 退出滚动模式（visual 中先取消选区） |
+
+ 游标、Visual 选区与复制
+
+滚动模式始终有一个真实的行 + 字符游标：j / k 上下移动行，h / l（以及 w / b / e、0 / $）移动行内字符。游标到达视口上下边缘时才让宿主滚动一行，并让游标贴住新边缘（类似 vim 的 scrolloff 行为）；到达最后一页的最后一行时 j 不会再把游标卡在首行。
+
+按 v / V 时，以当前游标所在行和字符列为锚点。因此可以先在普通状态下用 l / w / $ 把游标移到行内任意位置，再按 v 从该字符开始选择；v 之后 h / l 调整的是选区的活动端。
+
+| 键 | 动作 |
+| --- | --- |
+| v | charwise（字符）选择 |
+| V | linewise（整行）选择 |
+| j / k | 上 / 下移动行游标（到边缘时滚动） |
+| h / l、← / → | 向左 / 右移动字符端（普通状态移动游标，visual 中扩展选区） |
+| w / b / e | 下一个词首 / 上一个词首 / 词尾 |
+| 0 / $ | 行首 / 行尾 |
+| o | 交换锚点与游标 |
+| y | yank 选中文本（可跨消息）→ 系统剪贴板，退出 visual |
+| Y | 按整行 yank 当前选区，退出 visual |
+| esc / q | 取消选区，留在滚动模式 |
+
+普通状态下 y 复制游标所在行，Y 按屏幕顺序复制当前视口内所有可复制行（代码块、软换行行都包含在内）——这就是「逐行取得显示内容」的入口。
+
+ 精确到每一显示行
+
+插件会在 transcript 的 ScrollBox 下遍历可选择文本节点，读取每个节点的 lineInfo：
+
+- lineSources[]：该视觉行来自哪一条源文本行；
+- lineWraps[]：软换行的第几段；
+- lineStartCols[] / lineWidthCols[]：该段在源行中的显示列范围（CJK、Tab 按显示宽度计算）。
+
+因此 CodeRenderable（代码块）、LineNumberRenderable 里的代码目标、以及被软换行拆开的普通段落，都会按屏幕上真正画出的那一行建立索引；代码块的每一行和折行后的每一段都能单独定位、扩展和复制。行号/边框等非文本节点不会被当成内容。
+
+ 复制来源与颜色
+
+yank 优先使用宿主的选区 API（renderer.startSelection / updateSelection / getSelectedText），与鼠标拖选共用同一套渲染与文本提取逻辑，所以软换行、代码块、跨消息选区的文本都是宿主的精确结果。选区容器会沿父链提升到 transcript 的 ScrollBox，避免把侧栏、状态栏文字卷进来。若宿主选区拿不到文本，则回退到上面的逐行索引拼接。
+
+yank 后写入系统剪贴板：优先 OSC52（iTerm2 需在设置里允许终端访问剪贴板；tmux 需 set -g set-clipboard on；ssh 远端也可能直接生效），失败时回退 pbcopy（macOS）/ wl-copy / xclip（Linux）。
+
+滚动模式下，字符游标所在格会画一条 1 格竖线（r</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/qufeiyan/opencode-scroll-mode/releases"><b>0.3.4</b> <span class="rp-rel-tag">0.3.4</span> <span class="rp-item-extra">2026-11-10</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/qufeiyan__opencode-scroll-mode.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+# Borg MCP
+
+Multi-agent coordination for Claude Code, Codex, and OpenCode. Borg runs the
+agent CLI you already installed and connects its sessions through a self-hosted
+coordination server on your computer or private LAN. A shared coordination
+space is a **cube**. Each connected agent session is a **drone**, and its
+**role** defines how it works.
+
+![Claude Code, Codex, and OpenCode drones coordinate through a local Borg cube and server while an operator directs the work; Git and npm reach their usual remotes.](https://borgmcp.ai/how-it-works.png)
+
+## Install
+
+```bash
+npm install -g borgmcp
+```
+
+Continue with the [Get Started guide](https://borgmcp.ai/get-started/) to check
+the requirements, configure Borg, start the local server, and add your first
+drone. Borg has no hosted account or subscription.
+
+## Choose A Command
+
+- `borg clone <repository-url>` checks out a new repository and delegates its
+  complete cube, roster, and launch setup to `borg quickstart`. Use
+  `--checkout-only` to stop after checkout; `--no-launch` remains an explicit
+  compatibility alias. In a non-interactive terminal, full setup requires both
+  `--yes` and `--template <name>`.
+- `borg quickstart` creates, staffs, and launches the full roster for the Git
+  repository you are already in. Repeat `--role <slug>[:<count>]` to replace the
+  template roster with an explicit selection. Rerunning it keeps existing drones
+  and continues after cancellation or partial failure.
+- `borg launch-all --cli opencode` reopens saved drone worktrees using OpenCode.
+  Choose `claude` or `codex` instead, or omit `--cli` to use each worktree's saved
+  choice. The explicit choice is remembered in each launched worktree. See
+  [Batch startup](docs/BATCH_STARTUP.md) for terminal routing and preview options.
+- `borg assimilate [role]` adds or resumes one drone under one role. Use it when
+  you need one more drone or want to reattach a saved worktree, not when you want
+  the repository's complete initial roster. Omit the role to auto-pick from cube
+  roles and occupancy, not the worktree name. For manual fleet setup, pass each
+  role explicitly: `borg assimilate "Release Quality" --worktree release-quality`.
+- `borg representative prepare --host <host:port> --coordinator <drone-label>` connects a **human
+  representative**: a separate automated drone, under its own role, through
+  which a standard MCP host such as Hermes relays your requests, questions and
+  decisions to one named **Coordinator** — the drone whose role speaks with the
+  human's authority and dispatches the others — and reads its replies.
+  `borg representative mcp` serves its five restricted tools over stdio. The
+  representative is not you and not the Coordinator, cannot address other
+  drones, and sees reply content only when it reads. Reading is replayable until
+  the host calls `deliver` after durably persisting the replies. A separate
+  `borg representative listen --worktree <path>` emits body-free wake hints;
+  `borg representative status --worktree <path>` reports tool and listener ownership. See
+  [Human representative](docs/HUMAN_REPRESENTATIVE.md).
+
+## Activity-Log Routing
+
+Every `borg_log` call requires an explicit `to` audience:
+
+| Audience | JSON fields (alongside `message`) |
+| --- | --- |
+| Every drone | `{"to":"broadcast"}` |
+| One recipient | `{"to":["Build"]}` |
+| Several recipients | `{"to":["Build","Review"]}` |
+
+Direct delivery **always uses a non-empty selector array**, even for one recipient.
+Selectors may be exact drone labels, drone IDs, stable `id:` tokens from the
+roster, role names, or role slugs. `Build` and `Review` are example role names;
+use selectors from your cube. `{"to":"Build"}`, `{"to":[]}`, and omitted `to`
+are invalid. Only the literal string `"broadcast"` broadcasts; an array always
+requests direct delivery. Message prose and taxonomy classes never choose recipients. Direct recipients
+determine delivery and wakes, not read confidentiality; the cube remains the
+trust boundary. Use `borg_read_log` to drain unread entries and `borg_read_entry`
+to retrieve one known complete entry by `entry_id` without moving the unread
+cursor.
+
+Pass `refs` with local Git refs when a log entry needs commit provenance. The
+client resolves each ref in the seat repository and appends `<ref> = <40-hex>`
+to the message; `REVIEW-READY` entries require this mechanism. Invalid refs and
+typed full SHAs whose seven-character prefix resolves to a different commit are
+refused. Full SHAs that cannot be checked locally remain allowed and are listed
+as unverified in the tool result for cross-repository citations.
+
+## Documentation
+
+- [Core concepts](https://borgmcp.ai/docs/concepts/) defines cubes, drones,
+  roles, and the activity log.
+- [CLI commands](https://borgmcp.ai/docs/cli/) covers launching, resuming,
+  updating, and worktree maintenance. The installed client's `borg --help` and
+  `borg <command> --help` are the exact reference for its version.
+- [MCP tool reference](https://borgmcp.ai/docs/tools/) lists the `borg_...`
+  tools available inside agent sessions. Tool names use underscores throughout;
+  see [tool-name migration](docs/TOOL_NAME_MIGRATION.md) before upgrading an
+  installation with tool-specific permissions or cached MCP declarations.
+- [Cube documents](docs/DOCUMENTS.md) explains immutable durable content,
+  revisions, removal, and structured activity-log citations.
+- [Human representative](docs/HUMAN_REPRESENTATIVE.md) explains connecting an
+  MCP host such as Hermes to one Coordinator, message attribution, retries,
+  replayable reads with a delivered checkpoint, and supervised wake hints.
+- [Server operations](https://borgmcp.ai/docs/run-server/) covers loopback and
+  private-LAN operation.
+- [Security](https://borgmcp.ai/docs/security/) explains invitations, client
+  access, and network exposure.
+- [Self-hosting](https://borgmcp.ai/docs/self-hosting/) covers data locations,
+  backups, client administration, and upgrades.
+- [FAQ](https://borgmcp.ai/docs/faq/) answers common setup and workflow
+  questions.
+
+For client-specific recovery details, see
+[`docs/LOCAL_SERVER.md`](docs/LOCAL_SERVER.md) and
+[`docs/SEAT_LIFECYCLE.md`](docs/SEAT_LIFECYCLE.md).
+
+## Agent Permissions
+
+OpenCode 1 and OpenCode 2.1.2+ are supported. Borg selects the installed
+executable's version on every launch. V2 keeps native Code Mode and uses a private
+server per drone with a separate V2 database to preserve V1. Saved provider
+accounts may need `/connect` in the Borg TUI. See [OpenCode integration](docs/OPENCODE.md) for session resume,
+Code Mode, permissions, upgrades, and configuration recovery.
+
+Borg can remove repeated approval prompts for its own coordination tools. It
+does not approve shell commands, file operations, or web access.
+
+Claude Code receives Borg's MCP tool allowlist at launch. For Codex and OpenCode,
+Borg checks the effective configuration and automatically applies a launch-only
+override when restrictive Borg approvals are found. It prints the affected tool
+count and discloses that approving `borg_tool` also approves any Borg operation
+invoked through it. Pass `--no-borg-approval-override` to skip the override and
+receive the warning plus repair snippet instead. The launch-only override does
+not modify the agent's configuration. `borg setup` can show the corresponding
+persistent configuration snippets.
+
+## Wake Recovery
+
+If `borg_regen` or `borg_stream_status` reports a wake-up problem, follow the
+recovery command it prints. For Codex or OpenCode, relaunch through `borg` if the
+agent's local control connection is no longer available.
+
+## License
+
+This client and [`borgmcp-shared`](https://github.com/Byte-Ventures/borg-mcp-shared) are Apache-2.0; the self-hosted [`borgmcp-server`](https://github.com/Byte-Ventures/borg-mcp-server) is licensed separately under FSL-1.1 and converts to Apache-2.0 under its terms. See this client's [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## Links
+
+- [Documentation](https://borgmcp.ai/docs/)
+- [Client repository](https://github.com/Byte-Ventures/borg-mcp-client)
+- [Shared contracts](https://github.com/Byte-Ventures/borg-mcp-shared)
+- [Self-hosted server](https://github.com/Byte-Ventures/borg-mcp-server)
+- [Issue tracker](https://github.com/Byte-Ventures/borg-mcp-client/issues)

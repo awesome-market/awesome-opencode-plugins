@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>edifierx666/magpie-local-services · OpenCode Plugins</title>
+<meta name="description" content="magpie page plugin: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-local-services, edifierx666, edifierx666/magpie-local-services, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/edifierx666__magpie-local-services">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="edifierx666/magpie-local-services · OpenCode Plugins">
+<meta property="og:description" content="magpie page plugin: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/edifierx666__magpie-local-services">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "edifierx666/magpie-local-services", "codeRepository": "https://github.com/edifierx666/magpie-local-services", "url": "https://opencode-plugins.zhuikan.com/repos/edifierx666__magpie-local-services", "description": "magpie page plugin: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels.", "author": {"@type": "Organization", "name": "edifierx666", "url": "https://github.com/edifierx666"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools,server"}</script>
+</head>
+<body data-repo="edifierx666/magpie-local-services" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">edifierx666/magpie-local-services</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="edifierx666__magpie-local-services"><img class="rp-side-av" src="https://github.com/edifierx666.png?s=300" width="300" height="300" alt="edifierx666 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-local-services</div>
+      <a class="rp-side-owner" href="https://github.com/edifierx666">edifierx666</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/edifierx666">edifierx666</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-local-services</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">magpie page plugin: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/edifierx666/magpie-local-services">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">本地服务 · Local Services
+
+告别满屏终端窗口 —— 在 magpie 里统一托管本地常驻服务，并一键分享到公网供他人使用
+
+!version
+!license
+!platform
+!runtime
+!magpie
+
+解决什么痛点 · 核心亮点 · 快速开始 · 场景演示 · 配置与原理
+
+
+
+
+
+ 解决什么痛点
+
+日常开发和使用 AI 工具时，本机往往要常驻一堆后台命令：本地 API 网关、MCP 服务、反向代理、开发服务器、Webhook 接收端……
+
+| 过去的折腾 | 用「本地服务」之后 |
+| --- | --- |
+| 终端开满屏：5、6 个不能关的终端窗口占着桌面，手滑关错一个服务就挂 | 零终端统一面板：全部收进 magpie 侧边栏，一处看清运行状态、端口与实时日志 |
+| 启停靠手敲：每次开机挨个 cd、设环境变量、按顺序敲启动命令；停服务还容易残留子进程 | 队列自启 + 干净回收：随 magpie 按依赖顺序分批拉起；停止时连同子孙进程一并清理 |
+| 联调分享难：想把本地跑起来的服务给同事体验、给手机预览或接外部 Webhook，还得折腾内网穿透和账号配置 | 一键公网分享：免注册、免配置，几秒生成 https://.trycloudflare.com 公网链接，发给别人点开就能用 |
+| 版本靠人盯：开源工具发了新版不知道，想升级还得切回终端重装重启 | 自动追新升级：绑定 GitHub 仓库后自动检查 Release，支持一键升级或后台自动更新并重启 |
+
+---
+
+ 核心亮点
+
+- 🖥️ 在 magpie 里一站式掌控 — 状态一目了然，自动识别服务监听端口（点端口标签直接复制 http://127.0.0.1:端口），一键直达服务首页，实时查看合并日志，列表支持拖拽排序与撤销删除。
+- 🌐 一键把本地服务分享给任何人 — 内置 Cloudflare 免费快速隧道，无需 Cloudflare 账号或域名配置。无论是已托管的服务还是本机任意端口，点一下就能拿到公网 HTTPS 地址，跨设备测试、团队演示、远程联调即开即用。
+- 🛡️ magpie 重启也不掉线 — 服务以独立进程组在后台运行，与 magpie 生命周期解耦；即使重启 magpie 或更新插件，也会自动重新接管运行中的服务，日志不断档。停止时先跑自定义终止命令，再按进程组 SIGTERM → SIGKILL 兜底，绝不留孤儿进程。
+- 🚦 按启动队列有序拉起 — 开启「随 magpie 启动」后，按队列编号（1–99）从小到大分批启动，前一批全部就绪并稳定运行 1.5 秒后才拉起下一批，从容应对「先起数据库/代理，再起网关/应用」的依赖顺序。
+- 🔔 新版本自动找上门 — 绑定 GitHub 仓库后定时检查最新 Release，自动探测本地版本号。支持后台自动执行更新命令并平滑重启正在运行的服务，也可以手动一键更新或忽略特定版本。
+
+---
+
+ 快速开始
+
+环境要求：macOS + magpie = 0.1.1340（插件由 magpie 内置的 Bun 直接运行，无需额外安装 Node/Bun 依赖）。
+
+1. 安装插件
+
+bash
+magpie plugin add github:edifierx666/magpie-local-services
+
+
+2. 安装公网分享工具（可选，使用「分享到公网」功能时需安装）
+
+bash
+brew install cloudflared
+
+
+启用插件后，点击 magpie 左侧边栏「插件」分组下的 本地服务 即可开始托管。
+
+---
+
+ 场景演示
+
+ 1. 托管常驻服务与查看实时日志
+
+点击「新建」，把原本要在终端里敲的启动命令填进来即可：
+
+| 字段 | 示例 |
+| --- | --- |
+| 名称 | my-node-app |
+| 命令 | node server.js --port 3000 |
+| 工作目录 | ~/projects/my-node-app |
+| 环境变量 | NODE_ENV=production、PORT=3000 |
+| 首页地址 | http://127.0.0.1:3000（可留空） |
+| 随 magpie 启动 / 启动队列 | 打开 / 2 |
+
+
+
+保存并点击「启动」后，行内会自动浮现监听端口 3000 与 PID 标签，点击端口即可复制本地地址；右侧外链图标可一键打开服务首页（留空时回退到 GitHub 仓库地址）。切换到「日志」随时查看实时输出，再也不用翻找终端窗口：
+
+
+
+ 2. 一键分享到公网供他人访问
+
+本地服务跑起来后，想让同事直接访问你的接口或页面？在服务的 ⋯ 菜单选择 「分享到公网…」，或者切换到 「隧道」 标签页填入任意本机端口，点击「开始分享」：
+
+| 分享到公网 | 隧道集中管理 |
+| --- | --- |
+|  |  |
+
+几秒内即可拿到 https://.trycloudflare.com 公网地址，一键复制发给对方即可直接访问；用完随时关闭隧道，干净省心。
+
+ 3. 跟踪 GitHub 版本并自动更新
+
+托管本地开源组件（如 CLI 网关、代理工具等）时，在服务的「更新」区域绑定仓库与升级命令：
+
+| 字段 | 示例 |
+| --- | --- |
+| GitHub 仓库 | nodejs/node |
+| 版本命令 | 保持「自动检测」即可，会自动探测如 node --version |
+| 更新命令 | brew upgrade node |
+
+当上游发布新版本时，列表会直接提示「v… 可用」，你可以选择「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。默认开启「自动更新并重启」：后台巡检发现新版本且配置了更新命令时会自动升级，并在成功后重启原本运行中的服务（已停止的服务不会被意外拉起）。匿名查询额度为 60 次/小时，可在设置中填入无需任何权限的 GitHub Token 提升额度。
+
+
+
+---
+
+ 配置项
+
+
+插件选项与环境变量
+
+插件选项可通过 magpie plugin options magpie-local-services &#x27;&#x27; 设置。
+
+| 名称 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| 选项 port | number | 3427 | 插件本地面板与 API 的端口（1024–65535） |
+| 选项 token | string | 首次打开自动生成 | 面板访问令牌（≥32 位） |
+| LOCAL_SERVICES_PORT | number | — | 覆盖面板端口，优先于选项 port |
+| LOCAL_SERVICES_LEADER | 1 / 0 | 自动判断 | 强制当前插件宿主接管 / 不接管服务（调试用） |
+| GITHUB_TOKEN / GH_TOKEN | string | — | 面板未保存令牌时用于查询 Release；都没有再试 gh auth token |
+
+
+
+
+面板设置
+
+| 设置 | 类型 | 默认值 | 说明 |
+| -</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/edifierx666__magpie-local-services.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ayuayue/magpie-codebuddy-import · OpenCode Plugins</title>
+<meta name="description" content="magpie 的 CodeBuddy(WorkBuddy) 供应商插件：导入/导出 workbuddy-switch 账号 JSON、每日签到、派猫猫旅行">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-codebuddy-import, ayuayue, ayuayue/magpie-codebuddy-import, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, security, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ayuayue__magpie-codebuddy-import">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ayuayue/magpie-codebuddy-import · OpenCode Plugins">
+<meta property="og:description" content="magpie 的 CodeBuddy(WorkBuddy) 供应商插件：导入/导出 workbuddy-switch 账号 JSON、每日签到、派猫猫旅行">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ayuayue__magpie-codebuddy-import">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ayuayue/magpie-codebuddy-import", "codeRepository": "https://github.com/ayuayue/magpie-codebuddy-import", "url": "https://opencode-plugins.zhuikan.com/repos/ayuayue__magpie-codebuddy-import", "description": "magpie 的 CodeBuddy(WorkBuddy) 供应商插件：导入/导出 workbuddy-switch 账号 JSON、每日签到、派猫猫旅行", "author": {"@type": "Organization", "name": "ayuayue", "url": "https://github.com/ayuayue"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-29", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,security,server"}</script>
+</head>
+<body data-repo="ayuayue/magpie-codebuddy-import" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ayuayue/magpie-codebuddy-import</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ayuayue__magpie-codebuddy-import"><img class="rp-side-av" src="https://github.com/ayuayue.png?s=300" width="300" height="300" alt="ayuayue avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-codebuddy-import</div>
+      <a class="rp-side-owner" href="https://github.com/ayuayue">ayuayue</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/ayuayue">ayuayue</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-codebuddy-import</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">magpie 的 CodeBuddy(WorkBuddy) 供应商插件：导入/导出 workbuddy-switch 账号 JSON、每日签到、派猫猫旅行</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-29</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/ayuayue/magpie-codebuddy-import">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.1.8</span><a class="rp-dl-a" href="https://www.npmjs.com/package/magpie-codebuddy-import/v/0.1.8">0.1.8 ↓</a><span class="rp-dl-ver">0.1.8</span><span class="rp-dl-date">2026-11-02</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">magpie-codebuddy-import
+
+给 magpie 用的 CodeBuddy / WorkBuddy 供应商插件。
+在社区插件 @magpie-community/opencode-workbuddy-auth
+之上补了三件它没有的事：
+
+| 能力 | 说明 |
+| :-- | :-- |
+| 导入账号 JSON | 把 workbuddy-switch 导出的账号直接变成 magpie 登录，整份文件粘一次全导入 |
+| 导出账号 JSON | 反过来：把 magpie 里的账号导成 workbuddy-switch 的格式，换机器、做备份用 |
+| 今日已用积分 | 上游只报「一周期累计已用」，magpie 的按天用量靠两次读数相减，被 WorkBuddy 的滚动包打回原形；这里补 WorkBuddy 自己请求流水的真数 |
+| 每日签到 | 上游没有 auth.checkin，这里补上；magpie 每个北京日替每个账号签一次 |
+| 派猫猫旅行 | 国内版成长中心的活动，派发 5 小时一轮、领奖 45 分钟一轮，默认关；也能随时手动跑一轮 |
+
+界面显示 CodeBuddy / CodeBuddy AI，provider id 是 codebuddy / codebuddy-ai
+（上游登记的是 workbuddy 系，这里改了 id 并把旧账号自动迁移过来），所以模型 id 是
+codebuddy/glm-5.3、codebuddy-ai/...。
+
+ 快速上手
+
+sh
+ 1. 装（npm 上的版本，和 github: 二选一）
+magpie plugin add magpie-codebuddy-import
+ 或者跟着仓库走最新提交：
+magpie plugin add github:ayuayue/magpie-codebuddy-import
+
+ 2. 重启 magpie（插件改动都要重启才生效）
+
+ 3. 导入账号（二选一）
+node scripts/import.mjs &quot;C:\path\to\wb-switch-accounts.json&quot;    命令行，推荐
+ 或者界面：Providers → 添加账号 → CodeBuddy：导入账号 JSON → 粘 JSON 或 file:路径
+
+ 4. 看结果
+magpie accounts codebuddy
+magpie accounts codebuddy-ai
+
+
+装完 magpie plugin list 应该看到：
+
+
+github:ayuayue/magpie-codebuddy-import (magpie-codebuddy-import 0.1.0)  on
+  codebuddy-ai (CodeBuddy AI, 26 models)  signed in as you@example.com
+  codebuddy (CodeBuddy, 19 models)  signed in as 你的账号
+
+
+ 一、导入账号
+
+ 界面
+
+Providers → 添加账号 → 选「CodeBuddy：导入账号 JSON」：
+
+
+How do you sign in to CodeBuddy?
+  1. CodeBuddy account (browser)
+  2. CodeBuddy desktop&#x27;s sign-in
+  3. CodeBuddy API key
+  4. CodeBuddy：导入账号 JSON   ← 选这个
+
+
+弹窗标题仍是「在浏览器里完成登录」、输入框标着「验证码」——这是 magpie 对 code 类
+登录方式的通用文案，不用浏览器，把 JSON 粘进去点「登录」即可。整份导出文件一次
+就能导完：属于当前档位的账号由 magpie 保存，另一个档位的账号也一并写进 magpie。
+账号多时用 file: 路径代替粘贴：
+
+text
+file:C:\path\to\wb-switch-accounts.json
+
+
+ 命令行
+
+sh
+node scripts/import.mjs &quot;C:\path\to\wb-switch-accounts.json&quot;
+node scripts/import.mjs           不带参数：自动找 Downloads / 桌面里最新的 wb-switch-accounts.json
+
+
+也可以双击 导入账号.cmd，或把 json 拖到它上面。脚本只是替你调
+magpie plugin login，和界面是同一条路。
+
+已导入过的 uid 会跳过，同一份文件反复导入不会变成两份。
+
+ 导出（备份 / 迁移）
+
+sh
+node scripts/export.mjs            写到 Downloads/wb-switch-accounts-.json
+node scripts/export.mjs 备份.json   写到指定文件
+node scripts/export.mjs -          打到标准输出，自己接管道
+
+
+导出的就是下面那份 JSON 格式，能原样再导入：换台机器 node scripts/import.mjs 就搬过去了。
+默认文件名是 wb-switch-accounts-.json，正好是 import.mjs 不带参数时会去找的那种，导完直接导回。
+
+只导 codebuddy / codebuddy-ai 下的 oauth 账号：API key 那种没有 access/refresh，
+导出去也不是一个能登录的号；别的供应商（qoder、minimax…）不碰。
+
+ 文件里有 access / refresh token，等于账号本身，别发群里、别传网盘。
+
+ JSON 格式
+
+一个数组，每个元素一个账号；单个对象也行。完整示例见
+accounts.template.json。
+
+| 字段 | 必填 | 说明 |
+| :-- | :-- | :-- |
+| access_token | 是 | 也认 accessToken、auth_raw.auth.accessToken |
+| refresh_token | 建议 | 没有就只能在 access token 过期前用 |
+| uid | 建议 | 请求头 X-User-Id 用它，magpie 也靠它判重 |
+| variant | 否 | cn / ai（global、intl 也认）；缺省按 domain 判断 |
+| domain | 否 | 国内 www.codebuddy.cn，国际 www.workbuddy.ai |
+| nickname / email | 否 | 账号显示名，缺省用 uid |
+| expiresAt / refreshExpiresAt | 否 | 毫秒时间戳 |
+| enterpriseId | 否 | 企业版才需要 |
+| token_type | 否 | 默认 Bearer |
+
+workbuddy-switch 导出的记录原样就能用。加密的 token 导不进来：WorkBuddy 5</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/ayuayue/magpie-codebuddy-import/releases"><b>0.1.8</b> <span class="rp-rel-tag">0.1.8</span> <span class="rp-item-extra">2026-11-02</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/ayuayue__magpie-codebuddy-import.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,736 @@
+# @stablekernel/opencode-cursor
+
+[![npm version](https://img.shields.io/npm/v/@stablekernel/opencode-cursor.svg)](https://www.npmjs.com/package/@stablekernel/opencode-cursor)
+[![CI](https://github.com/stablekernel/opencode-cursor/actions/workflows/ci.yml/badge.svg)](https://github.com/stablekernel/opencode-cursor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
+An [opencode](https://opencode.ai) plugin that adds **Cursor** as a native provider. Your Cursor models appear in the model picker; you chat with them the same way you use any other provider.
+
+It uses the [official Cursor SDK](https://cursor.com/docs/sdk/typescript) (`@cursor/sdk`) to list your account's models live and run chats through Cursor's local agent runtime. For delegated or background workflows it also ships two permission-gated tools (`cursor_delegate`, `cursor_cloud_agent`) — see [Delegation tools](#delegation-tools).
+
+> ⚠️ **Security.** When you chat with a `cursor/*` model, Cursor runs its own tools — including
+> `shell`, `write`, `edit`, and `delete` — directly in your working directory, **outside opencode's
+> permission system**. Read [Security](#security) before you use it.
+
+## Requirements
+
+- **opencode v2 (2.0.19+, tested against 2.0.19)** or **opencode v1 (1.18.29+)** — the
+  plugin entrypoint is a dual object; v1 needs 1.18.29+ to load an object (with `id` +
+  `server`) as a path plugin, v2 reads the same object's `setup`.
+- **Node.js 22.13+ on your `PATH`** (optional) — opencode runs on [Bun](https://bun.sh) and the
+  plugin runs the Cursor SDK in-process by default; Node is only needed for the `sidecar`
+  transport fallback (see [Transport](#transport)).
+- A **Cursor account and API key** (from the Cursor dashboard).
+
+## Install
+
+### One line
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stablekernel/opencode-cursor/main/install.sh | bash
+```
+
+Registers the plugin in your global `opencode.json` (`~/.config/opencode/opencode.json`), checks
+for Node.js 22.13+, and offers to set `CURSOR_API_KEY`. Flags:
+
+- `--project` — write `./opencode.json` in the current directory instead.
+- `--yes` / `-y` — non-interactive.
+
+[Review the script first.](./install.sh)
+
+### Manual
+
+```bash
+npm install @stablekernel/opencode-cursor
+```
+
+Add to your `opencode.json` (or `opencode.jsonc` — both are supported):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@stablekernel/opencode-cursor@latest"]
+}
+```
+
+The `@latest` suffix makes opencode re-resolve to the newest release on each
+startup. In practice opencode caches the `@latest` plugin install and does **not**
+auto-update it. If you see a stale-version warning from the plugin, or a version
+mismatch, exit opencode and clear the cached package:
+
+```bash
+# macOS / Linux
+rm -rf ~/.cache/opencode/packages/@stablekernel/opencode-cursor@latest
+# Windows
+rmdir /s /q "%LocalAppData%\opencode\cache\packages\@stablekernel\opencode-cursor@latest"
+```
+
+Then restart opencode. (This cache layout is opencode v1's; on v2 run
+`opencode plugin update` — see [opencode v2](#opencode-v2).)
+
+Drop `@latest` (`"@stablekernel/opencode-cursor"`) or pin a version
+(`"@stablekernel/opencode-cursor@1.2.3"`) if you prefer deterministic installs.
+
+The stale-version check is skipped when the `CI` or `NO_UPDATE_NOTIFIER`
+environment variable is set.
+
+### opencode v2
+
+opencode v2 uses a `plugins` key (plural) and loads the plugin's `setup()` entrypoint
+(v1 uses `plugin` and calls `server()`):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["@stablekernel/opencode-cursor@latest"]
+}
+```
+
+From 0.10.0 onward both generations load the same published package, so one
+install serves either (0.9.x `@latest` is v1-only).
+Minimum versions: v1 >= 1.18.29 (object plugin entrypoint), v2 tested against 2.0.19.
+
+**Registry mirrors:** on v2 the provider package is installed at exactly the plugin's
+version, so behind a registry mirror a fresh release can fail with `ETARGET` until the
+mirror syncs it. Retry later, or point npm at `https://registry.npmjs.org`.
+
+On v2 the plugin registers the Cursor provider (pinned to the session directory
+via `settings.cwd`, so the agent runs in your project even when the v2 runner
+process was started elsewhere), the model catalog with real per-model cost
+(from stored auth or `CURSOR_API_KEY`), the session context mapping, the
+`cursor_refresh_models` tool, and the stored-key auth methods. The plugin
+reads no plugin-level options on v2 (a `plugins` entry with an options object
+is accepted by v2's config schema but ignored by this plugin), and it registers
+its own provider record — so the v1 `provider.cursor` block does not apply
+there. Configure v2 through the environment variables listed below.
+
+**Tools not exposed on v2** — `cursor_delegate`, `cursor_cloud_agent` (delegation)
+and `cursor_update_plugin` (self-update) are v1-only, deliberately:
+
+- **Delegation tools are fail-closed on v1** through a per-call approval gate.
+  v2's plugin API has no approval path a plugin can drive, and nothing else in
+  2.0.19 enforces one for plugin tools — so on v2 they would run Cursor agents
+  *ungated*. The plugin leaves them unregistered on v2: unavailable beats
+  silently ungated. They return when v2 grows a real approval path.
+- **`cursor_update_plugin` clears the v1 plugin cache layout**; v2 caches
+  plugins elsewhere (`<cache>/npm/<spec>/`) and ships its own updater. On v2 run
+  `opencode plugin update` instead.
+
+**Known v2 gaps** — behaviors the v1 `config`/`chat.params`/`event` hooks provide that
+v2 does not:
+
+- **Delegation tools** (`cursor_delegate`, `cursor_cloud_agent`) — unavailable
+  on v2 (fail-closed; see "Tools not exposed on v2" above). On v1 they are
+  gated by a per-call approval honored from your `permission` config.
+- **`cursor_update_plugin`** — unavailable on v2; run
+  `opencode plugin update` instead (see above).
+- **Live MCP forwarding** — v1 re-reads opencode's MCP server set every turn, so
+  mid-session enable/disable reaches the Cursor agent; v2 forwards nothing.
+- **Skill mirror / skills catalogue** — v1 mirrors opencode skills into
+  `.cursor/skills/` and injects the catalogue; unavailable on v2.
+- **Plugin-tools bridge** — v1 exposes other plugins' custom tools to the Cursor
+  agent via a local stdio MCP server; unavailable on v2.
+- **Subagent `task`-part stamping** — v1 stamps the child session id on the
+  running `task` part so the TUI card is clickable; unavailable on v2 (delegate
+  results still surface, without the child-session link).
+- **`provider.cursor.options` settings** — the v1 `provider.cursor.options`
+  block (forwarding, skills, sandbox, `autoCompaction`, ...) is not read on
+  v2; the plugin registers its own provider record there. `autoCompaction`
+  is therefore always off on v2 (models are always listed with the
+  no-auto-compaction limit — see [Compaction](#compaction)).
+- **Update toast / stale-version warning UI** — v2 has no `ctx.tui`; use
+  `cursor_refresh_models` (v2) / the maintenance tools (v1) and
+  `opencode plugin update`.
+- **`app.log` bridge** — v2 removed the client write endpoint, so plugin events
+  that v1 surfaced through `app.log` are not logged on v2.
+
+To keep the plugin up to date easily, install the `opencode-plugins-refresh` helper (offered by
+the one-line installer, or install manually — see [Keeping the plugin up to date](#keeping-the-plugin-up-to-date)).
+
+The plugin injects the `provider` block automatically. If you need explicit control:
+
+```json
+{
+  "provider": {
+    "cursor": {
+      "npm": "@stablekernel/opencode-cursor",
+      "name": "Cursor",
+      "options": { "apiKey": "{env:CURSOR_API_KEY}" }
+    }
+  }
+}
+```
+
+## Keeping the plugin up to date
+
+opencode pins `@latest` plugins on first install and never auto-updates them. When the installed
+version falls behind the latest release, the plugin shows a warning once every 24 hours at startup.
+The warning tells you what to do:
+
+- If `opencode-plugins-refresh` is on your `PATH`, the warning says `run: opencode-plugins-refresh`.
+- Otherwise it shows the raw `rm -rf` command and suggests re-running the installer to get the
+  helper script.
+
+### opencode-plugins-refresh
+
+`opencode-plugins-refresh` is a shell script that checks all `@latest` plugin caches for updates
+by comparing pinned versions against npm, and optionally clears outdated caches so opencode
+re-fetches the latest on next launch.
+
+```bash
+opencode-plugins-refresh           # check for updates, prompt to clear cache
+opencode-plugins-refresh --check   # check only, exit 1 if outdated
+opencode-plugins-refresh --force   # clear all outdated caches without prompting
+```
+
+The `--check` flag exits with code `1` when any cache is outdated, making it suitable for CI jobs
+or cron checks.
+
+The one-line installer offers to install `opencode-plugins-refresh` to `~/.local/bin` (step 4).
+To install it manually at any time:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/stablekernel/opencode-cursor/main/scripts/opencode-plugins-refresh \
+  -o ~/.local/bin/opencode-plugins-refresh && chmod +x ~/.local/bin/opencode-plugins-refresh
+```
+
+Make sure `~/.local/bin` is on your `PATH`.
+
+## Authenticate
+
+```bash
+opencode auth login   # choose "Cursor", paste your key from the Cursor dashboard
+```
+
+Or set the environment variable:
+
+```bash
+export CURSOR_API_KEY="key_..."
+```
+
+The key is validated on first use (model discovery / first call), not at login time.
+
+## Use
+
+- `opencode models` (or the model picker) lists your Cursor models as `cursor/<id>`.
+- Pick a model and chat — the Cursor local agent runs in your project directory.
+- Run the `cursor_refresh_models` tool to force a live catalog refresh.
+
+The plugin also registers two **delegation tools**:
+
+- `cursor_delegate` — hand a discrete subtask to a local Cursor agent as a permission-gated tool
+  call (your primary model stays in control).
+- `cursor_cloud_agent` — launch a Cursor cloud agent on a remote repo that can run for minutes and
+  optionally open a PR.
+
+## Security
+
+> ⚠️ **The provider path is unsandboxed and not gated by opencode permissions.**
+> When you chat with a `cursor/*` model, Cursor runs its own tools — including `shell`, `write`,
+> `edit`, and `delete` — directly in your working directory. opencode's `permission` rules (e.g.
+> `edit: deny`, `bash: ask`) do **not** apply to them.
+>
+> Options if you need a permission boundary:
+>
+> - Set `sandbox: true` in `provider.cursor.options` to run Cursor's tools in Cursor's sandbox.
+> - Use `cursor_delegate` instead of the provider path — it is gated by opencode's `permission`
+>   config.
+> - By default opencode's system prompt is delivered via a git-ignored Cursor
+>   rule (`systemPrompt: "rules"`), not inlined into the message stream. See
+>   [System prompt](#system-prompt).
+
+See [SECURITY.md](./SECURITY.md) for the full threat model.
+
+## Configuration
+
+| Option (`provider.cursor.options`) | Default | Meaning |
+| --- | --- | --- |
+| `apiKey` | `CURSOR_API_KEY` | Cursor API key |
+| `cwd` | `process.cwd()` | Directory the local agent operates in |
+| `mode` | `"agent"` | Default conversation mode (`"agent"` or `"plan"`) |
+| `params` | — | Default model params, e.g. `{ effort: "high" }` (param ids are per model — see [Per-request controls](#per-request-controls-mode-thinking-level)) |
+| `settingSources` | — | Cursor settings layers to load: `["project","user","all",...]` — pulls in your Cursor skills, rules, and `.cursor/mcp.json` |
+| `sandbox` | — | Run the agent's tools in [Cursor's sandbox](https://cursor.com/docs/agent/sandbox) |
+| `autoReview` | `false` | Gate tool calls through Cursor's classifier-backed Auto review (best-effort, not a security boundary) |
+| `agents` | — | Cursor subagent definitions |
+| `session` | `"auto"` | Session reuse strategy — see [Session reuse](#session-reuse-session) |
+| `forwardMcp` | `true` | Forward opencode's configured MCP servers to the Cursor agent |
+| `mcpServers` | — | Extra MCP servers (Cursor `McpServerConfig` shape); merged with forwarded ones |
+| `forwardSkills` | `true` | Mirror opencode's resolved skills into `.cursor/skills/` — see [Skills](#skills) |
+| `skills` | — | Manual skill override: `{ include?: string[], exclude?: string[] }` — see [Skills](#skills) |
+| `toolDisplay` | `"blocks"` | How Cursor's internal tool activity is shown — see [Tool display](#tool-display) |
+| `systemPrompt` | `"rules"` | How opencode's system prompt reaches the agent — see [System prompt](#system-prompt) |
+| `transport` | — | Cursor agent transport (`"http1"` \| `"http2-direct"` \| `"sidecar"`) — see [Transport](#transport) |
+| `autoCompaction` | `false` | Let opencode drive auto-compaction. Off by default because the Cursor agent self-compacts — see [Compaction](#compaction) |
+
+| Environment variable | Default | Meaning |
+| --- | --- | --- |
+| `CURSOR_API_KEY` | — | API key fallback |
+| `OPENCODE_CURSOR_MODEL_CACHE_TTL_MS` | `86400000` | Model-list cache lifetime (ms) |
+| `OPENCODE_CURSOR_DEBUG` | — | Set to `1` for trace logging on stderr |
+| `OPENCODE_CURSOR_TRANSPORT` | — | Force a transport: `http1` \| `http2-direct` \| `sidecar` — see [Transport](#transport) |
+| `OPENCODE_CURSOR_STALL_MS` | `120000` | Idle stream-watchdog timeout in ms (no tool call open). `0` disables the whole watchdog; an empty string also disables — see [Reliability](#reliability) |
+| `OPENCODE_CURSOR_TOOL_STALL_MS` | `600000` | Stream-watchdog timeout in ms while a tool call is in flight (e.g. a long build or test suite). `0` disables the bound during tool execution only — see [Reliability](#reliability) |
+| `OPENCODE_CURSOR_SIDECAR` | — | Legacy: `1` maps to `sidecar`, `0` maps to `http2-direct` (superseded by `OPENCODE_CURSOR_TRANSPORT`) |
+| `OPENCODE_CURSOR_TOOL_INPUT_STREAM` | on | Set to `0` to disable live tool-input streaming (`tool-input-start`/`-delta`/`-end` parts) |
+
+### Session reuse (`session`)
+
+opencode re-sends the full conversation transcript on every turn. `session: "auto"` (the default)
+fingerprints the conversation and resumes the same Cursor agent when nothing has changed, so you
+only pay for the new message. It falls back to a fresh agent + full transcript on edits, reverts,
+or compaction.
+
+| Situation | What happens |
+| --- | --- |
+| First turn | Fresh agent, full transcript, pool it |
+| System prompt differs (title gen, other side calls) | Ephemeral fresh agent; pooled agent untouched |
+| Clean continuation (one new user message) | `Agent.resume` — sends only the new message |
+| Forwarded MCP server set changed | Fresh agent + full transcript, re-pooled |
+| Message edited/reverted or conversation compacted | Fresh agent + full transcript, re-pooled |
+
+`session: true` is an alias for `"auto"`. `session: false` disables reuse (always fresh agent,
+full transcript every turn).
+
+Fingerprint records persist to `~/.cache/opencode-cursor/session-pool.json`, so session reuse
+survives opencode restarts.
+
+### Per-request controls (`mode`, thinking level)
+
+The plugin auto-generates model variants for each reasoning/effort level a model advertises,
+plus a `fast` toggle for models that expose Cursor's fast tier. Selecting a variant in the
+model picker sends its settings through `providerOptions.cursor`.
+
+`fast` defaults **off** (even though Cursor's own default is `fast: true` for some models, e.g.
+Composer and the codex line) so opencode never silently runs the fast tier — pick the `fast`
+variant to opt in, or set it per model under `options.params.fast` below.
+
+opencode's **plan agent** (`Tab`) maps to Cursor's plan mode automatically — no manual config
+needed.
+
+Param ids are **per model** — use the id the model actually advertises, or Cursor ignores the
+param and falls back to its own default (e.g. `high` effort). `grok-4.6` uses `effort`,
+`gpt-5.5` uses `reasoning`, `claude-opus-4-8` uses `effort` (plus a boolean `thinking`), and
+`composer-2.5` has only `fast`. Run `cursor_refresh_models` to list each model id
+with its param ids and accepted values.
+
+A `thinking` level the model can't take (e.g. `"thinking": "medium"` on `grok-4.6`) is moved to
+the model's reasoning param (`effort: medium`) when that param accepts the value, and the plugin
+logs a one-time warning. This needs the model's params from a discovered catalog; an explicit
+`effort`/`reasoning` value always wins.
+
+To set controls statically per model:
+
+```json
+{ "provider": { "cursor": { "models": {
+  "grok-4.6": { "options": { "params": { "effort": "medium" } } } }
+} } }
+```
+
+## System prompt
+
+opencode drives the Cursor agent the way it drives any provider — through its
+**system prompt**. But the Cursor SDK has no system-prompt input (an agent, not a
+raw model), and flattening opencode's system prompt into the message stream makes
+injection-hardened Cursor models reject it as a prompt-injection attempt.
+
+So by default (`systemPrompt: "rules"`) the plugin writes opencode's system prompt
+to `<cwd>/.cursor/rules/opencode.mdc` (`alwaysApply: true`, git-ignored) and loads
+the `project` settings layer, delivering it through Cursor's **authoritative rules
+channel**. Cursor treats rules as system-level instructions, so opencode stays in
+control and nothing is flagged.
+
+Tradeoffs to know:
+
+- A project rule also applies to **your own Cursor IDE** open on this repo. The
+  plugin removes the file when the session disposes (best-effort).
+- Enabling the `project` layer also loads other `.cursor/` config (`.cursor/mcp.json`,
+  `.cursor/agents`, hooks).
+
+Alternatives:
+
+- `systemPrompt: "message"` — legacy inline delivery (may be rejected as injection).
+- `systemPrompt: "omit"` — don't forward the system prompt at all.
+
+## MCP servers
+
+With `forwardMcp: true` (default), the Cursor agent uses the same MCP servers configured in
+opencode. The server list is updated live per turn, so enabling or disabling an MCP server takes
+effect on the next message.
+
+| opencode `config.mcp` | → Cursor |
+| --- | --- |
+| `{ type: "local", command: [cmd, ...args], environment }` | `{ type: "stdio", command, args, env }` |
+| `{ type: "remote", url, headers }` | `{ type: "http", url, headers }` |
+| Remote with registered OAuth `clientId` | `{ type: "http", url, auth: { CLIENT_ID, … } }` |
+
+Disabled entries (`enabled: false`) are skipped. Remote servers requiring OAuth without a
+shareable `clientId` are also skipped (a one-time toast says which). Disable forwarding with
+`forwardMcp: false`.
+
+> **Note:** This forwards MCP **servers**. opencode's skills are mirrored into
+> `.cursor/skills/` automatically — see [Skills](#skills).
+
+## Skills
+
+With `forwardSkills: true` (default), the plugin mirrors opencode's resolved
+skills into `<cwd>/.cursor/skills/` — a git-ignored directory that Cursor
+discovers natively when the `project` settings layer is loaded. This works for
+both the primary agent and any Cursor sub-agent, because the mirror is written
+at plugin init (before any turn) and `settingSources` lives on the provider
+config (which survives the sub-agent model-options drop).
+
+The mirror includes:
+
+- **Project skills** from `.opencode/skills/`, `.opencode/skill/`,
+  `.claude/skills/`, `.agents/skills/` (walked up to the git worktree root).
+- **Global skills** from `~/.config/opencode/skills/` and `~/.config/opencode/skill/`,
+  `~/.claude/skills/`, `~/.agents/skills/`, `~/.opencode/skills/` and `~/.opencode/skill/`.
+- **Configured paths** from `config.skills.paths` in your `opencode.json` — additional
+  directories scanned at low priority (project and standard global locations
+  win on duplicate ids). `~/` prefixes are expanded to your home directory; relative
+  paths are resolved against the project directory.
+- **Plugin-bundled skills** — skills that ship inside installed opencode plugins,
+  scanned from the opencode plugin cache (`~/.cache/opencode/packages/` on
+  macOS/Linux; `%LocalAppData%\opencode\cache\packages\` on Windows) and from
+  `skills/`/`skill/` dirs alongside file-based plugins
+  (`~/.config/opencode/plugin/`, `~/.config/opencode/plugins/`, and the project's
+  `.opencode/plugin/`). Handles npm specs (`pkg@latest`, `@scope/pkg@latest`) and
+  git specs (`pkg@git+https:...`). Plugin-bundled skills are the **lowest**
+  priority: a project, global, or `skills.paths` skill with the same id always
+  wins, so you can shadow a plugin's skill by defining your own.
+- **opencode's live skill inventory** — on every turn the mirror also consults
+  opencode's `app.skills` endpoint (when reachable) and merges any skill it
+  knows about that the filesystem scan missed, at the same lowest priority.
+- **opencode's built-in skills** — skills opencode registers in code rather
+  than on disk (currently `customize-opencode`, its own config-authoring
+  guide). They only exist in the live inventory, so the mirror materialises
+  them from the endpoint's content into `.cursor/skills/` like any other
+  skill; the materialised copy updates whenever opencode's version changes.
+- **Supporting files** alongside each `SKILL.md` (preserving relative paths).
+- An `<available_skills>` catalogue appended to the generated system rule,
+  listing each skill's id and description so the Cursor agent can load them on
+  demand.
+
+> **Note:** URL-sourced skills (`config.skills.urls`) that are also present in
+> opencode's live inventory reach the mirror through that route; the mirror
+> does not fetch `skills.urls` catalogs on its own.
+
+### Permission filtering
+
+Skills are filtered through opencode's live `permission` config before
+mirroring:
+
+- **`allow`** (default): included in the mirror.
+- **`deny`**: excluded entirely.
+- **`ask`**: excluded — the ask prompt can't be enforced across the Cursor
+  boundary. The plugin logs which skills were withheld and why.
+
+### Manual override
+
+```json
+{
+  "provider": {
+    "cursor": {
+      "options": {
+        "skills": {
+          "include": ["my-skill", "other-skill"],
+          "exclude": ["internal-*"]
+        }
+      }
+    }
+  }
+}
+```
+
+`include` keeps only the listed skills (and overrides `deny` permission — the
+user explicitly asked for them). `exclude` always drops the listed skills.
+
+### Limitations
+
+- Skills served via `skills.urls` that opencode itself hasn't loaded (the
+  endpoint is reachable but the catalog wasn't pulled this session) won't
+  appear until opencode sees them.
+- Built-in skills require the live `app.skills` endpoint (i.e. a running
+  opencode server reachable by this plugin); the filesystem scan can't see
+  them on its own.
+- A user-owned `.cursor/skills/<id>/SKILL.md` (without the `generated:
+  opencode-cursor` sentinel) is never overwritten or deleted.
+- Individual files larger than 1 MB are skipped (the rest of the skill is still
+  mirrored). Total mirror size is capped at 10 MB.
+- `cursor_delegate` with a `cwd` different from the session directory does not
+  mirror skills into that cwd (but does pass `settingSources: ["project"]` so
+  any pre-existing `.cursor/skills/` there still loads).
+- `cursor_cloud_agent` targets a remote repo and does not inherit skills.
+
+## Plugin tools
+
+Other opencode plugins can register custom tools (e.g. `opencode-pty`'s
+`pty_spawn`, `context-mode`'s `ctx_execute`). With `forwardPluginTools: true`
+(default), this plugin **mirrors those tools to the Cursor agent** via a local
+stdio MCP server (`opencode-plugin-tools`) that is added to the forwarded
+`mcpServers`. When the Cursor agent calls one, the call runs through the
+plugin's *real* implementation inside opencode's runtime — same code path
+opencode itself uses.
+
+How it works:
+
+1. At startup (and re-checked each turn) the plugin reads your `plugin: []`
+   list, re-imports each plugin from the opencode package cache, and reads its
+   `tool` map. Plugins that can't be imported are skipped and logged once.
+2. A loopback-only HTTP control channel (random port, per-session bearer
+   token) connects the MCP child process to the host plugin, which owns the
+   tool closures. Nothing is reachable from outside the machine.
+3. The Cursor agent sees the tools through its normal MCP surface and calls
+   them like any other MCP tool.
+
+### Permissions
+
+Mirrored calls are evaluated against your opencode `permission` config,
+keyed by the tool id — with the same semantics opencode itself uses:
+permission keys are wildcard-matched, and every pattern a tool's `ask`
+requests is matched against the rule's pattern; the **last** matching rule
+wins. `~`/`$HOME` prefixes in patterns expand against your home directory.
+
+- **`allow`** → runs without prompting (every requested pattern must allow).
+- **`deny`** → rejected.
+- **`ask`** (or no rule) → rejected with a clear message. The interactive
+  prompt is anchored to opencode's session/TUI and can't be surfaced to the
+  Cursor agent, so ask-permissioned tools are withheld rather than run
+  unattended. Set the tool to `allow` to use it from Cursor:
+
+```json
+{ "permission": { "pty_spawn": "allow", "ctx_*": "allow" } }
+```
+
+Pattern-scoped rules work too — e.g. allow spawning ptys only under `/tmp`
+(specific patterns must come **after** the wildcard they narrow):
+
+```json
+{ "permission": { "pty_spawn": { "*": "ask", "/tmp/*": "allow" } } }
+```
+
+If a tool's execution calls `ask` internally and no gate is available, the
+call fails closed.
+
+### Filtering
+
+```json
+{
+  "provider": {
+    "cursor": {
+      "options": {
+        "forwardPluginTools": true,
+        "pluginTools": {
+          "include": ["pty_*"],
+          "exclude": ["ctx_execute"]
+        }
+      }
+    }
+  }
+}
+```
+
+`include` keeps only matching tool ids (wildcards supported); `exclude` always
+drops. `forwardPluginTools: false` disables the bridge entirely.
+
+### Limitations
+
+- Plugins that fail to re-import under the bridge (e.g. native modules that
+  only load under Bun, or plugins that throw when initialised twice) are
+  skipped and reported in the opencode log; their tools stay unavailable to
+  Cursor. Skills and MCP servers from those plugins are unaffected.
+- Tool definitions are snapshotted at startup and re-checked per turn; a
+  plugin installed mid-session is picked up on the next turn.
+- `cursor_cloud_agent` targets a remote repo and does not inherit plugin
+  tools.
+
+## Delegation tools
+
+Both tools resolve the API key from your `opencode auth login` session (or `CURSOR_API_KEY`) and
+are gated by opencode's `permission` config:
+
+```json
+{ "permission": { "cursor_delegate": "ask", "cursor_cloud_agent": "ask" } }
+```
+
+> [!NOTE]
+> **opencode v1 only.** These tools are not exposed on v2 — v2 has no
+> plugin-drivable approval path, and the tools are fail-closed by design, so
+> on v2 they are simply absent (see [opencode v2](#opencode-v2)). The
+> `permission` shape above is the v1 config; for the host's behavior without
+> an entry, see opencode's own `permission` docs.
+
+### `cursor_delegate` (local)
+
+Runs one Cursor turn as a permission-gated tool call. Your primary opencode model hands off a
+discrete subtask and gets the result back. The delegate passes `settingSources: ["project"]` so
+any pre-existing `.cursor/skills/` in the delegate's cwd loads (skills are not mirrored into a
+non-session cwd — see [Skills limitations](#limitations)).
+
+| Arg | Required | Meaning |
+| --- | --- | --- |
+| `prompt` | ✅ | The subtask to delegate |
+| `model` | ✅ | Cursor model id |
+| `mode` | — | `"agent"` or `"plan"` |
+| `thinking` | — | Sets the model's `thinking` param (`"true"`/`"false"`) — only on models that advertise it (e.g. `claude-opus-4-8`); models using `effort`/`reasoning`/`reasoning_effort` can't be set through this arg |
+| `cwd` | — | Working directory |
+| `sandbox` | — | Run in Cursor's sandbox |
+| `agentId` | — | Resume a specific Cursor agent |
+
+### `cursor_cloud_agent` (cloud)
+
+Launches a background Cursor cloud agent on a remote repo. Can run for minutes and optionally
+open a PR.
+
+| Arg | Required | Meaning |
+| --- | --- | --- |
+| `prompt` | ✅ | The task |
+| `repoUrl` | ✅ | Target repository URL (e.g. `https://github.com/owner/repo`) |
+| `startingRef` | — | Branch/ref to start from |
+| `model` | — | Cursor model id |
+| `mode` | — | `"agent"` or `"plan"` |
+| `thinking` | — | Sets the model's `thinking` param (`"true"`/`"false"`) — only on models that advertise it (e.g. `claude-opus-4-8`); models using `effort`/`reasoning`/`reasoning_effort` can't be set through this arg |
+| `autoCreatePR` | — | Open a PR when finished |
+| `workOnCurrentBranch` | — | Operate on the current branch instead of a new one |
+
+## Tool display
+
+`toolDisplay` controls how Cursor's internal tool activity appears in opencode:
+
+- **`"blocks"` (default)** — structured, collapsible tool blocks with inputs and outputs. Common
+  Cursor tools are mapped to their opencode equivalents (`edit` → diff viewer, `shell` → bash
+  console, etc.). Requires opencode 1.17+.
+- **`"reasoning"`** — compact inline lines (`[tool] write {"path":…}`). Works on any host; use
+  this on older opencode versions.
+
+Turns where the host declares no tools at all — compaction/summary and title generation — always
+use `"reasoning"` regardless of this setting. opencode rejects tool parts on a summary turn, so
+Cursor's tool activity is folded into reasoning text there instead.
+
+To force the fallback:
+
+```json
+{ "provider": { "cursor": { "options": { "toolDisplay": "reasoning" } } } }
+```
+
+## Compaction
+
+**opencode's threshold-triggered auto-compaction is suppressed for Cursor models by default.** The
+Cursor agent runtime compacts its own conversation as it approaches its context threshold, so a
+second, opencode-driven pass is redundant — and it is actively harmful here:
+
+- The compaction turn asks the model to summarize with **no tools available**. The Cursor agent runs
+  its own tools regardless, which opencode rejects outright
+  (`Tool call not allowed while generating summary`).
+- Compaction rewrites the transcript, so the next turn no longer matches what the Cursor agent saw.
+  The plugin correctly treats that as a divergence and creates a **fresh Cursor agent** — and every
+  distinct agent permanently holds its own SQLite store open for the life of the process, which has
+  been observed to crash opencode outright.
+
+The suppression works by emitting a very large `limit.input`, which is what opencode uses as its
+compaction threshold. The real `limit.context` is left untouched, so the TUI's context-window gauge
+and cost reporting keep working.
+
+> [!IMPORTANT]
+> This suppresses the **proactive** threshold trigger only, and opencode has no reactive
+> context-overflow recovery wired up for this provider. In exchange, opencode's transcript is no
+> longer trimmed automatically, so it grows for the life of the session. Ordinary turns send only
+> the new message to an already-running agent, but a *cold replay* — a new session, an expired
+> agent, or a changed MCP server set — resends the whole transcript. If that ever overflows the
+> model, the turn fails with a provider error and the fix is to run `/compact` manually.
+>
+> Set `autoCompaction: true` if you would rather have opencode keep bounding the transcript for you.
+
+Manual `/compact` is unaffected and still works — it has no threshold gate.
+
+To hand compaction back to opencode:
+
+```json
+{ "provider": { "cursor": { "options": { "autoCompaction": true } } } }
+```
+
+## Transport
+
+opencode runs on [Bun](https://bun.sh), whose `node:http2` client is incompatible with the Cursor
+SDK's long-lived streaming RPC (`NGHTTP2_FRAME_SIZE_ERROR`; see
+[oven-sh/bun#31499](https://github.com/oven-sh/bun/issues/31499)). The plugin works around this by
+running the SDK over HTTP/1.1 in-process — no Node child process required. The historical Node
+sidecar remains as a rollback fallback.
+
+| Transport | Where it runs | When it's the default |
+| --- | --- | --- |
+| `http1` | in-process, HTTP/1.1 + SSE (Bun-safe) | under Bun |
+| `http2-direct` | in-process, SDK's default HTTP/2 | under Node (tests, scripts, non-Bun hosts) |
+| `sidecar` | spawned Node child hosting the SDK | never (rollback only) |
+
+Resolution order: the `transport` provider option → `OPENCODE_CURSOR_TRANSPORT` →
+legacy `OPENCODE_CURSOR_SIDECAR` (`1`→`sidecar`, `0`→`http2-direct`) → the per-runtime default
+above.
+
+If you hit a regression on the in-process path, roll back to the sidecar:
+
+```bash
+export OPENCODE_CURSOR_TRANSPORT=sidecar   # requires Node.js 22.13+ on PATH
+```
+
+An explicit `sidecar` request with no Node on `PATH` falls back to `http1` (Bun) or `http2-direct`
+(Node) with a stderr notice.
+
+## Reliability
+
+The provider classifies Cursor SDK errors into typed kinds (`agent-not-found`, `agent-busy`,
+`rate-limit`, `network`, `auth`, `config`, `unknown`) and recovers per kind:
+
+- **agent-busy** — a previous crash left a run wedged; the send is retried once with the SDK's
+  `local.force` escape hatch.
+- **rate-limit / network** — bounded exponential backoff on the same agent.
+- **auth / config** — fail fast (not retried).
+
+Sends carry an idempotency key so a retry is a server-side dedupe, not a duplicate turn.
+
+A **stream watchdog** guards against a wedged run that streams nothing. It uses two budgets:
+
+- **Idle** (`OPENCODE_CURSOR_STALL_MS`, default `120000`): when no tool call is open. A
+  pre-first-event stall cancels and force-resends once; a stall after partial output is surfaced
+  as a terminal error rather than re-emitting the already-yielded prefix.
+- **Tool-phase** (`OPENCODE_CURSOR_TOOL_STALL_MS`, default `600000`): while at least one Cursor
+  tool call is in flight. A long shell command, build, or test suite legitimately streams nothing
+  for minutes; the larger budget stops a healthy run from being killed mid-tool. A tool-phase
+  stall is terminal and names the in-flight tool. Set `0` to disable the bound during tool
+  execution only.
+
+The watchdog re-arms on **any** SDK update — including types the plugin doesn't model — so
+progress/heartbeat updates count as liveness. Set `OPENCODE_CURSOR_STALL_MS=0` to disable the whole
+watchdog (an empty string also disables, for backward compatibility).
+
+## Troubleshooting
+
+- **Native Cursor tools hang / "Tool execution aborted" (`NGHTTP2_FRAME_SIZE_ERROR`).** A
+  `http2-direct` transport was forced under Bun. Unset `OPENCODE_CURSOR_TRANSPORT` (defaults to the
+  Bun-safe `http1`), or roll back with `OPENCODE_CURSOR_TRANSPORT=sidecar` (needs Node.js 22.13+ on
+  `PATH`).
+- **Plugin enabled but no `cursor` provider/models appear, or you see a stale-version warning.**
+  opencode caches the `@latest` plugin install on first use and never refreshes it.
+  On v1: exit opencode, delete `~/.cache/opencode/packages/@stablekernel/opencode-cursor@latest`
+  (or the pinned version directory), and restart. On v2: run `opencode plugin update`, or
+  exit opencode and delete `~/.cache/opencode/npm/@stablekernel/opencode-cursor@<spec>`
+  (e.g. `@latest`), then restart. On v2 the spec must also resolve to a build with the v2
+  entrypoint (0.10.0-next.1 or later — see [opencode v2](#opencode-v2)): an `@latest`
+  install of 0.9.x makes opencode 2 report "Plugin must export a default definition
+  with an id and an effect or setup function".
+- **Only the four fallback models appear.** The live catalog loads after the first authenticated
+  use. Restart opencode once after login, or run `cursor_refresh_models`.
+- **Invalid or expired key.** Validated on first use — that's where the error surfaces.
+- **Need more detail?** Set `OPENCODE_CURSOR_DEBUG=1`.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup,
+test/typecheck/build commands, and the release process. Report bugs at the
+[issue tracker](https://github.com/stablekernel/opencode-cursor/issues); for security reports
+see [SECURITY.md](./SECURITY.md).
+
+## License
+
+MIT

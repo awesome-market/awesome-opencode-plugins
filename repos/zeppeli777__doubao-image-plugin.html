@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zeppeli777/doubao-image-plugin · OpenCode Plugins</title>
+<meta name="description" content="Doubao (豆包) image generation relay for Magpie: text-to-image and image-to-image with the user&#x27;s own Doubao web session (QR-code sign-in), served to every agent via /mcp/magpie/tools">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="doubao-image-plugin, zeppeli777, zeppeli777/doubao-image-plugin, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/zeppeli777__doubao-image-plugin">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="zeppeli777/doubao-image-plugin · OpenCode Plugins">
+<meta property="og:description" content="Doubao (豆包) image generation relay for Magpie: text-to-image and image-to-image with the user&#x27;s own Doubao web session (QR-code sign-in), served to every agent via /mcp/magpie/tools">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/zeppeli777__doubao-image-plugin">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "zeppeli777/doubao-image-plugin", "codeRepository": "https://github.com/Zeppeli777/doubao-image-plugin", "url": "https://opencode-plugins.zhuikan.com/repos/zeppeli777__doubao-image-plugin", "description": "Doubao (豆包) image generation relay for Magpie: text-to-image and image-to-image with the user's own Doubao web session (QR-code sign-in), served to every agent via /mcp/magpie/tools", "author": {"@type": "Organization", "name": "zeppeli777", "url": "https://github.com/Zeppeli777"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,tools,server"}</script>
+</head>
+<body data-repo="zeppeli777/doubao-image-plugin" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">zeppeli777/doubao-image-plugin</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="zeppeli777__doubao-image-plugin"><img class="rp-side-av" src="https://github.com/Zeppeli777.png?s=300" width="300" height="300" alt="zeppeli777 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">doubao-image-plugin</div>
+      <a class="rp-side-owner" href="https://github.com/Zeppeli777">zeppeli777</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Zeppeli777">zeppeli777</a>
+        <span class="rp-sep">/</span><span class="rp-name">doubao-image-plugin</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Doubao (豆包) image generation relay for Magpie: text-to-image and image-to-image with the user&#x27;s own Doubao web session (QR-code sign-in), served to every agent via /mcp/magpie/tools</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Zeppeli777/doubao-image-plugin">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.1.2</span><a class="rp-dl-a" href="https://www.npmjs.com/package/@zeppeli777/tools-doubao/v/0.1.2">0.1.2 ↓</a><span class="rp-dl-ver">0.1.2</span><span class="rp-dl-date">2026-11-01</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">豆包生图中转插件（tools-doubao）
+
+Magpie 工具插件：让任意 Agent 通过你自己的豆包账号（网页版登录态，与豆包桌面端同账号同后端）生成图片。工具经 Magpie 内置 MCP 服务器 /mcp/magpie/tools 注册进所有智能体，工具名为 doubao-image-plugin_generate_image / doubao-image-plugin_check_login。
+
+- 文生图：prompt + 画幅比例（1:1 / 16:9 / 9:16 / 4:3 / 3:4 / auto）+ 模型档位（免费档 Seedream 5.0 Flash / 4.5 / 4.0）
+- 图生图：传本地图片路径或图片 URL 作参考图
+- 多账号轮换：登录失效自动换号；图片自动落盘并返回绝对路径
+
+原理：用豆包网页版的 sessionid Cookie 免签名直调豆包内部接口（优先 web chat_ability 新协议，失败自动降级旧 samantha 客户端通道；图生图固定走 samantha 通道）。逆向接口属个人自用性质，不稳定且存在账号风控风险，商用请走火山引擎官方 API。
+
+ 安装
+
+sh
+ 方式一：npm（推荐）
+magpie plugin add @zeppeli777/tools-doubao
+
+ 方式二：从 GitHub 本地克隆后文件夹就地加载
+git clone https://github.com/Zeppeli777/doubao-image-plugin.git
+magpie plugin add ./doubao-image-plugin
+
+magpie plugin --json    确认加载无 plugin: 错误
+
+
+装完后新开的 Agent 会话才能看到新工具。工具名为 doubao-image-plugin_generate_image（npm 包安装时插件 id 取包名，为 doubao_generate_image）。
+
+ 登录（获取豆包登录态）
+
+任选其一：
+
+sh
+magpie plugin login doubao-image-plugin    或 npm 安装后的插件 id
+node scripts/login.mjs                     本地克隆时；弹出二维码，手机豆包 App 扫码
+
+
+弹出二维码 → 手机豆包 App 扫码并确认 → 登录态自动写入插件目录 config.json。
+
+ 配置凭证（三选一）
+
+1. 扫码登录（见上节，推荐）
+2. 手动：复制 config.example.json 为 config.json，填入 sessionid（浏览器登录 doubao.com → F12 → Application → Cookies → https://www.doubao.com → 复制 sessionid；ttwid、passport_csrf_token 可选，带上更稳）
+3. 环境变量：DOUBAO_ACCOUNTS=&quot;主号:sessionid=xxx,ttwid=yyy;小号:sessionid=zzz&quot;
+
+Cookie 有效期约 30 天，过期后重新扫码即可。多账号把 accounts 数组填多条，登录失效自动轮换。
+
+ 使用
+
+Agent 里直接说&quot;用豆包画一张…&quot;，Agent 会调用工具。手动验证不走 Magpie：
+
+sh
+node scripts/test-protocol.mjs --check                        各账号登录态
+node scripts/test-protocol.mjs &quot;一只柴犬在樱花树下&quot; --ratio 16:9
+node scripts/test-protocol.mjs &quot;改成赛博朋克风格&quot; --ref 照片.jpg    图生图
+node scripts/test-protocol.mjs &quot;一朵红玫瑰特写&quot; --wm             文生图 + 去水印
+
+
+生成的图默认保存在调用方工作目录的 generated-images/（可在 config.json 用 outDir 改）。
+
+ 配置项
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| accounts | [] | {name, sessionid, ttwid?, passport_csrf_token?} 数组 |
+| model | Seedream 5.0 Flash | 默认模型档位；Pro 档需订阅，会自动回退免费档 |
+| ratio | 1:1 | 默认画幅比例 |
+| channel | auto | web=chat_ability 新协议（模型/比例精确）；pc=samantha 旧通道（稳定、支持图生图）；auto=先 web 后 pc |
+| outDir | 空 | 图片保存目录，空=跟随调用方工作目录 |
+| timeoutSeconds | 180 | 单次请求超时 |
+| ratioHint | true | web 通道把比例追加进自然语言（web 端 ratio 字段实测不生效） |
+| removeWatermark | false | 去右下角&quot;豆包AI生成&quot;水印（扩图裁剪法，见下） |
+| watermarkExtend | &quot;1/4&quot; | 去水印的扩图比例，裁剪保留 1/(1+该值) |
+
+ 去水印（扩图裁剪法）
+
+开启 removeWatermark: true（或调用时传 remove_watermark: true）后，文生图会自动多走一步：
+
+1. 正常生成图片（右下角带&quot;豆包AI生成&quot;标）
+2. 以该图为参考图走图生图，提示词自动追加 &quot;往下扩图四分之一&quot; —— 模型重新演绎画面，旧水印随之消失，而新一轮水印落在底部新增区域
+3. 下载扩图结果，裁掉底部扩出部分（保留上方 80%），覆盖保存
+
+代价与注意：
+
+- 多花一次生成额度（一张图 = 两次生成）
+- 画面边缘会被模型重新演绎，构图略有变化
+- 扩图比例可用 watermarkExtend 调整（如 &quot;1/5&quot; → 保留 5/6）
+- 仅对文生图生效；图生图保留用户原图语义，不自动扩图
+- 扩图结果若非 PNG（目前实测均为 PNG）会跳过裁剪并保留原图，不会损坏文件
+
+ 故障排查
+
+| 现象 | 处理 |
+|---|---|
+| 提示登录态失效 | sessionid 过期（约 30 天），重新复制；多账号时会自动轮换 |
+| 710022002 / 710022004 风控 | 等约 30 分钟冷却 / 换网络（手机热点最快）/ 浏览器过一次滑块验证 |
+| 提示需要订阅 | 免费账号只能用免费档（Seedream 5.0 Flash / 4.5 / 4.0），点名 Pro 档会自动回退 |
+| msToken 相关风控 | 本插件默认不带 msToken（留空最安全），无需配置 |
+| 生图很慢 | 单张通常数秒到一两分钟；超时可调大 timeoutSeconds |
+
+ 参考实现
+
+协</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/Zeppeli777/doubao-image-plugin/releases"><b>0.1.2</b> <span class="rp-rel-tag">0.1.2</span> <span class="rp-item-extra">2026-11-01</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/zeppeli777__doubao-image-plugin.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

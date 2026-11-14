@@ -1,0 +1,486 @@
+# jCodeMunch MCP
+
+**An MCP server that retrieves source code by symbol, not by file, using tree-sitter AST parsing.** It uses 96.2% fewer tokens per lookup on average than grep-and-read on our 15-lookup benchmark (90.4% to 99.2% across the lookups, at pinned commits), so your agent stops spending its context window on whole files.
+
+<sub>Benchmark: 5 queries on each of express, fastapi and gin at pinned commits, tokens counted with tiktoken `cl100k_base`, jcodemunch-mcp 1.108.426 with the served-response count of #1361 (the benchmark counts the text the server sends on a default install). A lookup is one `search_symbols` plus `get_symbol_source` on its top 3 hits, against grep-and-read (rank files by match count, read the top 3 whole). Per lookup, not per session. Reproduce with [`benchmarks/REPRODUCING.md`](benchmarks/REPRODUCING.md).</sub>
+
+> **Real results from production, as of 2026-08-17**
+> **838B+ tokens saved** · **136,000+ reporting installs** · **$4.2M+ in AI spend avoided** · **100,000+ kg CO₂ prevented**
+> Estimated counter figures as of 2026-08-17, not live, valued at the $5/MTok Claude Opus **input** rate. All four only grow, so read them as floors. Live at **[jcodemunch.com](https://jcodemunch.com/?utm_medium=readme&utm_campaign=jcm_readme_counter)**.
+
+Works with **Claude Code**, **Cursor**, **VS Code**, **Codex CLI**, **Windsurf**, **Continue**, and [any MCP-compatible client](CLIENTS.md).
+
+[**Install now**](#install) · [**Quickstart**](QUICKSTART.md) · [**See the evidence**](#evidence) · [**Pricing**](https://jcodemunch.com/?utm_medium=readme&utm_campaign=jcm_readme_top#pricing)
+
+[![PyPI version](https://img.shields.io/pypi/v/jcodemunch-mcp)](https://pypi.org/project/jcodemunch-mcp/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/jcodemunch-mcp)](https://pypi.org/project/jcodemunch-mcp/)
+![License](https://img.shields.io/badge/license-dual--use-blue)
+![MCP](https://img.shields.io/badge/MCP-compatible-purple)
+![Local-first](https://img.shields.io/badge/local--first-yes-brightgreen)
+[![Issues closed](https://img.shields.io/github/issues-closed/jgravelle/jcodemunch-mcp?label=issues%20closed&color=brightgreen)](https://github.com/jgravelle/jcodemunch-mcp/issues?q=is%3Aissue+is%3Aclosed)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20102349.svg)](https://doi.org/10.5281/zenodo.20102349)
+
+<!-- mcp-name: io.github.jgravelle/jcodemunch-mcp -->
+
+**Free for personal use.** Use it to make money, and Uncle J. gets a taste. Fair enough? [Commercial licenses below.](#licensing-and-commercial-use)
+Our [guarantee](https://jcodemunch.com/guarantee.php): if jCodeMunch doesn't pay for itself, you don't pay for jCodeMunch.
+
+**Small by default.** A new install starts on a six-tool front door: menu, order and route do the work, and jcodemunch_guide, announce_model and set_tool_tier help. The full tool set sits behind it, and `jcodemunch-mcp surface` shows exactly what your install advertises.
+
+---
+
+## Why jCodeMunch?
+
+Most AI agents explore repositories the expensive way: open entire files, skim thousands of irrelevant lines, repeat. That is not "a little inefficient." That is a **token incinerator**.
+
+**jCodeMunch indexes a codebase once and lets agents retrieve only the exact code they need**: functions, classes, methods, constants, outlines, and tightly scoped context bundles, with byte-level precision. It parses source with tree-sitter, stores structured symbol metadata (signature, kind, qualified name, summary, byte offsets) alongside raw file content in a local index, and fetches exact implementations on demand instead of re-reading files over and over.
+
+| Task | Traditional approach | With jCodeMunch |
+| --- | --- | --- |
+| Find a function | Open and scan large files | Search symbol, fetch exact implementation |
+| Understand a module | Read broad file regions | Pull only relevant symbols and imports |
+| Explore repo structure | Traverse file after file | Query outlines, trees, and targeted bundles |
+| "What breaks if I change X?" | Search for the name, then read each hit | `get_blast_radius`: affected files and symbols, across indexed repos, with no IDE running |
+
+Index once. Query cheaply. Keep moving. **Precision context beats brute-force context.**
+
+---
+
+## Evidence
+
+### Reproducible token efficiency benchmark
+
+Measured with `tiktoken cl100k_base` across three public repos pinned to upstream commits, run 2026-11-08 on v1.108.426, with the benchmark counting the text the server sends on a default install (#1361). Workflow: `search_symbols` (top 5) + `get_symbol_source` × 3 per query. Two baselines, same run, same corpus, same file reader:
+
+- **Grep-top-3**: `rg -l` the query terms, rank files by match count, open the top 3 whole. This is what a competent agent without the tool actually does, and it is the number to quote.
+- **Read-all**: every indexed source file concatenated. A ceiling nobody pays; retained for continuity with previously published figures.
+
+| Repository | Files | Symbols | Grep-top-3 baseline | jCodeMunch | vs grep | vs read-all |
+|------------|------:|--------:|--------------------:|-----------:|--------:|------------:|
+| expressjs/express | 186 | 1,085 | 15,040 avg | 743 avg | **20.2x** | 208.0x |
+| fastapi/fastapi | 1,186 | 13,699 | 86,713 avg | 1,779 avg | **48.7x** | 463.9x |
+| gin-gonic/gin | 98 | 1,822 | 32,253 avg | 994 avg | **32.5x** | 152.8x |
+| **Grand total, pooled (15 task-runs)** | | | **670,032** | **17,581** |  | 321.9x |
+
+**Against a grep-and-read agent: 96.2% fewer tokens per lookup on average.** No single multiple describes every query; the per-repo rows above are the spread. Against read-all the figure is 99.7%, but nobody pays that ceiling. That count is the text the server actually sends, compact MUNCH encoding included, so it's what your agent receives on a default install.
+
+Full methodology, pinned commits, harness, and known caveats: [benchmarks/METHODOLOGY.md](benchmarks/METHODOLOGY.md) · [Reproduce it yourself](benchmarks/REPRODUCING.md) · [TOKEN_SAVINGS.md](TOKEN_SAVINGS.md)
+
+### Independent A/B test on a production codebase
+
+50-iteration A/B test on a real Vue 3 + Firebase production codebase, jCodeMunch vs native tools (Grep/Glob/Read), Claude Sonnet 4.6, fresh session per iteration: success rate 80% vs 72%, timeout rate 32% vs 40%, mean cache creation down 10.5%. Tool-layer savings isolated from fixed overhead: 15-25%. One finding category appeared exclusively in the jCodeMunch variant: orphaned file detection via `find_importers`, a structural query native tools cannot answer without scripting. Full report: [benchmarks/ab-test-naming-audit-2026-03-18.md](benchmarks/ab-test-naming-audit-2026-03-18.md)
+
+### Mentioned by
+
+- **Artur Skowroński** (VirtusLab): *"roughly 80% fewer tokens, or 5× more efficient — index once, query cheaply forever"* · [GitHub All-Stars #15](https://virtuslab.com/blog/ai/code-munch-mcp-your-agent-starts-navigating)
+- **Traci Lim** (AWS · ASEAN AI Lead): *"structural queries that native tools can't answer: find_importers, get_blast_radius, get_class_hierarchy, find_dead_code"* · [5 Repos That Save Token Usage in Claude Code](https://www.tracilzw.com/posts/5-repos-save-token-usage-claude-code)
+- **Julian Horsey** (Geeky Gadgets): *"3,850 tokens reduced to just 700 — a 5.5× improvement"* · [JCodeMunch AI Token Saver](https://www.geeky-gadgets.com/jcodemunch-mcp-token-savings/)
+- **Eric Grill**: *"context is the scarce resource. Cut it by 90% and the whole stack gets cheaper and more reliable"* · [jCodemunch: Context Engine for AI Agents](https://www.ericgrill.com/blog/jcodemunch-mcp-context-engine-for-ai-agents)
+
+[Full recognition page →](https://jcodemunch.com/recognition.php?utm_medium=readme&utm_campaign=jcm_readme_recognition)
+
+---
+
+## Install
+
+#### One-click installs
+
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_jCodeMunch-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%20%22jcodemunch%22%2C%20%22command%22%3A%20%22uvx%22%2C%20%22args%22%3A%20%5B%22jcodemunch-mcp%22%5D%7D)
+[![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Install-24bfa5?style=for-the-badge&logo=visualstudiocode&logoColor=white)](vscode-insiders:mcp/install?%7B%22name%22%3A%20%22jcodemunch%22%2C%20%22command%22%3A%20%22uvx%22%2C%20%22args%22%3A%20%5B%22jcodemunch-mcp%22%5D%7D)
+[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_jCodeMunch-122122?style=for-the-badge&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=jcodemunch&config=eyJjb21tYW5kIjogInV2eCIsICJhcmdzIjogWyJqY29kZW11bmNoLW1jcCJdfQ==)
+
+#### Recommended: one command
+
+```bash
+uv tool install jcodemunch-mcp
+jcodemunch-mcp init
+```
+
+No virtualenv to manage, nothing written into system Python, and it works as-is on PEP 668 distros (Ubuntu 24.04+, Debian 12+) where bare `pip install` is refused. [Don't have `uv` yet?](https://docs.astral.sh/uv/getting-started/installation/)
+
+`init` auto-detects your MCP clients (Claude Code, Claude Desktop, Cursor, Windsurf, Continue, Codex, opencode, Gemini CLI, Cline, VS Code with Copilot), writes their config entries, installs the hooks that keep the index fresh without adding anything to the model's context (re-index after an edit, a pre-compaction checkpoint, a task-complete note to you), optionally indexes your project, and audits your agent config files for token waste. Two extras are opt-in because the model reads them on every turn they apply: `--policy` writes the Code Exploration Policy into CLAUDE.md, AGENTS.md and the Cursor and Windsurf rules files, and `--guidance` adds the hooks that advise the model on Read/Grep/Glob/Bash, brief subagents and restore context after compaction. With the PreToolUse hook installed (`--guidance` or `--strict`) and `JCODEMUNCH_HOOK_GREP_ANSWER=1`, a large Grep inside an indexed repo is answered from the index once: the hook refuses it with every match counted as the reason (by file and by function or class, with less detail for a very large set; the lines themselves are not included; the answer says it came from the index, how many lines in how many files match the pattern case-insensitively, and that `JCODEMUNCH_HOOK_GREP_ANSWER=0` turns it off), and the same Grep sent again runs normally. A Grep under the size thresholds (`JCODEMUNCH_HOOK_GREP_ANSWER_MIN_LINES`, `JCODEMUNCH_HOOK_GREP_ANSWER_MIN_FILES`) runs untouched, and so does any Grep on an index the file cap cut short. It is off by default. An install that already has them keeps them; `jcodemunch-mcp init --remove-guidance` removes them, with backups.
+
+**Ask for it by name.** Tell your agent to use jcodemunch ("use jcodemunch to find where X is handled"). In the sessions we measured, agents used it when the user asked for it by name.
+
+<details>
+<summary><b>Other install paths</b></summary>
+
+| Command | Use it when |
+|---|---|
+| `uvx jcodemunch-mcp` | **Zero install.** Runs from an ephemeral environment — nothing lands on disk permanently. The client entries `init` writes already invoke the server this way, so for most setups this is all that ever runs. ⚠ Enforcement hooks are the exception: they're spawned by a minimal-PATH subshell and resolve the executable by name, so they need `uv tool install` (or `pipx`/`pip`) to work. |
+| `pipx install jcodemunch-mcp` | You already standardise on pipx |
+| `pip install jcodemunch-mcp` | Inside a virtualenv you manage yourself |
+
+</details>
+
+Verify:
+
+```bash
+jcodemunch-mcp --version
+```
+
+#### Manual Claude Code setup
+
+```bash
+claude mcp add -s user jcodemunch -- uvx jcodemunch-mcp
+```
+
+No install step — `uvx` fetches and runs the server on demand. Prefer it on your PATH (and required for enforcement hooks)? `uv tool install jcodemunch-mcp`, then `claude mcp add -s user jcodemunch jcodemunch-mcp`.
+
+Then tell the agent to prefer the tools. This matters more than people think; installation makes the tools available but does not break the agent's brute-reading habit. One line in your CLAUDE.md does it:
+
+```markdown
+Call the jcodemunch_guide tool and strictly follow its instructions.
+```
+
+Using Cursor, Windsurf, Codex CLI, JetBrains AI Assistant, Junie, Antigravity, Gemini CLI, Qwen Code, Kiro, Cline, Zed, Goose, Hermes, Odysseus, or Paperclip? Every tested client configuration lives in **[CLIENTS.md](CLIENTS.md)**, along with [fewer approval prompts](CLIENTS.md#fewer-approval-prompts), [a committed `.mcp.json` for your team](CLIENTS.md#share-it-with-your-team) and [a shared HTTP server](CLIENTS.md#run-it-as-a-shared-http-server). Optional extras (local semantic search, AI summaries per provider) are in [QUICKSTART.md](QUICKSTART.md); the system surfaces each extra pulls in are documented in [SECURITY.md](SECURITY.md#optional-extras--system-surfaces-each-pulls-in).
+
+---
+
+## Quickstart
+
+Full walkthrough: **[QUICKSTART.md](QUICKSTART.md)**. The two-minute version, inside your agent after `init`:
+
+1. Ask: *"Index this repo with jcodemunch."*
+2. Ask: *"Using jcodemunch, find the function that handles authentication and show me its source."*
+
+The agent should answer via `search_symbols` and `get_symbol_source`, returning tens of lines instead of whole files. Confirm with `get_session_stats`: it reports tokens served and savings for the session. That is where the numbers on the meter come from.
+
+Want to skip initial indexing for popular frameworks? Pre-built **starter packs**: `jcodemunch-mcp install-pack --list` (free packs need no license).
+
+### See it on Express (free)
+
+1. Install and set up your client:
+   `uv tool install jcodemunch-mcp`, then `jcodemunch-mcp init`
+2. Load the free starter pack **Node.js Essentials** (Node, Express, Fastify, Koa): `jcodemunch-mcp install-pack nodejs`. Free packs need no license.
+3. Ask your agent: *"Using jCodeMunch, find where Express registers a route handler and show me that function."*
+
+What that lookup costs, from our benchmark on Express at commit `1faf2289`, counted with cl100k:
+
+| | Tokens |
+|---|---:|
+| Grep-and-read: search `router route handler`, open the top 3 matching files whole | 9,890 |
+| jCodeMunch: one symbol search, then the source of the top 3 matches | 506 |
+
+That's one of the 15 lookups in the benchmark (5 each on express, fastapi and gin at pinned commits). jCodeMunch used 96.2% fewer tokens per lookup on average than grep-and-read on our 15-lookup benchmark. The pack is built from Express 4.x, while the benchmark pins commit `1faf2289` on upstream main, so your count can differ. To rerun the benchmark at the pinned commits, follow [`benchmarks/REPRODUCING.md`](benchmarks/REPRODUCING.md); raw data is in [`benchmarks/`](benchmarks/).
+
+---
+
+## What you can do
+
+- **Retrieve one symbol instead of loading a file.** `get_symbol_source` returns the exact function body, byte-precise, for the majority of edits that touch one function in a 700-line file (~95% savings on that read). A class comes back as an outline, each method collapsed to its signature; pass `class_body="full"` for the whole body.
+- **Assemble a whole task's context in one call.** `assemble_task_context` classifies the task intent, extracts anchor symbols, and runs the right tool sequence under one token budget. `plan_turn` routes the turn before the first read.
+- **Ask structural questions grep can't answer.** `find_importers`, `get_blast_radius`, `get_call_hierarchy`, `find_dead_code`, `get_changed_symbols`, `get_hotspots`, `search_ast` anti-pattern sweeps, and more. Two of them sound alike and are not: `check_references` answers where a name is used (import sites plus every file whose content mentions it), `find_references` answers who imports it, over the import graph alone, so a call site is invisible to it. `get_call_hierarchy` says which callers are direct: a deeper row names the caller it is reached from.
+- **Preflight risky changes, and know when to stop.** `check_edit_safe`, `check_delete_safe`, `get_pr_risk_profile`, and `plan_refactoring` with edit-ready `{old_text, new_text}` blocks. The two safety checks return `stop_rule.terminal`: true means no further jcodemunch call moves the verdict, so re-running `find_importers` or `check_references` to be sure is wasted work. It means final, not safe. `corpus_inadequate` (the index could not back an absence claim) and `dynamic_import_boundary` (a dynamic import, or for a .NET control or build item a path the index does not carry, can load the file) are never terminal, and each tool's description lists every verdict it returns. `check_rename_safe` answers `safe: null` rather than `true` when the import graph could not reach the symbol's file, so the files that use it were never checked, and `get_pr_risk_profile` answers `risk_score: null` with `unmeasurable_axes` when it could not measure the blast axis; a CI gate should fail on null. Hand the server your type checker's own output (`jcodemunch-mcp import-trace --diagnostics <file>`: `mypy --output json`, `pyright --outputjson`, `tsc --pretty false`, `ruff --output-format json`) and `check_edit_safe`, `get_changed_symbols`, `get_pr_risk_profile` and `get_symbol_provenance` say which symbols the checker already flags, as of which commit. Nothing runs a checker for you. False names the specific thing that would change the answer.
+- **Trust the answers.** Calibrated confidence scores, freshness flags, coverage contracts on absence claims, compiler-verified references via SCIP import, and automatic secret redaction before anything reaches the LLM.
+- **Keep the index fresh automatically.** Watch modes, agent hooks, and a VS Code extension close the staleness gap.
+
+That's the highlight reel. The complete tour of the full tool set (90+ tools behind the six-tool front door), the MUNCH compact wire format, evidence receipts, offloadable-work annotation, and the session-economics instrumentation is in **[CAPABILITIES.md](CAPABILITIES.md)**, with internals in [UNDER_THE_HOOD.md](UNDER_THE_HOOD.md).
+
+<!-- WHATSNEW:START -->
+#### What's new
+
+- **[v1.108.400](https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.108.400)** (2026-10-27) — a text search returns the code it found, and a retired tool name says what replaced it
+- **[v1.108.399](https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.108.399)** (2026-10-26) — four core tool descriptions open with the question each tool answers
+- **[v1.108.398](https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.108.398)** (2026-10-25) — the semantic and all extras install a fixed filelock on every Python
+- **[v1.108.397](https://github.com/jgravelle/jcodemunch-mcp/releases/tag/v1.108.397)** (2026-10-24) — a cut search names the files it left off, and file_pattern takes braces
+<!-- WHATSNEW:END -->
+
+---
+
+## When does it help (and when doesn't it)?
+
+| Scenario | Native tool | jCodeMunch | Savings |
+|----------|-------------|------------|---------|
+| Edit one function (700-line file) | `Read` → 700 lines | `get_symbol_source` → 30 lines | ~95% |
+| Understand a file's structure | `Read` → full content | `get_file_outline` → names + signatures | ~80% |
+| Find which file to edit | `Grep` many files | `search_symbols` → exact match | comparable |
+| Edit requires whole-file context | `Read` → full content | `get_file_content` → full content | ~0% |
+| "What breaks if I change X?" | `Grep` the name, `Read` each hit | `get_blast_radius` → affected files and symbols | not measured |
+
+It helps most on targeted edits (one function, one method, one class), which is the majority of real editing work. Edits that genuinely require the entire file (restructuring file-level state, reordering logic spanning hundreds of lines) see no advantage. Best fits: large repositories, unfamiliar codebases, agent-driven exploration, refactoring and impact analysis, and teams cutting AI token costs without making agents dumber.
+
+**Languages:** 79+ via tree-sitter, including Python, JavaScript/TypeScript, Go, Rust, Java, C/C++, C#, PHP, Ruby, Swift, and Kotlin. Full matrix: [LANGUAGE_SUPPORT.md](LANGUAGE_SUPPORT.md). **Monorepos:** yes; incremental indexing, workspace-member detection, subpath scoping.
+
+---
+
+<a id="background-behavior-fully-disclosed"></a>
+
+## Deferring the tool schemas (Anthropic tool search)
+
+If you reach jCodeMunch through the [MCP connector](https://platform.claude.com/docs/en/agents-and-tools/mcp-connector) on a model that supports [tool search](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool), you can keep our schemas out of your context prefix entirely and let Claude load only the two or three tools a request needs. **You do not set `defer_loading` per tool** — set it once for the whole server:
+
+```json
+{
+  "mcp_servers": [
+    { "type": "url", "url": "https://your-host/mcp", "name": "jcodemunch" }
+  ],
+  "tools": [
+    { "type": "tool_search_tool_bm25_20251119", "name": "tool_search_tool_bm25" },
+    {
+      "type": "mcp_toolset",
+      "mcp_server_name": "jcodemunch",
+      "default_config": { "defer_loading": true },
+      "configs": {
+        "resolve_repo":       { "defer_loading": false },
+        "search_symbols":     { "defer_loading": false },
+        "get_ranked_context": { "defer_loading": false }
+      }
+    }
+  ]
+}
+```
+
+Send it with the beta header `mcp-client-2025-11-20`. **Both halves are required** — `mcp_servers` alone is a validation error, and so is `mcp_toolset` without the matching `mcp_server_name`.
+
+⚠ **The MCP connector takes a URL, so this applies to jCodeMunch served over `sse` or `streamable-http`** (`jcodemunch-mcp serve --transport streamable-http`), not to the default local stdio setup. On stdio, whether schemas are deferred is up to your client, and `tool_surface: "counter"` below is the lever you control.
+
+The `configs` block above follows Anthropic's own advice — keep your 3–5 most-used tools resident so common requests skip the search round trip — and per-tool `configs` overrides `default_config`.
+
+A deferred tool is found by searching its name and description, so the core descriptions open with the question each tool answers, in the words an agent uses: `search_symbols` "find where a function, class or method is defined", `get_symbol_source` "read or show the source code", `get_call_hierarchy` "who calls this function or method", `check_references` "where is a function, class or other identifier used". The analysis tools follow the same rule: `check_delete_safe` opens "is it safe to delete this function", `get_pr_risk_profile` "how risky is this pull request", `get_hotspots` "where is the riskiest code".
+
+Deferred definitions are excluded from the system-prompt prefix and appended inline as `tool_reference` blocks when Claude discovers them, **so prompt caching is preserved** — this is not the cache-invalidating kind of dynamic tool list. At least one tool in the request must stay non-deferred, or the API returns a 400.
+
+⚠ **This is a different mechanism from our own `tool_surface: "counter"`**, and you do not need both. Tool search is host-side and works across every MCP server you have connected; the Counter is server-side, works on any host including ones with no tool-search support, and is what `init` configures on a first-ever install. Pick whichever your host supports — see [CONFIGURATION.md](CONFIGURATION.md#the-counter--collapse-to-a-3-tool-front-door-tool_surface) for the Counter and `jcodemunch-mcp surface` for what your install actually advertises.
+
+---
+
+## Custom subagents
+
+A Claude Code subagent gets the session's MCP tools unless its definition has a `tools:` list. If yours does, the subagent can call only what that list names, so add the jcodemunch tools you want:
+
+```yaml
+---
+name: code-explorer
+description: Finds where code lives and what a change reaches.
+tools: Read, Grep, Glob, mcp__jcodemunch__route, mcp__jcodemunch__menu, mcp__jcodemunch__order
+---
+```
+
+Those three are the front door on the `counter` surface, which `init` sets on a first-ever install. On the `full` surface, name the tools themselves, for example `mcp__jcodemunch__search_symbols`. The first line of `jcodemunch-mcp surface` names the active surface. The `mcp__jcodemunch__` prefix assumes the server is registered as `jcodemunch`, the name `init` writes; a server registered under another name gets that name in the prefix.
+
+---
+
+## Privacy Policy
+
+jCodeMunch runs on your machine. Your code, file paths and queries stay there: the index lives in `~/.code-index/`, and deleting that folder removes it.
+
+The one thing the server sends by default is an anonymous savings counter: a random ID, the tokens saved since the last send, and a lifetime total. It sends no code, no paths and no queries. Turn it off with `"share_savings": false` in `~/.code-index/config.jsonc` or `JCODEMUNCH_SHARE_SAVINGS=0`. The Claude Code plugin turns it off for you.
+
+The one other default network call is a single download, not a send: the first time a count is needed, `tiktoken` fetches `cl100k_base.tiktoken` (1,681,126 bytes) once from `https://openaipublic.blob.core.windows.net/encodings/`, checks it against its pinned SHA-256 and keeps it in its own cache (`TIKTOKEN_CACHE_DIR`, else `data-gym-cache` under your temp directory). The request carries nothing about you or your code. It runs on a background thread and never blocks or fails a call; until it finishes, and whenever it is off, fails or the machine is offline, counts use the measured bytes-per-token table and `_meta.tokens_saved_basis` says why. `"tokenizer_download": false` in `config.jsonc` or `JCODEMUNCH_TOKENIZER_DOWNLOAD=0` turns it off (a copy already in tiktoken's cache is still used). Anything else that reaches the network is something you run or turn on yourself, and each is listed in [Security, privacy, and background behavior](#security-privacy-and-background-behavior). Full policy: https://jcodemunch.com/privacy.php
+
+## Security, privacy, and background behavior
+
+An install that never runs `init` (a `uvx` or plugin install) gets one `license_notice` line in its first tool answer, once per machine; it is skipped with a license key configured, after `jcodemunch-mcp config set license_reminder false`, after an `init` that printed the license line, on CI or remote runners (`CI=true`, `CLAUDE_CODE_REMOTE=true`), or with `JCODEMUNCH_LICENSE_NOTICE=0`. Its link carries a fixed source tag, `utm_medium=notice`.
+
+A short work-license reminder follows, 7 days after a machine's first index and then at most every 30 days: on stderr after a CLI command a person runs (only at a terminal, never with `--json`), and as `license_notice` on the first tool answer of a server process when due. Its state is `~/.code-index/license_reminder_state.json` (three fields: first index seen, last shown, count). It is never shown with a license key configured, on CI or remote runners, or after `jcodemunch-mcp config set license_reminder false`; `JCODEMUNCH_LICENSE_REMINDER=0` also silences it. Nothing is sent. Its buy link carries a fixed source tag (`utm_medium=reminder`, or `utm_medium=tool` in a tool answer), the same on every machine, which reaches the site only if the link is opened.
+
+The text report of `jcodemunch-mcp receipt` ends with one license line on a machine with no license key, tagged `utm_medium=receipt`. It has no clock and writes no state; every switch that silences the reminder silences it, and `--export` and `--explain` never carry it.
+
+The short version is the [Privacy Policy](#privacy-policy) above. Local-first by design: indexes live at `~/.code-index/`, and the base package's default network behavior is an anonymous savings counter (random ID plus aggregate token counts, no code, no paths, no PII; opt out with `share_savings: false`) and the one-time download of the token-counting file described under Token counting below (opt out with `tokenizer_download: false`). Everything the server does beyond answering a tool call (file watching, the opt-in login service, license validation, model downloads, org reporting) is opt-in or opt-out, visible, and reversible, and every item is enumerated in **[SECURITY.md](SECURITY.md#background-behavior-fully-disclosed)** alongside the path-traversal, symlink, and secret-redaction controls. On a git repository, a read tool first asks git (read-only, at most once per repo every 30 s in each server process) which files changed since the index was built and re-indexes up to 50 of them locally before answering; the whole check holds the answer for at most 2 s, and a re-index that outlives it keeps running in the background after the answer. `refresh_on_read: false` turns that off. A stdio server also stops on its own when the client process that started it is gone, even if its stdin pipe stays open (`JCODEMUNCH_PARENT_WATCH_SECONDS=0` turns that off). A default `init` writes no policy file and installs no hook whose output the model reads; those are `init --policy` and `init --guidance`, and `init --remove-guidance` takes them back out of an older install. `init --git-hook` adds a git post-checkout hook that re-indexes the files a branch switch changed, in an already indexed repository; `uninstall` run in that repository removes it.
+
+**Grammar pack override (#608).** The dependency `tree-sitter-language-pack` is pinned `<1.0.0` because the 0.x wheels bundle every grammar and parsing stays local. F# is the one exception: it is parsed by the pinned `tree-sitter-fsharp` wheel, which also compiles its grammar in, so F# parsing stays local on either pack (#848). You can override it with `pip install -U tree-sitter-language-pack` after installing; nothing in the code refuses it. What you accept, measured against 1.17.0 on 2026-09-11: the 1.x pack ships no grammars and fetches each one over the network into its cache directory (measured on Windows: `%LOCALAPPDATA%\tree-sitter-language-pack\v<version>\libs`; `jcodemunch-mcp install-status` prints the path on any platform) the first time a language is parsed, so an airgapped install parses nothing, and the `nim` grammar changed upstream, so nim files yield no symbols (the manifest also lacks `autohotkey`, `ejs` and `verse`, which costs nothing here: those three are parsed by jCodeMunch's own extractors, not by tree-sitter). An install on a 1.x pack says so: every `index_folder` result carries a `grammar_pack` block and a warning naming the version, the cache directory and each language whose grammar failed, and `jcodemunch-mcp install-status` prints the same. Dropping the pin is a separate decision that needs the offline story first.
+
+**Token counting (`tiktoken`).** `tokens_saved` is counted with OpenAI's `cl100k_base` encoding, scaled to Claude's tokenizer by a measured per-language ratio unless `savings_tokenizer` is `"openai"`. The encoding file is not in the package: the first time a count is needed, `tiktoken` fetches `cl100k_base.tiktoken` (1,681,126 bytes) once from `https://openaipublic.blob.core.windows.net/encodings/`, checks it against its pinned SHA-256 and keeps it in its own cache (`TIKTOKEN_CACHE_DIR`, else `data-gym-cache` under your temp directory). The request carries nothing about you or your code. It runs on a background thread and never blocks or fails a call; until it finishes, and whenever it is off, fails or the machine is offline, counts use the measured bytes-per-token table and `_meta.tokens_saved_basis` says why. `"tokenizer_download": false` in `config.jsonc` or `JCODEMUNCH_TOKENIZER_DOWNLOAD=0` turns it off (a copy already in tiktoken's cache is still used). Each file is counted once, when its index is saved, into the index's own database (`token_counts` table); a call reads those counts and counts only its own response. An index saved before the file arrived gets its counts on its next save. `tiktoken`'s MIT notice is in `jcodemunch_mcp/data/NOTICE.md`.
+
+---
+
+## Per-project configuration
+
+Most settings live in the global `~/.code-index/config.jsonc`, but any of them can be overridden for a single repository by dropping a `.jcodemunch.jsonc` at its root. It is an **overlay**: keys it declares win, keys it omits fall through to global and then to the built-in default, so it only needs to contain what differs.
+
+```jsonc
+// <your-repo>/.jcodemunch.jsonc
+{
+  "max_file_size": 1048576,
+  "languages": ["python", "typescript", "racket"]
+}
+```
+
+### Declaring Racket defining forms
+
+Racket projects routinely define their own defining forms with `define-syntax`, and a static parser cannot know what those bind — `(defstep (check-admin) ...)` is indistinguishable from a function call. Declaring them makes their bindings searchable:
+
+```jsonc
+{
+  "racket_definition_forms": {
+    "defstep":  "function",
+    "defstudy": "constant",
+    "defvar":   "constant",
+    "define-schema": "class"
+  }
+}
+```
+
+Each entry maps a form name to what it binds: `function`, `constant`, `class` or `type`. Where the name sits is read from the source rather than declared — `(defstep (check-admin) ...)` takes the head of the parameter list, `(defstudy consent ...)` takes the bare symbol — so a form that appears in both shapes works either way.
+
+⚠ This is an assertion, not something jCodeMunch can verify. A wrong declaration puts a name in the index that Racket does not actually bind. Declarations are also matched only after every built-in form, so declaring `define` or `struct` has no effect — the built-in handling wins.
+
+### Declaring what a Racket `#lang` looks like
+
+A `#lang` line names a *reader*, and jCodeMunch's Racket parser reads S-expressions. The distribution's langs are built in (`racket/*`, `typed/racket*`, `s-exp`, `info`, `at-exp …`, and the document langs `scribble/*`, `pollen`, `punct`, `markdown` …), but a project's own lang is unknown to it and is treated as a document — no symbols, still text-searchable — until you say what its syntax is:
+
+```jsonc
+{
+  "racket_langs": {
+    "conscript": "at-exp",
+    "mylang": "sexp"
+  }
+}
+```
+
+`sexp` is plain S-expressions; `at-exp` is at-exp text bodies over Racket (read with `@` as the command character, exactly as `#lang at-exp` reads them, so prose containing `;` `"` `#` or `|` is prose); `text` is a document language that is never walked. A key also covers its sub-langs (`conscript` matches `conscript/with-require`), and a project may demote a lang as well as promote one. An at-exp lang whose reader uses another command character declares it with the object form — `"mylang": {"tier": "at-exp", "command_char": "◊"}` — the way Racket's `make-at-readtable` takes `#:command-char`.
+
+Both keys change what the parser emits for *unchanged* files, so a change to either is stamped on the index and forces one full re-parse on the next index (`rebuild_reason: "racket_config_changed"`); you do not need to touch the files or clear the index. An index holding Racket files that was built before this stamp existed re-parses once the same way (`rebuild_reason: "racket_index_predates_gate"`).
+
+---
+
+## Documentation
+
+| Doc | What it covers |
+|-----|----------------|
+| [QUICKSTART.md](QUICKSTART.md) | Zero-to-indexed in three steps |
+| [CLIENTS.md](CLIENTS.md) | Tested configuration for every MCP client |
+| [USER_GUIDE.md](USER_GUIDE.md) | Full tool reference, workflows, and best practices |
+| [CAPABILITIES.md](CAPABILITIES.md) | The complete capability reference beyond the highlight reel |
+| [CONFIGURATION.md](CONFIGURATION.md) | Config file reference, token-control levers, tool tiering, the Counter |
+| [UNDER_THE_HOOD.md](UNDER_THE_HOOD.md) | The technical manual: verdicts, ranking internals, provenance contracts |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Internal design, storage model, and extension points |
+| [GROQ.md](GROQ.md) | Groq Remote MCP, the gcm CLI, speedreview GitHub Action |
+| [HEADLESS.md](HEADLESS.md) | Using jCodeMunch with `claude -p` |
+| [AGENT_HOOKS.md](AGENT_HOOKS.md) | Agent hooks and prompt policies |
+| [LANGUAGE_SUPPORT.md](LANGUAGE_SUPPORT.md) | Supported languages and parsing details |
+| [SECURITY.md](SECURITY.md) | Security controls, data movement, background behavior |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes |
+| [CHANGELOG.md](CHANGELOG.md) · [ROADMAP.md](ROADMAP.md) | Release history and what's next |
+
+---
+
+## Licensing and commercial use
+
+jCodeMunch-MCP is released under the **jCodeMunch-MCP Dual-Use License** ([full terms](LICENSE)). **Free for non-commercial use. Commercial use requires a paid license**, one-time, sold by jMunch LLC via Stripe:
+
+**jCodeMunch-only:** [Builder, $79](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#builder) (1 developer) · [Studio, $349](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#studio) (up to 5) · [Platform, $1,999](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#platform) (org-wide internal deployment)
+
+**Full jMunch suite (code + docs + data):** [Trio Builder, $99](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#builder) · [Trio Studio, $449](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#studio) · [Trio Platform, $2,499](https://jcodemunch.com/descriptions.php?utm_medium=readme&utm_campaign=jcm_readme_tiers#platform)
+
+Not sure it's worth it? Run your own numbers through the [ROI calculator](https://jcodemunch.com/roi.php?utm_medium=readme&utm_campaign=jcm_readme_bottom), or forward [the finance-team version](https://jcodemunch.com/for-finance.php?utm_medium=readme&utm_campaign=jcm_readme_bottom) to whoever signs off. The guarantee stands: if jCodeMunch doesn't pay for itself, you don't pay for jCodeMunch.
+
+Conditions on all uses: retain the copyright notice, clearly mark modifications and keep the original author's name intact (he's kinda full of himself), and include a prominent modification notice in source redistributions. The Software may not be renamed, rebranded, or published to any public package registry, and is provided "AS IS" without warranty. [LICENSE](LICENSE) controls.
+
+### Activate your license
+
+After you buy, put the key in your global config, `~/.code-index/config.jsonc` (or `config.jsonc` under `CODE_INDEX_PATH` if you set it):
+
+```jsonc
+"license_key": "YOUR-KEY"
+```
+
+Every client that launches the server reads that file, so you set it once. In CI or a container, set the `JCODEMUNCH_LICENSE_KEY` environment variable instead; it takes precedence over the config file.
+
+Then confirm it:
+
+```bash
+jcodemunch-mcp license
+```
+
+A working key prints `License: licensed` and its tier. It also says when no key is set, when the license server does not recognize the key, and when the server could not be reached to verify it. `jcodemunch-mcp license --key YOUR-KEY` checks a key without saving it. If you run the server through `uvx`, use `uvx jcodemunch-mcp license`.
+
+### For admins
+
+Claude Code and GitHub Copilot (the Copilot app, Copilot CLI, VS Code and JetBrains IDEs) both let an admin allow MCP servers with `allowedMcpServers` in managed settings. A local server matches a `serverCommand` entry only when the command and every argument are identical ([Claude Code](https://code.claude.com/docs/en/managed-mcp#how-servercommand-entries-match), [Copilot](https://docs.github.com/en/copilot/reference/enterprise-administrators/enterprise-managed-settings#allowedmcpservers)), so list each launch form your teams use:
+
+```json
+{
+  "allowedMcpServers": [
+    { "serverCommand": ["uvx", "jcodemunch-mcp"] },
+    { "serverCommand": ["jcodemunch-mcp"] }
+  ]
+}
+```
+
+- `["uvx", "jcodemunch-mcp"]` is what `jcodemunch-mcp init` writes for Claude Code, Claude Desktop and the other JSON-configured clients, and what `claude mcp add jcodemunch -- uvx jcodemunch-mcp` registers.
+- `["jcodemunch-mcp"]` covers an install made with `pip`, `pipx` or `uv tool install` and started by name.
+- The Claude Code plugin pins the release it ships, as `["uvx", "jcodemunch-mcp==X.Y.Z"]` with the version in `plugin/jcodemunch/.claude-plugin/plugin.json`, so that entry changes with each plugin update.
+
+In Claude Code, add `"allowManagedMcpServersOnly": true` to make the managed list the only allowlist that applies ([docs](https://code.claude.com/docs/en/managed-mcp#restrict-the-allowlist-to-managed-settings-only)). Codex reads its own config and isn't covered by these settings.
+
+**Codex.** A Codex admin can limit MCP servers with requirements. One route is the system file: `%ProgramData%\OpenAI\Codex\requirements.toml` on Windows, `/etc/codex/requirements.toml` on Linux and macOS. OpenAI's docs list the other layers, such as the cloud bundle and macOS MDM ([docs](https://learn.chatgpt.com/docs/enterprise/managed-configuration)). Per those docs, a server stays enabled only when both its name and its identity match an entry:
+
+```toml
+[mcp_servers.jcodemunch]
+identity = { command = "jcodemunch-mcp" }
+```
+
+- By OpenAI's documented rule, this string form matches a user entry whose `command` is exactly `jcodemunch-mcp` and ignores args. An entry with an absolute path doesn't match and is disabled. We haven't run this enforcement ourselves.
+- On Windows, `jcodemunch-mcp init` writes the bare name when PATH finds the same install, and Codex starts it from PATH. Otherwise `init` writes the absolute path, which this entry doesn't match.
+- On Linux and macOS, `init` always writes the absolute path, because a client started outside a login shell can have a narrower PATH. To match this entry, a user sets `command = "jcodemunch-mcp"` in `~/.codex/config.toml`, which works only if that client's PATH finds it. The alternative is the docs' structured identity, `command = { executable = "<absolute path>", args = [] }`, which has to name each machine's path.
+- Our plugin's server is allowlisted under `plugins.<plugin>.mcp_servers.jcodemunch`, not the entry above. It starts with `uvx` and `jcodemunch-mcp==X.Y.Z`. A string identity of `uvx` would approve any package started with `uvx`. To pin ours, use the structured form with an exact `args` match on `jcodemunch-mcp==X.Y.Z`, which changes with each release.
+
+For GitHub's registry route, the server ID is `io.github.jgravelle/jcodemunch-mcp`. That route is in public preview, and GitHub calls the managed-settings allowlist the more secure, generally available method ([docs](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/restrict-based-on-registry)).
+
+Keep the server name `jcodemunch` in every config, so jCodeMunch shows up under one name. Copilot's usage metrics API counts MCP connection and reconnection attempts per user, not tool calls ([docs](https://docs.github.com/en/copilot/reference/copilot-usage-metrics/copilot-usage-metrics#customization-fields-api-only)).
+
+**Claude Code: install it on every machine.** Put this in managed settings (the claude.ai admin console, an MDM policy, or `managed-settings.json`). Each machine registers the marketplace and installs the plugin at the start of its next session, and a user who disables it at their own scope doesn't stop it loading ([docs](https://code.claude.com/docs/en/plugins/org#require-a-marketplace-and-its-plugins)):
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "jmunch": { "source": { "source": "github", "repo": "jgravelle/jcodemunch-mcp" } }
+  },
+  "enabledPlugins": { "jcodemunch@jmunch": true }
+}
+```
+
+If you limit marketplace sources with `strictKnownMarketplaces`, add `{ "source": "github", "repo": "jgravelle/jcodemunch-mcp" }` to it, or the marketplace is refused ([docs](https://code.claude.com/docs/en/plugins/org#restrict-what-users-can-install)).
+
+**Cursor teams.** A Cursor admin can install jCodeMunch on every seat through a team marketplace (Dashboard, then Plugins & MCPs, then Add Marketplace; [docs](https://cursor.com/docs/plugins)). In the marketplace repo, add a `jcodemunch/` plugin folder with two files:
+
+`jcodemunch/.cursor-plugin/plugin.json`
+
+```json
+{
+  "name": "jcodemunch",
+  "displayName": "jCodeMunch",
+  "description": "Local code index: the function an agent asks for, its callers and what a change would break."
+}
+```
+
+`jcodemunch/mcp.json`
+
+```json
+{
+  "mcpServers": {
+    "jcodemunch": { "command": "uvx", "args": ["jcodemunch-mcp"] }
+  }
+}
+```
+
+Then add an entry for it to the repo's `.cursor-plugin/marketplace.json`, following the template Cursor's plugin docs link to. Set Plugin Installation to **Required** to install it on every seat with no opt-out, or **Default On** to install it and let members remove it. Plugins respect Cursor's MCP allowlist ([docs](https://cursor.com/help/security-and-privacy/marketplace-security)), so allow `uvx jcodemunch-mcp` there too.
+
+**JetBrains teams.** On a Business or Enterprise plan, an admin with the Manage AI settings permission opens JetBrains Console, then AI governance, then MCP, then Add MCP server, and adds a **Command** server: name `jcodemunch`, command `uvx`, arguments `jcodemunch-mcp` ([docs](https://www.jetbrains.com/help/air/air-gov-mcp-servers.html)). Then add it to an AI policy: the default policy reaches everyone with AI access, a custom one reaches its users and groups ([docs](https://www.jetbrains.com/help/air/ai-policies-configure.html#mcp-tab)). This pushes the server to users; it doesn't stop them adding others.
+
+**Tool names are stable across 1.x.** An allowlist or a policy file that names jCodeMunch tools keeps working: a renamed or merged tool keeps its old name working as an alias for at least 30 days, listed in the CHANGELOG. After that, a call to the old name returns an error that names the replacement.
+
+---
+
+## FAQ
+
+**How much can I save on Claude / Opus tokens?**
+Code-reading tokens drop 90-99% per lookup on our benchmark: 96.2% fewer on average than a grep-and-read agent across 15 lookups and 3 repositories. Per-query results span 10.4x to 132.5x. Methodology: [TOKEN_SAVINGS.md](TOKEN_SAVINGS.md) and [benchmarks/](benchmarks/).
+
+**How is this different from RAG or grep-based tools?**
+jCodeMunch retrieves at the **symbol level** with byte-level precision (functions, classes, importers, blast radius, hierarchies) rather than fuzzy chunks (RAG) or raw line matches (grep) the agent still has to read and reason over.
+
+**Is it free for personal use?**
+Yes. Commercial use needs a license; see [above](#licensing-and-commercial-use).
+
+**Can I use jCodeMunch at work?**
+Personal and other non-commercial use is free, with no license. Using it at a for-profit company, or for client or paid work, takes a license, paid once, no subscription; the tiers and prices are on [the buying page](https://jcodemunch.com/buying.php). Installed it free at home and now use it at work? Your home projects stay free. Work use at a for-profit company, or for client or paid work, needs a license.
+
+**Where's the deep-dive on X?**
+Capabilities: [CAPABILITIES.md](CAPABILITIES.md). Config: [CONFIGURATION.md](CONFIGURATION.md). Clients: [CLIENTS.md](CLIENTS.md). Internals: [UNDER_THE_HOOD.md](UNDER_THE_HOOD.md). Or the firehose: [jcodemunch.com](https://jcodemunch.com/?utm_medium=readme&utm_campaign=jcm_readme_docs).
+
+---
+
+Extras: [OSS code-health observatory](https://jgravelle.github.io/jcodemunch-observatory/) (weekly six-axis snapshots of Express, FastAPI, Gin, Django, and friends) · [Token Cost Radar](https://jcodemunch.com/radar/?utm_medium=readme&utm_campaign=jcm_readme_extras) (daily AI token cost intelligence) · [jMunch Console](https://github.com/jgravelle/jmunch-console) (free MIT GUI for one-click upgrades)

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tg56y2p4/efootball-face-converter · OpenCode Plugins</title>
+<meta name="description" content="将PES脸模转换为球员工坊GLB的可移植Agent Skill，含贴图合并、骨架适配与三向预览。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="efootball-face-converter, tg56y2p4, tg56y2p4/efootball-face-converter, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/tg56y2p4__efootball-face-converter">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="tg56y2p4/efootball-face-converter · OpenCode Plugins">
+<meta property="og:description" content="将PES脸模转换为球员工坊GLB的可移植Agent Skill，含贴图合并、骨架适配与三向预览。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/tg56y2p4__efootball-face-converter">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "tg56y2p4/efootball-face-converter", "codeRepository": "https://github.com/tg56y2p4/efootball-face-converter", "url": "https://opencode-plugins.zhuikan.com/repos/tg56y2p4__efootball-face-converter", "description": "将PES脸模转换为球员工坊GLB的可移植Agent Skill，含贴图合并、骨架适配与三向预览。", "author": {"@type": "Organization", "name": "tg56y2p4", "url": "https://github.com/tg56y2p4"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "keywords": "tools"}</script>
+</head>
+<body data-repo="tg56y2p4/efootball-face-converter" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">tg56y2p4/efootball-face-converter</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="tg56y2p4__efootball-face-converter"><img class="rp-side-av" src="https://github.com/tg56y2p4.png?s=300" width="300" height="300" alt="tg56y2p4 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">efootball-face-converter</div>
+      <a class="rp-side-owner" href="https://github.com/tg56y2p4">tg56y2p4</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/tg56y2p4">tg56y2p4</a>
+        <span class="rp-sep">/</span><span class="rp-name">efootball-face-converter</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">将PES脸模转换为球员工坊GLB的可移植Agent Skill，含贴图合并、骨架适配与三向预览。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/tg56y2p4/efootball-face-converter">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">efootball-face-converter
+
+按球员、球队、年代及发型寻找已有脸模。找到可用模型时转换为球员工坊 GLB。找不到合适资源时，从实拍生成四视图，经用户确认后重建脸模。也可直接用用户指定的照片开始四视图审核。
+
+当前版本为 v1.2.0。两条路线都输出 1 个 mesh、1 个 primitive、1 个 material 的 GLB，内嵌 PNG 图集和 166 关节工坊骨架。
+
+ 安装
+
+从 GitHub Releases 下载技能 ZIP，解压后把完整的 efootball-face-converter 目录放入所用工具的 skills 目录。
+
+- Codex：~/.codex/skills/efootball-face-converter
+- Antigravity：~/.gemini/config/skills/efootball-face-converter（全局）或项目根目录 .agents/skills/efootball-face-converter
+- Claude Code：~/.claude/skills/efootball-face-converter
+
+也可以直接克隆本仓库作为技能目录。运行转换前，在独立 Python 环境中安装依赖：
+
+powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt
+
+
+下列示例中的 python 指已安装依赖的 Python（macOS/Linux 可使用 .venv/bin/python）。解压 RAR/7z 还需要支持对应归档格式的 tar（例如 Windows 自带的 bsdtar；普通 GNU tar 不保证能解 RAR），ZIP 不需要外部解包器。当前实测环境为 Windows，跨系统支持可在对应环境运行回归测试验证。
+
+如需离线三向预览（正面 / 侧面 / 背面）：
+
+powershell
+python -m pip install -r scripts/requirements-preview.txt
+python -m playwright install chromium
+
+
+ 用法
+
+ 1. 通过 Agent 调用
+
+直接对 Agent 说：
+
+ 用 $efootball-face-converter 做巴黎时期粉发内马尔的脸模。先查现有资源，找不到合适的就先给我审核四视图。
+
+你也可以附上照片并说「按我给的照片做这个人的脸模，先让我审核四视图」。照片中目标明确时可以直接开始。没有实拍覆盖的角度会在审核时标注推定部位。用户确认当前版本后才进入建模。
+
+从已有资源转换需要网页检索、Python 和图片查看能力。从照片重建还需要 ImageGen 或可传入实拍参考的对应图像工具。详见 四视图审核 和 重建与导出。四视图、几何拟合、贴图烘焙及目视检查由 Agent 按流程完成，命令行脚本负责审核版本记录、可选的初始拟合和 GLB 导出。
+
+使用 DAD-3DHeads 做初始拟合时，另装可选依赖并按 重建说明 获取对应的权重与拓扑。
+
+powershell
+python -m pip install -r scripts/requirements-reconstruction.txt
+
+
+ 2. 直接运行命令行脚本
+
+用下列命令转换已下载的原包。
+
+powershell
+python scripts/face_convert.py convert --input &quot;path/to/face.rar&quot; --player &quot;内马尔&quot; --name NeymarPSG2020Pink --appearance &quot;巴黎时期粉色头发&quot; --output-dir &quot;output/Neymar&quot; --work-dir &quot;work/Neymar&quot;
+python scripts/inspect_glb.py &quot;output/Neymar/NeymarPSG2020Pink_工坊单网格.glb&quot; --report &quot;work/structure.json&quot;
+python scripts/preview_glb.py &quot;output/Neymar/NeymarPSG2020Pink_工坊单网格.glb&quot; --output-dir &quot;work/preview&quot;
+
+
+- 目录隔离：--output-dir 和 --work-dir 必须是不同的新目录，且位于输入目录之外；重跑时请换新目录，确保原始素材不被修改。
+- 多版本选择：含多球员、多 CPK 或多个版本的原包，应先查看目录（如 python scripts/face_convert.py inspect-cpk &quot;path/to/pack.cpk&quot;），再用 --face-id、--cpk-member、--subdir 或 --member-prefix 明确指定版本。
+- 自定义眼位：默认通过标准 PES 脸图 UV 拟合眼位；特殊 UV 可传 --eye-centers &#x27;{&quot;r&quot;:[x,y,z],&quot;l&quot;:[x,y,z]}&#x27; 或 JSON 文件路径。
+
+ 支持范围
+
+- PES 2018–2021：FMDL 与完整 FTEX / PNG 同伴目录。
+- PES 2014–2017：MODEL、材质 XML/MTL 与 DDS。
+- 已有工坊骨架 GLB：带 166 关节工坊骨架的 GLB 图集重打包与贴图限幅。
+- 外层容器：ZIP、RAR、7z、CPK、FPK，详见 格式说明。
+
+普通 OBJ/FBX、FIFA RX3/FBMOD、PES2013 BIN、原生手游 UE 资源需要另行适配。支持格式不代表任意作者包都能免修复直接转换。
+
+ 更新记录
+
+ 1.2.0
+
+- 合并现有脸模检索、转换和照片重建。先找符合时期与造型且可转换的现有资源。
+- 无合适资源时用实拍生成四视图，用户明确确认后才拟合、贴图并导出工坊 GLB。
+- 支持用户指定照片直接进入四视图流程。审核记录与 PNG 的 SHA-256 绑定。
+- 新增审核记录、可选初始拟合及重建导出脚本，共用原有工坊骨架和验证工具。
+
+ 1.1.1
+
+- --eye-centers 同时支持直接传入 JSON 字符串与 JSON 文件路径，与 SKILL.md 指令保持一致。
+- 单脸模包显式传入 --face-id 时同样强制校验目录匹配；省略 --face-id 时自动从目录或纹理路径提取真实 sourceFaceId。
+- pes.py 匹配 /face/real// 前先规范化反斜杠与末尾斜杠，避免部分作者 FMDL 纹理目录无末尾斜杠时触发断言错误。
+- fetch_face.py 支持分块流式响应首包小于 6 字节的场景，并在不支持硬链接的文件系统（如 exFAT）上自动回退为安全移动。
+- containers.py 兼容非 UTF-8 归档文件名编码，解包时自动跳过可执行文件与快捷方式（.exe / .bat / .url 等），并关闭所有 Pill</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/tg56y2p4__efootball-face-converter.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

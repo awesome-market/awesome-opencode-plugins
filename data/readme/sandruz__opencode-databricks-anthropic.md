@@ -1,0 +1,104 @@
+# opencode-databricks-anthropic
+
+OpenCode plugin for Anthropic Messages API models served through Databricks AI Gateway.
+
+## Requirements
+
+- OpenCode `>=1.3.13`
+- Node.js `^20.19.0 || >=22.12.0`
+- Claude settings containing `env.ANTHROPIC_BASE_URL` and `env.ANTHROPIC_AUTH_TOKEN`
+
+## Install
+
+```json
+{
+  "plugin": ["opencode-databricks-anthropic"]
+}
+```
+
+Default credential source: `$CLAUDE_CONFIG_DIR/settings.json`, or `~/.claude/settings.json` when `CLAUDE_CONFIG_DIR` is unset.
+
+## Configure
+
+OpenCode tuple configuration passes plugin options as the second tuple item:
+
+```json
+{
+  "plugin": [
+    [
+      "opencode-databricks-anthropic",
+      {
+        "settingsPath": "~/.claude/settings.json",
+        "providerId": "databricks-anthropic",
+        "defaultModel": "system.ai.claude-opus-5-5",
+        "smallModel": "system.ai.claude-haiku-4-5"
+      }
+    ]
+  ]
+}
+```
+
+Defaults:
+
+- `settingsPath`: `$CLAUDE_CONFIG_DIR/settings.json`, otherwise `~/.claude/settings.json`
+- `providerId`: `databricks-anthropic`
+- `defaultModel`: `system.ai.claude-opus-5-5`
+- `smallModel`: `system.ai.claude-haiku-4-5`
+- `models`: Opus 5.5, Sonnet 5.5, and Haiku 4.5 Databricks endpoints; each defaults to 200,000 context tokens, 64,000 output tokens, reasoning enabled, and tool calls enabled
+
+Supplying `models` replaces the complete default map; it does not merge with defaults. Both `defaultModel` and `smallModel` must reference entries in that replacement map.
+
+Each model field is optional:
+
+- `name`: display name; defaults to the model ID
+- `context`: positive integer context-token limit; defaults to `200000`
+- `output`: positive integer output-token limit; defaults to `64000`
+- `reasoning`: whether OpenCode exposes reasoning support; defaults to `true`
+- `toolCall`: whether OpenCode exposes tool-call support; defaults to `true`
+- `compatibility`: optional object passed through verbatim to OpenCode's per-model `compatibility` field (see OpenCode's [config schema](https://opencode.ai/config.json), `Model.Compatibility`); omitted by default. Useful for disabling gateway-unsupported request features, e.g. `{ "supportsThinkingBlockBinding": false, "supportsEffortUpdates": false }` if the Databricks endpoint rejects extended-thinking `block_binding` requests (`thinking.adaptive.block_binding: Extra inputs are not permitted`). Do not set this via a top-level `provider` block in `opencode.json`: OpenCode merges that key by replacing this plugin's whole provider entry, which drops `baseURL`/`authToken` and breaks requests. Always set `compatibility` through this plugin's own `models` option instead.
+
+## Claude Settings
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://workspace.example/ai-gateway/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "replace-with-your-token",
+    "ANTHROPIC_CUSTOM_HEADERS": "x-databricks-use-coding-agent-mode: true"
+  }
+}
+```
+
+`ANTHROPIC_CUSTOM_HEADERS` is optional. The plugin copies only `x-databricks-use-coding-agent-mode`, matched case-insensitively, into model requests.
+
+The provider uses Bearer-token authentication, normalizes the gateway endpoint to end in `/v1`, and registers `@ai-sdk/anthropic`. Only gateways implementing the Anthropic Messages API are supported.
+
+## Credential Lifecycle
+
+Claude settings are read on each OpenCode `config` hook invocation, typically during configuration load. The token is then passed in memory to the provider runtime. Changes take effect on the next hook invocation; restarting or reloading OpenCode configuration is normally required.
+
+## Security
+
+The plugin never writes credentials to OpenCode auth storage and does not log credential values. Protect Claude settings with user-only filesystem permissions, use short-lived tokens where available, and never commit settings or tokens. Avoid URLs containing credentials; they are rejected.
+
+## Troubleshooting
+
+- Missing setting: verify required keys are strings inside the Claude settings `env` object and verify `settingsPath` or `CLAUDE_CONFIG_DIR`.
+- `401 Unauthorized`: verify token validity and Databricks gateway permissions for the selected endpoint.
+- Unknown API path: set `ANTHROPIC_BASE_URL` to the gateway endpoint without query or fragment; the plugin adds or normalizes `/v1`.
+- Provider collision: remove the existing provider with the same ID or choose another `providerId`.
+- Unknown default model: include both `defaultModel` and `smallModel` in a custom replacement `models` map.
+- Unsupported response or protocol error: confirm the gateway exposes Anthropic Messages API semantics, not an OpenAI-compatible endpoint.
+
+## Migration From Inline Provider
+
+Validate the packed plugin before changing working global configuration. Configure the package name directly in an isolated OpenCode `>=1.3.13` environment with temporary `HOME`, XDG, cwd, and config roots, plus a private temporary Claude settings copy. Run model discovery and a small test request, then scan captured output for credential values. Only after all expected models and the test response pass should you remove the inline provider, plugin-owned `model` and `small_model` values, or any custom launcher. Keep rollback copies until direct `opencode` launch passes.
+
+## Development
+
+```sh
+npm ci
+npm run check
+```
+
+`npm run check` runs tests, type checking, a clean build, packed-artifact validation, then a deterministic smoke test using the pinned OpenCode 1.3.13 npm loader. The smoke test installs the local tarball into isolated cache/config roots and performs config/model discovery without inference or real credentials. Package creation also performs a clean build, while publishing runs the complete check first. Publishing remains an explicit maintainer action; neither build nor CI publishes packages.

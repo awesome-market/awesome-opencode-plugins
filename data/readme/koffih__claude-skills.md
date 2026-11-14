@@ -1,0 +1,96 @@
+# koffih's Claude Code skills
+
+Catalog of [Claude Code](https://claude.com/claude-code) skills published by koffih. Each skill lives in its own repository, installs on its own and is invoked on its own. This repository only lists them and installs them by name.
+
+## Skills
+
+| Skill | Invoke | What it does | Repository |
+|---|---|---|---|
+| autonomous-mode | `/autonomous-mode` | Extended autonomous work mode: inspects the project, then implements, tests and commits for hours, stopping only for irreversible decisions. | [claude-skill-autonomous-mode](https://github.com/koffih/claude-skill-autonomous-mode) |
+| web-to-mobile-app | `/web-to-mobile-app` | Turns a React + PostgreSQL web app into a premium Expo iOS/Android app (audit, design system, exams, server guards, APK, stores), then keeps building it in autonomous mode. | [claude-skill-web-to-mobile-app](https://github.com/koffih/claude-skill-web-to-mobile-app) |
+| page-redesign | `/page-redesign` | Redesigns one existing page for the best UX: captures it, keeps a contract of what it must still do, rebuilds it in your stack, checks the real render at three widths. | [claude-skill-page-redesign](https://github.com/koffih/claude-skill-page-redesign) |
+| blog-image-finder | `/blog-image-finder` | Finds a free, legally usable image for a blog article across Pexels, Pixabay, Unsplash, Openverse and Wikimedia, downloads it as WebP with its credit line, never reuses one; CLI and HTTP API for pipelines. | [claude-skill-blog-image-finder](https://github.com/koffih/claude-skill-blog-image-finder) |
+| barbacane | `/barbacane` | Shields an nginx server from distributed scrapers: reads the logs, finds the networks a bot rotates its addresses through, closes them at Cloudflare; never a search engine or an access provider. | [claude-skill-barbacane](https://github.com/koffih/claude-skill-barbacane) |
+| autonomous-relaunch | `/autonomous-relaunch` | Keeps a project moving across several sessions, e.g. every night: relaunches autonomous-mode from a plan.md in its own worktree and branch, judges each session itself (commits, plan untouched, no deleted test, clean tree, check still green), never pushes or merges. | [claude-skill-autonomous-relaunch](https://github.com/koffih/claude-skill-autonomous-relaunch) |
+| sourced-guide | `/sourced-guide` | Writes a series of long reference pages (trades, cities, procedures) where every legal or number claim points to a primary source, written per item never from a template, held by a deterministic floor check. | [claude-skill-sourced-guide](https://github.com/koffih/claude-skill-sourced-guide) |
+| dossier | `/dossier` | Produces client-ready Word and PDF documents (reports, proposals, specifications, audits, roadmaps) from a Markdown source: cover, paged contents, key figures, styled tables, themed figures, page-by-page review before delivery. | [claude-skill-dossier](https://github.com/koffih/claude-skill-dossier) |
+| disk-cleanup | `/disk-cleanup` | Keeps a Linux server's disk under control without ever touching data: nightly, hourly emergency and weekly aggressive passes for Docker, Supabase, PM2, Node and Python, spares cache entries live processes use, proves every pass with a dated witness; as root or from an account without root. | [claude-skill-disk-cleanup](https://github.com/koffih/claude-skill-disk-cleanup) |
+| proof-of-done | `/proof-of-done` | Stops false completion: acceptance contract frozen before the code, proofs recorded as receipts by a script (exit code, output, working-tree fingerprint), stale or gamed proofs caught, independent checker, computed verdict DONE / NOT DONE / BLOCKED; optional Stop hook refuses an unproven "done". | [claude-skill-proof-of-done](https://github.com/koffih/claude-skill-proof-of-done) |
+| espresso-design-system | `/espresso-design-system` | Gives a web app the Espresso look (frappe-ui, ERPNext): drop-in kit for Next.js + Tailwind 4 + shadcn on Base UI with tokens, 40 components, sidebar shell, style guide page, an apply script that never overwrites silently, a brand contrast check and a build self-test; tokens and rules for other stacks. | [claude-skill-espresso-design-system](https://github.com/koffih/claude-skill-espresso-design-system) |
+
+All skill repositories are also findable through the [`claude-code-skill` topic](https://github.com/search?q=user%3Akoffih+topic%3Aclaude-code-skill&type=repositories).
+
+## Install
+
+One skill, straight from its own repository:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/koffih/claude-skill-<name>/main/install.sh | bash
+```
+
+Or by name through this catalog:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/koffih/claude-skills/main/install.sh | bash -s -- autonomous-mode
+```
+
+Catalog commands:
+
+```bash
+CAT=https://raw.githubusercontent.com/koffih/claude-skills/main/install.sh
+
+curl -fsSL $CAT | bash -s -- --list                 # what is available
+curl -fsSL $CAT | bash -s -- name-a name-b          # install or update some
+curl -fsSL $CAT | bash -s -- --all                  # install or update all
+curl -fsSL $CAT | bash -s -- --update               # update the ones already installed
+curl -fsSL $CAT | bash -s -- name-a --project       # into ./.claude/skills
+curl -fsSL $CAT | bash -s -- name-a --uninstall     # remove
+curl -fsSL $CAT | bash -s -- --cron                 # install all, then update daily
+curl -fsSL $CAT | bash -s -- --no-cron              # stop the daily update
+```
+
+## Keeping a server up to date
+
+Skills are per user: Claude Code reads `~/.claude/skills` of the account that runs it, so a skill installed as `root` is invisible to `dev`, and the other way round. Run this once in **each account** where you use Claude Code, whatever its name (`root`, `dev`, `eracoach`, `webapp`...):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/koffih/claude-skills/main/install.sh | bash -s -- --cron
+```
+
+It installs every catalog skill now, then adds one line to that user's crontab that runs `--all` every day at 05:xx (random minute, to spread servers). New skills arrive on their own, existing ones fast-forward. The last run is logged in `~/.claude/koffih-skills-update.log`. Other crontab entries are left untouched, and running `--cron` again replaces the line instead of adding a second one.
+
+Nothing is pushed to the servers and no credentials are stored on them: each account pulls public repositories.
+
+Shared folders are handled: when several accounts use the same Claude folder (for example `~/.claude` of both `root` and `dev` pointing to `/opt/<project>/.claude`), the account that owns the folder owns the skills. Root installs and updates there as that account, never running git itself in a folder another user can write to, and hands back any skill it created there before. Other accounts see the skill as `managed` and leave it alone.
+
+Skills are git clones in `~/.claude/skills/<name>` (or `$SKILLS_DIR`), so updating is a fast-forward pull. Installers refuse to overwrite or delete a folder that is not a clone of the expected repository, and refuse to update a clone with local changes.
+
+Requirements: `bash`, `git`, `curl`.
+
+## Conventions for a new skill
+
+Every skill follows the same shape, so any of them can be installed, found and maintained the same way.
+
+- **Repository:** `koffih/claude-skill-<name>`, public, MIT, topics `claude-code-skill` and `agent-skill`.
+- **Name:** `<name>` is lowercase kebab-case, identical in the repository suffix, the `name:` frontmatter field, the install folder and the slash command.
+- **Language:** English.
+- **Layout:**
+
+  ```
+  SKILL.md          frontmatter (name, description, optional argument-hint,
+                    disable-model-invocation) and the instructions
+  references/       detailed material Claude reads only when needed
+  assets/           templates and files the skill produces or copies
+  install.sh        install, update, --project, --uninstall; verifies after install
+  README.md         what it does, install, use; links back to this catalog
+  LICENSE
+  ```
+
+- **Description:** says what the skill does and when to use it; it is what decides whether Claude picks the skill.
+- **`disable-model-invocation: true`** for any skill that grants broad permissions or has side effects, so it only runs when explicitly invoked.
+- **No secrets**, ever: a skill names where a key lives, never its value.
+- **Registering:** add a line to `skills.tsv` (`name<TAB>description`) and a row to the table above.
+
+## License
+
+MIT

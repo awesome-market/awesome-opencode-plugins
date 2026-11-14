@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>paceyw/kimi-chat · OpenCode Plugins</title>
+<meta name="description" content="Kimi Chat (kimi.com web account) as a magpie / OpenCode provider: streaming chat, reasoning tiers, web search with citations, client tool calls, monthly quota.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="kimi-chat, paceyw, paceyw/kimi-chat, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/paceyw__kimi-chat">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="paceyw/kimi-chat · OpenCode Plugins">
+<meta property="og:description" content="Kimi Chat (kimi.com web account) as a magpie / OpenCode provider: streaming chat, reasoning tiers, web search with citations, client tool calls, monthly quota.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/paceyw__kimi-chat">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "paceyw/kimi-chat", "codeRepository": "https://github.com/paceyw/kimi-chat", "url": "https://opencode-plugins.zhuikan.com/repos/paceyw__kimi-chat", "description": "Kimi Chat (kimi.com web account) as a magpie / OpenCode provider: streaming chat, reasoning tiers, web search with citations, client tool calls, monthly quota.", "author": {"@type": "Organization", "name": "paceyw", "url": "https://github.com/paceyw"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-27", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server"}</script>
+</head>
+<body data-repo="paceyw/kimi-chat" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">paceyw/kimi-chat</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="paceyw__kimi-chat"><img class="rp-side-av" src="https://github.com/paceyw.png?s=300" width="300" height="300" alt="paceyw avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">kimi-chat</div>
+      <a class="rp-side-owner" href="https://github.com/paceyw">paceyw</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/paceyw">paceyw</a>
+        <span class="rp-sep">/</span><span class="rp-name">kimi-chat</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Kimi Chat (kimi.com web account) as a magpie / OpenCode provider: streaming chat, reasoning tiers, web search with citations, client tool calls, monthly quota.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-27</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/paceyw/kimi-chat">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">kimi-chat
+
+kimi.com 网页版 Kimi Chat → OpenAI Chat Completions / Responses 的 magpie 原生 provider 插件。
+用你自己 kimi.com 账号的会员额度对话：不用官方 API key，也不是 Kimi Code / Kimi API 的转发。
+
+- 供应商 id：kimi-chat（客户端里写作 kimi-chat/kimi-fast 这样）
+- 上游：https://www.kimi.com/apiv2（connect-rpc over protobuf，私协议，见 PROTOCOL.md）
+- 能力：流式对话、思考档、联网搜索 + 引用、客户端工具调用（tools，工具手册压缩）、Kimi 网页端技能适配（如 kimi-widget 组件卡片，附 html-card 渲染事件）、生成式 UI 事件、月额度与费用估算、token 用量（估算，见下）
+- 当前版本：0.6.1（变更见 CHANGELOG.md）；Node ≥ 20.3，无运行时依赖，纯 ESM
+
+ 安装
+
+bash
+ 方式一：直接从 GitHub 装当前代码（不用等 npm 发布）
+magpie plugin add github:paceyw/kimi-chat
+
+ 方式二：桌面端「插件 → 发现」里点安装
+ 本仓库打了 magpie-plugin topic，会出现在「非官方插件 · GitHub」列表里
+
+ 方式三：npm 发布之后
+magpie plugin add kimi-chat
+
+
+装好后供应商列表里出现 Kimi Chat (Web)（id kimi-chat），点「添加账号」就进入登录流程（见下一节）。
+
+装完可以三条命令自检，都通过再往下走：
+
+bash
+magpie plugin list                         应列出 kimi-chat，7 models
+magpie provider test kimi-chat kimi-fast   应打印 ✓ chat 
+magpie quota                               应出现「月额度」窗口与剩余百分比
+
+
+ 插件是纯 ESM，没有构建步骤；从 GitHub 装时用的是仓库当前代码，所以本机不需要 npm install。
+
+ 注意 spec 要带来源前缀：github:paceyw/kimi-chat（或 GitHub 仓库链接）。若把 plugins.json 里的 spec 写成裸包名
+ kimi-chat 而 npm 上还没有这个包，magpie 重启时会因解析不到而把这条 spec 丢掉，插件就从列表里消失了。
+
+ 如果 magpie 提示 “Kimi Chat (Web) is signed in but not offered: You removed it from magpie”，那是上面这种情况留下的
+ 「已移除」标记，跑一次 magpie provider add kimi-chat 就能恢复，登录状态不会丢。
+
+ 它登录什么
+
+登录的是你在 kimi.com 的网页账号（同一份会员/订阅额度，也就是网页里聊天消耗的那个月额度）。
+插件不做账号池、不做多人共享、不代注册；一个 magpie 账号 = 一个 Kimi 账号。
+
+ 怎么登录
+
+ 方式 A：网页登录 + 短信验证码（推荐）
+
+1. magpie → 供应商 kimi-chat → 添加账号，选 “手机验证码登录（推荐）”，填手机号（带国家码，例如 86 13800138000）。
+2. magpie 会打开 。如果 Kimi 允许插件直接发码，短信会立刻到你手机；如果它要求人机验证（常见），就在刚打开的页面里走一遍「登录 → 手机号 → 发送验证码」，把码发出来。
+3. 回到 magpie，填你收到的 6 位验证码。
+
+插件拿这 6 位码当场换取会话令牌（access_token + refresh_token），不需要你复制任何 token；账号归属（accountId）取自令牌，不用填 ID。magpie 弹窗里的说明与上面这几步一致，写成一个自然段、用 ① ② ③ ④ 编号（弹窗正文是普通段落，换行会被折叠，写不出一行一步）。
+
+ 方式 B：粘贴 refresh_token（备用）
+
+上面的验证码方式走不通时（换号、收不到短信、号码不在支持地区），可以选 “高级：粘贴网页 refresh_token（备用）”：
+
+1. magpie 打开 ，在页面里正常登录。
+2. DevTools（F12）→ Application → Local Storage → https://www.kimi.com → 复制 refresh_token 的值；
+   或直接在 Console 里执行
+
+   js
+   copy(localStorage.getItem(&#x27;refresh_token&#x27;))
+   
+
+3. 粘贴回 magpie。插件会立刻用它换新的 access_token：换成功才存，401（已登出/值不对）当场报错，不会留下几分钟后就失效的坏凭据。
+
+弹窗里的说明同理是一个自然段（①–④）：复制的动作在 DevTools 里「右键 → Copy value」完成，不需要从弹窗文字里选中任何东西来复制。
+
+只粘 refresh_token 一个值就够：access_token 由插件自己换，设备指纹（device/session id）由插件本地生成。
+
+ 为什么没有「扫码」和「一键自动回传」：扫码方式的确认页是微信专用入口，桌面浏览器无法完成；而 kimi.com 的网页登录没有对第三方开放的回调通道，令牌只会落在浏览器本地存储里，插件读不到——Kimi Code 那套 OAuth 设备授权虽然能自动换 token，但签发的是 scope=kimi-code 的令牌，网页聊天接口不认（实测 401，见 PROTOCOL.md §6.3）。所以能在「不复制 token」前提下工作的最短路径就是上面的验证码方式。
+
+ 登录信息存在哪里
+
+全部只存在本机 magpie 的配置目录里，插件不上传、不写日志：
+
+| 位置 | 内容 |
+|---|---|
+| plugin-auth.json（macOS 默认 ~/Library/Application Support/magpie/，Linux ~/.config/magpie/，Docker 部署是 /config/magpie/；设置了 XDG_CONFIG_HOME 时以它为准；权限 600） | kimi-chat 条目：{type:&quot;oauth&quot;, refresh:&quot;&quot;, access:&quot;&quot;, expires:0, accountId:&quot;&quot;} |
+| 上面 refresh 字段里的 JSON | accessToken、refreshToken、userId、webId、ssid、timezone |
+| 同目录的 plugin-providers.json | 只放供应</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/paceyw__kimi-chat.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wenqiiizwq-creator/pcb-layout · OpenCode Plugins</title>
+<meta name="description" content="PCB 自主布局、修复、审查与交付 Agent Skill：从需求/原理图到原生工程，覆盖逐引脚与实铜核查、制造回读和 G0–G8 分级验收。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="pcb-layout, wenqiiizwq-creator, wenqiiizwq-creator/pcb-layout, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__pcb-layout">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="wenqiiizwq-creator/pcb-layout · OpenCode Plugins">
+<meta property="og:description" content="PCB 自主布局、修复、审查与交付 Agent Skill：从需求/原理图到原生工程，覆盖逐引脚与实铜核查、制造回读和 G0–G8 分级验收。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__pcb-layout">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "wenqiiizwq-creator/pcb-layout", "codeRepository": "https://github.com/wenqiiizwq-creator/PCB-Layout", "url": "https://opencode-plugins.zhuikan.com/repos/wenqiiizwq-creator__pcb-layout", "description": "PCB 自主布局、修复、审查与交付 Agent Skill：从需求/原理图到原生工程，覆盖逐引脚与实铜核查、制造回读和 G0–G8 分级验收。", "author": {"@type": "Organization", "name": "wenqiiizwq-creator", "url": "https://github.com/wenqiiizwq-creator"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-14", "keywords": "tools"}</script>
+</head>
+<body data-repo="wenqiiizwq-creator/pcb-layout" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">wenqiiizwq-creator/pcb-layout</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="wenqiiizwq-creator__pcb-layout"><img class="rp-side-av" src="https://github.com/wenqiiizwq-creator.png?s=300" width="300" height="300" alt="wenqiiizwq-creator avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">pcb-layout</div>
+      <a class="rp-side-owner" href="https://github.com/wenqiiizwq-creator">wenqiiizwq-creator</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/wenqiiizwq-creator">wenqiiizwq-creator</a>
+        <span class="rp-sep">/</span><span class="rp-name">pcb-layout</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">PCB 自主布局、修复、审查与交付 Agent Skill：从需求/原理图到原生工程，覆盖逐引脚与实铜核查、制造回读和 G0–G8 分级验收。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-10-14</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="wenqiiizwq-creator__autonomous-schematic-generation"><img class="rp-same-av" src="https://github.com/wenqiiizwq-creator.png" alt="" loading="lazy">autonomous-schematic-generation</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/wenqiiizwq-creator/PCB-Layout">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">PCB-Layout
+
+面向 AI 工程助手的 PCB 自主布局、修复、审查与交付技能。
+
+pcb-layout 将需求、原理图、器件资料和制造约束组织为可执行的工程流程，指导助手完成原生工程操作、布局布线迭代、逐引脚与实际铜连接核查，并按证据给出当前交付阶段。
+
+当前版本：v2026.11.03.1 · 独立单文件融合版：Cadence参考布局、14项执行模式与独立验收
+
+技能正文 · 版本记录 · 文件校验清单
+
+本仓库的执行入口是一个独立的 SKILL.md。它定义工作方法、检查要求和验收合同；EDA 软件、自动布线器、几何检查程序及实板测试能力由使用环境提供。安装技能本身不会安装这些工具，也不代表任何 PCB 已通过生产验证。
+
+ 项目信息
+
+| 项目 | 内容 |
+| --- | --- |
+| 仓库 | wenqiiizwq-creator/PCB-Layout |
+| 技能标识 | pcb-layout |
+| 技能版本 | 2026.11.03.1，以 SKILL.md 的 metadata.version 为准 |
+| Git 版本标签 | v2026.11.03.1 |
+| 形态 | 独立、以指令为主体的单文件 Agent Skill |
+| 使用对象 | 能读取工程资料、操作 EDA 工具并保存验证证据的 AI 工程助手 |
+| EDA 范围 | KiCad、嘉立创EDA专业版及已验证接入的其他EDA；实际执行取决于工具接口与读写证据 |
+| 技能融合来源 | pcb-layout 2026.11.02.1 与 Cadence 导入参考板的只读研究；详见 metadata.merged_from 及附录D |
+
+ 适用场景
+
+| 场景 | 技能要求的工作 | 任务边界 |
+| --- | --- | --- |
+| 从需求或原理图新建 PCB | 明确需求与机械条件，形成经核验的原理图/网表输入，再进入布局、逃线和布线 | 只有需求时，不能把视觉示意直接当作可路由工程 |
+| 自主布局布线 | 先验证高密器件扇出与关键回路，再路由一般网络；对剩余未连接继续定位、修复和复验 | 路由器结束或飞线数量减少不等于设计完成 |
+| 已有板改版与修复 | 保存基线，在副本中处理漏连、孤立焊盘、约束冲突、布局与回流问题 | 只在授权范围内修改，保留有效设计与历史证据 |
+| 只审查 | 检查源电气、PinOut、原生一致性、实际铜、制造文件与适用工程约束 | 不修改生产原件；问题须有定位、证据和闭环条件 |
+| PCB 相关替料 | 核完整 MPN、物理引脚、封装、电气行为及 BOM/CPL/固件影响 | 单个器件问题不自动扩大为整板重设计 |
+| 制造交付与生产前准备 | 从冻结源导出制造和装配文件，核同源性、工艺、坐标及首板计划 | 工程样板、实板通过和量产就绪分别判定 |
+
+ 核心方法
+
+- 先核源电路，再优化铜实现。 BOM、符号和 PCB 相互一致只能说明同步；器件身份、脚行为和额定条件还需要原厂资料与实际拓扑支持。
+- 先证明布局可布通。 对高密器件逐物理焊盘验证扇出，优先实现电源高 di/dt 回路、去耦、反馈、晶振、差分和接口保护等关键路径。
+- 按实体检查连接。 同网名、同焊盘编号、同铺铜区域标识均不能直接证明实际连接；重复编号副焊盘、EP 和热孔也要覆盖。
+- 同时核去程、回流与制造结果。 保存后的原生铜、Gerber、钻孔、阻焊、锡膏和装配坐标分别回读，记录支持范围与未覆盖对象。
+- 按变更传播复验。 改铜、叠层、封装、MPN、装配变体或规则后，识别受影响检查；确实未变化且仍适用的证据可受控继承。
+- 用证据限定结论。 记录当前源、规则、工具、对象集合、判据及原始结果；空集合、超时、旧报告和未支持对象都不能签为通过。
+
+ 当前版本完善内容
+
+本版继承完整融合主线，保留需求引导、受控针网、原生回读、焊盘出口、135°普通拐角、双面布局、Kelvin、制造同源与分级交付，并纳入从Cadence导入参考板学习的14项布局布线模式。
+
+- 主通路与功率模块： 接口和返回路径先行；功率pad朝向与铜区入口/出口共同规划；Buck输入/驱动回路与二极管Boost开关回路分别组织。
+- 局部与跨区连接： 共网阻容先对齐焊盘，IC外围配合合法扇出；先确定信号顺序、通道、转折和换层区。
+- 过孔与采样： 载流、回流、缝合、散热和信号孔按用途安排；换层阵列与有效铜交叠协同；功率路径和Kelvin取样分工。
+- 参考迁移边界： 接口针序、独立地身份和双面装配分别核对；区分导入铜区边框、最终填铜与原生产数据，校准单位与对象覆盖。
+
+执行入口在第2.10节（参考读取）、第6.2节（P01–P14模式）、第8.6节（目标板迁移验证）。每项写明触发条件、动作、完成证据及边界，先在适用关键局部验证，再推广到目标范围。
+
+本次核对技能格式、章节与源码完整性、已安装文件一致性及冻结参考快照。14项模式是执行方法，没有新增14个自动检查器或通用路由引擎；本次未进行新板布局、实板或量产性能验证。
+
+ 安装与使用
+
+ 使用前准备
+
+| 条件 | 用途 |
+| --- | --- |
+| 支持加载 SKILL.md 的助手 | 阅读并执行技能中的流程与验收要求 |
+| 可用的 EDA 环境 | 原生工程读取、编辑、保存、独立重开、规则检查与制造导出 |
+| 按任务配置的工具接口 | CLI、Python API、MCP/IPC 或 GUI；先验证实际后端、单位、网络身份和保存语义 |
+| 工程输入与器件资料 | 原理图/网表、PCB、库、BOM、规则、需求、datasheet、结构及装配信息 |
+| 按风险选择的验证能力 | 铜几何与制造回读、必要的 SI/PI/热分析，以及对应阶段的真实测试 |
+
+没有统一的 Python 依赖安装步骤：本版本未附带脚本包或 EDA 后端。工具不可用时，应记录具体缺口与未完成状态，并推进不依赖该工具的工作。
+
+ 在 Codex 中安装
+
+Codex 的本地技能目录包括用户级 ~/.agents/skills/ 和工程级 .agents/skills/。以下采用用户级安装；如果当前环境已经配置了其他可识别的目录，应沿用实际配置并避免同名技能重复安装。目录与加载说明见 OpenAI 官方 Build skills 文档。
+
+macOS / Linux 首次安装示例：
+
+sh
+git clone --branch v2026.11.03.1 --depth 1 https://github.com/wenqiiizwq-creator/PCB-Layout.git
+cd PCB-Layout
+
+ 仅在目标技能目录尚不存在时安装；已存在则中止，先备份再更新。
+(
+  set -eu
+  mkdir -p &quot;$HOME/.agents/skills&quot;
+  mkdir &quot;$HOME/.agents/skills/pcb-layout&quot;
+  cp SKILL.md &quot;$HOME/.agents/skills/pcb-layout/SKILL.md&quot;
+)
+
+
+Windows 可从</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/wenqiiizwq-creator__pcb-layout.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

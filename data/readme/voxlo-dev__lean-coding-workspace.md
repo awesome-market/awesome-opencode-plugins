@@ -1,0 +1,138 @@
+# Lean Coding Workspace
+
+**Turn your coding agent into a teammate that follows a process.**
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Agent-agnostic](https://img.shields.io/badge/agent-agnostic-6b46c1)
+![Plain Markdown](https://img.shields.io/badge/plain-Markdown-black)
+
+A ready-made workspace for your AI coding agent: one lean instruction file plus a set of skills
+that take every change from idea to shipped code the same way — shape, spec, build, test,
+document, release.
+
+## Quick start
+
+Open your coding agent anywhere and paste:
+
+```text
+Clone https://github.com/voxlo-dev/Lean-Coding-Workspace and follow INSTALL.md in the clone.
+```
+
+The agent installs everything, asks a few questions about you and your machine, and tells you when
+to restart it. You need Git and an agent tool with a folder in [`adapters/`](adapters/). Prefer
+doing it by hand? Follow [`INSTALL.md`](INSTALL.md). Verified on Windows; Linux and macOS reports welcome.
+
+It takes the place of your agent's global setup — nothing is overwritten without asking — and is not compatible with other workspace frameworks or
+project doc layouts ([details](INSTALL.md#compatibility)). **Read [SECURITY.md](SECURITY.md) first.**
+
+## Why you want it
+
+- **Plain Markdown, no scripts.** Nothing to build, nothing running in the background — every file
+  is an instruction your agent reads.
+- **A curated toolkit, not a zoo.** Two helpers, picked for the job: [codegraph](https://github.com/colbymchenry/codegraph)
+  answers "how does this work" from a code graph instead of reading half the repo, and
+  [context7](https://github.com/upstash/context7) brings current library docs instead of stale recall.
+- **Your workflow, your choice.** Use the built-in workflows, or add others from a curated
+  [skill catalog](.agents/skills/workspace-sync/references/bundles.md) — superpowers, OpenSpec,
+  BMAD and more install straight into the workspace. Every skill is yours to change.
+- **Agile, the way you know it from work.** Backlog, sprints, a board, reviews and releases — the
+  agent keeps the rhythm, you make the calls.
+- **Nothing gets forgotten.** Knowledge moves up in stages — a short handout between chats, tickets
+  for open work, a folder per sprint, lasting docs for what shipped, memory for the rest.
+- **Domains on demand.** Specialist skills and knowledge for Unity, Android, web or academic writing
+  load only in the projects that need them. Build your own with `/domain-init`.
+- **Light on context — made for the small plan.** About 2.3k tokens are always loaded; everything
+  else loads only when used, so a small subscription goes a long way.
+- **The right model for each step.** Hand single steps — a build package, an end-to-end test — to
+  another agent tool or a local model, while your main chat keeps the overview. `/dispatch-configurator`
+  finds what your machine can run.
+- **Runs in any agent tool.** New tool? The `harness-onboard` skill lets your agent probe it and
+  work out the differences by itself.
+- **Clean split between repo and install.** This repo is the source you fork and edit; the
+  installed workspace holds only what your agent actually reads. No dead weight — every file has a job.
+
+## How a session goes
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/session-flow-dark.svg">
+    <img src="assets/session-flow.svg" alt="Install once per machine and run /project-init once per project. Then sprints repeat: /open-sprint plans tickets and opens a branch; every new chat picks a workflow; /minimal-workflow handles small fixes, /dynamic-workflow takes a feature from an approved spec to tested, documented code; until the sprint scope is done the next run starts in a fresh chat, then /close-sprint updates the docs and merges. When a few sprints make a version, /release ships it, production only after you accept the risks." width="880">
+  </picture>
+</p>
+
+## Where everything lives
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/skills-and-docs-dark.svg">
+    <img src="assets/skills-and-docs.svg" alt="A ticket's journey from idea through Draft and Backlog onto the sprint board (open, active, to test, done), until its outcome moves into the docs and the file is deleted. Below, the four places everything lives: open work in backlog/, the sprint folder, the lasting docs in docs/, and memory, each file labelled with the skill that writes it." width="1000">
+  </picture>
+</p>
+
+## All skills
+
+Alphabetical within each section.
+
+### Set up
+
+| Skill | What it does |
+| --- | --- |
+| `dispatch-configurator` | records which agent tool and model each dispatched step runs on, per machine |
+| `domain-init` | builds a domain for one kind of work |
+| `project-init` | onboards a new or existing project: scaffold, docs, code style and formatter, test framework, gitignore |
+
+### Plan
+
+| Skill | What it does |
+| --- | --- |
+| `open-sprint` | plans the next sprint, pulls tickets onto the board, opens the branch, then hands off by checkpoint, autopilot or threads |
+| `shape` | turns a fuzzy idea or brainstorm into concrete tickets |
+| `spec-design` | brainstorms a feature, picks its test strategy, writes the spec |
+| `ui-design` | look and feel: colors, typography, layout, styleguide, mockups |
+
+### Build
+
+| Skill | What it does |
+| --- | --- |
+| `cowork-workflow` | builds a change together with you: plan in the chat, then step by step, each one reviewed in the diff |
+| `dynamic-workflow` | takes a feature from approved spec to tested, documented code |
+| `e2e` | end-to-end tests that grow into a reusable script |
+| `minimal-workflow` | one small change or bugfix: a short interview and a plan in the chat, no spec |
+| `sprint-autopilot` | plans a sprint up front, then runs every workflow in its own process or app session and relays questions |
+
+### Close and ship
+
+| Skill | What it does |
+| --- | --- |
+| `close-sprint` | clears the board, distils the sprint into docs, merges to main |
+| `release` | changelog, version bump, security gate, release PR, ship and tag |
+
+### Keep current
+
+| Skill | What it does |
+| --- | --- |
+| `checkpoint` | ends a chat with a short handout for the next one |
+| `maintain-docs` | keeps docs in line with the code |
+| `maintain-memory` | curates memory and prunes what's no longer true |
+
+### Only in this repo
+
+Run from your clone; they work on the workspace itself and are not installed into projects.
+
+| Skill | What it does |
+| --- | --- |
+| `compress` | keeps the Markdown you edit here short |
+| `harness-onboard` | adds an agent tool the workspace has no adapter for |
+| `workspace-sync` | installs or repairs the workspace in your agent tools |
+
+## Make it yours
+
+Fork the repo, edit `workspace_TEMPLATE/`, and re-run the `workspace-sync` skill from your clone —
+it also repairs a broken install. Your personal rules in the installed `AGENTS.md` survive every sync.
+
+## Contributing & license
+
+Fixes, adapters and generally useful improvements are welcome — personalised or niche features are
+not; see [CONTRIBUTING.md](CONTRIBUTING.md). Working *on* the repo starts at [`AGENTS.md`](AGENTS.md).
+
+[MIT](LICENSE) © Leonard Müller

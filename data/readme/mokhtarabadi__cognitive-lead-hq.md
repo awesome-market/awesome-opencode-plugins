@@ -1,0 +1,513 @@
+# Cognitive Lead AI HQ 🧠⚡
+
+Autonomous Multi-Agent Orchestration Platform • Industrial 9-Step Production Line • FastMCP Tooling for OpenCode & Claude
+
+[![Version](https://img.shields.io/github/v/release/mokhtarabadi/cognitive-lead-hq?style=flat-square)](https://github.com/mokhtarabadi/cognitive-lead-hq/releases)
+[![License](https://img.shields.io/github/license/mokhtarabadi/cognitive-lead-hq?style=flat-square)](LICENSE)
+[![OpenCode](https://img.shields.io/badge/OpenCode-ready-6C47FF?style=flat-square)](https://opencode.ai)
+[![FastMCP](https://img.shields.io/badge/FastMCP-powered-00C853?style=flat-square)](mcp-context-server/server.py)
+[![ZAC](https://img.shields.io/badge/Zero--Autonomous--Commit-enforced-red?style=flat-square)](AGENTS.md)
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](https://github.com/mokhtarabadi/cognitive-lead-hq/pulls)
+
+The centralized **Headquarters** for the Cognitive Lead AI multi-agent system — a collection of hallucination-resistant system prompts, MCP servers, and strict Agent Skills (SKILL.md) built for [OpenCode](https://opencode.ai).
+
+> **Quick Install:** Copy this line and give it to OpenCode:
+>
+> ```
+> Use webfetch on https://raw.githubusercontent.com/mokhtarabadi/cognitive-lead-hq/main/LLM.txt and follow its instructions to auto-configure everything for me.
+> ```
+
+---
+
+## 🚀 Quick Start
+
+Give the prompt above to OpenCode and it will auto-configure itself globally using [`LLM.txt`](LLM.txt) — the canonical auto-setup source. No manual steps required.
+
+For full platform-specific instructions (Windows, macOS, Linux), see [`LLM.txt`](LLM.txt).
+
+See [`docs/setup.md`](docs/setup.md) for full setup instructions and all platform tools.
+
+---
+
+## 🧠 How to Operate: The Brain & 🛠️ The Hands
+
+This system relies on a strict separation of concerns:
+
+- **The Brain (The Orchestrator):** Lives behind the `brain_turn` MCP tool. It has _no_ direct access to your files or terminal. It thinks, plans, and returns XML task blocks or verdict reports.
+- **The Hands (OpenCode):** Runs locally on your machine. It calls the Brain itself, executes file changes, runs bash commands, triggers Agent Skills, and records results in the task file. You never ferry text between them.
+- **The QA Loop:** After implementation, the Hands sends the task file to the Brain for QA and review through the same tool. If QA fails, a fix round runs. If QA passes, the task moves to `tasks/qa/` and waits for your approval word before it is committed and closed.
+
+### Scenario A: Phase 0 for a Brand New Project
+
+1. Initialize an empty repository on your machine and start OpenCode.
+2. In the Orchestrator, paste the `system-prompt.md` and say: _"This is a new project. Start Phase 0."_
+3. Tell the AI your desired tech stack (e.g., Next.js, Node.js).
+4. The AI will generate an implementation task instructing OpenCode to:
+   - Copy the relevant stack `SKILL.md` template from your global skills directory.
+   - Create `opencode.json` with the required schema.
+   - Set up the `tasks/` directory and use the `kanban-lifecycle` skill to create your first `01-initial-setup.md` task.
+
+### Scenario B: Phase 0 for an Existing Project (Never used this workflow)
+
+1. Open your existing project in OpenCode.
+2. In the Orchestrator, paste the `system-prompt.md` and say: _"This is an existing project. Start Phase 0."_
+3. The AI will immediately output a `<hands_discovery_task>`. Paste this into your local agent (OpenCode).
+4. OpenCode will use its MCP tools to map the directory tree and read core files into a `context-reports/` markdown file.
+5. Copy the contents of that report and paste it back into the Orchestrator.
+6. The AI will analyze your existing architecture and design, then generate an implementation task to create `AGENTS.md` (<150 lines), `DESIGN.md` (if UI exists), `opencode.json`, and the `tasks/` directory, locking in your current conventions.
+
+### Scenario C: Migrating a V4 Project to V5
+
+If you have an older project using global `STATE.md` and `TODO.md` files:
+
+1. Open the project locally. Delete `STATE.md` and `TODO.md`.
+2. Create a `tasks/` directory.
+3. In the Orchestrator, paste the **new V5 `system-prompt.md`**.
+4. Tell the AI: _"Migrate this project from V4 to V5. Generate a task to update `AGENTS.md` and move existing roadmap items into `tasks/01-v5-migration.md`."_
+5. Ensure the `kanban-lifecycle` and `governance` skills are imported into `.opencode/skills/` (or installed globally).
+
+### Inline Markdown Reviews & Strict Approval
+
+Before any code is written, the Brain will present an Architectural Blueprint or Plan. OpenCode will **not** execute any implementation tasks without your explicit approval.
+
+To leave feedback directly on the generated Markdown plans:
+
+1. Copy the plan into your editor.
+2. Add `> 📝 **MANAGER REVIEW:**` blockquotes immediately below the section you want to change.
+3. Alternatively, use standard Markdown strikethrough (`~~text~~`) and bold (`**text**`) for direct edits.
+4. Paste the annotated Markdown back to the Orchestrator.
+
+The AI will process your inline feedback, generate a revised plan, and wait for your final "Approved" signal before writing code.
+
+## ⚡ Manual Mode Workflow (Pure-MCP Human-in-the-Loop) — ACTIVE / DEFAULT
+
+> **Brain Bridge active:** QA/review run through one MCP (`brain_turn`) — no manual ferrying, no per-persona commands. This manual cycle remains available; autopilot mode runs it end-to-end.
+
+This is the canonical pure-MCP cycle:
+
+1. **Manager inputs raw thought / Telegram message** — raw bilingual draft or structured task file in `tasks/backlog/`.
+2. **Orchestrator issues architectural blueprint & awaits approval** — Brain reviews context, proposes plan, and halts for explicit Manager `Approved`.
+3. **Hands receives the implementation XML and runs locally with ZAC enforcement** — no pasting between chats; the Hands calls the Brain itself.
+4. **Hands executes code, runs tests, and invokes `custom_context_qa_transition`** — stages `modified_files`, injects factual diff, and moves task `tasks/in-progress/` → `tasks/qa/` via pure MCP.
+5. **Hands sends the QA task file to the Brain for QA Engineer adversarial testing and Code Reviewer architectural review via `brain_turn`** — no pasting; history continues under the active session thread.
+6. **Manager approves closure and Hands commits atomically via `custom_context_commit_and_clean_task`** — commits staged diff, replaces raw diff with hash reference, and moves task to `tasks/completed/` — the only commit path.
+
+All transitions use pure FastMCP tools (`custom_context_qa_transition`, `bundle_tasks`, `custom_context_commit_and_clean_task`) — no `uv run scripts/...` CLI required.
+
+### Modes: manual (default) vs autopilot (locked)
+
+There is no switch in code — the switch is words, and enforcement is
+prompt-level only (no code lock; the lock is recorded in the task file):
+
+- **Manual (default).** The Hands calls `brain_turn` itself, but questions and approvals come to you. You never ferry XML or task text between them.
+- **Autopilot (locked).** Say "on autopilot do X". The Hands announces the lock in one line and runs end-to-end (implement, Brain-QA, fix, Brain-review, stage, move to QA) with zero pauses — stopping only for hard blockers. It never auto-commits and never closes tasks; closure always needs your explicit approval word.
+- **Switch back.** Say "manual mode" or "back to manual". The lock breaks at once.
+- **How you always know.** The Hands confirms every switch in one line ("Autopilot locked for …" / "Back to manual.") and records the lock in the task file.
+
+### System Prompt V9 Architecture (Separation of Concerns)
+
+The `system-prompt.md` is restructured in V9.1.0 with a clear separation of concerns:
+
+- **No coaching profile embedded in the system prompt.** The Manager's identity, background, and coaching preferences are NOT part of the system prompt — they belong in project-specific `AGENTS.md` files or Manager-authored config.
+- **Context Restoration Protocols:** Session checkpoints and restoration protocols for seamless state preservation across context windows without information loss.
+- **Technical Capacity Gatekeeping:** The Sprint Strategist persona evaluates backlog candidates against estimated complexity, dependency chains, and MoSCoW prioritization — not coaching-style recommendations.
+
+**Customizing for Yourself:**
+For project-specific Manager configuration, edit `AGENTS.md` in your project root and add a `## Manager Notes` section with your identity, background, and coaching preferences. The system prompt provides the operational framework; project files provide the context.
+
+---
+
+### Prompt Composer Tool
+
+The repository includes a standalone web tool at `tools/prompt-composer/index.html` that automates the Brain↔Hands copy-paste workflow. The tool fetches the latest `system-prompt.md` from GitHub, provides preset Manager commands, and generates structured Markdown output ready to paste into the Orchestrator chat interface.
+
+**Access the tool:** [https://mokhtarabadi.github.io/cognitive-lead-hq/](https://mokhtarabadi.github.io/cognitive-lead-hq/) (deployed via GitHub Pages)
+
+**Features:**
+
+- Fetches the latest `system-prompt.md` from GitHub
+- Preset Manager commands (Phase 0, Task Discovery, Collect Context, Approved, QA, Code Review, Closure)
+- Optional Project Tree input — included in the generated Markdown when provided
+- Custom notes and task file pasting
+- Generates structured Markdown output
+- One-click copy to clipboard
+
+---
+
+## 🌉 Brain Bridge (Active)
+
+> One MCP server (`mcp-brain-bridge/`, tool `brain_turn`) handles QA/review.
+
+The Hands builds the user prompt from its machine state (instruction +
+task file), the bridge prepends the latest system prompt from the global
+install, and the LLM answers. XML blocks come back extracted; plain
+answers come back whole; admin questions are relayed through the Hands.
+Autopilot mode (Manager says "on autopilot do X") runs the full loop
+with zero approvals — default OFF, never auto-commits, never closes.
+
+### Quick Start
+
+```bash
+# 1. Configure
+cp .env.example .env
+# Edit .env with your keys (BRAIN_API_KEY, BRAIN_API_BASE, BRAIN_MODEL)
+
+# 2. Register servers (global install, absolute paths) or use the repo opencode.json locally
+# mcp-brain-bridge runs as a supervised singleton (systemd `mcp-brain` on 127.0.0.1:8105); the global config points at it via `type: "remote"` — never `uv run`, never per-session stdio
+
+# 3. Invoke in OpenCode
+# brain_turn → XML executes, REPORT triages, questions relay to Manager
+```
+
+### Documentation
+
+- [Brain Bridge Server](mcp-brain-bridge/server.py) — one tool, system-prompt loader + Responses-API call + XML extractor
+- [zen-proxy](docs/zen-proxy.md) — the loopback gateway hop behind `BRAIN_API_BASE` (session minting, model filters, effort rewrite, timeout ordering)
+- [Blowsh Web Skill](skill-templates/blowsh/SKILL.md) — live-web search/fetch/crawl via the blowsh MCP server
+- [Cognitive Executor Agent](agents/cognitive-executor.md) (Bridge + Autopilot sections)
+- [Setup Guide](docs/setup.md)
+
+---
+
+## 📂 Repository Structure
+
+```
+/
+├── README.md                           # This file
+├── system-prompt.md                    # Generated Orchestrator system prompt (assembled from prompts/)
+├── CHANGELOG.md                        # Version history
+├── tasks/
+│   ├── backlog/                        # Open / unstarted tasks
+│   ├── in-progress/                    # Currently being worked on
+│   ├── qa/                             # Awaiting quality assurance review
+│   ├── completed/                      # Finished tasks
+│   └── archive/                        # Milestone-compacted historical tasks
+├── agents/                             # Custom OpenCode agents (cognitive-executor, etc.)
+│   ├── cognitive-executor.md           # Primary execution engine (ZAC, Kanban lifecycle)
+│   └── cognitive-discovery.md          # Read-only context gathering subagent
+├── docs/
+│   ├── conventions.md                  # Syntax rules and automation conventions
+│   ├── setup.md                        # Platform tool setup and installation guide
+│   ├── history/                        # Milestone compaction summaries
+├── mcp-context-server/
+│   └── server.py                       # FastMCP server for .gitignore-aware file reading & tree
+├── mcp-lint-server/
+│   └── server.py                       # FastMCP server for task file linting
+├── mcp-memory-server/
+│   └── server.py                       # FastMCP server for persistent project memory
+├── mcp-brain-bridge/                  # Unified Brain bridge
+│   └── server.py                       # FastMCP `BrainBridge`: brain_turn (prompt loader + LLM + XML extract)
+├── mcp-planner-server/                 # Capacity-aware, QA-gated planning layer
+│   ├── server.py                       # FastMCP planning tools + dashboard/MCP on 127.0.0.1:8108
+│   └── static/index.html               # Standalone dashboard (Jalali + Gregorian timeline)
+├── zen-proxy/                          # Loopback gateway sidecar (NOT an MCP server)
+│   ├── proxy.py                        # Zen/Go mount proxy: session minting, model filters, effort rewrite
+│   ├── pyproject.toml                  # Stdlib-only; exists so `uv venv` provisions the runtime
+│   └── DECISIONS.md                    # ADRs: repo ownership, upstream timeout, POST gating
+├── services/                           # systemd units / launchd plists for the singletons
+│   └── zen-proxy.service               # Brain's provider hop on 127.0.0.1:8081
+├── prompts/                            # System prompt source tree (fragments + shared partials)
+│   ├── README.md                       # Authoring workflow guide
+│   ├── manifest.txt                    # Ordered fragment list (assembly order)
+│   ├── fragments/                      # One file per top-level XML tag (01-19, V9.0.0)
+│   └── shared/                         # Shared partials (e.g. validation-phase.md)
+├── tests/
+│   └── test_mcp_servers.py             # Pytest suite for MCP servers
+├── .opencode/
+│   └── skills/
+│       └── sop-maintenance/
+│           └── SKILL.md                # Native OpenCode skill for repo rules
+├── scripts/
+│   └── prompt-build/
+│       ├── split_system_prompt.py     # Disassembler: system-prompt.md → fragments/
+│       └── assemble_system_prompt.py  # Assembler: fragments/ → system-prompt.md
+├── skill-templates/                    # Reusable stack blueprints (Agent Skills)
+│
+│   **General & Workflow:**
+│
+│   ├── kanban-lifecycle/              # Unified Kanban — generate, lint, bundle, archive, migrate
+│   │   └── SKILL.md
+│   ├── governance/                     # AGENTS.md audits + living-folder scaffolding
+│   │   └── SKILL.md
+│   ├── code-search/                    # MCP-based codebase discovery
+│   │   └── SKILL.md
+│   ├── debug-instrumentation/          # Strategic logging for complex bug diagnosis
+│   │   └── SKILL.md
+│   ├── design-md/                      # Design system extraction (DESIGN.md)
+│   │   └── SKILL.md
+│   ├── doc-coauthoring/                # Structured documentation co-authoring
+│   │   └── SKILL.md
+│   ├── github/                          # GitHub CLI (gh) workflow — PR triage, issues, CI/CD, API
+│   │   └── SKILL.md
+│   ├── project-memory/                 # Persistent project memory bank
+│   │   └── SKILL.md
+│   ├── prompt-refactor/                # Refactors raw prompts into elite XML specs
+│   │   └── SKILL.md
+│   ├── telegram-suite/                 # Unified Telegram — format, export, issue sync
+│   │   └── SKILL.md
+│   ├── testing-verification/           # TDD gates + fresh verification evidence
+│   │   └── SKILL.md
+│   ├── versioning-and-release/         # SemVer, Changelog, Commit standards
+│   │   └── SKILL.md
+│
+│   **Stack-Specific Blueprints:**
+│
+│   ├── android-kotlin/                 # 100% Jetpack Compose + MVI + Hilt
+│   │   └── SKILL.md
+│   ├── flask-python/                   # Application Factory + SQLAlchemy
+│   │   └── SKILL.md
+│   ├── nestjs-prisma-vertical/         # NestJS + Prisma + Vertical Slices
+│   │   └── SKILL.md
+│   ├── nextjs/                         # App Router + Server Actions + Tailwind
+│   │   └── SKILL.md
+│   ├── python-fastapi/                 # Pydantic V2 + modular routing
+│   │   └── SKILL.md
+│   ├── react-native-expo/              # Expo Managed + NativeWind
+│   │   └── SKILL.md
+│   ├── react-vite/                     # React 18+ SPA + hooks
+│   │   └── SKILL.md
+│   ├── spring-boot/                    # DDD + hexagonal-style packaging
+│   │   └── SKILL.md
+│   └── vue-nuxt/                       # Vue 3 Composition API + Nuxt 3
+│       └── SKILL.md
+└── user-prompts/                       # Moved to private repo `user-prompts`
+```
+
+---
+
+## 📦 Agent Skills Registry
+
+### General & Workflow Skills
+
+| Skill Name                | Purpose                                                                                                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kanban-lifecycle`      | Unified Kanban lifecycle — task generation, lint validation, META bundling, completion archiving, and flat-to-V6 migration.                                                                                                        |
+| `governance`            | Agent protocol auditing plus living folder docs scaffolding — `AGENTS.md` governance and README/DECISIONS baselines.                                                                                                              |
+| `code-search`             | Mandatory for discovery. Uses MCP tools (`get_directory_tree`, `read_source_files`, `extract_signatures`) to explore the codebase without token bloat.                                                                          |
+| `debug-instrumentation`   | Diagnoses complex runtime bugs, deadlocks, race conditions, and silent failures via strategic temporary logging and tracing.                                                                                                    |
+| `design-md`               | Extracts a comprehensive design system (`DESIGN.md`) directly from frontend source code — React, Vue, Svelte, Angular, plain HTML/CSS, or any web framework.                                                                    |
+| `doc-coauthoring`         | Guides users through a structured 3-stage workflow (Context Gathering, Refinement & Structure, Reader Testing) for co-authoring documentation with AI.                                                                          |
+| `github`                  | GitHub CLI (gh) workflow for pull request triage, issue management, CI/CD run analysis, and API queries.                                                                                                                        |
+| `prompt-refactor`         | Meta-cognitive skill that refactors basic human prompts into elite, highly constrained, XML-tagged instructions optimized for AI agent reasoning.                                                                               |
+| `telegram-suite`          | Unified Telegram skills — HTML message formatting, contextual export to ZIP, and issue sync to tasks/GitHub.                                                                                                                     |
+| `testing-verification`    | TDD test ordering with coverage gates plus mandatory fresh verification evidence before any completion claim.                                                                                                                  |
+| `blowsh`                  | Live-web research via the blowsh MCP server (Docker): `search_web`, `fetch_web`, `fetch_web_batch`, `crawl_web`, `extract_links` — rendered engines, JS rendering, sitemap-aware crawls. See `skill-templates/blowsh/SKILL.md`. |
+| `versioning-and-release`  | Standardizes Semantic Versioning (SemVer), Keep a Changelog formats, Conventional Commits, and Safe Push Protocols across all repositories.                                                                                     |
+
+### Stack-Specific Blueprints
+
+| Stack                  | Architecture Enforced                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Android Kotlin         | **100% Jetpack Compose — XML Strictly Banned.** MVI (UDF), Hilt, SQLDelight/Room.                          |
+| Flask Python           | Application Factory, Blueprints, SQLAlchemy, and config separation for modular Flask applications.         |
+| NestJS Prisma Vertical | NestJS, Prisma ORM, Vertical Slice Architecture, strict TypeScript, and class-validator DTOs.              |
+| Next.js                | App Router, Server/Client Component separation, Server Actions, and Tailwind CSS design tokens.            |
+| Python FastAPI         | Pydantic schemas, dependency injection, async routing, and layered service architecture.                   |
+| React Native Expo      | **Expo Managed Workflow ONLY — no native folders.** Expo Router, NativeWind, Zustand, strict TypeScript.   |
+| React Vite             | React 18+ SPA architecture, hooks, and Vite configuration with optimized build tooling.                    |
+| Spring Boot            | DDD, hexagonal-style packaging, MapStruct, constructor injection, and global exception handlers.           |
+| Vue Nuxt               | Vue 3 Composition API, Nuxt 3 routing, and Pinia state management.                                         |
+
+---
+
+## 🔌 Custom Code Context FastMCP
+
+> **Current path:** supervised remote singletons on `127.0.0.1:8101–8108` — see `docs/services.md`. What follows is the **legacy per-project stdio fallback** (kept for offline/air-gapped use, not the default).
+
+This system uses a local **FastMCP** Python server (`mcp-context-server/server.py`) that runs via its persistent venv interpreter (`<dir>/.venv/bin/python <dir>/server.py`, never `uv run`) with locked dependency management. It provides deterministic, `.gitignore`-aware file reading and directory tree exploration, using far fewer tokens than raw `grep`/`glob` operations.
+
+### Setup Instructions
+
+This server can be installed locally per-project, or globally for all OpenCode sessions on your machine.
+
+#### Option A: Project-Level Setup (New or Existing Projects)
+
+Best for keeping project dependencies isolated.
+
+1. Copy `mcp-context-server/server.py` into your project root.
+2. Create a persistent venv once (deps match the `# dependencies` header in `server.py`): `cd mcp-context-server && uv venv .venv && uv pip install --python .venv/bin/python pathspec "mcp[cli]>=1.0,<2.0" tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript tree-sitter-go tree-sitter-java tree-sitter-rust tree-sitter-kotlin`.
+3. Ensure it is executable: `chmod +x mcp-context-server/server.py`.
+4. Add the following to your project's `./opencode.json` (absolute paths — OpenCode does not expand `~` or env vars in `command`):
+
+```json
+{
+  "mcp": {
+    "custom_context": {
+      "type": "local",
+      "command": [
+        "/abs/path/mcp-context-server/.venv/bin/python",
+        "/abs/path/mcp-context-server/server.py"
+      ],
+      "enabled": true,
+      "timeout": 15000
+    }
+  },
+  "permission": {
+    "custom_context_*": "allow",
+    "get_directory_tree": "allow",
+    "read_source_files": "allow",
+    "bundle_tasks": "allow"
+  }
+}
+```
+
+#### Option B: Global Setup (System-wide)
+
+Best if you want this codebase exploration tool available in _every_ terminal directory automatically.
+
+1. Create a global directory for the server: `mkdir -p ~/.config/opencode/mcp-context-server`
+2. Copy the `server.py` script into that directory.
+3. Create the persistent venv once: `cd ~/.config/opencode/mcp-context-server && uv venv .venv && uv pip install --python .venv/bin/python pathspec "mcp[cli]>=1.0,<2.0" tree-sitter tree-sitter-python tree-sitter-javascript tree-sitter-typescript tree-sitter-go tree-sitter-java tree-sitter-rust tree-sitter-kotlin` (deps match the `# dependencies` header in `server.py`).
+4. Make it executable: `chmod +x ~/.config/opencode/mcp-context-server/server.py`.
+5. Open your global config at `~/.config/opencode/opencode.json` and add the absolute path:
+
+```json
+{
+  "mcp": {
+    "custom_context": {
+      "type": "local",
+      "command": [
+        "/Users/<YOUR_USER>/.config/opencode/mcp-context-server/.venv/bin/python",
+        "/Users/<YOUR_USER>/.config/opencode/mcp-context-server/server.py"
+      ],
+      "codemode": true,
+      "enabled": true,
+      "timeout": 15000
+    }
+  },
+  "permission": {
+    "custom_context_*": "allow",
+    "get_directory_tree": "allow",
+    "read_source_files": "allow",
+    "bundle_tasks": "allow"
+  }
+}
+```
+
+_(Note: Replace `/Users/<YOUR_USER>` with your actual home directory path)._
+
+`codemode: true` (the default — key absent or explicit) keeps the server's tools behind `execute` instead of exposing them as native calls. The HQ ships Code Mode for every server, including `telegram` (147 tools); see `docs/services.md`.
+
+Full HQ install covering all core MCP servers plus skills plus both agents is documented in LLM.txt sections 4 through 7 and the global-install-upgrade memory workflow not here. The steps above cover only the standalone context server for third party projects.
+
+
+### How It Works
+
+1. `opencode.json` configures the custom context server as a local MCP server.
+2. When OpenCode needs to explore code, it uses `get_directory_tree` (inline tree), `create_tree_report` (persistent tree file), and `read_source_files` (compiled context report) tools.
+3. All file reads respect `.gitignore` rules and skip binary/large files automatically.
+4. The strategy is documented in `skill-templates/code-search/SKILL.md`.
+
+### Available Tools (Core 3 + 2 Optional)
+
+**Core — always installed:**
+
+- `get_directory_tree` — Generates an ASCII tree of the directory structure, respecting `.gitignore`.
+- `create_tree_report` — Saves a persistent `.gitignore`-aware directory tree of any path (default: the entire project) as `context-reports/tree_report_<timestamp>_<uuid>.md`, mirroring the context report convention. Trigger phrase: "create a tree of the project".
+- `read_source_files` — Reads multiple source files or directories and saves their contents into a local Markdown report inside the `context-reports/` directory, returning the file path to prevent context bloat.
+- `extract_signatures` — Extracts structural signatures (classes, functions, methods) via tree-sitter (fallback to regex) and saves to `context-reports/signatures_report_<timestamp>_<uuid>.md`.
+- `bundle_tasks` — **Meta-task bundler (pure-MCP).** Bundles 2–6 small related tasks into one META for unified execution (`tasks/backlog/<NEXT_ID>-<slug>.md` + `**Supersedes:** [ids]` + verbatim appendices, `git mv` to `tasks/archive/` with `superseded` patch) via pure FastMCP tool `bundle_tasks(task_ids, title, dry_run, force)`. No `uv run scripts/...` CLI required — use `custom_context` MCP. Guardrails: cap 6, LOC >400 warning, missing-ID and collision checks. See `skill-templates/kanban-lifecycle/SKILL.md` and `AGENTS.md` `## 🛑 META-TASK BUNDLE LIFECYCLE`.
+- `custom_context_qa_transition` — Transitions a task from `tasks/in-progress/` → `tasks/qa/` via pure MCP (stages modified files and injects factual diff). Replaces the legacy qa-transition script.
+- `custom_context_commit_and_clean_task` — Atomically commits staged changes and cleans the task file (replaces raw diff with hash reference) via pure MCP. Replaces manual `git commit`.
+
+**Optional — auto-installed via `LLM.txt` Step 7.6:**
+
+- `blowsh` (Docker `ghcr.io/mokhtarabadi/blowsh-mcp:latest`, 5 tools) — **JS-capable browsing (retired browser MCP replacement).** `fetch_web` (plain/html/markdown/pdf + selector/max_chars/wait_ms + focus/toc/must_contain/archive/stitch probes), `search_web` (DuckDuckGo+Bing+Brave+Mojeek consensus, intent verticals), `extract_links`, `fetch_web_batch` (10 URLs), `crawl_web` (sitemap-aware multi-page docs/API refs/wikis with focus/depth/char budgets). SSRF guard, TTL cache. Timeout 120s. See https://github.com/mokhtarabadi/blowsh-mcp, `skill-templates/blowsh/SKILL.md`, and `docs/telegram-setup.md` (setup maps to same global install).
+- `telegram` (Telethon, 80+ tools, `$HOME/.config/opencode/mcp-telegram-server/.venv/bin/python` + absolute `main.py` path in opencode config dir) — Accounts (`list_accounts`, multi-account `account` param), chats/groups, messages (`send_message`/`reply_to_message` with `account="personal"`/`"work"`), contacts/aliases, media (`send_file`/`download_media`), events (`wait_for_settled_message`, `enable_incoming_feed`). File roots required for media tools (`/tmp/telegram-mcp` + `$HOME/.config/opencode/mcp-telegram-server/downloads`). Used by `skill-templates/telegram-suite/SKILL.md` (Parts 1–3: HTML formatting, range → ZIP export, supergroup → tasks sync — contract in `docs/telegram-message-formatting.md`) — see `docs/telegram-setup.md` §6 for the full skill→tool→config table. Single vs work/personal setup documented there plus `LLM.txt` 7.6 (absolute paths, installed in `~/.config/opencode/`).
+
+### Meta-Task Bundling — Pure MCP (No CLI Required)
+
+This project uses **pure-MCP** bundling — no `scripts/` copy needed. The `bundle_tasks` tool is self-contained in `mcp-context-server/server.py` (helpers duplicated from the legacy script).
+
+| Scenario                                        | What to do                                                                                       | How to bundle                                                                                        |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Pure MCP (recommended)**                      | No file copy — `mcp-context-server/server.py:bundle_tasks` is self-contained                     | Hands calls MCP tool `bundle_tasks(task_ids=["12","15","20"], title="android-polish", dry_run=true)` |
+| **Legacy CLI (deprecated, pure-MCP preferred)** | Legacy CLI retained only for reference; do not rely on legacy script invocation in new workflows | `bundle_tasks` MCP is the canonical path                                                             |
+
+> **Pure-MCP architecture:** All bundling, QA transition (`custom_context_qa_transition`), and commit-and-clean (`custom_context_commit_and_clean_task`) run via FastMCP. Legacy CLI paths are retired — kept only in git history for backwards reference.
+
+---
+
+## Global Skills Deployment
+
+To make the `code-search` skill (or any other reusable skill) available in _every_ terminal directory on your machine automatically, copy the skill folder into your global OpenCode configuration path.
+
+### Step-by-Step Global Installation:
+
+1. **Create the global skills directory** (if it does not exist yet):
+
+   ```bash
+   mkdir -p ~/.config/opencode/skills
+   ```
+
+2. **Copy the desired skill folder** into the global skills directory:
+   For example, to install our custom `code-search` skill globally:
+
+   ```bash
+   cp -r skill-templates/code-search ~/.config/opencode/skills/
+   ```
+
+3. **Verify the installation:**
+   In any folder on your machine, start OpenCode and run:
+   ```bash
+   /help
+   ```
+   Under the available skills list, you will see `code-search` listed. You can now use it in any project by asking:
+   ```plaintext
+   Use the subagent tool with agent explore to find the main router using the code-search skill
+   ```
+
+---
+
+## Custom OpenCode Agents
+
+This workflow relies on a dedicated primary agent (`cognitive-executor`) and a read-only subagent (`cognitive-discovery`) to hard-enforce Zero-Autonomous-Commits (ZAC), MCP-first context gathering, and the strict finalization sequence at the platform permission layer.
+
+To install them globally, run the `LLM.txt` auto-configuration script. Once installed, you can start OpenCode with the executor agent using:
+
+```bash
+opencode --agent cognitive-executor
+```
+
+### OpenCode Plugins
+
+Three plugins: **`smart-compact`** (`@mokhtarabadi/opencode-smart-compact`) — lossless, V2-native context compaction, maintained in its own repo. Native OpenCode V2 compaction stays on as the automatic safety net (`compaction.auto` + `keep.tokens: 20000`); Smart Compact adds the high-fidelity layer: user messages stay verbatim, each old assistant turn becomes its own summary, and bulky tool I/O is pruned into a retrievable cache. It never mutates the stored transcript — it stores a per-session compaction state and applies it to the model-visible messages per request. At `awareness.autoTrimRatio` it also trims tool output on its own, losslessly, without summarizing a turn. Pressure is measured against a working budget rather than the model ceiling — `awareness.contextWindowTokens` is a hard cap on the denominator (`min(registry limit, configured)`), and the absolute `awareness.warnAtTokens` / `emergencyAtTokens` pair decides when the reminder actually fires, because a 1M-token window puts the ratio lines at 500k and 800k; this repo pins a 200k budget with warn at 120k and emergency at 160k in `.opencode/smart-compact.jsonc`, and the plugin logs a line whenever it fires. Commands: `/magic-compact [N]`, `/magic-trim [N]`, `/magic-stats`; the agent reads the same savings with the read-only `compact_stats` tool instead of asking for the command. Install with `opencode plugin add github:mokhtarabadi/opencode-smart-compact` (the Git spec, until it is published to npm); full guide in [`docs/compaction.md`](docs/compaction.md). Plus **`goal`** (`opencode-goal-plugin`, maintained in its own repo) — tracks one long-running objective per session in `.opencode/goals/<session-id>.json` with evidence in the matching `.evidence.json` sidecar (a legacy `.opencode/goal-state.json` stays a read fallback that migrates on first write, and the legacy `.opencode/goal-evidence.json` is read only until the session owns its own sidecar, and another session in the same project never sees or continues this goal): `/goal <objective>` to set, `/goal status` to check, `/goal block <reason>`, `/goal resume`, `/goal evidence <args>`, `/goal complete` (needs file citations plus tests that really pass — the plugin executes every recorded command and reads its real exit code; a test entry may carry an `env` map to pin the toolchain it needs, and a blocked completion quotes the failing reasons instead of a generic hint), `/goal clear` (Manager lane; agent lane is tools-only: `goal_set`, `goal_block`, `goal_evidence`, `goal_complete`, `goal_resume`, never write the state files directly). Every set starts a fresh empty evidence sidecar, so a new objective never inherits criteria from the goal before it. The agent creates the goal with `goal_set` when an objective is defined, blocks with `goal_block`, records proof with `goal_evidence` before closing, and resumes with `goal_resume` after a block or interruption. Install with `opencode plugin add github:mokhtarabadi/opencode-goal-plugin` (the Git spec, `opencode-goal-plugin` once published to npm). Plus **`todolist`** (`opencode-todolist`) — restores the V1 session todo tools (`todowrite`/`todoread`) removed in V2, with a live TUI sidebar strip. Install with `opencode plugin add opencode-todolist` and enable the strip via `plugins` in `~/.config/opencode/cli.json`.
+
+---
+
+## Key V9 Changes
+
+- **Separation of Concerns — Coaching Profile Removed:** The `<manager_profile>`, `<operating_principles>`, `<delegation_strategy>`, `<challenge_policy>`, and `<leadership_and_language_protocol>` fragments have been removed from the system prompt. The Manager's identity, background, and coaching preferences now belong in project-specific `AGENTS.md` files, not in the operational system prompt.
+- **Sprint Strategist Refactored:** The Sprint Strategist persona has been refactored from a coaching-style gatekeeper to a technical capacity assessor using MoSCoW prioritization, estimated complexity (S/M/L/XL), dependency chain analysis, and WIP limits.
+- **Restructured to 19 Fragments:** The system prompt has been restructured from 22 fragments to 19 clean fragments, each representing a single concern. The fragment numbering has been re-sequenced to reflect the new architecture.
+
+## Key V9.1 Changes
+
+- **Clarification Halt Mandate:** If the Manager's input (English, non-English, or mixed) is ambiguous, fragmented, or unclear, the Orchestrator and Hands MUST HALT immediately, output a clarification request, and ask targeted questions. Guessing intent from unclear input is strictly forbidden.
+- **Goal-Oriented Task Treatment:** Software Architect and Senior Programmer personas now explicitly instruct Hands to load all relevant skills from `<agent_skills_registry>` and treat multi-step/large tasks as Goal units with explicit verification gates.
+- **Parallel Agent Execution Mandate:** Hands MUST actively utilize parallel subagent execution (up to 4 concurrent agents) for any task involving 2+ independent file scans, signature extractions, or decoupled module changes. Serial execution of independent workstreams is a performance violation.
+- **Input Validation Reinforced:** The `<user_input_processing>` fragment's Input Validation Gate, Bilingual Translation, and Clarification steps have been strengthened with explicit Ambiguity Mandate, Clarification Halt Mandate, and translation-before-execution rules.
+
+## 📜 Release Milestones
+
+| Milestone | Key Architectural Evolutions                                                                                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| V5        | Decentralized `tasks/` architecture (retired `STATE.md`/`TODO.md`); Brain/Hands separation codified; `task-generator` + `audit-agents` skills introduced; Phase 0 UI/UX traversal for `DESIGN.md` generation. |
+| V6        | Kanban lifecycle (`backlog → in-progress → qa → completed → archive`); `commit_and_clean_task` MCP tool; `migrate-kanban` + `archive-tasks` skills; system prompt upgraded for Kanban state tracking.         |
+| V6.7      | Manager profile and coaching fragments introduced (removed in V9.0.0; configuration moved to project-specific `AGENTS.md`).                                                                                   |
+| V7        | Multi-persona brainstorming protocol; Universal Datetime Rules (UTC-at-rest); SOLID programming mandate; Agent Skills Registry expanded to 31 skills.                                                         |
+| V8        | 9-step production line formalized; Immutable Financial Ledger mandate; Buffer Isolation validation phase; Defensive Shell Protocol.                                                                           |
+
+---
+
+## Contributing
+
+See `.opencode/skills/sop-maintenance/SKILL.md` for the rules that AI agents must follow when modifying this repository.
+
+## Future Architectural Roadmap
+
+1. **Automated Pull Request Integration:** Upgrade the final Code Reviewer step to automatically branch, commit, and open a PR via GitHub CLI (`gh pr create`) instead of committing locally to `main`.
+2. **Epic and Milestone Tracking:** Create an `epics/` directory and update the `kanban-lifecycle` skill to link individual tasks to parent epics for better macro-level project tracking.
+3. ~~Dedicated `testing-strategy` Skill~~ — DONE (Task 224 META): `skill-templates/testing-verification/SKILL.md` enforces TDD order + diff-coverage + error-path gates.
+4. ~~Database Migration Management~~ — DONE (Task 224 META): `skill-templates/database-migration/SKILL.md` bans direct DDL, forces Alembic/Prisma/Flyway.
+5. ~~Hexagonal Architecture Expansion~~ — DONE (Task 224 META): Hexagonal section in `skill-templates/python-fastapi/SKILL.md` + new `skill-templates/node-hexagonal-api/SKILL.md`; `stacks/node-ts.yaml` updated.

@@ -1,0 +1,124 @@
+# opencode-action
+
+Run an [OpenCode](https://opencode.ai/) agent from GitHub Actions, including inline pull request review comments, pull request reviews, and manually dispatched tasks.
+
+[![CI](https://github.com/dceoy/opencode-action/actions/workflows/ci.yml/badge.svg)](https://github.com/dceoy/opencode-action/actions/workflows/ci.yml)
+
+## Quick start
+
+### 1. Add a provider secret
+
+In **Settings → Secrets and variables → Actions**, add the API key for your model provider. The example below uses `OPENCODE_API_KEY`.
+
+### 2. Add the workflow
+
+Create `.github/workflows/opencode.yml`:
+
+<!-- prettier-ignore -->
+```yaml
+---
+name: OpenCode
+on:
+  pull_request_review_comment:
+    types: [created]
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+jobs:
+  opencode:
+    if: contains(github.event.comment.body, '/oc') || contains(github.event.comment.body, '/opencode')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run OpenCode
+        uses: dceoy/opencode-action@163f9a9cd3d3f497e2847635585419f951371d2f  # v0.8.1
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          model: opencode-go/kimi-k3
+```
+
+### 3. Add an inline comment to a pull request diff
+
+```text
+/opencode explain this change
+```
+
+The shorter `/oc` trigger also works:
+
+```text
+/oc fix this
+```
+
+The default setup exchanges the workflow OIDC token for an OpenCode GitHub App token, which requires `id-token: write`.
+
+## Reusable workflows
+
+For smaller caller workflows, this repository provides reusable workflows for OpenCode tasks and pull request reviews:
+
+| Workflow                                                       | Purpose                                                                           |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [`opencode-bot.yml`](.github/workflows/opencode-bot.yml)       | Run OpenCode via PR review comments, dispatch, or a fixed prompt.                 |
+| [`opencode-review.yml`](.github/workflows/opencode-review.yml) | Install and use `pr-loop`'s external `pr-review` skill for `pull_request` events. |
+
+See [Reusable workflows](docs/reusable-workflows.md) for caller examples, inputs, secrets, and permission requirements.
+
+## Models and secrets
+
+Set `model` to a `provider/model` value and pass the corresponding API key:
+
+| Provider        | Example model                | Secret               |
+| --------------- | ---------------------------- | -------------------- |
+| OpenCode        | `opencode-go/kimi-k3`        | `OPENCODE_API_KEY`   |
+| OpenRouter      | `openrouter/openrouter/free` | `OPENROUTER_API_KEY` |
+| Anthropic       | `anthropic/claude-opus-5`    | `ANTHROPIC_API_KEY`  |
+| OpenAI          | `openai/gpt-5.6-sol`         | `OPENAI_API_KEY`     |
+| Custom provider | `myprovider/my-model`        | Provider-specific    |
+
+The provider account must have sufficient credits or quota. For providers not built into OpenCode, see [Custom providers](docs/custom-providers.md).
+
+## Sakura AI Engine model synchronization
+
+The optional [Sakura model synchronization workflow](.github/workflows/sync-sakura-models.yml) discovers chat-capable Sakura AI Engine models and opens or updates a pull request when the catalog changes. Configure the `SAKURA_AI_ENGINE_API_KEY` repository secret before enabling it.
+
+The workflow uses the repository-provided `GITHUB_TOKEN` with `contents: write` and `pull-requests: write`; no additional GitHub token secret is required. GitHub does not create new workflow runs for events triggered by `GITHUB_TOKEN`, so pull requests created by this workflow do not automatically trigger `pull_request` workflows. See [GitHub's `GITHUB_TOKEN` documentation](https://docs.github.com/en/actions/concepts/security/github_token).
+
+## Inputs
+
+| Input                 | Default                   | Description                                                                                                                                       |
+| --------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model`               | Required                  | Model in `provider/model` format.                                                                                                                 |
+| `agent`               | `build`                   | Primary agent. A slash command can override it.                                                                                                   |
+| `prompt`              | Event comment             | Fixed prompt to use instead of the triggering comment.                                                                                            |
+| `mentions`            | `/opencode,/oc`           | Comma-separated trigger phrases.                                                                                                                  |
+| `variant`             | -                         | Provider-specific reasoning effort; leave empty unless supported. See [Custom providers](docs/custom-providers.md#variants-for-custom-providers). |
+| `share`               | `false`                   | Share the OpenCode session.                                                                                                                       |
+| `use-github-token`    | `false`                   | Use the workflow token instead of the default App-token flow.                                                                                     |
+| `opencode-version`    | Pinned v1                 | OpenCode version to install. The bundled Sakura provider's `chunkTimeout` needs 1.2.25+.                                                          |
+| `use-bundled-toolkit` | `true`                    | Install the bundled provider configuration for normal runs or the trusted review bridge for review-only runs.                                     |
+| `review-only`         | `false`                   | Enable isolated review execution and install upstream `pr-review`.                                                                                |
+| `pr-review-ref`       | Caller-supplied SHA       | Immutable `pr-loop` commit supplying the review skill.                                                                                            |
+| `timeout-minutes`     | `60`                      | Stop OpenCode after this many minutes.                                                                                                            |
+| `oidc-base-url`       | `https://api.opencode.ai` | OIDC exchange URL for a custom GitHub App installation.                                                                                           |
+
+The default OpenCode binary version is pinned to a stable v1 release and maintained by Renovate (v2 releases are excluded). Set `opencode-version` explicitly to override the default, or use `latest` to opt into runtime resolution.
+
+Direct `workflow_dispatch` uses the same inputs as `workflow_call`; `model` and a non-empty `prompt` are required to run the job.
+
+When `use-github-token: true`, keep `GITHUB_TOKEN` in `env` and grant only the permissions needed for the task.
+
+Outputs are `opencode-version` and `cache-hit`. Review-only runs (`review-only: 'true'`) skip the OpenCode binary cache, install the external `pr-review` skill, and use a disposable temporary HOME (including isolated XDG paths).
+
+## Pull request reviews
+
+The reusable [`opencode-review.yml`](.github/workflows/opencode-review.yml) runs the SHA-pinned external `pr-loop/pr-review` skill in an isolated `review-only` environment. The old bundled `/review-pr` command, agents, and orchestration are gone. The `/pr-review` prompt loads the skill through OpenCode's native `skill` tool; optional plain-text instructions narrow review focus.
+
+Direct action or bot review-only calls require `use-bundled-toolkit: 'true'`, a full `pr-review-ref` commit SHA, and a concrete PR URL/head SHA. The reusable review workflow retains `agent`, `mentions`, and `use-bundled-toolkit` as public inputs for compatibility; its review agent remains fixed, comment mentions are irrelevant to PR events, and the bundle is required. The action retains its restricted GitHub API adapter and verified App-token publication flow, which are needed to enforce read-only evidence access and a commit-bound `COMMENT` review. The restriction is an OpenCode tool permission boundary, not an operating-system sandbox.
+
+See [Pull request reviews](docs/pull-request-reviews.md) for usage, permissions, trust boundaries, and limitations.

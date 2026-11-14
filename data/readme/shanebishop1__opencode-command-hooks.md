@@ -1,0 +1,557 @@
+# 🪝 OpenCode Command Hooks 🪝
+
+[![Build and test](https://img.shields.io/github/actions/workflow/status/shanebishop1/opencode-command-hooks/ci.yml?branch=main&label=build%20%26%20test&logo=github&style=flat-square)](https://github.com/shanebishop1/opencode-command-hooks/actions/workflows/ci.yml)
+[![E2E tests](https://img.shields.io/github/actions/workflow/status/shanebishop1/opencode-command-hooks/v1-e2e.yml?branch=main&label=E2E%20tests&logo=github&style=flat-square)](https://github.com/shanebishop1/opencode-command-hooks/actions/workflows/v1-e2e.yml)
+[![npm](https://img.shields.io/npm/v/opencode-command-hooks?logo=npm&style=flat-square)](https://www.npmjs.com/package/opencode-command-hooks)
+[![License](https://img.shields.io/npm/l/opencode-command-hooks?style=flat-square)](./LICENSE)
+
+Use simple configs to declaratively define shell command hooks on tool/subagent invocations. With a single line of config, you can inject a hook's output directly into context for your agent to read.
+
+![OpenCode Command Hooks demo](./docs/assets/opencode-command-hooks-demo.gif)
+
+## Markdown Frontmatter Hooks
+
+Define hooks in just a couple lines of markdown frontmatter. Putting them here is also really nice because you can see your entire agent's config in one place.
+
+```yaml
+---
+description: Analyzes the codebase and implements code changes.
+mode: subagent
+hooks:
+  after:
+    - run: "npm test"
+      inject: "Test Output:\n{stdout}\n{stderr}"
+---
+```
+**This plugin was not built by the OpenCode team nor is it affiliated with them.**
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Examples](#examples)
+- [Template Placeholders](#template-placeholders)
+
+### How It Works
+
+1. **Runs automatically** on the configured event
+2. **Executes shell commands** (sequentially, if you pass an array)
+3. **Captures output**, then reports it up to the configured limit (default 30,000 characters)
+4. **Optionally reports results** via `inject` (to the session) and/or `toast` (to the UI).
+
+## Why?
+
+When working with a fleet of subagents, automatic validation of the state of your codebase is really useful. By setting up lint/typecheck/test checks or other automation, you can surface errors quickly and reliably.
+
+Doing this by asking your orchestrator agent to use the bash tool (or call a validator subagent) is non-deterministic and can cost a lot of tokens over time. You could always write your own custom plugin to achieve this automatic validation behavior, but I found myself writing the same boilerplate, error handling, output capture, and session injection logic over and over again.
+
+Though this plugin is mostly a wrapper around accessing hooks that OpenCode already exposes, it provides basic plumbing that reduces overhead, giving you a simple, opinionated system for integrating command hooks into your OpenCode workflow. I also just like having hooks/config for my agents all colocated in one place (markdown files) and thought that maybe somebody else would like this too.
+
+---
+
+### JSON Config
+
+```jsonc
+{
+  "tool": [
+    {
+      "id": "validate-engineer",
+      "when": {
+        "phase": "after",
+        "tool": "task",
+        "toolArgs": { "subagent_type": "engineer" },
+      },
+      "run": ["npm run lint", "npm run typecheck", "npm test"],
+      "inject": "Validation Results (exit {exitCode}): \n`{stdout}`\n`{stderr}`",
+    },
+  ],
+}
+```
+
+### Markdown Frontmatter Config
+
+```yaml
+hooks:
+  after:
+    - run: ["npm run lint", "npm run typecheck", "npm test"]
+      inject: "Validation Results (exit {exitCode}): \n`{stdout}`\n`{stderr}`"
+      toast:
+        message: "Validation Complete"
+```
+
+### Hook Configuration Options
+
+| Option           | Type                   | Description                                                              |
+| ---------------- | ---------------------- | ------------------------------------------------------------------------ |
+| `run`            | `string` \| `string[]` | Command(s) to execute                                                    |
+| `inject`         | `string`               | Message injected into the session                                        |
+| `toast`          | `object`               | Toast notification configuration                                         |
+| `when.toolArgs`  | `Record<string, string \| string[] \| matcher>` | Exact argument filters, or `{ glob: "..." }` / `{ regex: "..." }` matchers |
+| `overrideGlobal` | `boolean`              | When `true`, suppresses global hooks matching the same event/phase+tool. Must be a JSON boolean (`true`/`false`), not a string. |
+
+### Toast Configuration
+
+```yaml
+toast:
+  title: "Build" # optional
+  message: "exit {exitCode}"
+  variant: "info" # optional- one of: info, success, warning, error
+  duration: 5000 # optional (milliseconds)
+```
+
+### Inject String Template Variables
+
+- `{id}` - Hook ID
+- `{agent}` - Agent name (if available)
+- `{tool}` - Tool name (tool hooks only)
+- `{cmd}` - Executed command
+- `{stdout}` - Command stdout (truncated)
+- `{stderr}` - Command stderr (truncated)
+- `{exitCode}` - Command exit code
+- `{args.<key>}` - Direct tool argument value (own properties only; strings, numbers, and booleans as text; arrays and objects as JSON)
+
+### Complete Example
+
+````markdown
+---
+description: Engineer Agent
+mode: subagent
+hooks:
+  before:
+    - run: "echo 'Engineer starting...'"
+      toast:
+        message: "Engineer starting"
+        variant: "info"
+  after:
+    - run: ["npm run typecheck", "npm run lint"]
+      inject: "Typecheck + lint (exit {exitCode}) ``` {stdout} ```"
+---
+
+<your subagent instructions>
+````
+
+---
+
+### Automatic Context Injection
+
+If `inject` is set, the command output is posted into the session, so your agents can react to failures.
+
+### Filter by Tool Arguments
+
+You can set up tool hooks to only trigger on specific arguments via `when.toolArgs`.
+String and string-array values retain exact matching (and `"*"` matches any
+value). Matcher objects support full-string glob matching and JavaScript regex
+search matching. Every configured argument must match, and pattern matchers
+only match arguments whose runtime value is a string. Leading `!` is not an
+implicit negation and leading `#` is not treated as a comment.
+
+```jsonc
+{
+  "id": "playwright-access-localhost",
+  "when": {
+    "phase": "after",
+    "tool": "playwright_browser_navigate",
+    "toolArgs": { "url": "http://localhost:3000]" },
+  },
+  "run": ["osascript -e 'display notification \"Agent triggered playwright\"'"],
+  "toast": {
+    "message": "Agent used the playwright {tool} tool",
+  },
+}
+```
+
+Matchers work with arbitrary argument names and custom tools:
+
+```yaml
+when:
+  phase: before
+  tool: write_file
+  toolArgs:
+    filePath:
+      glob: "**/*.{ts,js}"
+    content:
+      regex: "TODO"
+```
+
+Argument values are also available in `inject` and `toast` templates through
+direct placeholders such as `{args.filePath}`. Strings, numbers, and booleans
+are rendered as text; arrays and objects are rendered as JSON. Missing and
+`null` values render as empty strings. Argument placeholders are not expanded
+inside `run` commands. Instead, every tool-hook command receives the complete
+argument object in a private temporary JSON file. Its path is available in the
+`OPENCODE_HOOK_ARGS_FILE` environment variable; read it from the command, for
+example with `cat "$OPENCODE_HOOK_ARGS_FILE"`. Tool hooks without arguments receive
+`{}`. The file is unique to the tool-hook execution and removed after all of its
+commands finish. Supplying an argument that looks like shell syntax does not
+execute it or interpolate it into the command source, and the complete payload
+is not placed in the environment.
+
+## Features
+
+- Tool hooks (`before`/`after`) and session hooks (`start`/`idle`) via JSON/YAML config
+  - Hooks wait for commands; failures do not block tool execution.
+  - Commands run **sequentially**, even if earlier ones fail.
+- Inject bash output into context with `inject` and notify user with `toast`
+  - `inject`/`toast` interpolate using the **last command’s** output if `run` is an array.
+- Match by tool name and (optionally) arguments
+- Optional session injection and toast notifications
+- Automatic output truncation (30,000 by default)
+
+---
+
+## Installation
+
+Add to your `opencode.json`:
+
+```jsonc
+{
+  "plugin": ["opencode-command-hooks"],
+}
+```
+
+This works unchanged on OpenCode 1.x and OpenCode 2 (which also accepts `"plugins"`). On OpenCode 2, hooks cannot show toasts yet; everything else works the same.
+
+## Configuration
+
+### Config Locations
+
+The plugin loads hooks from two locations:
+
+1. **User global**: `~/.config/opencode/command-hooks.jsonc` — hooks that apply to all projects
+2. **Project**: `.opencode/command-hooks.jsonc` — project-specific hooks (searches upward from the project directory supplied by OpenCode)
+
+Both are merged by default. See [Configuration Precedence](#configuration-precedence) for details.
+Relative hook commands execute from that same OpenCode project directory.
+
+### JSON Config
+
+```jsonc
+{
+  "truncationLimit": 30000,
+  "ignoreGlobalConfig": false,
+  "tool": [
+    // Tool hooks
+  ],
+  "session": [
+    // Session hooks
+  ],
+}
+```
+
+#### JSON Config Options
+
+| Option              | Type            | Description                                                                                                                        |
+| ------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `truncationLimit`   | `number`        | Maximum characters reported per stdout/stderr after command completion. Defaults to 30,000 (matching OpenCode's bash tool). Must be a positive integer. Project config overrides global when both are set. |
+| `ignoreGlobalConfig`| `boolean`       | When `true`, skip loading `~/.config/opencode/command-hooks.jsonc`. Defaults to `false`. Must be a JSON boolean (`true`/`false`), not a string. |
+| `tool`              | `ToolHook[]`    | Array of tool execution hooks                                                                                                      |
+| `session`           | `SessionHook[]` | Array of session lifecycle hooks                                                                                                   |
+
+### Markdown Frontmatter
+
+Use `hooks:` in agent markdown for the simplified format:
+
+```markdown
+---
+description: Engineer agent
+mode: subagent
+hooks:
+  before:
+    - run: "echo 'Starting engineering work...'"
+  after:
+    - run: "npm run lint"
+      inject: "Lint output:\n{stdout}\n{stderr}"
+---
+```
+
+### Configuration Precedence
+
+Hooks are loaded from two locations and merged:
+
+1. **User global config**: `~/.config/opencode/command-hooks.jsonc`
+2. **Project config**: `.opencode/command-hooks.jsonc` (searches upward from the project directory supplied by OpenCode)
+
+**Merge behavior:**
+
+| Scenario | Result |
+|----------|--------|
+| Different hook IDs | Both run (concatenation) |
+| Same hook ID | Project replaces global |
+| `overrideGlobal: true` on hook | Suppresses all global hooks for same event/phase+tool |
+| `ignoreGlobalConfig: true` in project | Skips global config entirely |
+| Both set `truncationLimit` | Project value wins |
+
+**Example: Override all global hooks for an event**
+
+```jsonc
+{
+  "session": [
+    {
+      "id": "my-session-idle",
+      "when": { "event": "session.idle" },
+      "run": "echo only this runs",
+      "overrideGlobal": true
+    }
+  ]
+}
+```
+
+**Example: Ignore global config entirely**
+
+```jsonc
+{
+  "ignoreGlobalConfig": true,
+  "tool": [
+    // Only these hooks will run
+  ]
+}
+```
+
+Additional precedence rules:
+- Markdown hooks are converted to normal hooks with auto-generated IDs
+- If a markdown hook and a config hook share the same `id`, the markdown hook wins
+- Duplicate IDs within the same source are errors
+- Tool override matching uses canonical keys, so `"bash"` and `["bash"]` are treated as equivalent
+- Config files are schema-validated; invalid value types (for example `"false"` for a boolean field) make that source invalid
+
+---
+
+## Examples
+
+### Automatically run typecheck, lint, and test (after `task`)
+
+Run validation after certain subagents complete, inject results back into the session, and show a small toast.
+
+```jsonc
+{
+  "tool": [
+    {
+      "id": "validate-after-task",
+      "when": {
+        "phase": "after",
+        "tool": "task",
+        "toolArgs": { "subagent_type": ["engineer", "debugger"] },
+      },
+      "run": ["npm run typecheck", "npm run lint", "npm test"],
+      "inject": "Validation (exit {exitCode})\n\n{stdout}\n{stderr}",
+      "toast": {
+        "title": "Validation",
+        "message": "exit {exitCode}",
+        "variant": "info",
+        "duration": 5000,
+      },
+    },
+  ],
+}
+```
+
+### Run Tests After Any `task` (subagent creation toolcall)
+
+```jsonc
+{
+  "tool": [
+    {
+      "id": "tests-after-task",
+      "when": { "phase": "after", "tool": "task" },
+      "run": ["npm test"],
+      "inject": "Tests (exit {exitCode})\n\n{stdout}\n{stderr}",
+    },
+  ],
+}
+```
+
+### Run Linting After a Specific `write`
+
+Tool-arg matching is exact. This example runs only when the tool arg `path` equals `src/index.ts`.
+
+```jsonc
+{
+  "tool": [
+    {
+      "id": "lint-src-index",
+      "when": {
+        "phase": "after",
+        "tool": "write",
+        "toolArgs": { "path": "src/index.ts" },
+      },
+      "run": ["npm run lint"],
+      "inject": "Lint (exit {exitCode})\n\n{stdout}\n{stderr}",
+    },
+  ],
+}
+```
+
+### Toast Notifications for Build Status
+
+```jsonc
+{
+  "tool": [
+    {
+      "id": "build-toast",
+      "when": { "phase": "after", "tool": "write" },
+      "run": ["npm run build"],
+      "toast": {
+        "title": "Build",
+        "message": "exit {exitCode}",
+        "variant": "info",
+        "duration": 3000,
+      },
+    },
+  ],
+}
+```
+
+### Session Lifecycle Hooks
+
+`session.start` aliases `session.created`; `session.end` and slash-command hooks are not supported.
+
+```jsonc
+{
+  "session": [
+    {
+      "id": "session-start",
+      "when": { "event": "session.start" },
+      "run": ["echo 'New session started'"],
+      "toast": { "title": "Session", "message": "started", "variant": "info" },
+    },
+    {
+      "id": "session-idle",
+      "when": { "event": "session.idle", "excludeSubagentWait": true },
+      "run": ["notify-user.sh 'Waiting for input'"],
+    },
+  ],
+}
+```
+
+`session.idle` hooks run only for root sessions by default, preventing a completed
+subagent's child session from producing a premature idle notification. Set
+`rootSessionOnly` to `false` to run the hook for root and child sessions:
+
+```jsonc
+{
+  "session": [
+    {
+      "id": "every-session-idle",
+      "when": {
+        "event": "session.idle",
+        "rootSessionOnly": false,
+      },
+      "run": ["echo 'Any session idle'"],
+    },
+  ],
+}
+```
+
+For `session.created` and its `session.start` alias, `rootSessionOnly` defaults to
+`false` and can be set to `true` explicitly. Root-only idle filtering identifies
+child sessions through OpenCode's `parentID`; it does not guarantee that no
+background work remains or that OpenCode is specifically waiting for user input.
+If session lookup fails, hooks run without root filtering rather than being
+silently dropped.
+
+`excludeSubagentWait` is opt-in. When true, that `session.idle` hook also waits
+until all active `task` subagent calls for the root session have completed. Other
+idle hooks still run while the parent is waiting on a subagent. This is separate
+from `rootSessionOnly`: one filters child-session events, while the other filters
+parent idle events during active subagent calls.
+
+---
+
+## Template Placeholders
+
+All inject/toast string templates support these placeholders:
+
+| Placeholder  | Description                | Example                    |
+| ------------ | -------------------------- | -------------------------- |
+| `{id}`       | Hook ID                    | `lint-ts`                  |
+| `{agent}`    | Calling agent name         | `orchestrator`             |
+| `{tool}`     | Tool name                  | `write`                    |
+| `{cmd}`      | Executed command           | `npm run lint`             |
+| `{stdout}`   | Command stdout (truncated) | `Linting complete`         |
+| `{stderr}`   | Command stderr (truncated) | `Error: missing semicolon` |
+| `{exitCode}` | Command exit code          | `0` or `1`                 |
+
+---
+
+## Why Use This Plugin?
+
+**It lets you easily set up bash hooks with ~3-5 lines of YAML which are cleanly colocated with your subagent configuration.**
+Conversely, rolling your own looks something like this (for each project and set of hooks you want to set up):
+
+```ts
+import type { Plugin } from "@opencode-ai/plugin";
+
+export const MyHooks: Plugin = async ({ $, client }) => {
+  const argsCache = new Map();
+
+  return {
+    "tool.execute.before": async (input, output) => {
+      if (input.tool === "task") {
+        argsCache.set(input.callID, output.args);
+      }
+    },
+
+    "tool.execute.after": async (input, output) => {
+      if (!output && input.tool === "task") return;
+
+      const args = argsCache.get(input.callID);
+      argsCache.delete(input.callID);
+
+      // Filter by tool and subagent type
+      if (input.tool !== "task") return;
+      if (!["engineer", "debugger"].includes(args?.subagent_type)) return;
+
+      try {
+        // Run commands sequentially, even if they fail
+        let lastResult = { exitCode: 0, stdout: "", stderr: "" };
+
+        for (const cmd of ["npm run typecheck", "npm run lint"]) {
+          try {
+            const result = await $`sh -c ${cmd}`.nothrow().quiet();
+            const stdout = result.stdout?.toString() || "";
+            const stderr = result.stderr?.toString() || "";
+
+            // After capture, report up to 30k chars to match OpenCode's bash tool
+            lastResult = {
+              exitCode: result.exitCode ?? 0,
+              stdout:
+                stdout.length > 30000
+                  ? stdout.slice(0, 30000) +
+                    "\n[Output truncated: exceeded 30000 character limit]"
+                  : stdout,
+              stderr:
+                stderr.length > 30000
+                  ? stderr.slice(0, 30000) +
+                    "\n[Output truncated: exceeded 30000 character limit]"
+                  : stderr,
+            };
+          } catch (err) {
+            lastResult = { exitCode: 1, stdout: "", stderr: String(err) };
+          }
+        }
+
+        // Inject results into session
+        const message = `Validation (exit ${lastResult.exitCode})\n\n${lastResult.stdout}\n${lastResult.stderr}`;
+        await client.session.promptAsync({
+          path: { id: input.sessionID },
+          body: {
+            parts: [{ type: "text", text: message }],
+          },
+        });
+
+        // Show toast notification
+        await client.tui.showToast({
+          body: {
+            title: "Validation",
+            message: `exit ${lastResult.exitCode}`,
+            variant: "info",
+          },
+        });
+      } catch (err) {
+        console.error("Hook failed:", err);
+      }
+    },
+  };
+};
+```

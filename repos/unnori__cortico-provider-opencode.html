@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>unnori/cortico-provider-opencode · OpenCode Plugins</title>
+<meta name="description" content="OpenCode 的模型供应商:默认走 Go 订阅的额度,支持 Responses、Chat、Messages 与 Gemini,内置价目与额度面板。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="cortico-provider-opencode, unnori, unnori/cortico-provider-opencode, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/unnori__cortico-provider-opencode">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="unnori/cortico-provider-opencode · OpenCode Plugins">
+<meta property="og:description" content="OpenCode 的模型供应商:默认走 Go 订阅的额度,支持 Responses、Chat、Messages 与 Gemini,内置价目与额度面板。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/unnori__cortico-provider-opencode">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "unnori/cortico-provider-opencode", "codeRepository": "https://github.com/Unnori/cortico-provider-opencode", "url": "https://opencode-plugins.zhuikan.com/repos/unnori__cortico-provider-opencode", "description": "OpenCode 的模型供应商:默认走 Go 订阅的额度,支持 Responses、Chat、Messages 与 Gemini,内置价目与额度面板。", "author": {"@type": "Organization", "name": "unnori", "url": "https://github.com/Unnori"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-28", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server"}</script>
+</head>
+<body data-repo="unnori/cortico-provider-opencode" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">unnori/cortico-provider-opencode</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="unnori__cortico-provider-opencode"><img class="rp-side-av" src="https://github.com/Unnori.png?s=300" width="300" height="300" alt="unnori avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">cortico-provider-opencode</div>
+      <a class="rp-side-owner" href="https://github.com/Unnori">unnori</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Unnori">unnori</a>
+        <span class="rp-sep">/</span><span class="rp-name">cortico-provider-opencode</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode 的模型供应商:默认走 Go 订阅的额度,支持 Responses、Chat、Messages 与 Gemini,内置价目与额度面板。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-28</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="unnori__cortico-world-opencode-quota"><img class="rp-same-av" src="https://github.com/Unnori.png" alt="" loading="lazy">cortico-world-opencode-quota</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Unnori/cortico-provider-opencode">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.6.3</span><a class="rp-dl-a" href="https://www.npmjs.com/package/cortico-provider-opencode/v/0.6.3">0.6.3 ↓</a><span class="rp-dl-ver">0.6.3</span><span class="rp-dl-date">2026-11-13</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">11</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">cortico-provider-opencode
+
+Owner: src/index.ts
+
+OpenCode 作为供应商:一条端点接 OpenCode Console 网关,options.protocol 选 Responses、Chat Completions、Messages 或 Gemini,
+options.billing 选 Go 订阅(默认)或按量余额。
+
+| 文件 | 内容 |
+|---|---|
+| src/index.ts | ProviderModule:id、档位表、两个选项、create()、prices()、describe、webUi |
+| src/options.ts | 两个选项的值与默认值 |
+| src/address.ts | 从端点地址取网关根,按协议与计费侧拼家族路径 |
+| src/catalog.ts | 模型清单,以及从模型库补的上下文/输出/图片字段 |
+| src/native.ts | Responses / Chat 两个客户端,以及本机消耗账本 |
+| src/anthropic.ts | Messages 客户端与它的 SSE 翻译 |
+| src/gemini.ts | Gemini 客户端与它的 SSE 翻译 |
+| src/identity.ts | User-Agent 与会话头 |
+| src/usage.ts | Go 的额度窗口读取与本机消耗换算 |
+| src/pricing.ts | 按量、Go 两张价目表,以及每个模型的月度额度 |
+| src/webui/server.ts | 「订阅额度」面板的声明与数据面 |
+| src/webui/client.ts | 面板的浏览器入口,dist/webui.js 由它打出来 |
+| src/strings.ts | 端点页与错误信息的文案 |
+| icon.png | 扩展图标,512×512 PNG(cortico.icon) |
+
+ 安装
+
+Coopanion 里:高级模式 →「扩展」→ 填包名 cortico-provider-opencode(可带版本,如 cortico-provider-opencode@0.3.5),装好重启进程。改本地目录时,扩展页填包目录的绝对路径即可挂 link,改完源码同样是重启生效。
+
+- npm:https://www.npmjs.com/package/cortico-provider-opencode
+- 仓库:https://github.com/Unnori/cortico-provider-opencode
+- 许可证:MIT
+
+ 端点
+
+网关根是 https://opencode.ai/inference。地址只用来认网关,家族路径由 options.protocol 决定,计费段由 options.billing 决定,
+所以三条地址都只是&quot;这个网关&quot;的写法,填哪条都一样:
+
+| 填这个 | 含义 |
+|---|---|
+| https://opencode.ai/inference/go/openai/v1 | Go 订阅(默认值) |
+| https://opencode.ai/inference/openai/v1 | 按量余额 |
+| https://opencode.ai/inference | 同上,家族由协议补齐 |
+
+别的地址(自建代理、别的网关)原样使用,不按协议改写。
+
+ 计费账户
+
+options.billing 只有两个值:
+
+- go(默认):走 Go 或 Go Plus 订阅的额度。地址带 /go 段。
+- balance:走 Console 余额,按次计费。地址不带 /go。
+
+额度窗口只对 Go 有;balance 端点没有额度可看,面板会直接说这件事。
+
+ 图片尺寸限制
+
+上游对图片的像素有限制,而超限的图片留在历史里,会让之后每一轮都失败。所以发往上游前会按限制检查,只解析文件头(JPEG SOF / PNG IHDR / WebP VP8X),不解码像素:
+
+| 一次请求里的图片数 | 长边上限 |
+|---|---|
+| 少于 15 张 | 8192 px |
+| 15 张及以上 | 4096 px |
+
+超限的那一张从本次请求里拿掉,消息文字保留,框架改发附件的 fallbackText。历史里的图片同样检查,所以一次超限不会卡住后续对话。文件头读不出来的图片照常发送——猜一个拒绝会丢掉上游本来接受的图。
+
+src/images.ts 的 LONG_SIDE_LIMIT 与 CROWDED_LONG_SIDE_LIMIT 是唯一要改的数字。
+
+ 多把密钥
+
+一个端点可以按顺序用多把密钥,适合「两个 Go 订阅」这类情况。options.keys 写备用密钥的变量名,分号分隔:
+
+
+CORTICO_KEY_KAI;CORTICO_KEY_KAI_2
+
+
+规则:
+
+- 优先用完一把再换:当前密钥被账号拒绝(额度用完、限流、401/403)后才换下一条,而且不回头。被拒意味着那个窗口已经用完,提前切回只会再丢一次缓存。
+- 只有一把时不轮转:只有 entry.secret 一条时,行为与单密钥端点完全一致。
+- 额度读数报当前那把:面板读的是正在使用的密钥的窗口。换了密钥之后要点「立即刷新」才显示新账号的额度。
+- 换密钥会丢一次 prompt 缓存,因为网关的缓存属于填了它的那个账号。
+
+实现方式:401/403 由 onAuthError 前进一位并让框架重试一次,429/5xx 由框架已有的重试循环处理;每次尝试的 headers() 都重新读当前密钥,所以轮转发生在两次尝试之间,而不是每个请求之间。
+
+ 协议
+
+options.protocol:
+
+- chat(默认):POST /chat/completions。Go 侧多数模型(GLM / Kimi / MiniMax / DeepSeek / Qwen-Max)是 Chat 原生,这条路不需要网关翻译。
+- responses:POST /responses。给 Responses 原生的模型(GPT / Grok / Muse)用;思维链按明文回传,不带签名块——网关后面是别家的模型,不能假设加密推理项能往返。
+- anthropic:POST /messages,即 Messages API。回程的 SSE 翻成框架已校验的 Chat 形状,工具调用、终态与计量因此与另外两个方言同路。
+- gemini:POST /models/:generateContent,流式走 :streamGenerateContent?alt=sse。模型名与调用方法都在路径里,所以路径按请求设置。密钥同时以 Authorization: Bearer 与 x-goog-api-key 发出,两边各读自己认的那个。
+
+Console 把每个文本模型翻译到被问的那一套,所以四种协议都覆盖全部文本模型;换协议只改请求形状。
+
+Gemini 要求 contents 以 user 轮结尾,而框架的历史在「一轮以助手消息收尾」</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/Unnori/cortico-provider-opencode/releases"><b>0.6.3</b> <span class="rp-rel-tag">0.6.3</span> <span class="rp-item-extra">2026-11-13</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/unnori__cortico-provider-opencode.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

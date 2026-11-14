@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>whoisay/opencode-footprints · OpenCode Plugins</title>
+<meta name="description" content="侧边栏「足迹」：当前会话的用户提问时间线，支持点击跳转、按日期切换、跟随当前视口、悬停预览。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-footprints, whoisay, whoisay/opencode-footprints, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, other, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/whoisay__opencode-footprints">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="whoisay/opencode-footprints · OpenCode Plugins">
+<meta property="og:description" content="侧边栏「足迹」：当前会话的用户提问时间线，支持点击跳转、按日期切换、跟随当前视口、悬停预览。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/whoisay__opencode-footprints">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "whoisay/opencode-footprints", "codeRepository": "https://github.com/whoisay/opencode-footprints", "url": "https://opencode-plugins.zhuikan.com/repos/whoisay__opencode-footprints", "description": "侧边栏「足迹」：当前会话的用户提问时间线，支持点击跳转、按日期切换、跟随当前视口、悬停预览。", "author": {"@type": "Organization", "name": "whoisay", "url": "https://github.com/whoisay"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-30", "license": "https://spdx.org/licenses/MIT.html", "keywords": "other,server,tui"}</script>
+</head>
+<body data-repo="whoisay/opencode-footprints" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">whoisay/opencode-footprints</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="whoisay__opencode-footprints"><img class="rp-side-av" src="https://github.com/whoisay.png?s=300" width="300" height="300" alt="whoisay avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-footprints</div>
+      <a class="rp-side-owner" href="https://github.com/whoisay">whoisay</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/whoisay">whoisay</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-footprints</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">侧边栏「足迹」：当前会话的用户提问时间线，支持点击跳转、按日期切换、跟随当前视口、悬停预览。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/other">other</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-30</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="whoisay__opencode-go-gauge"><img class="rp-same-av" src="https://github.com/whoisay.png" alt="" loading="lazy">opencode-go-gauge</a><a class="rp-same-link" href="whoisay__opencode-threads"><img class="rp-same-av" src="https://github.com/whoisay.png" alt="" loading="lazy">opencode-threads</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/whoisay/opencode-footprints">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">1.0.4</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-footprints/v/1.0.4">1.0.4 ↓</a><span class="rp-dl-ver">1.0.4</span><span class="rp-dl-date">2026-11-02</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">足迹 · opencode-footprints
+
+OpenCode 侧边栏的用户提问时间线：按日期分组列出当前会话里你说过的每一句，点一下跳回去，滚动时自动跟随，还能按天快速切换。
+
+ 由 huahai0202/opencode-user-timeline 分叉而来，在原版基础上重做了交互与配色。MIT 协议。
+
+---
+
+ 效果
+
+!足迹面板
+
+
+◆ 足迹 (96)
+跨度 1 天 3 小时
+◀ 10-30 ▶  3/3
+01:12 ─ 现在还有什么可以改进的吗
+01:16 ─ 我决定自己建仓库，发布属…
+01:18 ─ 我感觉这个配色不好
+01:24 ─ 算了还是换成最开始那种配…
+01:30 ─ 可以
+01:32 ● 以及我觉得他不应该在右侧…
+
+
+ 功能
+
+| 功能 | 说明 |
+|---|---|
+| 时间线列表 | 按日期分组，固定高度，超出部分滚动 |
+| 点击跳转 | 点任意节点，主会话跳到那条消息 |
+| 当前节点跟随 | 滚动主会话时，圆点自动移到视口对应的那条 |
+| 日期切换 | ◀ / ▶ 在日期之间跳，时间线滚到那天第一条 |
+| 跨度统计 | 显示这段会话跨了多久、共多少条 |
+| 悬停预览 | 鼠标停在节点上，标题下方展开两行完整内容 |
+| 摘要自适应 | 摘要按面板实际宽度截断，不硬编码列数，侧边栏拉宽拉窄都跟得上 |
+| 贴底联动 | 主会话回到底部（如 jump to latest）时，时间线也回到最新 |
+| 可调步长 | 滚轮每格 1/2/3/5 行，用命令切换 |
+| 细滚动条 | 右侧 1 列宽，只在内容超出时出现 |
+
+ 安装
+
+npm / GitHub（发布后）
+
+bash
+opencode plugin add opencode-footprints
+ 或
+opencode plugin add github:你的用户名/opencode-footprints
+
+
+本地目录
+
+opencode.json：
+
+jsonc
+{
+  &quot;plugins&quot;: [&quot;D:/path/to/opencode-footprints&quot;]
+}
+
+
+路径必须是目录（OpenCode 会读目录里的 package.json 和 exports[&quot;./tui&quot;]）。
+
+ 配置
+
+jsonc
+{
+  &quot;plugins&quot;: [
+    {
+      &quot;package&quot;: &quot;opencode-footprints&quot;,
+      &quot;options&quot;: {
+        &quot;visibleRows&quot;: 10,   // 面板固定显示几行，默认 10
+        &quot;scroll&quot;: true       // false = 退回静态显示最新 N 条，不启用滚动区
+      }
+    }
+  ]
+}
+
+
+scroll: false 是给个别 beta 版本留的退路——scrollbox 走原生渲染核心，个别版本上可能不稳定。
+
+ 命令
+
+| 命令 | 快捷键 | 说明 |
+|---|---|---|
+| /footprints | alt+u | 显示 / 隐藏面板 |
+| /footprints-step | — | 循环切换滚轮步长（1 / 2 / 3 / 5 行） |
+
+命令面板里搜「足迹」也能找到这两条。步长设置会持久保存。
+
+ 配色
+
+跟随 OpenCode 当前主题，但会把主题色的饱和度压到 0.28 以下再显示，避免高饱和主题（Dracula、Solarized）刺眼。
+
+| 用途 | 取自主题 | 兜底 |
+|---|---|---|
+| 强调（标题 / 圆点 / 滚动条 / 日期） | text.action.primary 的 selected 状态 | e0a458 琥珀 |
+| 正文 | text.base | ece3d4 暖白 |
+| 悬停摘要 | text.faint | 8a7d6a 暖灰棕 |
+| 次要（时间 / 计数 / 跨度） | text.muted | 9a9088 暖灰 |
+| 分隔线 | border.base | 4a4238 暖灰 |
+| 跳转遮罩 | background.raised.base | 2a2622 暖深灰 |
+
+主题缺字段时退回上面那套暖色兜底，不会退化成纯白或纯黑。面板本身透明，用终端自己的底色。
+
+ 与上游的差异
+
+相对 huahai0202/opencode-user-timeline@0.2.4：
+
+- 滚轮步长：原版插件自建的 scrollbox 没传 scrollAcceleration，退回默认实现（每格 1 行），长会话几乎翻不动（上游 issue 3）。这里传了自定义加速器，并做成可调命令。
+- 当前节点跟随：新增。按 screenY 反查视口顶部对应的用户消息，自动更新圆点；跳转期间抑制，避免刚选中就被弹回。
+- 日期切换：新增。◀/▶ 按分组跳转，用行号计算 scrollTo 位置。
+- 悬停预览：新增。两行、固定高度，不会因为撑高布局而频闪。
+- 贴底联动：新增。主会话回到底部时时间线跟随（边沿触发，手动滚动后 3 秒内不打扰）。
+- 配色：改为暖色系固定色板。
+- 命令：加 footprints. 前缀，新增步长切换。
+
+同时修了上游仓库 main 落后于 npm 的问题（@opencode-ai/plugin → @opencode/plugin），否则源码构建出来加载不了。
+
+ 已知限制
+
+- 依赖宿主渲染结构：当前节点跟随靠 context.renderer.root.findDescendantById 和 screenY。OpenCode 改布局就可能失效，届时跟随会退化成&quot;不更新&quot;而不是报错。
+- 需要 OpenCode 2.x（@opencode/plugin 2.0.x 系列）。
+- 气泡/圆点的位置以视口顶部为准：视口顶部是助手回复时，圆点停在上一条用户消息。
+
+ 开发
+
+bash
+npm install
+npm run build      babel src - dist
+npm run typecheck  tsc --noEmit，babel 不做类型检查
+npm test           node:test，31 + 18 个用例
+npm run verify     typecheck + build + test，发版前跑这个
+
+
+改完 dist 后，OpenCode 会热重载本地插件目录（不行就重启）。
+
+ License
+
+MIT，见 LICENSE。原版版权归原作者。</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/whoisay/opencode-footprints/releases"><b>1.0.4</b> <span class="rp-rel-tag">1.0.4</span> <span class="rp-item-extra">2026-11-02</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/whoisay__opencode-footprints.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

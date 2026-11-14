@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>awsl404/magpie-api-checkin · OpenCode Plugins</title>
+<meta name="description" content="Magpie provider plugin: daily check-in for new-api / one-api / sub2api sites and any custom URL+header+body endpoint, with balance and check-in status on the Usage page">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-api-checkin, awsl404, awsl404/magpie-api-checkin, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/awsl404__magpie-api-checkin">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="awsl404/magpie-api-checkin · OpenCode Plugins">
+<meta property="og:description" content="Magpie provider plugin: daily check-in for new-api / one-api / sub2api sites and any custom URL+header+body endpoint, with balance and check-in status on the Usage page">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/awsl404__magpie-api-checkin">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "awsl404/magpie-api-checkin", "codeRepository": "https://github.com/awsl404/magpie-api-checkin", "url": "https://opencode-plugins.zhuikan.com/repos/awsl404__magpie-api-checkin", "description": "Magpie provider plugin: daily check-in for new-api / one-api / sub2api sites and any custom URL+header+body endpoint, with balance and check-in status on the Usage page", "author": {"@type": "Organization", "name": "awsl404", "url": "https://github.com/awsl404"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-27", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools,server"}</script>
+</head>
+<body data-repo="awsl404/magpie-api-checkin" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">awsl404/magpie-api-checkin</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="awsl404__magpie-api-checkin"><img class="rp-side-av" src="https://github.com/awsl404.png?s=300" width="300" height="300" alt="awsl404 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-api-checkin</div>
+      <a class="rp-side-owner" href="https://github.com/awsl404">awsl404</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/awsl404">awsl404</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-api-checkin</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Magpie provider plugin: daily check-in for new-api / one-api / sub2api sites and any custom URL+header+body endpoint, with balance and check-in status on the Usage page</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-27</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/awsl404/magpie-api-checkin">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">magpie-api-checkin
+
+给 new-api / one-api / sub2api 以及任意自定义接口做每日自动签到的 Magpie 插件。签到由 Magpie 自己的插件签到框架执行：每个账号每个北京日一次、失败自动重试，结果直接显示在 用量（Usage） 页的账号卡片和 设置 → 用量 → 插件 里，卡片上还有余额和手动签到按钮。
+
+- 不需要额外部署服务，也不需要自己写定时器
+- 一个插件、一个供应商卡片，可以登录任意多个站点账号
+- 内置 new-api / one-api / sub2api / sub2api Pro 适配器；其它站点可以用自定义 URL + Header + Body 签到
+- 余额：new-api 按站点 quota_per_unit 换算成美元，sub2api 直接读 USD；自定义接口也能读任意余额字段
+- 可选：登录时一并填写站点的 sk- API Key，就能把这个站点当作普通模型供应商在 Magpie 里使用
+
+ 支持的站点
+
+| 站点类型 | 签到接口（自动探测/使用） | 余额 |
+| --- | --- | --- |
+| new-api、one-api 及常见分支（veloera、done-hub、one-hub、voapi、riX 等） | GET/POST /api/user/checkin；Cookie 凭证时回退 POST /api/user/sign_in | /api/user/self |
+| sub2api（定制签到） | GET /api/v1/user/checkin/status + POST /api/v1/user/checkin | /api/v1/auth/me |
+| sub2api Pro | GET /api/v1/redeem/checkin/status + POST /api/v1/redeem/checkin | /api/v1/auth/me |
+| 自定义接口 | 自己填请求方法、URL、Header、Body；响应规则也可配置 | 可选的自定义余额地址 |
+
+说明：
+
+- sub2api 官方核心没有签到接口。很多站点（Sub2API Pro、天才程序员、FreeAPI 等分支）自己加了签到，插件会按上面的路径自动探测；没有签到的站点会显示「站点没有签到接口」，不会反复失败。
+- 使用完全自定义路径的站点（例如 /checkin/api/checkin、/api/v1/tbe-sponsor-checkin/...）现在不需要改代码：登录时把站点类型选成「自定义接口」，填上路径、Header 和 Body 即可。
+- 插件不会也不应该绕过 Turnstile/验证码：站点要求人机校验时会显示 captcha，请在站点页面手动签到。
+
+ 环境要求
+
+- Magpie 0.1.1421 或更新（插件签到钩子 auth.checkin 在 2026-10-06 加入；0.1.1560 上已核对返回契约）。
+- 不需要 Node/npm；Magpie 自带 Bun 运行插件。仓库里的 node --test 只用于开发测试。
+
+ 安装
+
+从 GitHub 克隆后安装：
+
+bash
+git clone https://github.com/awsl404/magpie-api-checkin.git
+magpie plugin add ./magpie-api-checkin
+
+
+应用内：插件 → 添加插件，填克隆下来的文件夹路径。
+
+本地开发时也可以直接指向源码目录：
+
+bash
+magpie plugin add &quot;D:/path/to/magpie-api-checkin&quot;
+
+
+加载后「插件」页会多出供应商 API 签到。它默认显示 0 models 是正常的：不填 sk- API Key 时它只负责签到和余额。
+
+ 添加站点账号
+
+在「插件」页的 API 签到 那一行点登录（或 magpie plugin login api-checkin），依次回答：
+
+1. 站点地址：https://api.example.com（粘贴带 /v1 或 /api/v1 的地址也可以，会自动去掉）
+2. 站点类型：自动检测 / new-api / sub2api / sub2api Pro / 自定义接口
+3. 用户访问令牌 / JWT / Cookie：见下面「怎么拿令牌」；自定义接口可以留空
+4. 账号备注（可选）：例如 主站-Alice；留空会用用户名
+5. 用户 ID（可选）：部分 one-api 分支要求 New-API-User 头，登录报「未提供用户 ID」时填这里
+6. 站点 API Key（可选）：sk-…；只影响「能不能在 Magpie 里调用该站模型」，不影响签到
+7. 如果站点类型选了 自定义接口，还会继续问自定义签到和余额的字段（见下一节）
+
+内置类型在登录时会立即访问站点校验令牌，并自动识别平台（new-api / sub2api / sub2api Pro）。自定义接口不做强制探测，但会顺手尝试识别 new-api/sub2api；识别成功时账号名和余额会自动沿用，识别失败也不影响自定义签到。
+
+ new-api / one-api 的访问令牌
+
+浏览器登录站点后任选一种：
+
+- 站点页面 → 右上角头像 → 个人设置 / 控制台 → 访问令牌（有的版本叫「系统访问令牌」）→ 复制
+- 或按 F12 → Application → Local Storage → 找 token / user 之类的键，复制令牌值（通常是 eyJ... 的 JWT）
+- 只认 Cookie 的站点，可以直接把 session=...（或 token=...）整段 Cookie 粘贴到令牌栏
+
+ sk- 开头的是 API Key，不是用户访问令牌，不能用来签到；它应该填在最后的可选 API Key 一栏。
+
+ sub2api 的 JWT
+
+浏览器登录站点 → F12 → Application → Local Storage → 复制 access_token（或 token）的值（JWT）。sub2api 的 JWT 有有效期，过期后重新登录一次即可。
+
+ 自定义接口签到（任意站点）
+
+站点类型选「自定义接口」后，插件会多问下面这些字段。所有字段都可以用 {占位符}。
+
+| 字段 | 说明 |
+| --- | --- |
+| 请求方法 | POST（最常用）、GET、PUT、PATCH、DELETE。GET 不会带请求体 |
+| 接口地址 | 相对路径（/api/user/checkin）或完整 URL（https://other.example/checkin） |
+| 请求头（可选） | JSON 对象，或 Key: Value; Key2: Value2，或直接粘一整段 Cookie（session=...; acw_tc=...） |
+| 请求体（可选） | JSON（{&quot;a&quot;:1}）、表单（a=1&amp;b=2）或纯文本；会自动设置 Content-Type |
+| 成功关键</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/awsl404__magpie-api-checkin.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

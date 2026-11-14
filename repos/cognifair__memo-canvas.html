@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cognifair/memo-canvas · OpenCode Plugins</title>
+<meta name="description" content="墨兰迪 Memo-Canvas：表格制作与扫描学习图像处理，支持原样保留、传统高清化和忠实重绘。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="memo-canvas, cognifair, cognifair/memo-canvas, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-canvas">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cognifair/memo-canvas · OpenCode Plugins">
+<meta property="og:description" content="墨兰迪 Memo-Canvas：表格制作与扫描学习图像处理，支持原样保留、传统高清化和忠实重绘。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-canvas">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cognifair/memo-canvas", "codeRepository": "https://github.com/Cognifair/memo-canvas", "url": "https://opencode-plugins.zhuikan.com/repos/cognifair__memo-canvas", "description": "墨兰迪 Memo-Canvas：表格制作与扫描学习图像处理，支持原样保留、传统高清化和忠实重绘。", "author": {"@type": "Organization", "name": "cognifair", "url": "https://github.com/Cognifair"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-15", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="cognifair/memo-canvas" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cognifair/memo-canvas</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cognifair__memo-canvas"><img class="rp-side-av" src="https://github.com/Cognifair.png?s=300" width="300" height="300" alt="cognifair avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">memo-canvas</div>
+      <a class="rp-side-owner" href="https://github.com/Cognifair">cognifair</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Cognifair">cognifair</a>
+        <span class="rp-sep">/</span><span class="rp-name">memo-canvas</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">墨兰迪 Memo-Canvas：表格制作与扫描学习图像处理，支持原样保留、传统高清化和忠实重绘。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="cognifair__memo-ankitransfer"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-ankitransfer</a><a class="rp-same-link" href="cognifair__memo-cardest"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-cardest</a><a class="rp-same-link" href="cognifair__memo-cardlink"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-cardlink</a><a class="rp-same-link" href="cognifair__memo-mineruocr"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-mineruocr</a><a class="rp-same-link" href="cognifair__memo-qahelper"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-qahelper</a><a class="rp-same-link" href="cognifair__memo-txtimporter"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-txtimporter</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Cognifair/memo-canvas">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">14</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">墨兰迪 Memo-Canvas v2.1.1
+
+ 🌐 墨卡大师 · 专业制卡工作流
+
+原 Memo-Table，现统一为表格制作与学习图像视觉处理技能。保留六款表格输出，新增扫描图片公式、数学图、化学结构和流程图的三档处理。调用名为 $memo-canvas，旧 $memo-table 通过本地兼容入口转入。版本以 SKILL.md 为准。
+
+ 图片三档处理
+
+遇到待处理图片先问：“您的任务中包括图片公式、化学结构，需要怎么处理？”
+
+1. 直接原样上传
+2. 用墨兰迪简单高清化（更快，不使用大模型重绘）
+3. 用墨兰迪精美重绘
+
+选项保留用户指定文案，但本技能本身只交付本地文件，不实际上传。纯文本制表不问图片选项。精美重绘按内容分工：一般图与流程图用 SVG，数学图可用 SVG/TikZ，化学结构可识别后交由 RDKit 绘图；再调字号、线宽、间距并分别核验语义与视觉。流程图先核对节点、箭头、条件和回路，不为好看改连接。
+
+重绘准入是硬规则： 没有源图/清晰裁切、当前模型不能看图、不能先出一张代表图、不能执行碰撞/箭头/标注审计时，只能原样或高清化；不得仅凭文字描述自由编造机构图或流程图，再把示意图说成“忠实重绘”。详细检查表见 重绘准入与交付闸门。
+
+scripts/image_pipeline.py 提供原样复制、Pillow 传统增强、已知 SMILES/Molfile 的 RDKit 绘图。scripts/canvas.py 新增隔离安装、自检、MathJax 公式渲染、Graphviz WASM 流程图布局及 SVG→PNG；另有 MolScribe、DECIMER、pix2tex 可选识别适配器，未捆绑模型权重，真实推理需另验，DeTikZify 未接入。不绑定 OpenAI，低清图片无法辨认的内容不会自动猜补。具体命令与依赖见 可执行工具链，审查流程见 重绘流程 和 流程图流程。
+
+化学结构硬门槛： 画有机结构/反应式前必须运行 python scripts/canvas.py doctor --require rdkit；非 0 就直接停止并安装/激活隔离运行时，不得用系统 Python、手写 SVG 或只靠 OCR 文本拼结构。图片转结构还需要真实可运行的 MolScribe/DECIMER 模型；没有就要求用户提供 SMILES/Molfile，或退回原样/高清化。
+
+只允许稳定 CLI： 表格、图片、公式、流程图都走 canvas.py / image_pipeline.py / render_table.cjs 的已列命令，不临时写 figgen.py、手拼 SVG/HTML 或自由画机构图。入口和退出码见 CLI 契约。
+
+ 六种样式
+
+| 样式 | 实现 | 结构 |
+|---|---|---|
+| 墨墨风·圆角（rounded） | scripts/render_table.cjs；复杂结构另做非锁定布局适配 | 现有 JSON：单层表头、等长行数组；合并与层级另做适配验收 |
+| 产品表格·指标卡（table） | scripts/locked/render.cjs | 固定：4 列 + 2 个指标 |
+| 市场份额对比（comparison） | scripts/locked/render.cjs | 固定：5 列（标签、3 值、差值） |
+| 销售列表·透明底（sales） | scripts/locked/render.cjs | 固定：6 个字段 |
+| LaTeX 三线表 | 直接输出代码 | 仅三条横线 |
+| LaTeX 网格表 | 直接输出代码 | 有竖线、逐行横线 |
+
+选型方式：先根据材料的合并关系、表头层级、列语义和文本密度，说明各样式“推荐 / 有条件推荐 / 不推荐”的原因，再展示预览供选择。rounded 结构匹配时用用户数据渲染；复杂合并表可先做同风格的非锁定适配小样。锁定三款展示明确标注的示例，不硬套字段或补造指标。已指定样式不重复询问，但仍检查适配性。
+
+圆角墨墨简约风可作为图片路线的通用布局方向；这不表示现有 JSON 渲染器原生支持所有复杂表格。按需调整非锁定布局后，仍需检查合并范围、表头层级与阅读效果。详见 材料适配说明。
+
+ 安装与使用
+
+适合把文字或表格制作成图片/代码，以及改善扫描学习图的呈现；不负责知识拆解、Markji 账户操作或 TXT 文件容器。表格图片渲染需 Node.js、Playwright、Chrome/Edge 和字体；传统高清化需 Pillow，分子绘图需 RDKit，识图另需实际可用的模型。不会自动安装大型模型或上传图片。
+
+仓库由 Cognifair/memo-table 更名为 Cognifair/memo-canvas，保留原提交历史与旧版本标签。将仓库克隆到客户端技能目录，文件夹名为 memo-canvas：
+
+text
+git clone https://github.com/Cognifair/memo-canvas.git memo-canvas
+
+
+已有旧版安装时先备份本地改动，再将技能文件夹由 memo-table 更名为 memo-canvas，并将 origin 更新为新地址；不要仅在旧目录里拉取后假设目录名已自动改变。旧名称可用于自然语言识别；$memo-table 的本地转接入口需单独保留，并非本仓库自动安装。以下是新入口的调用示例：
+
+text
+使用 $memo-canvas 处理这张扫描图，先让我选择图片处理方式。
+
+
+Codex / WorkBuddy 安装或更新后新开会话或重启客户端。使用时可直接说：
+
+ 使用 $memo-canvas，把这份概念对照表做成圆角图片；先判断材料结构是否需要布局适配。
+
+主要目录：SKILL.md 为入口；references/tables.md 保留原表格流程，其他 references 按需说明图像重绘、流程图与 LaTeX；scripts/ 为绘图及测试入口；scripts/locked/ 保持原样，不随品牌改名修改。
+
+ 直角墨墨风（square）已在 v1.2.0 取消。
+
+ table、comparison 是不透明浅灰绿背景；rounded、sales 是透明底。
+
+ 圆角路线（通用结构）
+
+json
+{
+  &quot;title&quot;: &quot;概念对照&quot;,
+  &quot;style&quot;: &quot;rounded&quot;,
+  &quot;headers&quot;: [&quot;项目&quot;, &quot;概念 A&quot;, &quot;概念 B&quot;],
+  &quot;rows&quot;: [[&quot;特征&quot;, &quot;说明 A&quot;, &quot;说明 B&quot;]]
+}
+
+
+text
+node scripts/render_table.cjs input.json output.png output.html
+
+
+默认 2000 px 宽；可选 width、fontFamily、theme（accent/light/deep/white）。该脚本只处理 rounded，其它样式会提示改用锁定渲染器。Playwright 会自动查找 Codex 运行时、技能目录和当前工作区的 node_modules；仍找不到时才需要设置 NODE_PATH 或 M</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cognifair__memo-canvas.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

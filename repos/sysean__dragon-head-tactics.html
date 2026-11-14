@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sysean/dragon-head-tactics · OpenCode Plugins</title>
+<meta name="description" content="A股龙头战法 Agent Skill：情绪周期量化、板块龙与情绪龙判定、八大分歧买点、游资席位实证、唯一最高标回测｜Works with Hermes, Claude Code, Codex, Gemini CLI, Cursor, Copilot">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="dragon-head-tactics, sysean, sysean/dragon-head-tactics, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/sysean__dragon-head-tactics">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="sysean/dragon-head-tactics · OpenCode Plugins">
+<meta property="og:description" content="A股龙头战法 Agent Skill：情绪周期量化、板块龙与情绪龙判定、八大分歧买点、游资席位实证、唯一最高标回测｜Works with Hermes, Claude Code, Codex, Gemini CLI, Cursor, Copilot">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/sysean__dragon-head-tactics">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "sysean/dragon-head-tactics", "codeRepository": "https://github.com/sysean/dragon-head-tactics", "url": "https://opencode-plugins.zhuikan.com/repos/sysean__dragon-head-tactics", "description": "A股龙头战法 Agent Skill：情绪周期量化、板块龙与情绪龙判定、八大分歧买点、游资席位实证、唯一最高标回测｜Works with Hermes, Claude Code, Codex, Gemini CLI, Cursor, Copilot", "author": {"@type": "Organization", "name": "sysean", "url": "https://github.com/sysean"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-21", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="sysean/dragon-head-tactics" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">sysean/dragon-head-tactics</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="sysean__dragon-head-tactics"><img class="rp-side-av" src="https://github.com/sysean.png?s=300" width="300" height="300" alt="sysean avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">dragon-head-tactics</div>
+      <a class="rp-side-owner" href="https://github.com/sysean">sysean</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/sysean">sysean</a>
+        <span class="rp-sep">/</span><span class="rp-name">dragon-head-tactics</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">A股龙头战法 Agent Skill：情绪周期量化、板块龙与情绪龙判定、八大分歧买点、游资席位实证、唯一最高标回测｜Works with Hermes, Claude Code, Codex, Gemini CLI, Cursor, Copilot</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>7</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-21</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/sysean/dragon-head-tactics">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">7</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">龙头战法 · Dragon Head Tactics
+
+A 股短线交易体系的 Agent Skill —— 情绪周期择时、七大分歧买点、游资席位实证、唯一最高标回测。
+
+一个 SKILL.md + 三个 Python 脚本，装进任何会读文件、会跑命令的 AI Agent 里，
+它回答「龙头是谁 / 现在能不能打板 / 这只票游资怎么看 / 帮我回测一下」时，会先跑数据再给条件，而不是背诵话术。
+
+
+
+
+
+
+
+
+
+ ⚠️ 本项目是研究框架与复盘工具，不构成投资建议。游资手法是概率与择时体系，不是可机械复制的买入信号。
+
+---
+
+ 这是什么
+
+A 股「龙头战法」的完整作业手册，把赵老哥、章盟主、炒股养家、陈小群、作手新一、佛山系、欢乐海岸、
+一瞬流光（光神）等游资的公开体系，整理成可判定的规则，再用 Tushare 的真实席位数据做检验：
+
+- 共识层：只做龙头 / 买在分歧卖在一致 / 情绪定仓位 / 只做主升 / 模式单一 / 错了就走。
+- 择时：情绪周期六阶段（冰点 → 启动 → 发酵 → 高潮 → 分歧 → 退潮），每档给量化信号与仓位。
+- 买点：七大分歧买点（二板分歧转一致、烂板弱转强、分歧回封、首阴反包、分歧低吸、龙头分离、N 型反包）+ 两个窄场景（三点共振、转势板）。
+- 实证：hm_list ∩ top_inst 席位口径，算出每个游资真实的上榜日、买在涨停日的比例、次日表现、板位分布。
+- 回测：「只买市场唯一最高标」的逐笔回测，含五种卖法敏感性、一字板门槛、未来函数偏差折算。
+- 输出结构：给定一只票时的固定六段式点评；手里有持仓时「先处置、再谈新标的」的处理路径。
+
+ 能接哪些 AI
+
+SKILL.md 就是带 YAML frontmatter 的 Markdown，脚本只依赖 python3 + tushare + pandas，不绑定任何厂商的私有格式。
+
+| Agent | 装到哪 | 一句话接入 |
+|---|---|---|
+| Hermes Agent | ~/.hermes/skills/research/ | 原生技能目录，放进去即被索引 |
+| Claude Code | ~/.claude/skills/ | 原生 Agent Skill 目录，/skills 可见 |
+| Codex CLI / ChatGPT | 项目根 AGENTS.md 里引用 | 「涉及 A 股短线时先读 SKILL.md 并照做」 |
+| Gemini CLI | 项目根 GEMINI.md 里引用 | 同上 |
+| Cursor | .cursor/rules/dragon-head.mdc | 规则文件指向 SKILL.md |
+| GitHub Copilot | .github/copilot-instructions.md | 同上 |
+| 其他（OpenCode / Cline / Windsurf / 自建 Agent） | 任意位置 | 能读文件 + 能跑 shell 就能用 |
+
+bash
+git clone https://github.com/sysean/dragon-head-tactics.git
+cd dragon-head-tactics
+
+ Hermes
+cp -r . ~/.hermes/skills/research/yz-dragon-head-tactics
+ Claude Code
+mkdir -p ~/.claude/skills &amp;&amp; cp -r . ~/.claude/skills/yz-dragon-head-tactics
+
+
+接进其他 Agent，把下面这段贴进 AGENTS.md / GEMINI.md / Cursor 规则即可：
+
+markdown
+ 龙头战法
+遇到 A 股短线、龙头、打板、游资、涨停复盘相关问题时，先读 dragon-head-tactics/SKILL.md，
+按其「先跑脚本拿数据、再按固定结构输出」的要求作答；数据源一律 Tushare Pro，输出必须带免责声明。
+
+
+ 快速开始
+
+bash
+python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt
+
+export TUSHARE_TOKEN=你的token         https://tushare.pro/register
+
+
+bash
+ 1) 全游资席位画像：上榜日 / 买在涨停日 / 次日表现 / 板位分布
+python3 scripts/query_hot_money_roster_profile.py --start 20260401 --end 20261016
+
+ 2) 单游资画像（默认一瞬流光）
+python3 scripts/query_hot_money_seat_profile.py --name 一瞬流光 --months 6
+
+ 3) 唯一最高标打板回测：五种卖法 + 逐笔明细
+python3 scripts/backtest_unique_top_board.py --start 20260701 --end 20261020 --trades
+
+
+结果会缓存在 ~/.hermes/cache/（可按需改成任意目录），重复区间几乎秒出。
+
+ 目录
+
+
+.
+├── SKILL.md                      主技能文件（11 节 + Pitfalls）
+├── references/
+│   ├── roster.md                 游资名录、语录、心法、接力口诀
+│   ├── roster-profile.md         批量实证原始表与逐条解读
+│   ├── seats-verified.md         席位核对结果
+│   ├── yu-lu.md                  语录汇编
+│   ├── unique-top-board-backtest.md    回测口径、逐笔与记账坑
+│   └── after-hours-selection.md  盘后定标的的算法与代码配方
+├── scripts/
+│   ├── query_hot_money_roster_profile.py    多游资批量画像
+│   ├── query_hot_money_seat_profile.py      单游资画像
+│   └── backtest_unique_top_board.py         唯一最高标回测
+├── assets/                       logo、AI 接入条、社交预览图
+└── requirements.txt
+
+
+ 数据口径（重要）
+
+- 数据源一律 Tushare Pro：hm_list（游资名录）、top_inst（席位明细）、limit_list_d（涨停池）、daily、stk_limit。
+- 席位 = 该营业部的合计成交，一个营业部可承载多个账户；游资大量操作不触发上榜条</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/sysean__dragon-head-tactics.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

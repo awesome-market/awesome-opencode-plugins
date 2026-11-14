@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sheauhuu/magpie-ctyun-coding-plan · OpenCode Plugins</title>
+<meta name="description" content="天翼云息壤「ctyun」Coding Plan 的 MAGPIE 供应商插件，支持仅 API Key 接入、可选网页登录、模型发现与原生额度窗口。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-ctyun-coding-plan, sheauhuu, sheauhuu/magpie-ctyun-coding-plan, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/sheauhuu__magpie-ctyun-coding-plan">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="sheauhuu/magpie-ctyun-coding-plan · OpenCode Plugins">
+<meta property="og:description" content="天翼云息壤「ctyun」Coding Plan 的 MAGPIE 供应商插件，支持仅 API Key 接入、可选网页登录、模型发现与原生额度窗口。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/sheauhuu__magpie-ctyun-coding-plan">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "sheauhuu/magpie-ctyun-coding-plan", "codeRepository": "https://github.com/sheauhuu/magpie-ctyun-coding-plan", "url": "https://opencode-plugins.zhuikan.com/repos/sheauhuu__magpie-ctyun-coding-plan", "description": "天翼云息壤「ctyun」Coding Plan 的 MAGPIE 供应商插件，支持仅 API Key 接入、可选网页登录、模型发现与原生额度窗口。", "author": {"@type": "Organization", "name": "sheauhuu", "url": "https://github.com/sheauhuu"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,server"}</script>
+</head>
+<body data-repo="sheauhuu/magpie-ctyun-coding-plan" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">sheauhuu/magpie-ctyun-coding-plan</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="sheauhuu__magpie-ctyun-coding-plan"><img class="rp-side-av" src="https://github.com/sheauhuu.png?s=300" width="300" height="300" alt="sheauhuu avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-ctyun-coding-plan</div>
+      <a class="rp-side-owner" href="https://github.com/sheauhuu">sheauhuu</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/sheauhuu">sheauhuu</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-ctyun-coding-plan</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">天翼云息壤「ctyun」Coding Plan 的 MAGPIE 供应商插件，支持仅 API Key 接入、可选网页登录、模型发现与原生额度窗口。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/sheauhuu/magpie-ctyun-coding-plan">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.3.1</span><a class="rp-dl-a" href="https://www.npmjs.com/package/magpie-ctyun/v/0.3.1">0.3.1 ↓</a><span class="rp-dl-ver">0.3.1</span><span class="rp-dl-date">2026-11-05</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">天翼云 Coding Plan
+
+天翼云 Coding Plan 的 magpie 供应商插件。可仅使用 API Key 调用模型；需要官方模型发现和 5 小时／周／套餐总量三个额度窗口时，可选择密码登录（保存或不保存密码），有桌面的环境也可选择浏览器单点登录。
+
+供应商显示名称为「天翼云 Coding Plan」，包名为 magpie-ctyun-coding-plan。图标采用 eaichat.ctyun.cn 官网 favicon 的原始文件，嵌入插件元数据，显示时无需访问官网。当前 magpie 的“已安装插件”列表标题仍由宿主按包名或目录名生成。
+
+ 安装
+
+需要在运行 magpie 的主机／容器中安装插件。插件由 magpie 的 Bun 宿主运行；Node.js 22+ 用于本地开发和测试。
+
+sh
+git clone https://github.com/sheauhuu/magpie-ctyun-coding-plan.git
+cd magpie-ctyun-coding-plan
+npm install
+magpie plugin add &quot;$PWD&quot;
+magpie plugin login ctyun-coding-plan
+
+
+也可在 magpie 的「插件 → 添加插件」中填写本地仓库的绝对路径，然后选择供应商登录。
+
+浏览器登录需要 magpie 所在主机有可操作的图形桌面，优先使用该主机已安装的 Chrome，但使用独立的临时登录上下文。没有 Chrome 时可安装专用 Chromium：
+
+sh
+npm run browser:install
+
+
+通过浏览器访问服务器的 magpie 页面，不会把官网认证窗口打开在客户端电脑上。无桌面的 Linux／Docker 可选择「账号密码登录」，在“是否保存密码”处选择“否”，或仅使用 API Key；这两种用法无需安装 Chrome、Playwright 或系统凭据服务。
+
+本项目尚未发布 npm 包；使用本地目录安装，不要把仓库名称当作已发布的 npm 包名。
+
+ 三种接入方式
+
+ 仅 API Key（不查询额度）
+
+1. 选择「仅 API Key（不查询额度）」。
+2. 填写账号名称和 Coding Plan API Key，保存后即可调用模型，无需网页登录、账号密码或套餐 ID。
+3. 使用插件内置的模型清单；不访问官网模型列表、额度或单点登录接口，也不访问系统凭据库。额度状态为「仅 API Key（未启用额度查询）」，不报告额度错误或虚构剩余额度。
+
+此模式不测试 Key 是否有效，不消耗套餐发起试用请求；真实调用由天翼云验证 Key。没有套餐用量数据，magpie 无法依据本账号的三个额度窗口进行预先分流，仍可使用模型自动分组和常规请求失败处理。
+
+ 浏览器单点登录（不保存密码，需要图形桌面）
+
+1. 填写账号名称、Coding Plan API Key；只有一个有效套餐时，套餐 ID 留空。
+2. 插件打开专用 Chromium 登录窗口，在天翼云官方网站完成登录。可使用官网提供的账号密码、扫码等方式；验证码由用户在官网完成。
+3. 登录成功后，窗口自动关闭，插件保存 Cookie 会话，不保存账号密码。
+4. 助手 Cookie 失效时，优先通过仍有效的 IAM 单点登录会话恢复；IAM 会话也失效时，提示重新选择浏览器登录。
+
+专用窗口使用临时浏览器上下文，与日常 Chrome 的登录状态独立，不会读取日常浏览器的密码或 Cookie。已有插件会话的正常续期通过 HTTP 完成，不会定时弹出浏览器。
+
+ 账号密码登录
+
+1. 填写账号名称、Coding Plan API Key、天翼云账号；只有一个有效套餐时，套餐 ID 留空。
+2. 在输入密码前选择“是否保存密码用于自动重登”：否，不保存密码 或 是，保存到系统凭据库。
+3. 输入密码后，插件通过官方 HTTP 接口完成登录，确认可以读取模型清单，并保存 Cookie／IAM 会话供模型发现和额度查询使用；无需浏览器。
+
+选择“否”时，不读写系统凭据库、不创建密码文件，适用于 headless Linux 和 Docker。密码仅用于本次登录，完成或失败后清空输入引用；IAM 会话也失效后需再次输入密码。若此前同名账号保存过系统密码，旧条目不会被删除，但新的登录会话不再引用它。
+
+选择“是”时，账号密码保存在系统凭据库，magpie 登录数据仅保存引用，不保存密码或密码哈希。会话失效时先尝试 IAM 单点登录恢复，无法恢复时使用保存的密码重登。系统凭据库使用 macOS Keychain、Windows Credential Manager，或 Linux Secret Service；Linux 需要可用且已解锁的凭据服务。凭据库不可用时会明确提示，可重新登录并选择“否”；不会静默降级或将密码写到文件。
+
+当前 magpie 的原生插件表单采用分步选项，“是否保存”使用是／否选择，未增加自定义页面或复选框。已有登录方式索引保持 0 仅 Key、1 浏览器、2 密码；调用登录接口时，save_password=yes 才保存密码，no 或未传该值均不保存。已有保存密码的会话继续使用原来的系统凭据库引用。
+
+触发图形验证码、短信验证、密码错误或凭据缺失时，自动重登会停止，提示用户重新登录；不会持续尝试错误密码。切换同名账号到浏览器登录后，不再使用保存的密码，并尝试移除旧凭据。如果系统凭据库不可用，浏览器登录仍可完成；可在系统凭据库恢复后用下文命令移除旧密码。
+
+ 先填 Key，以后再登录／关闭额度查询
+
+无需删除账号。在同一供应商中再次发起登录，选择账号密码登录或浏览器登录，填写完全相同的账号名称和原 API Key，完成官网认证即可启用模型发现与额度查询。magpie 会更新原账号，保留原账号槽位和其他账号；登录失败则保留原记录。宿主没有向插件登录表单提供已保存 Key 的读取接口，所以补登录时仍需重新填写 Key。若想新增独立账号，请使用不同名称。
+
+已启用额度查询后，也可用相同名称和原 Key 重新选择「仅 API Key」，关闭该账号的网页登录与额度查询。它不会自动删除以前保存在系统凭据库中的密码；需要清除密码时使用下文的凭据移除命令。
+
+ API Key 与网页登录的区别
+
+三种方式都需要 Coding Plan API Key；网页登录只在启用模型发现和额度查询时需要：
+
+| 凭证 | 用途 | 保存位置 |
+| --- | --- | --- |
+| Coding Plan API Key | 模型推理调用 | magpie 的插件登录存储 |
+| Cookie／IAM 会话 | 获取官方模型列表、查询套餐额度 | magpie 的插件登录存储 |
+| 账号密码（不保存模式） | 本次官网登录 | 登录完成／失败后不保留 |
+| 账号密码（保存模式） | 会话无法恢复时重新登录 | 系统凭据库 |
+
+API Key、Cookie／IAM 会话没有由插件额外加密，应将 magpie 的登录存储及其备份视为敏感文件。请勿提交、同步到公开</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/sheauhuu/magpie-ctyun-coding-plan/releases"><b>0.3.1</b> <span class="rp-rel-tag">0.3.1</span> <span class="rp-item-extra">2026-11-05</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/sheauhuu__magpie-ctyun-coding-plan.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>npm/dsh-opencode-palette · OpenCode Plugins</title>
+<meta name="description" content="npm/dsh-opencode-palette — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="dsh-opencode-palette, npm, npm/dsh-opencode-palette, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/npm__dsh-opencode-palette">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="npm/dsh-opencode-palette · OpenCode Plugins">
+<meta property="og:description" content="npm/dsh-opencode-palette — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/npm__dsh-opencode-palette">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "npm/dsh-opencode-palette", "codeRepository": "https://www.npmjs.com/package/dsh-opencode-palette", "url": "https://opencode-plugins.zhuikan.com/repos/npm__dsh-opencode-palette", "description": "npm/dsh-opencode-palette — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "npm", "url": "https://www.npmjs.com"}, "isAccessibleForFree": true, "dateCreated": "2026-08-15"}</script>
+</head>
+<body data-repo="npm/dsh-opencode-palette" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">npm/dsh-opencode-palette</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="npm__dsh-opencode-palette"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+RDwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">dsh-opencode-palette</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com">npm</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com">npm</a>
+        <span class="rp-sep">/</span><span class="rp-name">dsh-opencode-palette</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>105</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-08-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/dsh-opencode-palette">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">105</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">6</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">51</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">4</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">🎨 dsh-opencode-palette
+
+
+
+🌐 中文 · English
+
+38 款配色，一键给 DSH 换装。
+
+38 themes for DSH, one click.
+
+你的 ⭐ 是我夜空中最亮的星。
+
+
+
+
+
+
+
+
+
+
+SHOWCASE真实效果
+
+
+
+---
+
+本插件为您有更好的DSH体验而生💗
+
+| 主界面（opencode 主题） | 设置面板（38 款按色系分组） |
+|---|---|
+| !OpenCode调色板 — 主界面（opencode 主题） | !OpenCode调色板 — 设置面板（按色系分组） |
+
+| 自定义编辑器（37 个颜色） | IP 主题胶囊：原神（浅色） |
+|---|---|
+| !OpenCode调色板 — 自定义编辑器（37 个颜色） | !OpenCode调色板 — IP 主题胶囊：原神 |
+
+| IP 主题胶囊：库洛米（浅色） | IP 主题胶囊：哆啦A梦（浅色） |
+|---|---|
+| !OpenCode调色板 — IP 主题胶囊：库洛米 | !OpenCode调色板 — IP 主题胶囊：哆啦A梦 |
+
+| IP 主题胶囊：哈利波特（深色） | IP 主题胶囊：赛博朋克2077（深色） |
+|---|---|
+| !OpenCode调色板 — IP 主题胶囊：哈利波特 | !OpenCode调色板 — IP 主题胶囊：赛博朋克2077 |
+
+| 经典主题：德古拉（深色） | IP 主题胶囊：龙珠（浅色） |
+|---|---|
+| !OpenCode调色板 — 经典主题：德古拉 | !OpenCode调色板 — IP 主题胶囊：龙珠 |
+
+
+
+
+
+INSTALL三步上手
+
+bash
+ ① 还没装 DSH CLI 先装（已装跳过）
+npm install -g @deepseek-ai/dsh
+
+ ② 把插件装进你的 profile
+dsh plugin --profile web add dsh-opencode-palette
+
+ ③ 装完重启 DSH（或刷新浏览器页面）
+
+
+① 装好插件。
+
+② 打开「OpenCode调色板」。 设置 → 插件 → OpenCode调色板
+
+③ 挑一个喜欢的主题。
+
+DEMO基础使用演示
+
+
+基础使用演示：点开看 7 段操作视频
+
+
+安装插件
+
+跟着视频一次装好插件并重启生效。
+
+https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
+
+1. 跑 dsh plugin --profile web add dsh-opencode-palette 把插件装进你的 profile。
+2. 重启 DSH（或刷新浏览器页面）。
+3. 打开「OpenCode调色板」，确认面板能打开。
+
+
+
+---
+
+
+设置字体字号
+
+分清等宽与常规两种字体，字号 11–24 px 随手调。
+
+https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
+
+1. 打开设置面板，找到字体与字号两处。
+2. 等宽把整个界面换成等宽字，常规只让代码块用等宽。
+3. 字号在 11–24 px 之间拖到看着舒服为止。
+
+
+
+---
+
+
+选择主题
+
+一键挑中喜欢的主题，界面立即换装。
+
+https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
+
+1. 打开「OpenCode调色板」，按色系浏览 38 款配色。
+2. 点中喜欢的那一款，界面立即换装。
+3. 不满意再点另一款，随时可换。
+
+
+
+---
+
+
+新增自定义主题
+
+37 个颜色逐个调，右边预览实时联动，存成专属胶囊。
+
+https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
+
+1. 点新增，37 个颜色逐个调，右边预览实时联动。
+2. 点预览里的元素，左边对应那行会滚到中间并打开取色器。
+3. 存好后胶囊落在 /opencode-palette/custom-themes/ 里。
+
+
+
+---
+
+
+编辑自定义主题
+
+回来改存好的胶囊，改完界面即时换上新配色。
+
+https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
+
+1. 打开存好的自定义主题，进编辑。
+2. 改要动的颜色，预览里即时看效果。
+3. 保存，界面即时换上新的配色。
+
+
+
+---
+
+
+删除自定义主题
+
+删掉不想要的胶囊，删前确认，删后可以重建。
+
+https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
+
+1. 选中不想要的自定义主题，点删除。
+2. 确认删除，胶囊从列表里消失。
+3. 后悔了照新增那条重建一个。
+
+
+
+---
+
+
+AI 编辑自定义主题
+
+一句话让 AI 改色，不用逐个手调。
+
+https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
+
+1. 打开自定义主题的 AI 编辑入口。
+2. 一句话说清想要的配色，比如“暖一点的暗色”。
+3. 看预览，满意就保存，不满意再说一句。
+
+
+
+
+
+EXTENSIONSOpenCode 主题之外提供的功能
+
+| 能力 | 说明 |
+|---|---|
+| IP 主题胶囊 | 预置 25 套：原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。 |
+| 打造专属胶囊 | 37 个颜色逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的颜色，右边预览里那个元素会亮起一圈。存好的胶囊落在 /opencode-palette/custom-themes/。 |
+| 字体与字号 | 字体独立于颜色：等宽（终端风）把整个界面换成等宽字，常规（界面风）只让代码块用等宽；字号 11–24 px，代码字体可以直接从本机已装字体里挑。 |
+
+UPGRADE升级
+
+bash
+ 升级到最新版（当前 2.1.13）：web 与 desktop 两个 profile 各跑一条
+dsh plugin --profile web update dsh-opencode-palette
+dsh plugin --profile desktop update dsh-opencode-palette
+ 需要钉回指定版本（把版本号换成你要的）：
+dsh plugin --profile web add dsh-opencode-palette@2.1.13
+dsh plugin --p</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T09:40:06Z · Data license Apache-2.0 ·
+<a href="../data/repos/npm__dsh-opencode-palette.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

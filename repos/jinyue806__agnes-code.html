@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jinyue806/agnes-code · OpenCode Plugins</title>
+<meta name="description" content="Agnes Code desktop sign-in as an OpenCode/magpie provider: OpenAI-compatible gateway, live model catalog, daily check-in and points balance">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agnes-code, jinyue806, jinyue806/agnes-code, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/jinyue806__agnes-code">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="jinyue806/agnes-code · OpenCode Plugins">
+<meta property="og:description" content="Agnes Code desktop sign-in as an OpenCode/magpie provider: OpenAI-compatible gateway, live model catalog, daily check-in and points balance">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/jinyue806__agnes-code">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "jinyue806/agnes-code", "codeRepository": "https://github.com/jinyue806/Agnes-Code", "url": "https://opencode-plugins.zhuikan.com/repos/jinyue806__agnes-code", "description": "Agnes Code desktop sign-in as an OpenCode/magpie provider: OpenAI-compatible gateway, live model catalog, daily check-in and points balance", "author": {"@type": "Organization", "name": "jinyue806", "url": "https://github.com/jinyue806"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,server"}</script>
+</head>
+<body data-repo="jinyue806/agnes-code" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">jinyue806/agnes-code</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="jinyue806__agnes-code"><img class="rp-side-av" src="https://github.com/jinyue806.png?s=300" width="300" height="300" alt="jinyue806 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agnes-code</div>
+      <a class="rp-side-owner" href="https://github.com/jinyue806">jinyue806</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/jinyue806">jinyue806</a>
+        <span class="rp-sep">/</span><span class="rp-name">agnes-code</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agnes Code desktop sign-in as an OpenCode/magpie provider: OpenAI-compatible gateway, live model catalog, daily check-in and points balance</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="jinyue806__xfyun-astudio"><img class="rp-same-av" src="https://github.com/jinyue806.png" alt="" loading="lazy">xfyun-astudio</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/jinyue806/Agnes-Code">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Agnes-Code
+
+
+
+把 Agnes Code 桌面端 的账号额度接入 magpie 与 OpenCode：复用桌面端登录态（会话文件解密），直连云端 OpenAI 兼容网关，agent 以 agnes/ 使用它的模型；支持「每日登录送积分」自动观测与积分余额显示。
+
+
+
+ 与 agnes（Agnes AI 国际版）的区别
+
+
+
+Agnes 在 registry 里有两个入口，都保留（614）：
+
+
+
+| | 本包（agnes-code） | agnes（agnes） |
+
+| --- | --- | --- |
+
+| 登录 | 读 Agnes Code 桌面端已保存的会话（Windows，DPAPI + safeStorage），或粘贴 accessToken | 在 Chrome 里登录 Agnes AI 国际版网页（agnes-ai.com），不需要桌面端 |
+
+| 服务 | Agnes Code 编码产品：api-agnes-code.agnes-ai.com/v1（chat completions，编码模型目录） | Agnes AI 国际版的文本模型、Token/Agent Plan 用量与美元余额 |
+
+| 每日额度 | 本产品的每日积分（api/v2/subscription/credits-balance） | 该产品自己的套餐与余额读数 |
+
+| 平台 | 桌面端解密仅 Windows，其余平台走粘贴 | 有 Chrome 即可 |
+
+
+
+两者是 Agnes 同一个账号体系下的两个不同产品：各自读各自产品的余额读数，装的模型与端点也不同，装两个不会重复也不会互相替代。
+
+
+
+English: two entries serve Agnes. This one reuses the Agnes Code desktop&#x27;s
+
+saved session (Windows) or a pasted accessToken and calls the Agnes Code
+
+gateway; the agnes entry signs in to Agnes AI international in Chrome and
+
+meters that product&#x27;s plans and USD balance. Same account system, different
+
+products: neither entry replaces the other.
+
+
+
+ 登录什么
+
+
+
+两种方式（登录时二选一）：
+
+
+
+1. 读取 Agnes Code 桌面端登录态（推荐）——本机装有 Agnes Code 桌面版并登录过即可，不用填任何东西。没装/没登录时这一步会给出 Agnes Code 官网页 链接并自动等待：装好登录后自动完成，不用回来点按钮。本机已有数据但读不出来（登录已过期、DPAPI 解不开、会话里没有 accessToken）会直接说明原因，打开桌面端登录或修好后同样自动完成。插件按 Chrome 同款方案解出会话（Local State 的 DPAPI 包裹 AES 主密钥 → 解 code-auth-session.v1 的 AES-256-GCM），只在本机、当前 Windows 用户下可解，凭据不外传：
+
+   - Windows：%APPDATA%\AgnesCode\；macOS：~/Library/Application Support/AgnesCode/（仅粘贴方式）；Linux：~/.config/AgnesCode/（仅粘贴方式）。
+
+   - 会话 JWT 过期会提示打开 Agnes Code 重新登录后重试（桌面端负责续期）。
+
+2. 粘贴 accessToken——从桌面端会话里复制 JWT（eyJ…）；可选填用户名便于区分账号。
+
+
+
+每个账号登录一次即得一个 magpie 账号，可多账号故障切换。凭据保存在 magpie 的 plugin-auth.json（权限 600），不上传。
+
+
+
+ 模型
+
+
+
+供应商 id agnes-code。目录按账号实时拉取（GET /v1/models，读取不计费）。2026-11 实测目录：
+
+
+
+| modelId | context | 备注 |
+
+| --- | --- | --- |
+
+| agnes-3.0-flash | 512k | 免费，思考 |
+
+| agnes-2.5-flash | 512k | 免费，思考 |
+
+| agnes-2.5-pro | 512k | 免费，思考 |
+
+| gpt-6.1-sol | 1M | 会员 |
+
+| gpt-6-astra | 1M | 会员 |
+
+| grok-4.7 | 500k | 会员 |
+
+| claude-opus-5-5 | 1M | 会员 |
+
+| deepseek-v4.1-flash | 1M | 会员，思考 |
+
+| deepseek-v4-pro | 1M | 会员，思考 |
+
+| glm-5.3 | 1M | 会员 |
+
+| kimi-k3 | 1M | 会员 |
+
+
+
+带 thinking_toggle 的模型标为推理模型；会员专属模型照常列出，免费账号调用会得到上游透明的 403（subscription_required），不影响登录态。
+
+
+
+ 每日签到
+
+
+
+免费档「每日登录送 600 积分」由服务端随当日会话自动发放，没有领取接口——插件的 auth.checkin 每天做一次账号会话活跃（只读请求）并观测发放前后的余额差：涨了记已领取（+600），没涨记今日已发/未观测到。
+
+
+
+ 用量
+
+
+
+显示真实积分余额（GET /api/v2/subscription/credits-balance，读取不计费）：积分总额、限时积分、永久积分（有则显示）。401/403 会把账号标记为需要重新登录。
+
+
+
+ 协议与上游
+
+
+
+- 模型调用：POST https://api-agnes-code.agnes-ai.com/v1/chat/completions（OpenAI chat 协议，Authorization: Bearer ，思考在 reasoning_content）。
+
+- 模型目录：GET https://api-agnes-code.agnes-ai.com/v1/models。
+
+- 积分：GET https://api.agnes-ai.com/api/v2/subscription/credits-balance。
+
+
+
+ 风险提示
+
+
+
+非官方集成，凭据与协议来自桌面客户端逆向，上游随时可能变更；共享登录态的自动化使用可能违反 Agnes Code 服务条款，账号风险自担。请勿用于批量/滥用场景。
+
+
+
+ 安装与开发
+
+
+
+
+
+magpie plugin add ./Agnes-Code
+
+magpie plugin login agnes-code               选「读取 Agnes Code 桌面端登录态」
+
+magpie provider test ag</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/jinyue806__agnes-code.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

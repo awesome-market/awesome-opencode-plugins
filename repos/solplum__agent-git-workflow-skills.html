@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>solplum/agent-git-workflow-skills · OpenCode Plugins</title>
+<meta name="description" content="🛡️ 严谨型 Git 工作流套件：改动精准留痕、防冲突推送、主干安全对齐与规范化变更汇报。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agent-git-workflow-skills, solplum, solplum/agent-git-workflow-skills, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/solplum__agent-git-workflow-skills">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="solplum/agent-git-workflow-skills · OpenCode Plugins">
+<meta property="og:description" content="🛡️ 严谨型 Git 工作流套件：改动精准留痕、防冲突推送、主干安全对齐与规范化变更汇报。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/solplum__agent-git-workflow-skills">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "solplum/agent-git-workflow-skills", "codeRepository": "https://github.com/solplum/agent-git-workflow-skills", "url": "https://opencode-plugins.zhuikan.com/repos/solplum__agent-git-workflow-skills", "description": "🛡️ 严谨型 Git 工作流套件：改动精准留痕、防冲突推送、主干安全对齐与规范化变更汇报。", "author": {"@type": "Organization", "name": "solplum", "url": "https://github.com/solplum"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-11", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="solplum/agent-git-workflow-skills" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">solplum/agent-git-workflow-skills</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="solplum__agent-git-workflow-skills"><img class="rp-side-av" src="https://github.com/solplum.png?s=300" width="300" height="300" alt="solplum avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agent-git-workflow-skills</div>
+      <a class="rp-side-owner" href="https://github.com/solplum">solplum</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/solplum">solplum</a>
+        <span class="rp-sep">/</span><span class="rp-name">agent-git-workflow-skills</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">🛡️ 严谨型 Git 工作流套件：改动精准留痕、防冲突推送、主干安全对齐与规范化变更汇报。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>3</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-08-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="solplum__anything2video"><img class="rp-same-av" src="https://github.com/solplum.png" alt="" loading="lazy">anything2video</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/solplum/agent-git-workflow-skills">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Agent Git Workflow Skills
+
+一组面向 Claude Code 与 Codex 的 Git 工作流 Skill：把「记录改动、生成变更报告、同步主干、本地合并、推送个人分支」拆成边界明确的 5 个显式动作。
+
+它们的共同目标不是替你猜测意图或代替代码审查，而是让每次 Git 操作都有可追溯的证据、清晰的确认点和可恢复的边界。
+
+ V2：可组合，而非强制流水线
+
+五个 Skill 可以按任意顺序反复调用。它们不会要求你在一次任务中从头跑到尾，也不会因某个前置步骤未运行而失效。
+
+- git-sync 默认只做安全检查与 fetch；只有 --rebuild 才会进入备份和重建。
+- git-record 会续写当前进行中的记录，也能对已提交或已推送但未记录的 commit 补记。
+- git-push 同时支持“有未提交改动后提交并推送”和“工作区干净、只推送已有 commit”。
+- change-report 可在 commit 前、push 前或 push 后生成报告，并如实标记当前状态。
+- lzl-merge 先判断内容是否已覆盖，再提供完整代码基线加有效独有增量或原生三方合并；未指定时先推荐并等用户选择，已指定不重复问；完成本地整合与验证，默认不创建 commit、不推送。
+
+git-record、git-push、git-sync 与 change-report 共享一个仅本地存在的元数据索引：.git/info/agent-git-workflow-state.json。它只保存 Record-Id、分支、commit、状态和报告路径，不保存代码、凭据或敏感内容；索引丢失时，各 Skill 必须从 Git 与变更日志恢复事实。lzl-merge 不依赖该索引。
+
+ 包含的 Skill
+
+| Skill | 解决的问题 | 会不会联网 / 推送 |
+| --- | --- | --- |
+| change-report | 基于本次 Git 改动生成给上级阅读的精简 Word 变更报告 | 不联网；不提交、不推送 |
+| git-record | 为本地改动写入项目变更日志，并在确认后创建本地 commit | 不联网；绝不推送 |
+| git-push | 将当前个人分支的已确认改动安全推送到 GitHub / GitCode | 需要联网；仅在确认后推送 |
+| git-sync | 用 origin/main 刷新当前分支，同时识别和保护本地独有内容 | 只 fetch；绝不推送 |
+| lzl-merge | 保留双方有效功能，选择合适路径完成本地合并与语义整合 | 按需 fetch；默认不提交、不推送 |
+
+ 设计原则
+
+- 显式调用。 这不是自动 hook：只有在你主动调用相应 Skill 时才执行对应流程。
+- 一项职责，一个边界。 git-record 只负责本地留痕与提交；git-push 只负责推送；git-sync 只从云端读取；change-report 只生成报告；lzl-merge 负责本地合并与语义整合，提交和推送另行授权。
+- 证据优先。 需求、实际 diff、Git 状态和验证结果彼此独立；不能确定的内容应写成「推断」或「待确认」，不能补写成事实。
+- 精确暂存。 不使用 git add -A 或 git add .。每次提交都应列出明确文件路径。
+- 先确认再改变共享状态。 本地提交、写入本地预设、重置分支和 git push 都各有明确的确认点。
+- 不处理敏感信息。 .env、密钥、Token、Cookie、密码、私有 URL、登录文件和个人数据不应被读取、记录或提交。
+
+ 常见组合
+
+text
+完成一项改动
+    │
+    ├─ /git-record
+    │  └─ 写入项目 change-log，并在确认后创建本地 commit
+    │
+    ├─ /git-push
+    │  └─ 检查远端状态，在确认后推送当前个人分支
+    │
+    ├─ /git-sync（需要把工作台重新对齐主干时）
+    │  └─ fetch origin/main → 分类本地文件 → 备份 → 经确认后刷新
+    │
+    ├─ /lzl-merge（需要保留双方功能并整合分支时）
+    │  └─ 核对代码覆盖与独有增量 → 选择整合路径 → 本地整合与验证
+    │
+    └─ /change-report（需要向上汇报时）
+       └─ 读取本次改动 → 展示草稿 → 确认后渲染为 Word
+
+
+以上顺序只是常见组合，不是强制流程。下面的调用都有效：
+
+text
+git-sync → 改一点代码 → git-record → 继续改代码 → git-record
+git-record → git-push
+lzl-merge → git-record → git-push
+git-push → git-record（对已推送 commit 补记）
+change-report（在 push 前生成草稿）→ git-push → change-report（生成正式版本）
+
+
+只想留下可追溯的本地记录时，使用 /git-record --record-only 即可；不必提交或推送。
+
+ 安装
+
+本仓库采用通用的「一个目录，一个 SKILL.md」布局。将所需目录原样复制到你的 Skill 根目录即可；保留目录内的 references/ 等配套文件。
+
+ Claude Code
+
+将目录复制到用户级 Skill 目录：
+
+text
+~/.claude/skills/
+├── change-report/
+│   └── SKILL.md
+├── git-record/
+│   └── SKILL.md
+├── git-push/
+│   └── SKILL.md
+├── git-sync/
+│   └── SKILL.md
+└── lzl-merge/
+    └── SKILL.md
+
+
+ Codex
+
+将目录复制到你当前 Codex 环境配置的 Skill 根目录。此工作区采用的目录是：
+
+text
+/.agents/skills/
+├── git-record/
+├── git-push/
+├── git-sync/
+└── lzl-merge/
+
+
+change-report 也可放入 Codex 可发现的 Skill 目录（例如用户级 .codex/skills/ 或你的工作区 Skill 根目录）。不同 Codex 安装方式的发现目录可能不同，请以本机的 Skill 列表为准。
+
+复制完成后，开启一个新会话或重新加载 Skill 列表，确认 5 个名称均可见。
+
+ Skill 详解
+
+ 1. git-record：本地改动留痕与提交
+
+适用场景：
+
+- 完成了一段开发，希望把「为什么做、做了什么、验证了什么」沉淀到项目内。
+- 希望在提交前把工作区的非敏感改动完整盘点一遍。
+- 发现改动里存在不确定项，想把它们作为待确认事项留下，而不是静默遗漏。
+
+它会：
+
+1. 确</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/solplum__agent-git-workflow-skills.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

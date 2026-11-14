@@ -1,0 +1,443 @@
+# Consigliere 1.0 (Advisor Harness) — Harness de agentes + memoria persistente para opencode
+
+> **Solo por proyecto.** Un scaffold reutilizable que deja cada proyecto listo para trabajar con opencode: agentes orquestados, memoria que recuerda decisiones entre sesiones y comandos para auditar, registrar y revisar el progreso. Sin dependencias globales de runtime, sin servicios: es Markdown + scripts que se instalan **dentro** del proyecto.
+
+> **✅ Publicado en npm:** el paquete `advisor-harness` ([v2.0.0](https://www.npmjs.com/package/advisor-harness), requiere OpenCode >= 2.2.7) ya está en el registry, así que `npx advisor-harness@latest <dir>` funciona directamente. La versión publicada sale de `package.json` y de ningún otro sitio: las copias que la repiten las sincroniza `npm run version:bump`. También puedes instalarlo global (`npm install -g advisor-harness`) o clonar el repo (`git clone` + `node init.mjs` / `./init.sh` / `powershell -File init.ps1`).
+
+## Requisitos
+
+- **Node.js >= 20.11.0** — obligatorio en **todas** las vías de instalación. Hay cuatro puntos de entrada: `init.mjs`, que es la única implementación, y tres lanzadores de ~20 líneas (`./init.sh`, `powershell -File init.ps1` e `init.cmd`) que la ejecutan a través de Node (`exec node .../init.mjs`). El suelo es 20.11 porque el harness usa `import.meta.dirname`; con menos, el instalador aborta con exit 1.
+- `git` — recomendado: sin él se omite el `git init`, el hook post-commit y el commit inicial (aviso, no error).
+- `tar` — obligatorio para el backup previo y para `--restore`. Sin él solo se puede instalar en un destino vacío.
+
+## En 30 segundos
+
+1. En una carpeta **vacía**, ejecuta (vía npm, sin clonar):
+
+   ```bash
+   npx advisor-harness@latest .   # o, desde el clon: node init.mjs / ./init.sh / powershell -File init.ps1
+   ```
+
+   No necesitas responder nada: detecta que la carpeta está vacía y genera el harness directamente. Cero prompts, con un resumen de 3 líneas (destino, defaults aplicados — modelos heredados y sin stack — y opciones finales: autoskills omitido + git init).
+
+2. Abre esa carpeta con `opencode`.
+
+3. Escribe:
+   `/discover` (revisa contexto y skills) → `/routine "configurar base del proyecto"` (planifica y ejecuta la tarea) → `/doctor` (verifica que todo está sano).
+
+Ese es el día a día. Si tu carpeta **no está vacía**, el mismo comando abre un asistente que te guía (ver [Instalación](#instalación)).
+
+## ¿Qué genera?
+
+```
+<proyecto>/
+├── .opencode/
+│   ├── agents/
+│   │   ├── advisor.md             # agente primario que coordina (routing + spec-lite)
+│   │   ├── explore.md             # audita contexto + skills (leaf, depth 2)
+│   │   ├── planner.md             # diseña + spec Given/When/Then (≤650w)
+│   │   ├── critic.md              # revisa decisiones de diseño
+│   │   ├── builder.md             # implementa (permisos V2: ver «Rutas sensibles y límites»)
+│   │   ├── verifier.md            # typecheck/lint/tests
+│   │   └── summarizer.md          # memoria 3 capas + topic upsert + session summary
+│   ├── commands/
+│   │   ├── discover.md            # /discover → audita contexto + skills
+│   │   ├── routine.md             # /routine → explore→plan/spec→build→verify→record (critic según §2)
+│   │   ├── modo.md                # /modo → fijar modo de comunicación (educador/practicante/copiloto/auto)
+│   │   ├── doctor.md              # /doctor → diagnóstico harness + memoria
+│   │   ├── record.md              # /record → persistir progreso (6 campos)
+│   │   ├── review.md              # /review → decisiones stale (review_after)
+│   │   ├── rotate-memory.md       # rotación semanal manual
+│   │   └── compact-state.md       # compactar PROJECT_STATE.md
+│   ├── plans/                     # AGENT-PIPELINE.md, MEMORY-SYSTEM.md
+│   ├── skills/
+│   │   ├── _project-docs/         # plantilla de docs del stack
+│   │   ├── _sdd-lite/             # spec-lite ≤650w Given/When/Then
+│   │   └── _skill-loader/         # loader.mjs + SKILL.md (cache fingerprint en .advisor/)
+│   ├── scripts/
+│   │   ├── memory-index.mjs       # search/timeline/get (md+grep)
+│   │   ├── memory-sync.mjs        # export/import chunks locales
+│   │   ├── memory-lock.mjs        # lock de escrituras + umbrales
+│   │   ├── memory-stats.mjs       # stats + extracción por secciones
+│   │   ├── memory-rotate.mjs      # motor canónico de rotación
+│   │   ├── routine-model.mjs      # overrides de modelo por agente
+│   │   ├── skill-search.mjs       # búsqueda real en el registry de autoskills
+│   │   ├── skill-capture.mjs      # consolida memoria (§2/§5/SUMMARY/CHANGELOG) en una skill real
+│   │   └── skill-scaffold.mjs     # scaffold de skills de proyecto (dry-run por defecto)
+│   │   ├── lib/                   # core.mjs / md.mjs / cache.mjs (compartido, sin deps)
+│   │   └── doctor.mjs             # health check
+│   └── hooks/                     # post-commit-memory-rotate.sh (opcional/gated; no hay hook de sync)
+├── .advisor/                      # estado VIVO del harness
+│   ├── backups/                   # advisor-*.tgz keep 5 (backup previo a cualquier escritura)
+│   ├── chunks/                    # memoria sync local (git-tracked opcional)
+│   ├── skill-registry.cache.json  # fingerprint cache v2
+│   └── autoskills-registry.cache.json  # catálogo autoskills (CC-BY-NC-4.0, local/gitignored)
+├── AGENTS.md                      # instrucciones raíz + stack + comandos dev
+├── opencode.json                  # default_agent, modelos cheap vs strong, experimental (permisos: frontmatter de cada agente)
+├── PROJECT_STATE.md               # CAPA 0 — siempre cargada + review_after
+├── SUMMARY.md                     # CAPA 1 — última semana + topic (on-demand)
+├── CHANGELOG/                     # CAPA 2 — historial semanal archivado
+├── scripts/                       # check-memory-limits.sh/.ps1 (límites 100/150)
+├── .gitignore
+└── skills-lock.json
+```
+
+> **Requisito desde 2.0.0: OpenCode >= 2.2.7 (solo V2).** Los permisos de cada agente viven únicamente en el bloque `permissions:` de su frontmatter (formato nativo V2, gana la última regla que casa); `opencode.json` ya no lleva permisos. La profundidad de subagentes es `experimental.subagent_depth: 2` (en V2 la clave raíz se ignora). Si vienes de 1.x: `npx advisor-harness@latest . --upgrade` regenera agentes y `opencode.json` (backup previo, conserva tu `model` por agente y avisa de las claves V1 descartadas). Tabla V1→V2: `bash`→`shell`, `task`→`subagent`, `write`/`patch`→`edit`, `subtask`→`subagent`.
+
+> **Agentes del pipeline**: los 7 agentes listados arriba son los únicos del harness (`advisor` coordina y delega en los otros 6). `general` es un agente built-in de opencode que queda **fuera del pipeline**: el advisor lo deniega por defecto (`task: general: deny`).
+> **Repo público ≠ proyecto instalado.** En este repositorio, `opencode.json`, `skills-lock.json`, `scripts/`, `test/`, `.github/` y la memoria (`PROJECT_STATE.md`, `SUMMARY.md`, `CHANGELOG/`, `.advisor/`) quedan **fuera del paquete público** (`package.json` `files`: `init.sh`, `init.ps1`, `init.cmd`, `init.mjs`, `templates/`, `README.md`, `LICENSE`; `export-ignore` en `git archive`). Salvo `test/` y `.github/`, **todo lo anterior sí se genera** en cada proyecto que instalas: el árbol de arriba es lo que obtiene el proyecto, no lo que se publica en npm. Los dos excluidos son de desarrollo de este repo —la suite propia y los workflows de CI— y no se instalan en ningún proyecto. `.advisor/` tampoco viene de `templates/`: lo crea el instalador en caliente como estado vivo (backups, chunks, cache). La `opencode.json` de **este** repo es la config dev local (gitignored, `{{MODEL_*}}` → `""`) y se genera con `npm run dev:config` desde `templates/opencode.json`; la que se instala en los proyectos es la plantilla.
+
+### Rutas sensibles y límites
+
+Los permisos viven en el frontmatter `permissions:` de cada agente (lista `{action,resource,effect}`; gana la **última** regla que casa):
+
+- **Shell**: `deny` para lo irreparable (`rm -rf /*`, `mkfs*`, `dd … of=/dev/*`…) y `ask` para `git commit/amend/push`. En `builder`, `summarizer` y `verifier`, **cualquier** comando que *mencione* `.env`, `*.pem`, `*.key`, `secrets/`, `.ssh/` o `.aws/credentials` pide confirmación (`cat`, `type`, `Get-Content`, `head`…).
+- **Lectura**: en los 7 agentes, tras `read * allow` se restauran `read ask` para `*.env`, `*.env.*`, `*.pem`, `*.key`, `*secrets/*`, `*.ssh/*` y `*.aws/credentials*`; `*.env.example` vuelve a `allow`. El `read * allow` anulaba la política base de V2, de ahí la restauración.
+- **Límites conocidos**: `grep` y `glob` no se pueden proteger por ruta; hay falsos positivos aceptados (`git add .env.example` pide `ask`); el `shell *: deny` del `advisor` es diseño (ante `Permission denied` delega en `builder`/`verifier`/`explore`, no pide permisos).
+- **Sin probar**: que «Allow always» pueda anular los `ask` de estas rutas. No des por hecha la protección si lo usas.
+
+## Novedades 2.0.0 / Migración desde 1.x
+
+- **Ruptura**: solo OpenCode V2 (>= 2.2.7); ya no hay compatibilidad V1.
+- **Permisos** en el `permissions:` del frontmatter de cada agente, no en `opencode.json`. La tabla V1→V2 de claves está en la nota «Requisito desde 2.0.0», más arriba.
+- **Profundidad de subagentes**: `experimental.subagent_depth: 2` (la clave raíz se ignora en V2).
+- **Rutas sensibles**: `ask` por mención de ruta en shell y `read ask` (ver arriba).
+- **Migrar**: `npx advisor-harness@latest . --upgrade` hace backup previo, conserva tu `model` por agente y avisa de las claves V1 descartadas.
+
+## Instalación
+
+Primero, cómo ejecutar el instalador (todas las vías usan el mismo `init.mjs`); después, el camino según tu situación. Todo es 100% por proyecto y el instalador decide solo: carpeta vacía → genera directo; carpeta con archivos → asistente.
+
+| Vía | Comando | Cuándo |
+|-----|---------|--------|
+| **`npx` (recomendada)** | `npx advisor-harness@latest <dir>` | Usar el paquete publicado sin instalar nada |
+| **Global** | `npm install -g advisor-harness`, luego `advisor <dir>` (o `advisor-harness <dir>`) | Quieres el bin en el `PATH` para varios proyectos |
+| **Clon** | `git clone https://github.com/fcocampione-star/consigliere.git && cd consigliere` | Desarrollo o sin acceso a npm; luego `node init.mjs` / `./init.sh` / `powershell -File init.ps1` |
+
+> El clon trae el **repo completo** (rama estable o de integración: mismo árbol con `test/`, `.github/`, `scripts/` y el resto de dev-only). Eso no afecta a lo que genera el instalador en tu proyecto: `init.mjs` escribe solo el harness desde `templates/`.
+
+> ⚠️ **`npx advisor` no es lo mismo:** resolvería el paquete `advisor` del registry, no el harness. Usa siempre `npx advisor-harness@latest` (o el bin `advisor` **solo** tras un `npm install -g advisor-harness`).
+
+### Camino simple: happy path (0 prompts)
+
+```bash
+# vía npm (sin clonar)
+npx advisor-harness@latest .   # en una carpeta vacía: genera directo, sin preguntar nada
+
+# vía clon
+git clone https://github.com/fcocampione-star/consigliere.git && cd <carpeta-del-clon>  # por defecto: consigliere (repo completo)
+node init.mjs            # en una carpeta vacía: genera directo, sin preguntar nada
+```
+
+- Defaults: modelos heredados (sin asignar), sin stack, autoskills omitido (3), `git init` + commit.
+- CI-safe: no lee de stdin, apto para pipelines.
+- Mismo comportamiento en los tres lanzadores (`./init.sh`, `powershell -File init.ps1` e `init.cmd`): ejecutan `init.mjs` con Node, así que el CLI, los flags y los códigos de salida son los mismos.
+
+**Forzar happy path en cualquier carpeta** (aunque no esté vacía): `--quick` / `-y`. Respeta `--dir <ruta>` o la ruta posicional como destino; si no hay, usa la carpeta actual:
+
+```bash
+node init.mjs --quick
+node init.mjs -y /ruta/proyecto
+node init.mjs --quick --dir /ruta/proyecto
+```
+
+### Camino guiado: asistente interactivo
+
+Sin ruta por adelantado: pregunta `📁 Ruta → Nombre → Stack → Modelos → Autoskills → Git`.
+
+```bash
+npx advisor-harness@latest .   # cwd con archivos → asistente (o fuerza con --interactive/-i)
+
+git clone https://github.com/fcocampione-star/consigliere.git
+cd consigliere
+node init.mjs            # cwd con archivos → asistente (o fuerza con --interactive/-i)
+./init.sh                # macOS/Linux/Git Bash
+powershell -File init.ps1    # Windows
+init.cmd                     # CMD
+```
+
+- **`--interactive` / `-i`**: fuerza el asistente aunque la carpeta esté vacía.
+- **Stack** (opcional, Enter = saltar): base de datos, backend, frontend, auth, validación, deploy — pre-rellena `AGENTS.md` y `SKILL.md`.
+- **Modelos**: un solo prompt — `¿Modelos por defecto (heredar todos)? [recomendado]/personalizar`. Si eliges *personalizar*, los 7 modelos se piden en una línea, coma-separados, en orden `advisor,planner,builder,critic,verifier,summarizer,explore` (vacío = heredar). Ya no hay 7 preguntas separadas.
+- Descarga ZIP: descomprime → `cd <carpeta-del-zip>` (nombre de carpeta del ZIP, normalmente `consigliere-<rama>`) → mismo comando de arriba. El ZIP de código también trae el repo completo; el filtrado dev-only solo aplica al `source archive` del tag vía `export-ignore`.
+
+### Camino avanzado: no-interactivo (CI / scripts)
+
+```bash
+# Mismo CLI en todas las vías (npx, global `advisor` o `node init.mjs` desde el clon):
+npx advisor-harness@latest --dir /ruta/proyecto --name mi-app \
+  --stack-db postgresql --stack-backend node/express --stack-frontend react/vite \
+  --stack-auth jwt --stack-validation zod --stack-deploy docker \
+  --autoskills 1 --git yes
+
+# actualizar (backup completo keep 5 + preserva memoria/config; sin --force)
+npx advisor-harness@latest --dir /ruta/proyecto --upgrade
+
+# alcance modular: --upgrade monolítico = --part all
+npx advisor-harness@latest --dir /ruta/proyecto --upgrade --part harness
+npx advisor-harness@latest --dir /ruta/proyecto --upgrade --part memoria
+npx advisor-harness@latest --dir /ruta/proyecto --upgrade --part autoskills
+
+# estado read-only (no escribe) / restaurar backup (acepta advisor- y harness-)
+npx advisor-harness@latest --dir /ruta/proyecto --status
+npx advisor-harness@latest --dir /ruta/proyecto --restore --from .advisor/backups/advisor-<ts>.tgz
+
+# desinstalar alcance de --part (pide confirmación sin --force; memoria exige backup previo + --force)
+npx advisor-harness@latest --dir /ruta/proyecto --uninstall --part harness --force
+
+# simular sin escribir nada / sobrescribir un destino no vacío sin harness (a tu riesgo)
+npx advisor-harness@latest --dir /ruta/proyecto --dry-run
+npx advisor-harness@latest --dir /ruta/proyecto --force
+```
+
+### Qué hace el instalador al escribir
+
+Da igual por dónde entres (`install`, `--quick`, asistente o `--upgrade`), las reglas son las mismas:
+
+- **Backup previo obligatorio** en `.advisor/backups/advisor-<ts>.tgz` (keep 5) antes de **cualquier escritura sobre un destino con contenido**, no solo en `--upgrade`. Cubre `.opencode/`, `AGENTS.md`, `PROJECT_STATE.md`, `SUMMARY.md`, `CHANGELOG/`, `.advisor/`, `opencode.json`, `.gitignore`, `skills-lock.json` y los dos `scripts/check-memory-limits.*`. Si el backup falla, **no se escribe nada** y se sale con 4. Un destino sin nada previo que perder se sigue sin `tar`.
+- **Se preservan** (se restauran del backup): `PROJECT_STATE.md`, `SUMMARY.md`, `CHANGELOG/`.
+- **Se regeneran** desde la plantilla: `AGENTS.md`, `opencode.json`, `.gitignore`. De `opencode.json` se conserva **solo** tu `agent.<nombre>.model` de cada agente que exista en ambos ficheros (nunca se inventa un agente ni se copia el resto de la config anterior); si la plantilla ya trae valor para ese agente —porque lo rellenó el asistente en esa misma corrida— manda la plantilla.
+- **Nunca se sobrescribe**: `skills-lock.json` (tus pins de autoskills). Solo se crea si no existe.
+- **Hook post-commit**: si ya existe, se copia a `.advisor/backups/hooks/post-commit.<ts>.bak` y **no** se sobrescribe salvo con `--force`. Si el repo fija `core.hooksPath`, avisa de que el hook puede no ejecutarse.
+- **`--dry-run`**: no escribe nada y no imprime el banner de "proyecto listo" (nunca canta éxito de algo que no ocurrió).
+- **`--uninstall`**: borra **rutas exactas**, nunca un directorio entero del usuario. Contra la plantilla se expanden los ficheros del harness de `.opencode/`; `scripts/` solo aporta sus dos `check-memory-limits.*` (lo que tengas ahí se queda), y si tienes un agente o plugin propio dentro de `.opencode/` el directorio no se borra: solo se retiran los directorios que queden vacíos. `.git` nunca se toca.
+
+### Códigos de salida
+
+Contrato estable (`init.mjs` `EXIT`, documentado en `--help`):
+
+| Código | Significado |
+|--------|-------------|
+| 0 | ok |
+| 1 | uso o validación: flag desconocido, valor fuera de dominio, falta `--part`, destino no vacío sin `--force`, `--upgrade` sin harness previo, Node < 20.11 |
+| 2 | hace falta confirmación y no la hubo: sesión no interactiva donde se requería, o confirmación rechazada |
+| 3 | falta una dependencia requerida (`tar` para el backup previo, `--upgrade`, `--restore` o `--uninstall memoria`/`--uninstall all`) |
+| 4 | falló el backup o la restauración con `tar` (el backup previo nunca se descarta) |
+| 5 | fallo parcial: se escribió algo y un paso posterior falló |
+
+### Ayuda por capas
+
+`--help` / `-h` muestra primero un **Uso rápido** de 3 líneas (el 90% de los casos) y después el **Uso avanzado**: operaciones (`--upgrade`, `--status`, `--restore`, `--uninstall`, `--dry-run`, `--force`), flags completos, qué genera y el flujo recomendado. `--version` / `-v` imprime la versión del harness.
+
+## Compatibilidad rename (consigliere → Advisor)
+
+- **Display**: `Advisor`; **npm**: `advisor-harness` (`npx advisor-harness@latest`); **bin**: `advisor`, `advisor-harness` + alias `consigliere-harness` (1 versión de transición).
+- **Publicación**: solo `advisor-harness` está publicado en npm; incluye el bin alias `consigliere-harness` como puente. Un shim npm aparte `consigliere-harness@final` (con `npm deprecate`) **no está publicado**.
+- **Repo**: `https://github.com/fcocampione-star/consigliere.git`.
+- **Estado vivo**: solo `.advisor/` (backups, chunks, cache). Sin directorios legacy.
+- **Backups**: nuevos `advisor-<ts>.tgz`; restore/prune aceptan `^(harness|advisor)-` (keep 5 combinado). Skill-cache v2 (`refresh --force` invalida v1).
+- **Se preserva a propósito**: historial `SUMMARY.md`/`CHANGELOG/`, autor git `CONSIGLIERE` + email `consigliere@local`, `installed_by: consigliere` en `skills-lock.json`.
+- **Seguridad uninstall**: sin `--force` pide confirmación; la memoria (`PROJECT_STATE.md`, `SUMMARY.md`, `CHANGELOG/`) se borra con `--part memoria` **y también con `--part all`**, que es la unión de los tres alcances — en ambos casos hace falta `--force` y un backup previo obligatorio con copia externa fuera del proyecto (aborta con 4 si falla); borrado solo de rutas listadas explícitamente, nunca `.git`; mantiene harden bash (`deny` irreparable + `ask` sensibles).
+
+## Flujo de trabajo en cada proyecto
+
+1. **cd** al proyecto generado.
+2. Completa `AGENTS.md` (stack, comandos dev) y `.opencode/skills/_project-docs/SKILL.md`.
+3. Opcional: asigna modelos por agente en `opencode.json` (raíz; `cheap`=verifier/summarizer/explore, `strong`=builder/planner/critic). Si un modelo del free tier falla, ver [Modelos del free tier: "can only be used from within OpenCode"](#modelos-del-free-tier-can-only-be-used-from-within-opencode).
+4. `npm install && npx autoskills` (si `package.json` existe).
+5. En opencode: `/discover` → `/routine "configurar base del proyecto"` → `/doctor` para verificar.
+
+### Equipo: un repo, un harness + memoria compartidos
+
+El harness se instala en la **raíz** del repositorio del proyecto y se **commitea** con él: un solo repo por equipo, con un `PROJECT_STATE.md`, un `SUMMARY.md` y un `CHANGELOG/` compartidos. No hace falta crear un repositorio aparte para el harness ni sacarlo del repo.
+
+Lo que se separa no es el harness del repositorio, sino el harness del **artefacto de producción**:
+
+- **Build/deploy**: no copies `.opencode/`, `.agents/`, `.advisor/` ni la memoria al output (dist, imagen, bundle).
+- **Docker**: añádelos a tu `.dockerignore`.
+- **`git archive` / zip de código**: añade tú un `.gitattributes` con `export-ignore` (el harness no lo genera; solo afecta a `git archive`, no a `npm pack` ni a Docker).
+
+> **Colisión al actualizar:** `--upgrade` regenera `AGENTS.md`, `opencode.json` y `.gitignore` en la raíz. Si tu app usa esos nombres, pon la app en una **subcarpeta** (`src/`, `app/`…): el harness y la app conviven en el mismo repo sin pisarse.
+
+> **Desinstalar en una copia:** `node init.mjs <dir> --uninstall --part harness --force` borra en el sitio `AGENTS.md`, `opencode.json`, `.gitignore`, `skills-lock.json` y `.opencode/**`; **no** borra `.advisor/`, `.agents/` ni la memoria. No lo ejecutes sobre tu repo de trabajo.
+
+### Modelos del free tier: "can only be used from within OpenCode"
+
+Si opencode responde `Error: OpenCode's free tier can only be used from within OpenCode`, **no es un fallo del harness**. Es una comprobación de opencode: rechaza servir sus modelos del free tier cuando la petición no viene del propio cliente, porque exige un `User-Agent` con la forma `opencode/<semver>` y la cabecera `x-opencode-session`. Está activa desde el 2026-09-17, se sigue en los issues upstream 49433, 49580 y 49590, y seguía presente en la última release (1.18.33). Cualquier cliente que no sea el cliente de opencode —un runner, un proxy, un editor que hable con su API— se queda fuera.
+
+Qué hacer (las dos, y solo dos):
+
+1. **Usar un modelo que no sea del free tier** para el agente `advisor` en `opencode.json`.
+2. **Renovar la entitlement**: `opencode auth login`.
+
+Lo que **no** es una solución: el harness solo valida la *forma* de un id de modelo (`^[A-Za-z0-9._:\/-]{1,80}$`, en `routine-model.mjs` y en el instalador); no puede saber si ese id tiene derecho a usarse, así que el error lo emite opencode, no ninguna validación nuestra. **No es algo que se pueda resolver dentro del harness, y ningún código de este repositorio intenta saltarse la comprobación**: falsificar cabeceras o la identidad de cliente para colar la petición sería esquivar una decisión de opencode, no arreglar un fallo. Si necesitas un modelo del free tier, pasa por `opencode auth login`.
+
+### Comandos del harness
+
+- `/discover [foco]` — audita stack real vs declarado + skills presentes/faltantes. Incluye **búsqueda real** en el registry público de autoskills (`skill-search.mjs`, no simulada) y propone crear skills de proyecto con `skill-scaffold.mjs`.
+- `/skill-capture <topic>` — consolida la memoria de un topic en una **SKILL real** (no esqueleto) en `.opencode/skills/<name>/SKILL.md`: decisión §2 (`[topic:]` y plural `[topics:]`, fuente primaria), patrón §5, entradas SUMMARY/CHANGELOG (match exacto o por prefijo de categoría, dedup por id) e ítems §3 marcados *(pendiente)*. Dry-run por defecto (`--write [--force]` escribe vía `skill-capture.mjs`); **fail-closed**: sin ≥1 fuente consolidable sale con uso — un topic que solo existe como pendiente §3 no genera skill.
+- `/routine <tarea> [--parallel --skip-verify --skip-critic]` — enruta la tarea por sí solo: pocos archivos → directo; muchos → delega en subagentes (plan → revisión → implementación → verificación → registro). Para los detalles técnicos, ver *Notas de diseño v1.0*.
+- `/doctor` — diagnóstico del harness y la memoria: `opencode.json` (default agent, profundidad, harden bash), tamaños y `topic:` de la memoria, lock huérfano, hook post-commit, cache de skills, scripts, directorios de estado y artefactos derivados (manifest, índice, `review_after` vencidos). Los artefactos regenerables son ℹ️ y nunca rompen; el exit code es 0 (ok), 1 (warnings) o 2 (errores).
+- `/record <contexto>` — persiste con formato 6 campos `Goal/Discoveries/Accomplished/Next/Files/Verificación` (compat `Qué/Verificación`).
+- `/review` — lista decisiones stale (`review_after` +90d).
+- `/rotate-memory` — rotación semanal manual.
+- `/compact-state` — compacta `PROJECT_STATE.md` §2 (dedup + archive).
+- `/modo <educador|practicante|copiloto|auto>` — fija el modo de comunicación del advisor (session-scoped, no persiste en memoria; sin arg muestra el actual).
+
+## Sistema de memoria (3 capas, inspirado en Engram pero md+grep)
+
+| Capa | Archivo | Carga | Contenido |
+|------|---------|-------|-----------|
+| 0 | `PROJECT_STATE.md` | siempre | fase, decisiones + `review_after`, patrones, pendientes (<100 líneas) |
+| 1 | `SUMMARY.md` | on-demand | última semana + `topic: family/kebab` + índice (<150 líneas) |
+| 2 | `CHANGELOG/YYYY-MM-DD.md` | rare | historial semanal (lunes) + `DECISIONS-ARCHIVE.md` |
+
+- **Topic upsert**: `topic: architecture/auth-model` 2 niveles; mismo topic → upsert no duplicado.
+- **Búsqueda progresiva (md+grep, cero dependencias)**: `node .opencode/scripts/memory-index.mjs search "query"` → IDs, `timeline <id>`, `get <id>`. No hay base de datos detrás: `search` hace coincidencia de **subcadena sin distinguir mayúsculas** sobre el título, el resumen y el `topic` de cada entrada (no es una regex), ordena los hits por relevancia (recencia + `topic` + título) y `get` devuelve el cuerpo de la entrada.
+- **Rotación**: canónica en `/record` vía el motor Node `.opencode/scripts/memory-rotate.mjs` (dispara por lunes o `contentLines` > 150, con dedup + §4). El hook `post-commit` es un **backup opcional/gated** (`ADVISOR_ROTATE_HOOK=1`, desactivado por defecto). Sin `flock`: el lock canónico es `memory-lock.mjs`, y lo toman por igual las rutas que mutan la memoria (`rotate`, `migrate-markers` y `memory-sync export/import`), no solo el CLI.
+- **Sync local**: `node .opencode/scripts/memory-sync.mjs export` → `.advisor/chunks/<monday>.json` (git-tracked), `import` restaura en clone.
+- **Session summary**: 6 campos `Goal/Discoveries/Accomplished/Next/Files/Verificación`.
+- **Stale**: `/review` lista `needs_review` si `review_after` pasado.
+
+### Estimador de tokens (`memory-tokens.mjs`)
+
+Estimador **estático** (heurística `chars/4`, sin dependencias, solo lectura) del ahorro **potencial** en tokens de usar el flujo advisor con memoria frente a un `plan+build` sin memoria. No factura ni mide una sesión real: proyecta sobre el tamaño actual de tu memoria.
+
+Tres escenarios de routing (hojas del pipeline que cada uno implica):
+
+| Escenario | Hojas | Representa |
+|-----------|-------|------------|
+| `direct` | 1 | tarea pequeña, sin delegación |
+| `delegated` | 5 | tarea delegada a subagentes (plan → build → verify…) |
+| `spec-lite` | 6 | delegada + spec Given/When/Then ≤650w |
+
+```bash
+node .opencode/scripts/memory-tokens.mjs measure                        # desglose de tokens por capa (PROJECT_STATE / SUMMARY / CHANGELOG / skills+chunks)
+node .opencode/scripts/memory-tokens.mjs compare --scenario direct
+node .opencode/scripts/memory-tokens.mjs compare --scenario delegated
+node .opencode/scripts/memory-tokens.mjs compare --scenario spec-lite
+node .opencode/scripts/memory-tokens.mjs compare --scenario spec-lite --json   # salida máquina
+node .opencode/scripts/session-metrics.mjs --session <ses_id>                  # medición REAL de una sesión (delegaciones, iteraciones, tokens)
+node .opencode/scripts/git-state.mjs status                            # trámite de rama de SOLO LECTURA (status|log|head|branch|diff-stat|ahead-behind|remote)
+```
+
+> **`git-state.mjs` es de solo lectura y argv cerrado.** Permite que el `advisor` resuelva trámites de rama sin recibir `git` crudo ni `glob`/`grep` (las 7 entradas exactas de `git-state.mjs` en su allowlist). Las únicas entradas con comodín son dos: `routine-model.mjs*` (su id de modelo es texto libre) e `init.mjs*` (para que el advisor ejecute el instalador con `--status`/`--upgrade`); se documentan como excepciones y un test las fija. `ahead-behind` **no hace fetch** (sus refs pueden estar stale): commit, push, fetch y el FF `dev`→`main` siguen requiriendo `builder`.
+
+> **Honestidad del cálculo:** `memory-tokens.mjs` es una **estimación estática** (`chars/4`) del ahorro **potencial** sobre el tamaño actual de la memoria: **no** mide tokens facturados de una sesión real. Los subagentes del escenario cuentan como *hojas*: cada uno recibe un delta en vez de recargar el contexto completo. Con `--skip-verify`/`--skip-critic` el ahorro real es algo menor. Los números concretos dependen de tu repo; trátalos como orientación, no como una cifra universal. La **medición real por sesión** la da `session-metrics.mjs` (solo lectura, `--session <id>` o `--from export.json`): delegaciones por agente, iteraciones y, si el export trae usage, los tokens de esa sesión (si no, `N/A` en vez de ceros).
+
+## Skills
+
+```bash
+node .opencode/skills/_skill-loader/loader.mjs list
+node .opencode/skills/_skill-loader/loader.mjs search "query"
+node .opencode/skills/_skill-loader/loader.mjs chunk "<skill>" urls,shortcuts,examples
+node .opencode/scripts/memory-index.mjs search "auth middleware"
+node .opencode/scripts/doctor.mjs
+node .opencode/scripts/memory-sync.mjs export --all
+```
+
+Cache fingerprint: `.advisor/skill-registry.cache.json` (v2: `path+mtime+size`), refresh con `loader.mjs refresh --force`.
+
+### Búsqueda real en el registry de autoskills
+
+El CLI de autoskills no expone `search`/`list`, así que el harness lee su registry JSON (pineado al tag `v0.3.6`, override `ADVISOR_AUTOSKILLS_REGISTRY`):
+
+```bash
+node .opencode/scripts/skill-search.mjs "vue" --json     # array name/source/skillPath/review.status
+node .opencode/scripts/skill-search.mjs "vue" --offline  # sin red: usa la cache local (aunque esté stale)
+node .opencode/scripts/skill-search.mjs --refresh        # regenera .advisor/autoskills-registry.cache.json
+```
+
+### Scaffold de skills de proyecto
+
+```bash
+node .opencode/scripts/skill-scaffold.mjs mi-skill --description "Qué hace" --chunks urls,patterns  # dry-run (stdout)
+node .opencode/scripts/skill-scaffold.mjs mi-skill --write                                          # escribe .opencode/skills/mi-skill/SKILL.md
+node .opencode/scripts/skill-scaffold.mjs mi-skill --write --force                                  # sobrescribe
+```
+
+Genera frontmatter válido para `_skill-loader` (`name` == directorio, `description` de una línea, `chunks: [...]` con un `<!-- CHUNK: x -->` por chunk).
+
+> **Red best-effort:** `npm test`, `/discover` y `doctor` **no dependen de red**. Si el registry no responde se usa la cache local; sin cache ni red, `skill-search.mjs` avisa por stderr, no imprime nada y sale con 0. La cache vive en `.advisor/autoskills-registry.cache.json` (TTL 7d, override `ADVISOR_REGISTRY_TTL_MS`) y está gitignored.
+
+> **Licencia del catálogo de autoskills:** el registry público de autoskills (`midudev/autoskills`) se distribuye bajo **CC-BY-NC-4.0** (no comercial). El harness **no** commitea ni empaqueta ese catálogo: solo cachea localmente el resultado (gitignored, regenerable). Úsalo para consulta y no lo redistribuyas comercialmente.
+
+## Estructura de este repositorio
+
+> **Ramas de este repositorio.** `dev` es la rama de **integración** y `main` la rama **estable**: **ambas son el repo completo** (`test/`, `.github/`, `scripts/`, `CONTRIBUTING.md`, `.nvmrc` y los dev-tools de `.opencode/scripts/`). La promoción es `dev`→`main` con **`--ff-only`** (fast-forward, sin regenerar): `main` queda idéntico a `dev` en cada promoción. El **canal de consumo limpio no es una rama** sino el paquete **npm** (`advisor-harness`, publicado con `files`) y el **source archive del tag** de GitHub (`git archive`, que respeta el `export-ignore` de `.gitattributes`); el filtrado de lo dev-only ocurre ahí, no en una rama distinta. El paquete npm se publica desde `main` (tag `v*`). Los scripts de desarrollo (`npm test`, `test:contract`, `version:check`, `version:bump`, `lint:sh`) aplican igual en `dev` y en `main`.
+
+```
+consigliere/
+├── init.mjs                # instalador Node universal — ÚNICA implementación
+├── init.sh                 # lanzador bash: exec node init.mjs "$@"
+├── init.ps1                # lanzador PowerShell: & node init.mjs @args
+├── init.cmd                # lanzador CMD: init.ps1 %*
+├── templates/              # {{VAR}} + scripts + skills (lo que se instala en cada proyecto)
+├── package.json            # publica en npm como `advisor-harness` (se consume con `npx advisor-harness@latest`)
+├── README.md + LICENSE     # incluidos en el paquete publicado (files: init.* + templates/ + README + LICENSE)
+├── CONTRIBUTING.md         # flujo de desarrollo y notas de mantenimiento
+├── .nvmrc                  # Node de desarrollo: 20
+├── test/                   # suite propia (harness sin dependencias + fixtures + agregador)
+├── .opencode/scripts/      # dev-only de ESTE repo: version-check.mjs, version-bump.mjs, memory-tokens.mjs, contract-tests.mjs, dev-config.mjs, lint-sh.mjs
+└── .github/workflows/      # ci.yml (5 jobs) + release.yml (gatea en CI)
+```
+
+> Ficheros de desarrollo **fuera** del paquete y del `git archive` (`export-ignore`): `opencode.json`, `skills-lock.json`, `scripts/`, `.opencode/` raíz, `.advisor/`, `AGENTS.md`, memoria y `test/`. Todo eso **sí se genera en cada proyecto instalado** salvo `test/`, que es la suite de desarrollo de este repo y no se instala en ningún proyecto. La `opencode.json` de la raíz es la config dev local (gitignored): se genera con `npm run dev:config` desde `templates/opencode.json`.
+
+## Dependencias
+
+| Vía | Requeridas | Opcionales / notas |
+|---|---|---|
+| `init.mjs` | `node >=20.11.0` (usa `import.meta.dirname`; por debajo, exit 1) | `git` (sin él se omite `git init` + hook, con aviso) · `tar` (backup previo y `--restore`) |
+| `init.sh` | `bash 4+` y **`node >=20.11.0`** (delega en `init.mjs`; sin Node, exit 3) | `git` · `tar` |
+| `init.ps1` | `PowerShell 5.1+` y **`node >=20.11.0`** (delega en `init.mjs`; sin Node, exit 3) | `git` · `tar` |
+| `init.cmd` | `init.ps1` + `node >=20.11.0` | — |
+
+## Validación y CI
+
+El repo tiene su propia suite, sin dependencias externas (nada de `npm ci`: no hay lockfile porque no hay paquetes).
+
+| Script | Qué hace |
+|---|---|
+| `npm test` | `node --check init.mjs` + suite de `test/` + tests de rotación + contrato anti-drift + `version:check` |
+| `npm run test:unit` | solo la suite de `test/` (micro-framework sin deps, un archivo por proceso hijo) |
+| `npm run test:contract` | contrato anti-drift: paridad espejo raíz↔`templates/`, catálogos de archivos solo-raíz **y solo-template** (los dos fallan), invariantes, `node --check` derivado |
+| `npm run lint:sh` | `bash -n` de `init.sh` y `scripts/check-memory-limits.sh` |
+| `npm run lint:ps1` | parse real con el AST de PowerShell sobre `init.ps1` |
+| `npm run version:check` | la versión de `package.json` aparece en los 5 destinos: `init.mjs`, `init.sh`, `init.ps1` y las 2 copias de `_project-docs/SKILL.md` |
+| `npm run version:bump` | sube la versión (`patch`/`minor`/`major`, o `--set X.Y.Z`) en esos 5 destinos y en `package.json`; `--dry-run` imprime la tabla sin escribir |
+| `prepublishOnly` | `version:check` + contrato, antes de publicar |
+
+`.github/workflows/ci.yml`, cinco jobs:
+
+1. **syntax-and-tests** — `node --check` sobre cada `.mjs` del repo (recuento visible) + `npm test`, en matriz **3 SO (ubuntu/windows/macos) x Node 20/22/24**.
+2. **shell-and-powershell** — `bash -n` de los 5 `.sh`, `shellcheck -S warning` (solo Linux) y parseo AST de PowerShell de los 3 `.ps1`.
+3. **memory-limits** — `check-memory-limits.sh` en Linux y `.ps1` en Windows, más una aserción de **paridad**: las dos variantes tienen que mirar las mismas tres cosas (`PROJECT_STATE.md`, `SUMMARY.md`, `memory-manifest.json`).
+4. **drift-and-packaging** — `templates/opencode.json` trackeada y la de raíz ignorada, `version:check`, bit `100755` en todo `.sh` trackeado, `git archive` sin rutas de desarrollo, `templates/opencode.json` presente en el tar y contrato anti-drift.
+5. **pack-smoke** — `npm pack`, lista must-have dentro del tarball, instalación del tarball en un directorio temporal, instalación del harness con el CLI no interactivo, `opencode.json` generado como JSON válido, ningún placeholder `{{...}}` sin resolver, doctor instalado en exit 0 y una segunda pasada `--upgrade` idempotente (3 SO).
+
+`.github/workflows/release.yml` llama a `ci.yml` con `workflow_call` y solo publica (con `--provenance`) si todo lo anterior pasó; el tag `v<version>` tiene que coincidir con `package.json` y estar sobre `main`. Detalle de la cadena en [Versionado y publicación](#versionado-y-publicación).
+
+## Versionado y publicación
+
+**Semver aplicado** (manda lo que rompe al consumidor del harness, no el volumen del cambio):
+
+| Kind | Qué incluye | Ejemplos |
+|------|-------------|----------|
+| `patch` | fix o documentación | corregir un mensaje, endurecer un check, actualizar el README |
+| `minor` | algo **nuevo y compatible** | comando, agente o script nuevo; flag opcional; sección nueva de memoria que no cambia el formato |
+| `major` | cambio de **contrato** | formato de la memoria en `.advisor/`, CLI de `init.mjs` (flags o códigos de salida), layout de `templates/` |
+
+**Fuente única.** La versión vive en `package.json` y en ningún otro sitio. Hay 5 destinos que la repiten porque la leen en tiempo de ejecución (`init.mjs`, `init.sh`, `init.ps1` y las 2 copias de `_project-docs/SKILL.md`); `npm run version:bump <patch|minor|major>` los reescribe todos y deja `package.json` para el final, y `npm run version:check` verifica que los 6 coinciden. El bump exige **1 sola ocurrencia** por fichero, aborta sin escribir si ya había drift (exit 2) y restaura los originales si algo falla a mitad. `--dry-run` imprime la tabla `ruta | from → to | ocurrencias` sin tocar disco, y `--set X.Y.Z` es el escape hatch (idempotente: repetirlo con la versión ya puesta sale 0 sin escribir).
+
+**Cadena de release** (4 pasos, en este orden):
+
+1. En `dev`: `npm run version:bump patch` (o `minor`/`major`).
+2. `npm test` en verde — incluye `version:check` y el contrato anti-drift.
+3. `git switch main && git merge --ff-only dev && git push origin main` (la promoción es fast-forward; si no lo es, `main` se movió por su cuenta y hay que revisarlo).
+4. `git tag vX.Y.Z` sobre el commit que **ya** está en `origin/main`, y `git push origin vX.Y.Z`. El tag dispara `release.yml`.
+
+`release.yml` llama a `ci.yml` (`workflow_call`) y solo publica si los cinco jobs pasan; antes comprueba que el tag coincide con `package.json` y que el commit del tag es ancestro de `origin/main`, después publica el tarball con `--provenance` vía **npm Trusted Publishing (OIDC, sin `NPM_TOKEN` ni secretos)** y crea la release de GitHub con el tarball adjunto. Si `advisor-harness@X.Y.Z` **ya** existe en el registry (tag re-ejecutado) el publish se omite con un `::notice::`, y la release se envuelve en `gh release view || gh release create` para curar el caso "publish OK / release KO". La verificación post-publish corre **también** en los reruns en los que la versión ya estaba publicada (no se salta) y reintenta hasta ~5 min (10 intentos × 30 s con `--prefer-online`) hasta que `npm view advisor-harness@X.Y.Z version` y el `dist-tags.latest` apunten a la versión publicada; si se agotan, el run queda en rojo. Un error que **no** sea el `E404` de "no existe" (red, 5xx, `ENEEDAUTH`) no se degrada a skip: falla el workflow.
+
+> `prepublishOnly` **no** corre al publicar un tarball (`npm publish <tarball>`), que es exactamente lo que hace el workflow: la cobertura real son los steps de `release.yml` (`version:check`, `test:contract`, `npm test`), no el hook del `package.json`.
+
+## Notas de diseño v1.0 (detalle técnico)
+
+- **Solo por proyecto**: cero `~/.local/bin`, sin modificar el `PATH`, cero drift (una instalación global es opcional y la gestiona npm, no el harness).
+- **Routing orgánico**: el advisor decide por **clase de riesgo** (esquema/auth/contrato/migración/irreversible/arquitectura → delegated/spec-lite; bajo riesgo y pocos files → direct), con el **conteo de files como desempate**. Sin burocracia en tareas pequeñas.
+- **SDD-lite integrado en `routine`** (≤650w Given/When/Then), no 10 fases pesadas.
+- **Modelos cheap vs strong**: `{{MODEL_*}}` en `opencode.json` — cheap=verifier/summarizer/explore, strong=builder/planner/critic. El harness valida la forma del id, nunca el derecho a usarlo (ver § *Modelos del free tier*).
+- **Permisos V2**: `permissions:` en el frontmatter de cada agente — `deny` irreparable + `ask` en sensibles (por mención de ruta en shell y `read` ask); detalle en § *Rutas sensibles y límites*.
+- **Memoria md+grep**: topic upsert + stale + sync local, cero dependencias (inspirada en Engram, sin su base de datos).
+- **Ops**: `/doctor` + backup previo obligatorio keep 5 + `--upgrade` (preserva la memoria, regenera la config) + `--part/--status/--restore/--uninstall` modulares.
+- **Rename**: display `Advisor`, npm `advisor-harness` (con bin alias `consigliere-harness`), estado vivo solo en `.advisor/`, cache v2 (ver § Compatibilidad rename).

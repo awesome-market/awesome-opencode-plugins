@@ -1,0 +1,344 @@
+# opencode-codeops
+
+**Specification-first engineering for complex systems — CodeOps plugin for OpenCode.**
+
+Turn an idea or existing system into ambiguity-free requirements, grounded specifications, executable plans, verified code, and durable project state.
+
+## Skills
+
+| Skill | Purpose |
+|---|---|
+| `make-requirements` | Formal requirements from an idea — multi-phase discovery, Zero-Ambiguity Gate |
+| `retro-requirements` | Reverse-engineer an existing codebase into structured requirements |
+| `grill-me` | Deep disambiguation interview before planning or requirements |
+| `make-plan` | Multi-document implementation plan from requirements |
+| `preflight` | 13-dimension quality audit of any plan, requirements, or artifact |
+| `exec-plan` | Execute a plan — implement → verify → commit loop with quality reviews |
+| `roadmap` | Live feature-set roadmap — make, update, review, archive |
+| `analyze-project` | Analyze repo and create/refresh CodeOps-aware `AGENTS.md` guidance |
+| `organize-tests` | Build or refresh a test-impact map; additive map, AGENTS block, and CI patch |
+| `analyze-agents` | Run the project-level specialist check on demand — proposals or a recorded None, with check state |
+| `setup-codeops` | Set up or migrate CodeOps in a git repo |
+| `setup-routing` | Configure per-role subagent model and policy routing |
+| `upgrade-plan` | Upgrade legacy CodeOps artifacts to current schema |
+| `techdocs` | VitePress-compatible architecture docs and ADRs |
+| `github-issues` | Read and manage GitHub issues via `gh` CLI |
+| `clean-comments` | Audit and clean source comments without changing behavior |
+| `git-commit` | Guarded commit — verify, stage deliberately, Conventional Commit message |
+| `outcome-review` | Review local opt-in outcome metrics (requires `metrics.enabled: true`) |
+
+## Test-impact selection (opt-in)
+
+Large suites do not have to run in full for every small change. CodeOps can use
+a committed test map to run the affected feature-slice groups during task, phase,
+and pull-request work while the **full verify** stays the release, acceptance,
+and CI gate.
+
+The feature is opt-in:
+
+- No `codeops/test-map.json` and no `codeops/test-map/` directory: behavior is
+  exactly today's full verify.
+- With a map: `codeops-test select|run|check|plan|shadow|provenance` selects and
+  runs only the affected groups. The release and acceptance gates still run the
+  full suite.
+- Set `CODEOPS_FULL_TESTS=1` to force the full suite at any gate.
+- To roll back, **delete the map** (or remove the testing block). The project
+  returns to the full verify with no other change.
+
+```bash
+# Inspect the selection for a change
+node bin/codeops-test.mjs select --gate task --baseline <tree> --explain
+
+# Run the selected groups
+node bin/codeops-test.mjs run --gate task --baseline <tree>
+
+# Validate the map and its test ownership
+node bin/codeops-test.mjs check --strict
+
+# CI plan for a pull request
+node bin/codeops-test.mjs plan --gate pr --json
+```
+
+Adoption is additive and reversible. The `organize-tests` skill inventories the
+suite, proposes feature slices, previews the map/AGENTS/CI changes, proves the
+selection in shadow mode with zero missed failures, and never edits tests or
+weakens the full gate. This repository ships its own pilot map under
+`codeops/test-map/`; the full verify remains the gate for releases.
+
+## Installation
+
+One command installs everything CodeOps owns: the skills, the subagents, and the OpenCode plugin
+entry in your config.
+
+```bash
+# Global (recommended) — available in every OpenCode project
+curl -fsSL https://cdn.jsdelivr.net/npm/opencode-codeops@latest/install.sh | bash
+
+# Project-only — files live in ./.opencode and are committed with the repo
+curl -fsSL https://cdn.jsdelivr.net/npm/opencode-codeops@latest/install.sh | bash -s -- --project
+```
+
+The same installer runs directly through npm:
+
+```bash
+npx -y opencode-codeops@latest install
+npx -y opencode-codeops@latest update    # alias of install
+```
+
+`install`/`update` writes the skills and subagents onto the filesystem (OpenCode discovers those
+only from disk), then registers the plugin in the OpenCode config by calling OpenCode 2's own
+`opencode plugin add` command, so standards injection and `CODEOPS_PLUGIN_ROOT` are enabled. Restart
+OpenCode after installing for the plugin to load. Pass `--no-plugin` to manage the config yourself.
+
+The installer also places the shared `_shared/` and `references/` documents beside the installed
+`skills/` directory (for example `~/.config/opencode/_shared`), so the skills' relative links to
+them resolve at their installed location. An existing directory with either name is only replaced
+with `--force`.
+
+The scope is auto-detected: inside a CodeOps project (a git repo with `.opencode/` or
+`codeops/.codeops.yml`) it installs into `./.opencode` and registers the plugin in the project
+config; anywhere else it installs globally into `~/.config/opencode` and the global config. Pass
+`--project` or `--global` to force one. OpenCode 2's CLI manages package plugins globally, so a
+project-scope install registers the plugin globally with a note while the skills and agents stay
+project-scoped.
+
+If you prefer to register the plugin manually instead, add it to your `opencode.jsonc`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["opencode-codeops"]
+}
+```
+
+Pin a version with `CODEOPS_VERSION` (an npm dist-tag or exact version; defaults to `latest`):
+
+```bash
+CODEOPS_VERSION=1.6.0 curl -fsSL https://cdn.jsdelivr.net/npm/opencode-codeops@latest/install.sh | bash
+```
+
+`install`/`update` pins the plugin in the OpenCode config to the installer's own version, so the
+plugin and the installed files cannot drift apart; run `update` to move both to a new version.
+
+Re-running the installer upgrades an existing install in place. It replaces only the files this
+package owns, recorded in `.opencode-codeops.json`. Files you author yourself, or install with
+another tool, are left untouched.
+
+Check or remove an install:
+
+```bash
+npx -y opencode-codeops@latest status
+npx -y opencode-codeops@latest uninstall
+```
+
+`status` reports the installed skills and agents versions and the configured plugin entry, so a
+mismatch is visible. Use `--dry-run` to preview an install; a same-named file the package does not
+own is skipped with a warning, and `--force` replaces it. `uninstall` removes the skills and
+subagents but leaves the plugin entry in your config; remove `opencode-codeops` from the `plugins`
+array by hand to fully disable it.
+
+### Local development
+
+OpenCode 2's `opencode plugin add` accepts npm or Git package specifiers only, so a checkout is
+loaded through a local plugin file. Place a one-line re-export in a plugin directory and link the
+installed files to the checkout so edits are picked up without reinstalling:
+
+```bash
+# Plugin — project scope (use ~/.config/opencode/plugins/ for every project)
+mkdir -p .opencode/plugins
+printf 'export { default } from "%s/plugin/index.ts"\n' "$PWD" > .opencode/plugins/codeops.ts
+
+# Skills and agents — link instead of copy
+node bin/index.mjs install --link --global --no-plugin
+```
+
+Pass `--no-plugin` so the checkout entry is not overwritten by a registered npm plugin.
+
+## Setup
+
+After installing the plugin and the files, initialize CodeOps in your project:
+
+```
+/setup-codeops
+```
+
+This creates the `codeops/` layout, scaffolds `codeops/codeops.json` and `codeops/.codeops.yml`, installs the skills and the 12 CodeOps subagent files into `.opencode/`, and adds a managed section to `AGENTS.md`.
+
+Commit the result:
+
+```bash
+git add codeops/ .opencode/ AGENTS.md
+git commit -m "chore: initialize CodeOps"
+```
+
+## What the plugin does automatically
+
+The plugin adds the CodeOps standards to every model request as system instructions, and also to
+every compaction summary, so they are always active:
+- `standards/coding-standards.md` — coding quality, security, testing, and working-style rules
+- `standards/output-style.md` — how to report findings, format tables, and recommend next steps
+
+These standards are active without any user action. They do not need to be copied into `AGENTS.md`.
+
+The plugin also warns (non-blocking) if any tool attempts to edit `codeops/.codeops.yml` directly — that file is managed exclusively by the `setup-codeops` skill — and if the installed skills version differs from the plugin version, so a stale install is visible.
+
+Every session also gets a workspace-hygiene guard: the plugin exports `CODEOPS_TMPDIR`, a scratch
+directory under the OS temp directory that belongs to the running OpenCode plugin instance. Skills
+and agents put temporary files there and delete them when the run completes; the plugin sweeps
+directories abandoned by interrupted runs at startup (older than seven days), so CodeOps does not
+accumulate scratch data. Because OpenCode 2 does not expose a session id to shell hooks, concurrent
+sessions served by one instance share this directory, and no session's scratch is deleted while
+others may still use it. The full protocol is in `_shared/workspace-hygiene.md`.
+
+## Live task progress in the sidebar
+
+While an `exec-plan` run is active, the sidebar shows the current run — plan, phase, task,
+activity (`starting`, `implementing`, `verifying`, `reviewing`, `delegating`, `blocked`,
+`waiting`, `done`), and the verified-task count — reported by the agent through the
+`codeops_progress` tool. The view is intentionally honest: it always shows an "as of" time; a
+run with no update for 10 minutes is marked "stale" instead of looking live; and nothing renders
+when no run is active, when the host lacks the plugin APIs, or when every call fails. The
+Markdown execution plan remains the single progress source of truth; the live view never gates
+execution.
+
+## Discovery
+
+Discovery is a local web page where the agent publishes a CodeOps question round
+instead of asking every question in chat. Questions, options, recommendations, and dependency
+rules render in the browser; answers are saved there, and Submit wakes the OpenCode session that
+published them so it can continue.
+
+### Plan workspace
+
+The plan workspace uses a persistent group navigation column and shows one selected group at a
+time. Groups carry ready, pending, and completed cues, and a selected group stays selected while
+you inspect a locked or completed group. The plan URL, group links
+(`#/p/<project>/<plan>/groups/<key>`), and the summary link
+(`#/p/<project>/<plan>/summary`) are stable and work with browser back and forward.
+
+The action bar always shows **Submit group** for the selected group. The **Decision summary**
+lists current answers, their statuses, and links back to each group; **Submit all ready groups**
+sends every ready group from one place. Readiness and completion are labelled separately.
+
+Save state is server-backed. **Saved** appears only after the server acknowledges the write;
+**Unsaved changes** and **Saving…** show pending work, and a failed save keeps the draft with
+**Retry**. Edits survive group changes and live refreshes. A draft that can no longer be saved —
+because the question became read-only, locked, retired, hidden, or its group was removed — stays
+visible under **Unsent drafts** and can be explicitly discarded or left after confirmation.
+
+The shared header carries a real breadcrumb and a **System / Light / Dark** theme control. System
+follows the operating-system setting; an explicit choice is remembered in the browser. If storage
+is unavailable, the choice still applies for the current tab.
+
+New projects created with `setup-codeops` start with Discovery enabled. Existing projects can
+toggle it without re-scaffolding:
+
+```text
+/setup-codeops --enable-discovery
+/setup-codeops --disable-discovery
+```
+
+`analyze-project --with-discovery` remains available for the same config change. The setting lives
+in `codeops/codeops.json`:
+
+```json
+{
+  "discovery": { "enabled": true, "chatMaxQuestions": 3 }
+}
+```
+
+Rounds with at most `chatMaxQuestions` (default 3) questions stay in chat. The page is served
+from the plugin at `http://localhost:4747/`; set `CODEOPS_DISCOVERY_PORT` to listen on a
+different port. Discovery data lives in `$CODEOPS_DATA_DIR/discovery`, which defaults to
+`~/.local/share/opencode/codeops/discovery`.
+
+The listener binds to `127.0.0.1` only and has no login. It assumes a single-user machine: any
+local user can read the page and the stored answers. Browsers limit concurrent
+connections per host, so keep only a few plan tabs open at once. The agent continues only while
+OpenCode is running in that project; submissions that arrive while it is not are delivered when
+it starts again.
+
+Pass `--no-discovery` to a skill to skip the page for one run and use chat. Building from a
+checkout with `npm run build:discovery` refreshes the page assets without restarting OpenCode.
+Remote and SSH sessions are not supported.
+
+## Agent model configuration
+
+All CodeOps subagents inherit the model of the primary agent that invoked them. No provider-specific configuration is required out of the box.
+
+To pin specific models per role, use the `setup-routing` skill or add overrides directly in
+`opencode.jsonc`:
+
+```json
+{
+  "agents": {
+    "demanding-executor": { "model": "anthropic/claude-opus-4-5" },
+    "executor":           { "model": "anthropic/claude-haiku-4" }
+  }
+}
+```
+
+### Adaptive reasoning effort
+
+CodeOps can pick a reasoning level per dispatch instead of always inheriting the parent session's
+variant. A dispatch packet may carry one standalone marker line:
+
+```text
+[codeops-effort: medium]
+```
+
+Reasoning-heavy skills also accept `--auto-effort` (use the skill's recommended level) or
+`--auto-effort=high` (explicit level), announce it, and clear it before the final run summary.
+Resolution order: dispatch marker, then session `--auto-effort`, then
+`routing.roles.<agent>.reasoning` in `codeops/codeops.json`, then the inherited parent variant.
+A level the active model does not expose resolves to the nearest exposed variant (`medium`
+becomes `high` on a `low`/`high`/`max` model). The levels are suggestions: no permission,
+verification step, or review gate ever reads them. The full contract is in
+`_shared/reasoning-effort.md`.
+
+## Project specialists
+
+CodeOps can recommend project-specific specialist subagents when repository evidence shows a
+capability gap the twelve catalog roles and dynamic packets cannot close. Specialists are created
+only with your explicit approval — the `--auto-design` mode cannot approve them.
+
+- **Detect** — `make-requirements`, `make-plan`, and `analyze-project` run an evidence-based check
+  and record the outcome (including a negative one); the `analyze-agents` skill runs the same
+  check on demand and maintains `codeops/specialist-check.json` for the coverage line. At most two
+  candidates per scope surface as lightweight, evidence-backed proposals; the creation gate
+  applies when you choose to proceed.
+- **Create** — after you approve the candidate packet, `setup-routing` writes a brief at
+  `codeops/specialists/<role>.md`, writes routing policy first, generates a visible agent with
+  `install_agents.py --custom <role>`, and updates a managed index block in `AGENTS.md` with
+  `--sync-agents-md`.
+- **Route** — a plan's `## Specialist Agents` table maps roles to phases. During `exec-plan`,
+  listed specialists are dispatched as **additional** reviewers or executors: they never replace a
+  required reviewer or gate, reviewer findings use the `SR-NNN` prefix, and the generated agent
+  defaults to `reasoningEffort: max` (override it with `routing.roles.<role>.reasoning`).
+- **Fallback** — a specialist is available as soon as its generated agent exists; OpenCode's
+  discovery timing is whatever your build provides. If it is missing, invalid, or a dispatch fails,
+  dispatch falls back to a generic subagent carrying the brief excerpt and reports the fallback.
+  No review depends on a specialist existing.
+
+Lifecycle checks: `--check` reports `INVALID`, `MISSING`, `STALE`, `ORPHAN`, `HAND-AUTHORED`, and
+`AGENTS.md` states; `--remove-custom <role> --yes` deletes the generated agent and its brief and
+updates the index.
+
+> **Upgrading:** specialist agents embed the generic template contract. When a newer plugin changes
+> those templates, `--check` reports the agent as `STALE`; re-run
+> `python3 "${CODEOPS_PLUGIN_ROOT}/scripts/install_agents.py" --project . --custom <role>` (then
+> `--sync-agents-md`) to regenerate it.
+
+## Requirements
+
+- OpenCode 2.0+ (this release uses the OpenCode 2 plugin API; on OpenCode 1, use
+  `opencode-codeops@1`)
+- Bash
+- Python 3.8+
+- Git
+- Node.js 18+ (for the `npx` installer; Bun is used by OpenCode to load the plugin)
+- `gh` CLI (for the `github-issues` skill only)
+
+## License
+
+MIT

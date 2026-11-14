@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yinbaozong/video-note-forge · OpenCode Plugins</title>
+<meta name="description" content="Agent skill that turns YouTube and Bilibili videos into Obsidian-ready learning notes">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="video-note-forge, yinbaozong, yinbaozong/video-note-forge, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, memory, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/yinbaozong__video-note-forge">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="yinbaozong/video-note-forge · OpenCode Plugins">
+<meta property="og:description" content="Agent skill that turns YouTube and Bilibili videos into Obsidian-ready learning notes">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/yinbaozong__video-note-forge">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "yinbaozong/video-note-forge", "codeRepository": "https://github.com/yinbaozong/Video-Note-Forge", "url": "https://opencode-plugins.zhuikan.com/repos/yinbaozong__video-note-forge", "description": "Agent skill that turns YouTube and Bilibili videos into Obsidian-ready learning notes", "author": {"@type": "Organization", "name": "yinbaozong", "url": "https://github.com/yinbaozong"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-07-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "memory,tools"}</script>
+</head>
+<body data-repo="yinbaozong/video-note-forge" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">yinbaozong/video-note-forge</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="yinbaozong__video-note-forge"><img class="rp-side-av" src="https://github.com/yinbaozong.png?s=300" width="300" height="300" alt="yinbaozong avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">video-note-forge</div>
+      <a class="rp-side-owner" href="https://github.com/yinbaozong">yinbaozong</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/yinbaozong">yinbaozong</a>
+        <span class="rp-sep">/</span><span class="rp-name">video-note-forge</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agent skill that turns YouTube and Bilibili videos into Obsidian-ready learning notes</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/memory">memory</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-07-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/yinbaozong/Video-Note-Forge">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">13</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">视学工坊 · Video Note Forge
+
+把 YouTube、Bilibili 视频整理为适合 Obsidian 长期学习的中文笔记，保留独立 SRT、视频封面和与讲解对应的关键截图。
+
+当前版本：v4.3.0 · 完整示例：ScanRuler · 发布说明
+
+当前源码为 v4.3.0开发预览，展示名改为“视学工坊”；插件ID与配置不变。新增Bilibili普通投稿/分P适配及两个任务并行，真实跨平台双文章生成验收尚未完成，详见版本说明。下方安装和使用步骤继续适用，旧名称对应同一插件。
+
+术语表现在同时保留缩写与全称，例如：视觉语言动作模型｜VLA｜Vision-Language-Action｜结合视觉、语言与动作的模型。没有通用缩写的术语填“—”，不编造。
+
+验证范围：多视频并行与 Bilibili 计划、实测及验收清单。开发预览包含相应代码，但不代表真实双视频端到端验收已通过。
+
+ 笔记是什么样的
+
+- 解释型正文：沿着问题、原理、案例与限制展开，不把字幕压缩成零散提纲。
+- 按信息密度展开：约25分钟的高密度视频目标5000—7000字，短视频相应收敛，不靠重复凑篇幅。
+- 自动判断视频重心：教程侧重步骤与原因，评测保留测试条件和能力边界，观点内容说明论据；不强套同一种文章结构。
+- 截图作为证据：放在对应段落旁，图注说明画面能证明什么；没有截图的重要内容仍须解释。
+- 两张 Mermaid 图：可视化总结与学习图谱，分别梳理流程或逻辑，以及概念关系。
+- 中英术语：首次出现给出英文全称，适用时附缩写，文末术语表解释具体语境。
+- 明确区分 AI 补充：仅在启用“允许 AI 延伸解读”时生成，单独标注，不冒充视频实测或作者观点。
+
+ScanRuler 完整示例包含八张原视频截图、两张图和术语表，保留赞助披露与证据边界。封面仅在成功取得时插入，不以封面替代关键帧。
+
+ 工作方式
+
+text
+Chrome 当前视频页 → YouTube 阅读器 → Obsidian YouTube Note Reader
+  → youtube-transcript Skill → 模型 API → 当前 Vault 的学习笔记与素材
+
+
+完整阅读器无需 OpenCode 或独立桌面伴侣。Obsidian 编排既有提取流程，Skill 与插件提示词采用一致的写作要求。详细边界见 v4 架构。
+
+ Windows 安装
+
+ 1. 准备依赖
+
+Windows 10/11、Chrome、Obsidian 桌面版 1.11.4+、Python 3.10+、FFmpeg、Node.js，以及可用的 OpenAI-compatible 模型 API Key。确保可访问 YouTube 与所选模型服务。
+
+在 PowerShell 检查依赖已加入 PATH：
+
+powershell
+python --version
+ffmpeg -version
+node --version
+
+
+完整发布包 youtube-reader-chrome-obsidian-v4.3.0.zip 含编译好的插件；普通安装不需要 npm。使用源码且缺少编译产物时，安装器会用 npm 安装并构建插件。
+
+ 2. 安装到 Vault
+
+先用 Obsidian 创建或打开目标 Vault。解压完整发布包，在解压目录运行，替换为自己的 Vault 路径：
+
+powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1 -Vault &quot;D:\Notes\MyVault&quot;
+
+
+安装器安装 requirements.txt 中的 Python 依赖（含 yt-dlp 浏览器指纹支持），并部署插件与 Skill。默认不安装语音识别；需要时在上述命令末尾追加 -InstallAsr。
+
+重启 Obsidian，在“设置 → 第三方插件”启用 YouTube Note Reader。插件位于 \.obsidian\plugins\youtube-note-reader，Skill 位于 \.obsidian\skills\youtube-transcript。
+
+ 3. 配置 API
+
+进入 Obsidian 的 YouTube Note Reader 设置页：
+
+| 设置 | 填写方式 |
+| --- | --- |
+| API Base | 服务商的 OpenAI-compatible 接口根地址，按服务商要求包含版本路径 |
+| Model | 服务商提供的完整模型名 |
+| API Key | 填写自己的密钥，保存后点击“验证 API Key” |
+| Python | 通常为 python，或本机 Python 可执行文件路径 |
+| Skill 目录 | 保持当前 Vault 内的默认安装路径 |
+| 输出目录 | 默认 YouTube video |
+
+API Key 保存在 Obsidian SecretStorage，Chrome 不读取密钥。验证会发送最小模型请求，可能产生费用；任务使用配置的模型，不自动切换服务商。
+
+ 4. 加载 Chrome 扩展
+
+1. 打开 chrome://extensions，开启“开发者模式”。
+2. 点击“加载已解压的扩展程序”，选择发布包的 extension 文件夹。
+3. 固定 YouTube 阅读器；打开“连接与设置”，确认已连接目标 Vault，且 API Key 验证成功。
+
+扩展通过 127.0.0.1:32191 连接本机 Obsidian。连接失败时检查 Obsidian 是否打开、插件是否启用，以及端口是否被占用。
+
+ 使用
+
+1. 保持目标 Vault 与插件开启，在 Chrome 登录 YouTube 并打开视频。
+2. 按需在插件设置中选择标准学习笔记、详细教程或通俗讲解，填写自定义要求，决定是否允许 AI 延伸解读。
+3. 点击 YouTube 阅读器 → 生成学习笔记。一次处理一个视频，关闭弹窗不影响后台任务。
+4. 完成后点击“在 Obsidian 打开”；任务中心可搜索历史笔记并打开原视频。
+
+流程为字幕与素材提取、文章规划、定点抽帧、写作、校验。已有完整页面文字稿可复用；没有可用字幕时不会自动开启 ASR。只有显式点击“允许 ASR 并重试”才下载音频并进行本地识别，需要事先安装可选依赖。
+
+页面采集不会自动展开描述或文字稿，也不会自动点击播放控件；在原有15秒总预算内观察已加载的字幕面板。字幕问题的已知原因和本地修复验证范围见字幕采集排查。
+
+模型超时或 Obsidian 中断后，使用继续入口复用已有素材。标准与通俗模式总时限为 8 分钟，详细模式为 12 分钟；网络、字幕可用性和模型响应仍可能导致失败。
+
+text
+/YouTube video/
+  中文标题 - English Title.md
+  transcripts/中文标题 - English Title.srt
+  assets//cover.jpg        成功提取时保留
+  assets//frame</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/yinbaozong__video-note-forge.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

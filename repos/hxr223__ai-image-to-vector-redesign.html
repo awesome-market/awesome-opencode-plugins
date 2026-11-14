@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hxr223/ai-image-to-vector-redesign · OpenCode Plugins</title>
+<meta name="description" content="Agent skill for rebuilding AI-generated designs into editable SVG, review-ready PDF, and 4K PNG, with export and QA tools.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ai-image-to-vector-redesign, hxr223, hxr223/ai-image-to-vector-redesign, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/hxr223__ai-image-to-vector-redesign">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="hxr223/ai-image-to-vector-redesign · OpenCode Plugins">
+<meta property="og:description" content="Agent skill for rebuilding AI-generated designs into editable SVG, review-ready PDF, and 4K PNG, with export and QA tools.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/hxr223__ai-image-to-vector-redesign">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "hxr223/ai-image-to-vector-redesign", "codeRepository": "https://github.com/hxr223/ai-image-to-vector-redesign", "url": "https://opencode-plugins.zhuikan.com/repos/hxr223__ai-image-to-vector-redesign", "description": "Agent skill for rebuilding AI-generated designs into editable SVG, review-ready PDF, and 4K PNG, with export and QA tools.", "author": {"@type": "Organization", "name": "hxr223", "url": "https://github.com/hxr223"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-26", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="hxr223/ai-image-to-vector-redesign" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">hxr223/ai-image-to-vector-redesign</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="hxr223__ai-image-to-vector-redesign"><img class="rp-side-av" src="https://github.com/hxr223.png?s=300" width="300" height="300" alt="hxr223 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ai-image-to-vector-redesign</div>
+      <a class="rp-side-owner" href="https://github.com/hxr223">hxr223</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/hxr223">hxr223</a>
+        <span class="rp-sep">/</span><span class="rp-name">ai-image-to-vector-redesign</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agent skill for rebuilding AI-generated designs into editable SVG, review-ready PDF, and 4K PNG, with export and QA tools.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>5</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-08-26</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/hxr223/ai-image-to-vector-redesign">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">5</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AI Image To Vector Redesign
+
+让 GPT Image 2 生成图，真正能交付。
+
+GPT Image 2 图很好看，但字糊了、错了、不能改。这个 skill 保持原样式，把它重建成文字可信、可编辑、能发给客户的 SVG / PDF / 4K PNG。
+
+中文 · English
+
+效果案例 · 快速开始 · 为什么用它 · 工作方式 · 输出包
+
+!Same style, clear text
+
+---
+
+ 这是什么
+
+ai-image-to-vector-redesign 是一个 AI Agent Skill。
+
+给它一张 GPT Image 2 生成的扁平设计图，它会把这张“只能看、不能改、文字还可能糊”的图片重新拆解并重建：标题变成清晰文字，卡片和分割线变成矢量结构，复杂背景和产品画面保留为高分辨率图像资产，最后导出可编辑 SVG、可审核 PDF 和适合发布的高清 PNG。
+
+它不是通用图片转 PPTX，也不是简单放大。它专门解决一个很真实的交付问题：
+
+AI 图很好看，但里面的字不能信、不能改、不能放心发。
+
+ 应用场景
+
+AI 生成的海报字糊了？  
+GPT Image 2 做出来的活动海报视觉很好，但标题、小字、日期、地点变成了像素。这个 skill 会重新排版文字，并导出 4K PNG 和 PDF。
+
+公众号长图压缩后看不清？  
+长图里的卡片、步骤、注释和底部说明经常在手机端糊成一片。这个 skill 会把长图按发布尺寸重建，先保证移动端可读。
+
+产品宣传图想改一句话？  
+产品渲染图可以保留，卖点、价格、按钮、标签重新做成可编辑图层，不用为了改一个词重新生成整张图。
+
+客户要源文件和审核版？  
+交付时不只给一张 PNG，而是给 SVG、PDF、高清发布图和 QA 记录，说明哪些内容已经重建，哪些区域仍然是图像资产。
+
+ 效果案例
+
+下面都是用自由主题生成的示例，不包含用户私有业务素材。每个案例都刻意放入较多中文、数字和生僻字，用来展示“不改变样式，只把同样文字从模糊位图变成清晰交付稿”的差异。
+
+| 场景 | 模糊 AI 位图 | 同样式重建后 | 细节对比 |
+| --- | --- | --- | --- |
+| 活动海报 |  |  |  |
+| 微信风格长图 |  |  |  |
+| 产品社交媒体图 |  |  |  |
+
+每个案例目录都包含原图、问题裁剪、重建 SVG、4K PNG、PDF 和 QA 报告。更多说明见 examples/README.md。
+
+ 为什么用它
+
+一张 AI 生成图要变成可交付文件，难点不只是“变清晰”，而是判断每一层应该怎么处理。
+
+| 方案 | 做法 | 问题 |
+| --- | --- | --- |
+| 图片放大 | 把像素变多 | 糊字、假字、错字仍然不可信 |
+| 矢量描摹 | 把像素边缘拟合成路径 | 复杂海报会变成大量噪声路径，文字也不可编辑 |
+| 重新生成 | 让模型再出一版 | 可能修好一个字，又改坏整体构图 |
+| 手工重画 | 设计师重新做 | 质量最高，但慢，不适合作为 agent 自动工作流 |
+| 本 skill | 以原图为参考，混合重建 | 文字和结构可编辑，复杂图像保真，适合交付 |
+
+它的重点是 GPT Image 2 设计图的“最后一公里”：
+
+- 先确认文字，而不是相信 AI 图里的假字。
+- 版式能重画就重画，不把整张图粗暴描摹成路径。
+- 产品图、照片感背景和复杂插画按区域保真。
+- 默认导出适合聊天软件、社交平台、客户审核和 4K 交付的文件。
+
+ 快速开始
+
+克隆仓库并安装依赖：
+
+bash
+git clone https://github.com/hxr223/ai-image-to-vector-redesign.git
+cd ai-image-to-vector-redesign
+npm install
+
+
+如果你已经安装 Google Chrome，并且不想下载 Playwright 自带浏览器：
+
+bash
+npm install --ignore-scripts
+
+
+安装成 Codex / Claude 兼容 skill：
+
+bash
+mkdir -p ~/.codex/skills
+ln -s &quot;$PWD&quot; ~/.codex/skills/ai-image-to-vector-redesign
+
+
+装好后，在 Agent 里对图片说一句话就可以：
+
+text
+使用 ai-image-to-vector-redesign，把这张 GPT Image 2 海报重建成可编辑 SVG、PDF 和高清 PNG。
+
+
+如果图里有日期、金额、人名、法律声明或品牌文案，先给最终文案，或让 Agent 生成 confirmed-text.md 后人工确认。
+
+ 保真修复（默认）
+
+默认保持原图的构图、背景、字牌数量、文字方向与装饰，只在标注区域清版和原位重排。需要改版时明确指定“自由重设计”。复杂插画可保留位图；不可把大面板遮字或裁掉装饰当作保真修复。
+
+先建立 regions.json（原图像素坐标），使用 npm run review-regions -- original.png regions.json output/review 检查标注。完整前后对比使用 npm run compare -- original.png output/publish-4k.png --full --out-compare output/comparison.png。
+
+文件检查输出 qa-mechanical.json / qa-mechanical.md，不会覆盖人工 qa-report.md。文件检查通过不代表文案、字体材质或视觉保真通过。详细流程见 保真修复。
+
+ 工作方式
+
+整个流程分四步：
+
+1. 诊断  
+   判断原图尺寸、文字风险、压缩风险、哪些区域需要重建，哪些区域适合保留为图像。
+
+2. 确认文字  
+   把标题、数字、标签、脚注和按钮文案整理成可校对草稿，避免把 AI 生成的假字直接做进成品。
+
+3. 混合重建  
+   文本重新排版，卡片、边框、分割线、简单图表重画为矢量；照片、产品渲染、复杂插画作为高质量图像资产嵌入。
+
+4. 导出和 QA  
+   生成 SVG、PDF、3x PNG、4K PNG、问题裁剪、细节对比图和 QA 报告。
+
+ 输出包
+
+text
+output/
+├── source.svg           可维护源文件
+├── editable.svg         可编辑 SVG
+├── publish-3x.png       社交媒体和聊天软件发布图
+├── publish-4k.png       4K / 高分辨率交付图
+├── print.pdf            审核和打印用 PDF
+├── export-report.json   导出记录
+└── qa-report.md         质量检查报告
+
+
+案例目录还会包含：
+
+text
+original.png             GPT</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/hxr223__ai-image-to-vector-redesign.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

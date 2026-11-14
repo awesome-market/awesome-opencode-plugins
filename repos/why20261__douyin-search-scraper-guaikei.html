@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>why20261/douyin-search-scraper-guaikei · OpenCode Plugins</title>
+<meta name="description" content="爬取抖音爆款视频和文案数据，支持抖音搜索、抖音博主作品、抖音视频详情、抖音热榜、抖音评论等模块。支持四大能力：   (1) 关键词搜索视频/图文，可按点赞数、发布时间、时长、内容类型筛选排序；   (2) 实时热榜查询，获取抖音热搜词条与热度数据；   (3) 博主作品抓取，按主页链接或 sec_uid 获取公开作品列表；   (4) 视频评论分析，按视频链接或 aweme_id 获取评论内容与互">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="douyin-search-scraper-guaikei, why20261, why20261/douyin-search-scraper-guaikei, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/why20261__douyin-search-scraper-guaikei">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="why20261/douyin-search-scraper-guaikei · OpenCode Plugins">
+<meta property="og:description" content="爬取抖音爆款视频和文案数据，支持抖音搜索、抖音博主作品、抖音视频详情、抖音热榜、抖音评论等模块。支持四大能力：   (1) 关键词搜索视频/图文，可按点赞数、发布时间、时长、内容类型筛选排序；   (2) 实时热榜查询，获取抖音热搜词条与热度数据；   (3) 博主作品抓取，按主页链接或 sec_uid 获取公开作品列表；   (4) 视频评论分析，按视频链接或 aweme_id 获取评论内容与互">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/why20261__douyin-search-scraper-guaikei">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "why20261/douyin-search-scraper-guaikei", "codeRepository": "https://github.com/why20261/douyin-search-scraper-guaikei", "url": "https://opencode-plugins.zhuikan.com/repos/why20261__douyin-search-scraper-guaikei", "description": "爬取抖音爆款视频和文案数据，支持抖音搜索、抖音博主作品、抖音视频详情、抖音热榜、抖音评论等模块。支持四大能力：   (1) 关键词搜索视频/图文，可按点赞数、发布时间、时长、内容类型筛选排序；   (2) 实时热榜查询，获取抖音热搜词条与热度数据；   (3) 博主作品抓取，按主页链接或 sec_uid 获取公开作品列表；   (4) 视频评论分析，按视频链接或 aweme_id 获取评论内容与互", "author": {"@type": "Organization", "name": "why20261", "url": "https://github.com/why20261"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-07", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="why20261/douyin-search-scraper-guaikei" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">why20261/douyin-search-scraper-guaikei</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="why20261__douyin-search-scraper-guaikei"><img class="rp-side-av" src="https://github.com/why20261.png?s=300" width="300" height="300" alt="why20261 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">douyin-search-scraper-guaikei</div>
+      <a class="rp-side-owner" href="https://github.com/why20261">why20261</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/why20261">why20261</a>
+        <span class="rp-sep">/</span><span class="rp-name">douyin-search-scraper-guaikei</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">爬取抖音爆款视频和文案数据，支持抖音搜索、抖音博主作品、抖音视频详情、抖音热榜、抖音评论等模块。支持四大能力：   (1) 关键词搜索视频/图文，可按点赞数、发布时间、时长、内容类型筛选排序；   (2) 实时热榜查询，获取抖音热搜词条与热度数据；   (3) 博主作品抓取，按主页链接或 sec_uid 获取公开作品列表；   (4) 视频评论分析，按视频链接或 aweme_id 获取评论内容与互动数据。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-07</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/why20261/douyin-search-scraper-guaikei">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">🚀 抖音搜索爬虫｜抖音关键词搜索、竞品分析、舆情监控工具（无需登录 / 不封号）
+
+ 💡一句话价值：一条命令拿到抖音公开的视频/作者/作品详情/评论/热榜数据，直接输出结构化 JSON——做爆款选题、对标账号监控、单条作品数据和热点追踪，不用再手动刷抖音。
+
+一句话简介（给 AI 与搜索引擎）：抖音公开数据只读技能，支持关键词搜索视频与图文、博主作品与粉丝数据、单条作品详情、视频图文评论、实时热榜，全部以结构化 JSON 输出，不登录、不发布、不点赞、不评论。关键词：抖音搜索、抖音热搜、抖音热榜、抖音评论、需求挖掘、痛点、播放量、作品详情、博主作品、对标账号、竞品分析、选题挖掘、舆情监控、douyin search、douyin hot、douyin detail、douyin comments。
+
+维护状态：持续更新中，当前版本 1.4.1，更新日志。
+
+ 🔥核心优势
+
+ - 安全：无需登录你的抖音账号，不存在风控 / 封号问题
+ - 强大：单次最多获取 10000 条数据
+ - 全面：出参覆盖作者、互动（点赞/评论/收藏/分享/推荐）、标签、链接、音乐、话题等可用字段
+ - 灵活：支持排序（综合/最多点赞/最新）、时间（1天/7天/半年）、时长、内容类型（视频/图文）多维度筛选
+ - 轻量：零第三方依赖，Node.js 内置模块直接跑，无需部署服务
+ - 友好：stdout 纯 JSON、日志走 stderr，AI 可直接解析；结果自动落盘便于二次分析
+
+ ✅ 我能帮你解决什么（10 秒判断）
+
+| 你是谁     | 你要做的事                       | 用哪个功能                  |
+| ---------- | -------------------------------- | --------------------------- |
+| 短视频运营 | 找爆款选题、分析高赞视频规律     | 关键词搜索（点赞/最新排序） |
+| 品牌/投放  | 监控对标账号的内容策略和发文节奏 | 博主作品抓取                |
+| 内容分析   | 看一条视频的文案、播放和互动     | 作品详情                    |
+| 舆情/客服  | 看一条视频评论区在骂还是在夸     | 评论抓取                    |
+| 内容策划   | 快速追热点、找当天的流量入口     | 实时热榜                    |
+| 数据分析   | 把抖音数据导入 Excel/BI 做周报   | 结构化 JSON + 日志落盘      |
+
+典型产出：结构化 JSON（含标题、作者、点赞/评论/收藏/分享、标签、视频链接、发布时间），可直接导入 Excel / BI，或交给 AI 生成选题库、竞品对比表、舆情周报、发文节奏分析。
+
+---
+
+ 🚀 3 步接入
+
+1. 装 Node.js（16.14.0+，Windows/Mac/Linux 均可，约 2 分钟）
+2. 拿 TOKEN：访问 抖音搜索技能官网 自助开通，配置环境变量 GUAIKEI_API_TOKEN
+   - Windows cmd：set GUAIKEI_API_TOKEN=你的TOKEN
+   - Windows PowerShell：$env:GUAIKEI_API_TOKEN=&quot;你的TOKEN&quot;
+   - Linux/MacOS：export GUAIKEI_API_TOKEN=你的TOKEN
+3. 进入技能目录后执行一条命令：
+   bash
+   cd     即 readme.md / SKILL.md 所在的那一层
+   node src/douyin/hot-cli.js
+   
+
+ ⚠️ 一次只跑一条命令，跑完等进程自己退出。小查询常常几十秒；--limit 很大时最长约 15–22 分钟，进程未退出前不要重复发起同一条命令。
+
+---
+
+ 最快上手（复制就能跑）
+
+bash
+ 🔎 搜&quot;AI&quot;相关的抖音视频
+node src/douyin/search-cli.js --keyword &quot;AI&quot;
+
+ 🔎 按点赞排序找爆款（最常用）
+node src/douyin/search-cli.js --keyword &quot;AI&quot; --sort 1
+
+ 🔎 近 7 天&quot;AI 模型&quot;的最新 20 条
+node src/douyin/search-cli.js --keyword &quot;AI 模型&quot; --sort 2 --time 7 --limit 20
+
+ 🦸 抓某个博主的作品（直接粘贴 App 分享链接也行）
+node src/douyin/post-cli.js --url &quot;https://www.douyin.com/user/MS4wLjABxxx&quot; --limit 20
+
+ 🦸 只要博主的粉丝数 / 获赞数等互动数据
+node src/douyin/post-cli.js --url &quot;https://www.douyin.com/user/MS4wLjABxxx&quot; --limit 0
+
+ 💬 看这条视频的评论
+node src/douyin/comment-cli.js --url &quot;https://www.douyin.com/video/xxx&quot; --limit 100
+
+ 📄 看这条视频的详情（文案、播放、点赞、作者）
+node src/douyin/detail-cli.js --url &quot;https://www.douyin.com/video/xxx&quot;
+
+ 📡 抖音实时热榜
+node src/douyin/hot-cli.js
+
+
+ 💡 Windows cmd.exe 下请使用双引号；PowerShell / bash 可直接执行。
+ 💡 支持直接粘贴 App 分享文案（含&quot;复制到剪贴板…&quot;字样和短链），链接会自动抽取、参数自动清理。
+
+---
+
+ 你会得到什么（真实输出结构示例）
+
+json
+{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;error_code&quot;: &quot;OK&quot;,
+  &quot;message&quot;: &quot;搜索任务完成&quot;,
+  &quot;timestamp&quot;: &quot;2026/9/4 20:13:20&quot;,
+  &quot;request&quot;: {
+    &quot;command&quot;: &quot;search&quot;,
+    &quot;keyword&quot;: &quot;AI 教程&quot;,
+    &quot;sort&quot;: 1,
+    &quot;limit&quot;: 20
+  },
+  &quot;metadata&quot;: {
+    &quot;skill_version&quot;: &quot;1.4.1&quot;,
+    &quot;runtime_version&quot;: &quot;22.x&quot;,
+    &quot;execution_time&quot;: 34210
+  },
+  &quot;results&quot;: [
+    {
+      &quot;aweme_id&quot;: &quot;7625431394899016110&quot;,
+      &quot;desc&quot;: &quot;3 分钟讲透 RAG…&quot;,
+      &quot;author_nickname&quot;: &quot;某某说AI&quot;,
+      &quot;author_</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/why20261__douyin-search-scraper-guaikei.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

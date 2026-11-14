@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>duskriver/dsh-opencode-go · OpenCode Plugins</title>
+<meta name="description" content="duskriver/dsh-opencode-go — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="dsh-opencode-go, duskriver, duskriver/dsh-opencode-go, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/duskriver__dsh-opencode-go">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="duskriver/dsh-opencode-go · OpenCode Plugins">
+<meta property="og:description" content="duskriver/dsh-opencode-go — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/duskriver__dsh-opencode-go">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "duskriver/dsh-opencode-go", "codeRepository": "https://www.npmjs.com/package/dsh-opencode-go", "url": "https://opencode-plugins.zhuikan.com/repos/duskriver__dsh-opencode-go", "description": "duskriver/dsh-opencode-go — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "duskriver", "url": "https://www.npmjs.com/~duskriver"}, "isAccessibleForFree": true, "dateCreated": "2026-09-15"}</script>
+</head>
+<body data-repo="duskriver/dsh-opencode-go" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">duskriver/dsh-opencode-go</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="duskriver__dsh-opencode-go"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+RDwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">dsh-opencode-go</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~duskriver">duskriver</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~duskriver">duskriver</a>
+        <span class="rp-sep">/</span><span class="rp-name">dsh-opencode-go</span>
+      </h1>
+      <div class="rp-head-chips"><a class="rp-board-chip" href="../?board=new">new <b>#32</b></a></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>313</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-09-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/dsh-opencode-go">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">313</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">21</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">19</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">dsh-opencode-go
+
+
+  English · 常见问题 · 高级指南 · 开发与测试
+
+
+为 DeepSeek Harness (DSH) 量身打造的 OpenCode Go 专属接入与多账号管理插件。
+
+DSH 原生支持接入 OpenCode Go，但原生模式无法满足复杂的生产与日常开发需求（如多账号无感容灾、会话级 Prompt 缓存绑定、会话内实时额度透视等）。本插件基于 Cordis 微内核架构，在提供完整模型协议转换的同时，带来了流畅的客户端 UI 与企业级容灾体验。
+
+文档中的现有界面截图展示 Classic 主题；默认的 Native 主题会跟随当前 DSH 的颜色、字体与几何 token。
+
+---
+
+ ✨ 核心特性
+
+- 🆓 双路由动态模型目录（Free 默认为关闭的 opt-in）：Go 与平台免费模型分别从各自网关的 /models 发现，保留同名模型；平台免费通道（Free）默认关闭，需在 设置 → OpenCode Go → 高级设置 → 免费通道 显式开启后才注册路由、拉取目录并出现在模型选择器中；两套模型开关与容量设置独立。
+- 🛑 免费通道限流保护：遵循上游 Retry-After，冷却期间暂停新请求；共享免费额度或 IP 限制不会触发 Go 换号。
+- 🛡️ 多账号无感容灾：支持最多 20 个账号集中管理与拖拽排序。当主账号额度耗尽或 Key 失效时，在输出前自动尝试备用账号，成功后自动扶正，告别“聊到一半额度没了”的打断感。
+- ⚡ 会话级 Prompt 缓存绑定：严格遵循网关协议注入专有 x-opencode-session 路由头，稳定复用网关上下文缓存，显著降低响应首字延迟。
+- 📊 会话内额度实时透视：在聊天输入框旁常驻“用量胶囊”，直观展示 5 小时滚动、每周、每月的额度百分比及重置时间倒计时；支持休眠节能与静默刷新。
+- 💰 官方历史用量看板：按所选 Key 的工作区汇总官方每日 CSV，查看请求、Token、官方用量金额与模型明细，包含其他客户端的调用。
+- 🎛️ 模型与热配置：无需重启 DSH！随时在线调整模型上下文窗口、最大输出上限、思考预算（Thinking Budget），并支持 HTTP/HTTPS/SOCKS5 代理。
+
+---
+
+ 🚀 快速开始
+
+适用于 DSH 0.2.1-rc.5 及以上版本；开发与验证方式见开发说明。
+
+ 1. 安装插件
+
+ 方式 A：在 DSH 界面中一键安装（推荐）
+1. 打开 DSH，进入 插件 → 添加插件。
+2. 输入 dsh-opencode-go（或填入仓库地址 https://github.com/Duskriver/dsh-opencode-go），点击 安装。
+3. 安装完成后点击 立即启用。
+
+!在 DSH 中安装插件
+
+ 方式 B：命令行安装
+sh
+dsh plugin --profile web add dsh-opencode-go
+
+命令行安装后请重启 dsh web。Headless 用户请使用 --profile headless。
+
+ 2. 配置与使用
+1. 打开 设置 → OpenCode Go → 账号，点击添加，填写账号名称与 OpenCode Go API Key 后确认。
+2. 在任意会话的模型选择器中，选择 DSH OpenCode Go 目录下的模型。
+3. 开始对话，输入区右下角即可看到实时的用量胶囊。
+
+---
+
+ 💡 深度功能与运行机制
+
+ 1. 多账号管理与无感容灾（Auto-failover）
+
+在 设置 → OpenCode Go → 账号 中集中管理你的所有账号：
+
+!账号管理：账号排序、额度详情、Key 操作和自动使用备用账号
+
+- 拖拽排序即优先级：列表第一项为当前主账号；鼠标拖拽左侧手柄调整顺序，这个顺序也是自动尝试备用账号的优先次序。
+- 出词前无感切换：开启“自动使用备用账号”后，若当前账号在发出请求后遇到了 401/403 鉴权失败、429 限流或 Quota 额度耗尽：
+  - 插件会在开始向你输出文字前，静默挑出下一个备用账号重新发送请求。
+  - 成功出词的备用账号会自动移至首位成为新主账号，并在会话面板给出切换提示。
+  - 防御机制：若模型已经开始吐字或已产生计费，插件不会切换，避免拼接乱码或重复扣费。
+- 防雪崩冷却黑名单：被网关拒绝的 Key 会进入 5 分钟的内存冷却名单，避免短时间内反复向已失效的账号发起无意义的重试。
+- 凭据安全隔离：Key 直接存储至 DSH 底层凭据系统，前端界面永远不会回显明文密钥。
+
+ 2. 会话内订阅额度透视（UsagePill）
+
+在聊天输入区旁，常驻有直观的“用量胶囊”。点击即可展开完整的用量卡片：
+
+- 三窗口精准监控：
+  - 🟢 5 小时滚动配额：短周期高频使用的健康度。
+  - 🟡 每周配额：本周累计使用进度。
+  - 🔴 每月配额：月度套餐消耗百分比。
+  每个窗口均显示精确的重置倒计时；进度条会随着接近上限变黄，耗尽时变红。
+- 节能与防抖机制：默认每分钟静默刷新；当页面切入后台或浏览器最小化时自动暂停轮询，切换回前台时即时刷新。
+- 账号全名与快速切换：多账号时直接显示当前账号全名（名字过长以省略号截断），展开面板点击“切换”即可直接提拔目标账号为主账号。
+- 显示模式（在 高级设置 → 额度显示 中配置）：
+  - 自动（默认）：仅在使用 DSH OpenCode Go 模型时显示。
+  - 常驻：切换到其他厂商模型时，仍然保持胶囊显示。
+  - 关闭：隐藏胶囊并停止后台用量轮询。
+
+ 3. 官方历史用量看板（Analytics）
+
+从对话输入框的用量胶囊展开面板，或侧栏的看板按钮打开：
+
+!新版官方历史用量看板，示例数据
+
+窄屏浅色预览 · 模型排行与明细预览（均为示例数据）
+
+- 官方 CSV 单一来源：请求、输入 / 输出 / 缓存 Token、官方用量金额、每日图表与模型明细来自同一份官方每日 CSV；provider + model 区分同名模型。支持今日、7 / 30 / 90 天，日期统一使用 UTC。
+- 独立查看账号：默认当前调用账号，只查看所选 Key 所属工作区，包含其他客户端；切换查看账号不改变对话账号。看板的三个额度窗口跟随所选账号。匿名 Free 覆盖不作保证。
+- 官方用量金额：直接汇总 cost_micro_cents（1 美元 = 1 亿单位），不等同于 Go 额外扣款。官方日汇总可能延迟。
+- 双主题统一界面：设置页、用量胶囊、侧栏与看板共用布局，通过 appearanceTheme 选择 DSH Native（默认） 或 OpenCode Go Classic，并跟随宿主明暗模式；主题差异见分组高级设置。宽屏弹窗、窄屏全屏，保留 Token 堆叠或请求日柱图、模型排行与明细。
+- 按需查询：打开、切账号、切区间或手动刷新时查询，Host 短缓存 30 秒，强制刷新绕过缓存，不后台轮询历史。仅官方模型网关支持历史查询；错误明确显示，不回退本地扫描。
+
+Key 留在 Host；常规报告只向浏览器传递聚合数字与 pr</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T09:40:06Z · Data license Apache-2.0 ·
+<a href="../data/repos/duskriver__dsh-opencode-go.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

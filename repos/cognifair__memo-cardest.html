@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cognifair/memo-cardest · OpenCode Plugins</title>
+<meta name="description" content="墨卡大师：把复习材料拆成墨墨记忆卡（Markji），走官方 API 或 TXT 交付。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="memo-cardest, cognifair, cognifair/memo-cardest, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardest">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cognifair/memo-cardest · OpenCode Plugins">
+<meta property="og:description" content="墨卡大师：把复习材料拆成墨墨记忆卡（Markji），走官方 API 或 TXT 交付。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardest">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cognifair/memo-cardest", "codeRepository": "https://github.com/Cognifair/memo-cardest", "url": "https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardest", "description": "墨卡大师：把复习材料拆成墨墨记忆卡（Markji），走官方 API 或 TXT 交付。", "author": {"@type": "Organization", "name": "cognifair", "url": "https://github.com/Cognifair"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-15", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="cognifair/memo-cardest" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cognifair/memo-cardest</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cognifair__memo-cardest"><img class="rp-side-av" src="https://github.com/Cognifair.png?s=300" width="300" height="300" alt="cognifair avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">memo-cardest</div>
+      <a class="rp-side-owner" href="https://github.com/Cognifair">cognifair</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Cognifair">cognifair</a>
+        <span class="rp-sep">/</span><span class="rp-name">memo-cardest</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">墨卡大师：把复习材料拆成墨墨记忆卡（Markji），走官方 API 或 TXT 交付。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="cognifair__memo-ankitransfer"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-ankitransfer</a><a class="rp-same-link" href="cognifair__memo-canvas"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-canvas</a><a class="rp-same-link" href="cognifair__memo-cardlink"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-cardlink</a><a class="rp-same-link" href="cognifair__memo-mineruocr"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-mineruocr</a><a class="rp-same-link" href="cognifair__memo-qahelper"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-qahelper</a><a class="rp-same-link" href="cognifair__memo-txtimporter"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-txtimporter</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Cognifair/memo-cardest">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">57</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">墨卡大师 Memo-Cardest v1.14.8
+
+
+!Platform
+!Agent
+
+你写一张样卡，它把整份材料按这个口径做完。
+
+墨墨记忆卡（Markji）的制卡技能：拆知识点、设计题面、写卡片正文、按章节排版，最后走官方 OpenAPI 直接写回，或导出一份 UTF-8 TXT 由客户端导入。扫描件和大 PDF 可以先交给 Memo-MinerUOCR 识别成 Markdown，再进入制卡流程。
+
+调用名 $memo-cardest · 宣传页 · 变更记录
+
+它不复刻「手写一张好卡」这件事。Anki 社区那种卡——题面聚焦、只引导一个答案、难度落在合意困难那一段——是人的判断，不是模型的判断。所以这里换了个做法：你把标准做进一张样卡，它负责把标准复制到剩下的每一张上。
+
+ 能做什么（直接这样说）
+
+| 你想做什么 | 直接说 | 谁执行 |
+|---|---|---|
+| 做卡、改卡、操作牌组 | “把这些材料做成卡” | memo-cardest |
+| 批量删除卡片 | “把这些卡批量删掉” | memo-cardest 内置 DELETE 章流程 |
+| 表格 | “这张表做成表格卡” | memo-canvas |
+| 图像重绘 | “这张公式图/化学结构/流程图保留或重画” | memo-canvas |
+| 生成 TXT 自己导入 | “生成 TXT，不碰 API” | memo-txt |
+| 扫描件 / PDF OCR | “先 OCR 再制卡” | memo-mineruocr |
+| 卡片互链 / 目录跳转 | “给这两张卡加双向链接” | memo-cardlink（卡跳跳） |
+| Anki 图片挖空迁墨 | “把 Anki 卡迁到墨墨” | memo-ankigo（迁墨） |
+| 墨墨产品使用问题 | “这个设置在哪” | memo-qahelper |
+
+批量删除不是独立技能，是主技能内置流程；表格由 G1.5、图像重绘由 G1.4.1 强制触发 memo-canvas；两者同时命中时一次调用、分开提问、逐项回报。
+
+ 30 秒判断要不要装
+
+| 你的情况 | 结论 |
+|---|---|
+| 已经有一张（或几张）自己认可的样卡，想按这个口径批量出 | 主用法。样卡决定题型、挖空粒度和解释的写法 |
+| 有材料，但还没定样卡，愿意先做一张 | 装。先做一张样卡，再往下批量 |
+| 已经在 Anki 里做图片挖空，想搬成墨墨原生遮罩 | 装，再配 迁墨 Memo-AnkiGo |
+| 只想生成一份 TXT 自己导入，不碰 API | 装。不需要会员即可导入，也不需要 API key；但字数上限按账号区分（专业版 5000 / 非专业版 2000） |
+
+ 长什么样
+
+一张样卡，加三张同款。材料里的一句话：
+
+ 立方和公式：a³ + b³ = (a + b)(a² − ab + b²)
+
+不这么写：把整条公式挖空。你练的是符号的形状，换个字母就断。
+
+这么写，拆成三张：
+
+| 题面 | 答案面 |
+|---|---|
+| a³ + b³ 分解后的两个因式分别是什么？ | (a + b) 和 (a² − ab + b²) |
+| 第二个因式里为什么是 −ab，而不是 +ab？ | 展开时 a·(−ab) 与 b·(a²) 的交叉项要正好抵消；写成 +ab 就消不掉 |
+| 已知 a + b = 3、ab = 2，求 a³ + b³。 | 9。（a² − ab + b² = (a+b)² − 3ab = 3） |
+
+这三张定下来之后，整章的题型、挖空粒度、解释怎么写、章节怎么切，都照它们走。
+
+
+
+ 为什么是样卡，不是自动生成
+
+一张手写的好卡要同时满足三件事：题面聚焦、只引导一个答案、难度落在「合意困难」那一段。这三件事靠的是写卡人几千次复习攒出来的判断——只有复习到第三个月，才知道这张卡 cue 不 cue 得住。
+
+模型目前做不到。Memory Machines 的实验（Kirkby 与 Matuschak）让前沿模型把划线和原文直接变成记忆卡，评分分布是这样的：
+
+| 模型 | T0 跑偏 | T1 看着合理、几个月后失效 | T2 需打磨 | T3 可直接复习 |
+|---|---|---|---|---|
+| Opus 4.5 | 11% | 39% | 21% | 29% |
+| Gemini 3 Pro | 12% | 34% | 28% | 26% |
+| GPT-5.2 | 10% | 26% | 29% | 35% |
+
+只有四分之一到三分之一能直接进复习，另有两到三成要打磨一遍才敢用。最要命的是 T1——读起来像回事，复习到第三个月才发现它 cue 不住——模型自己也识别不出来：判别「这张卡扛不扛得住」最高 64–67%，从四个候选里挑最好的，仍有 30–40% 挑中坏的那个。
+
+所以这里把判断交回给你：用一张样卡把「什么算好」定死，模型只负责复刻。 报告原文见 memory-machines.com/report。
+
+ 安装
+
+技能就是一堆本地文件，没有安装包，也不需要联网。把仓库放进你客户端的技能目录即可：
+
+| 客户端 | 技能目录 |
+|---|---|
+| DSH | ~/.agents/skills |
+| Codex | ~/.codex/skills |
+| Claude Code | ~/.claude/skills |
+| WorkBuddy | ~/.workbuddy/skills |
+
+ 路线 A：git clone（推荐）
+
+能自动更新，也能被技能自带的同步检查识别。
+
+text
+git clone https://github.com/Cognifair/memo-cardest.git /memo-cardest
+
+
+ 路线 B：下载 ZIP
+
+在仓库页 Code → Download ZIP，解压成 /memo-cardest（目录名要和 SKILL.md 里的 name 一致）。能用，但自带的同步检查会返回 skipped: not_a_git_checkout，只能手动更新。
+
+ 装完之后
+
+- 重启客户端。Codex / WorkBuddy 只在启动时扫描技能目录，运行中的会话不会重新加载；DSH 会热加载，能看到即时变化。
+- 在对话里说 $memo-cardest，或者直接说「帮我做几张卡」——技能的描述里已经写了触发词。
+
+ 支链（可选）
+
+支链是独立仓库，不随本仓库分发。缺了只降级，不影响主流程。
+
+
+展开：支链的 clone 命令
+
+text
+git clone https://github.com/Cognifair/memo-mineruocr.git
+git clone https://github.com/Cognifair/memo-canvas.git
+git clone https://github.com/Cognifair/memo-txt.git
+git clone https://github.com/Cognifair/memo-ankigo.git
+git </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cognifair__memo-cardest.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

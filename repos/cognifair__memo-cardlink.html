@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cognifair/memo-cardlink · OpenCode Plugins</title>
+<meta name="description" content="卡跳跳 Memo-CardLink（原 Memo-Link）：通过官方 OpenAPI 为已有墨墨记忆卡创建、修复、核验单向跳转与双向链接。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="memo-cardlink, cognifair, cognifair/memo-cardlink, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardlink">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cognifair/memo-cardlink · OpenCode Plugins">
+<meta property="og:description" content="卡跳跳 Memo-CardLink（原 Memo-Link）：通过官方 OpenAPI 为已有墨墨记忆卡创建、修复、核验单向跳转与双向链接。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardlink">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cognifair/memo-cardlink", "codeRepository": "https://github.com/Cognifair/memo-cardlink", "url": "https://opencode-plugins.zhuikan.com/repos/cognifair__memo-cardlink", "description": "卡跳跳 Memo-CardLink（原 Memo-Link）：通过官方 OpenAPI 为已有墨墨记忆卡创建、修复、核验单向跳转与双向链接。", "author": {"@type": "Organization", "name": "cognifair", "url": "https://github.com/Cognifair"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-30", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="cognifair/memo-cardlink" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cognifair/memo-cardlink</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cognifair__memo-cardlink"><img class="rp-side-av" src="https://github.com/Cognifair.png?s=300" width="300" height="300" alt="cognifair avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">memo-cardlink</div>
+      <a class="rp-side-owner" href="https://github.com/Cognifair">cognifair</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Cognifair">cognifair</a>
+        <span class="rp-sep">/</span><span class="rp-name">memo-cardlink</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">卡跳跳 Memo-CardLink（原 Memo-Link）：通过官方 OpenAPI 为已有墨墨记忆卡创建、修复、核验单向跳转与双向链接。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-30</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="cognifair__memo-ankitransfer"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-ankitransfer</a><a class="rp-same-link" href="cognifair__memo-canvas"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-canvas</a><a class="rp-same-link" href="cognifair__memo-cardest"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-cardest</a><a class="rp-same-link" href="cognifair__memo-mineruocr"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-mineruocr</a><a class="rp-same-link" href="cognifair__memo-qahelper"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-qahelper</a><a class="rp-same-link" href="cognifair__memo-txtimporter"><img class="rp-same-av" src="https://github.com/Cognifair.png" alt="" loading="lazy">memo-txtimporter</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Cognifair/memo-cardlink">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">6</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">卡跳跳 Memo-CardLink v1.0.5
+
+ 🌐 墨卡大师 · 专业制卡工作流
+
+卡跳跳：在已有墨墨记忆卡之间建立可核验的跳转与互链。
+
+调用名：$memo-cardlink。原名 Memo-Link；旧 $memo-link 不再作为独立安装入口。
+
+ 它解决什么
+
+- 目录卡点进详情卡，读完再跳回来；
+- 一组相关卡互链，而不是每张都手动找 ID；
+- 已有 [Card...] 引用错位、重复或缺失，需要修复；
+- 不改卡片正文和排版，只加一条可跳转的 Card 引用。
+
+“卡跳跳”只修改链接，不创建卡片、不移动卡片、不批量改写正文。
+
+ 两种模式
+
+| 模式 | 效果 | 修改范围 |
+|---|---|---|
+| 单向 | A → B | 只改 A；读取 B 核实目标 |
+| 双向 | A ↔ B | A 引用 B，B 引用 A |
+| 审计/修复 | 按指定方向检查或补缺 | 审计只读；修复只改授权方向 |
+
+只说“加个链接”且给出来源和目标时，默认单向；不会因为旧名 Memo-Link 就自动做成双向。
+
+ 三种“卡片链接”不要混
+
+ 1. 正文跳转引用（卡跳跳写入）
+
+text
+[CardID/显示文字]
+
+
+单向和双向语法相同，只差改哪张卡：
+
+- 单向 A → B：只改 A；
+- 双向 A ↔ B：A、B 各插一条；
+- 正文里必须用目标 root_id，不能用 card_id 代替。
+
+ 2. 网页定位链接（不是卡跳跳产出）
+
+text
+https://www.markji.com/deck/editor/?cardId=
+
+
+这是网页端编辑器深链，使用网页 24 位 ID，不是 mkjd_ API 牌组 ID，也不是 root_id。它用于打开/定位卡片，不是可写入正文的 Card 语法。
+
+ 3. 牌组入口
+
+text
+https://www.markji.com/deck/
+
+
+这是整个牌组的入口，不是单卡跳转，也不是分享授权。
+
+详见 references/card-link-formats.md。
+
+ 稳定 CLI
+
+不再手写 [Card...] 或临时拼格式：
+
+text
+python -B scripts/cli.py ref --root-id  --label 
+python -B scripts/cli.py check &quot;&quot;
+
+
+只读查询用 scripts/cl_probe.py。完整命令与退出码见 references/cli-contract.md。
+
+ 安装
+
+powershell
+git clone https://github.com/Cognifair/memo-cardlink.git &quot;$env:USERPROFILE\.codex\skills\memo-cardlink&quot;
+
+
+安装后重启客户端或新开会话，让它重新扫描技能目录。调用：
+
+text
+$memo-cardlink 把「总纲」这张目录卡指向「第一章」和「第二章」，单向。
+
+
+ 一次典型操作
+
+text
+用户：把总纲卡里的“第一章”链到第一章详情卡，单向。
+
+卡跳跳：
+1. 找到总纲卡和第一章详情卡，核对 card_id / root_id；
+2. 预览要插入的 [CardID/...] 片段和位置；
+3. 只改总纲卡，保留其余正文、图片和 grammar_version；
+4. API 回读，确认引用只出现一次、目标可解析；
+5. 说明哪些验证做了、哪些客户端渲染/点击未验证。
+
+
+双向则分别检查两端，只补缺失的一端；已经正确的一侧不重复插入。
+
+ 验证分三层
+
+1. API 回读：正文、引用数量、card_rids、grammar_version；
+2. 客户端渲染：标签和周围文字正常显示，不露出原始语法；
+3. 实际点击：真的能跳到目标卡。
+
+渲染正常不等于能点击；只验证了前两层时，会明确说“点击未验证”。
+
+ 边界
+
+- 只使用官方 MaiMemo OpenAPI；不切换私有 Web API；
+- 不保存 token、Cookie 或真实卡片/牌组 ID 到技能与示例；
+- 不创建卡片、不移动卡片、不批量重写正文；
+- 双向改单向涉及删除反向引用，必须由用户明确要求；
+- 锚点不唯一、目标歧义、并发冲突时停止受影响写入；
+- 执行规则与授权边界以 SKILL.md 和 references/workflow.md 为准。
+
+ 仓库结构
+
+text
+memo-cardlink/
+├── SKILL.md
+├── README.md
+├── CHANGELOG.md
+├── version.json
+├── LICENSE
+├── agents/openai.yaml
+└── references/
+    ├── workflow.md
+    └── satellites.md
+
+
+ Memo 系列
+
+
+| 技能 | 职责 |
+|---|---|
+| 墨卡大师 Memo-Cardest | 核心制卡：知识拆解、题型、正文语法与牌组操作 |
+| Memo-MinerUOCR | 扫描件与大 PDF 识别、拆分并合并 Markdown |
+| 墨兰迪 Memo-Canvas | 表格图片与 LaTeX array 表格制作，扫描图像高清化与忠实重绘 |
+| 墨记文档导入 Memo-TXT | TXT 容器格式、分卡校验与图片回填 |
+| 迁墨 Memo-AnkiGo | Anki 图片挖空转墨墨原生遮罩 |
+| Memo-QAhelper | 墨墨记忆卡使用答疑（官方百科与论坛） |
+
+
+ License
+
+MIT</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cognifair__memo-cardlink.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

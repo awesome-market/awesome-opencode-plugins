@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gufeng0/agentrouter-magpie-plugin · OpenCode Plugins</title>
+<meta name="description" content="AgentRouter for magpie: site-account sign-in, auto-read model key, Responses API, content filter and daily check-in.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agentrouter-magpie-plugin, gufeng0, gufeng0/agentrouter-magpie-plugin, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/gufeng0__agentrouter-magpie-plugin">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="gufeng0/agentrouter-magpie-plugin · OpenCode Plugins">
+<meta property="og:description" content="AgentRouter for magpie: site-account sign-in, auto-read model key, Responses API, content filter and daily check-in.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/gufeng0__agentrouter-magpie-plugin">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "gufeng0/agentrouter-magpie-plugin", "codeRepository": "https://github.com/gufeng0/agentrouter-magpie-plugin", "url": "https://opencode-plugins.zhuikan.com/repos/gufeng0__agentrouter-magpie-plugin", "description": "AgentRouter for magpie: site-account sign-in, auto-read model key, Responses API, content filter and daily check-in.", "author": {"@type": "Organization", "name": "gufeng0", "url": "https://github.com/gufeng0"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-11", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools,server"}</script>
+</head>
+<body data-repo="gufeng0/agentrouter-magpie-plugin" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">gufeng0/agentrouter-magpie-plugin</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="gufeng0__agentrouter-magpie-plugin"><img class="rp-side-av" src="https://github.com/gufeng0.png?s=300" width="300" height="300" alt="gufeng0 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agentrouter-magpie-plugin</div>
+      <a class="rp-side-owner" href="https://github.com/gufeng0">gufeng0</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/gufeng0">gufeng0</a>
+        <span class="rp-sep">/</span><span class="rp-name">agentrouter-magpie-plugin</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">AgentRouter for magpie: site-account sign-in, auto-read model key, Responses API, content filter and daily check-in.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/gufeng0/agentrouter-magpie-plugin">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">magpie-plugin-agentrouter
+
+给 magpie 用的 AgentRouter 插件：完整模型供应商（Responses API）、请求改写、内容过滤、余额/用量和每日签到。
+
+一个 provider、一个账号同时保存两样凭据：
+
+- 站点用户名/密码：登录、每日签到和余额；
+- 模型 API Key：登录后从账号的 /api/token/ 列表自动读取，不需要手动输入。
+- 它们属于同一个 AgentRouter 账号，所以账户和 Key 是对应的。
+
+没有 GitHub 授权，也没有本地 GitHub Cookie 签到工具。
+
+固定使用国内站 ps.air-outer.com，不再询问站点。
+
+ 功能
+
+- 模型供应商 agentrouter：gpt-5.6-sol、gpt-6-astra、gpt-6.1-sol；站点只服务 Responses API，magpie 会把 agent 的 Chat / Anthropic 请求翻译成 Responses。
+- 请求头：网关只认自己的客户端标识，默认发 Codex CLI 的 User-Agent: codex_cli_rs/0.101.0；可在供应商/账号级覆盖，开关 send-codex-headers 可以关掉默认头。
+- Responses 请求改写：portable-responses 把完整的 Responses item 内联重放，去掉只对某个后端有意义的 id/加密状态，保留 call_id、工具数据和加密内容；只有引用、没有内联内容的历史仍需要原资源。
+- Azure 资源绑定状态清理：默认去掉 previous_response_id、reasoning/encrypted_content 和 item id，避免多资源负载均衡时报 “different Azure OpenAI resource”。
+- 内容过滤：读取插件目录下的 content-filter.local.json，只过滤你自己配置的词，不猜词；保留代码块、工具数据和加密状态。开关 text-filter。
+- 余额/用量：/api/user/self 的 quota 和 used_quota 折算成美元；只使用保存的 Cookie/访问令牌，不会为读额度重新登录。没有有效凭据时按 Key 读累计消耗，不编造剩余余额；Cookie 失效后等下次签到刷新。
+- 每日签到：站点没有 /api/user/checkin，登录一次就是签到。checked_in: true → claimed（本次发了当天额度）；false → done（本次未新增，通常今天已领过）；缺失/非布尔 → failed（稍后重试）。
+
+ 安装
+
+bash
+magpie plugin add github:gufeng0/agentrouter-magpie-plugin
+
+
+本地开发时也可以直接装目录：
+
+bash
+magpie plugin add /path/to/AgentRouter
+
+
+ 这个插件使用 provider id agentrouter。如果还装着 opencode-agentrouter-auth、agentrouter-magpie 或其他占用 agentrouter 的插件，先移除它们，否则会互相抢同一个 provider：
+ bash
+ magpie plugin rm opencode-agentrouter-auth
+ magpie plugin rm 22952497/agentrouter-magpie
+ 
+
+你已有的 Agent Router custom（agent-router）如果也是同一个站点，会和这个插件重复列出 3 个模型；可以保留、停用或删除其中一个。
+
+ 请求头
+
+登录不再询问请求头，默认就发 Codex 客户端标识。
+
+要改请求头，用 供应商编辑器 → 高级 → Headers（保存为供应商配置）。优先级从低到高：
+
+1. 插件的默认头（Codex 客户端标识）；
+2. 供应商/模型 Headers；
+3. 账号 Headers（高级里可写）；
+4. 你在 Headers 里设置的 User-Agent 始终最高。
+
+magpie 对插件账号不显示原生的「发送 Agent 自己的 User-Agent」开关（那行只给内置 provider）。插件里的等价开关是 发送 Codex 客户端 User-Agent：
+
+- 开：按 Codex CLI 发送 User-Agent；
+- 关：保留 Agent 自己的 User-Agent；
+- Headers 里设置的 User-Agent 两种情况下都优先。
+
+ 登录（站点账号；模型 Key 自动读取）
+
+bash
+magpie plugin login agentrouter
+
+
+依次询问：
+
+1. 站点用户名或邮箱
+2. 站点密码
+
+不再询问模型 API Key。登录成功后插件会：
+
+1. 用站点账号登录，拿到会话和用户 ID；
+2. 调 GET /api/token/ 读取这个账号自己的模型 Key；
+3. 选一把启用、完整、未过期、剩余额度最多的 Key 保存；
+4. 站点用户名/密码和 Key 写进同一个账号记录。
+
+如果账号下没有可用的模型 Key，登录会提示先去站点「令牌」页创建一把。模型请求用自动读到的 key；签到和余额用 metadata.username / metadata.password。
+
+ 如果账号是用第三方方式注册、站点没有密码，先到登录页点「忘记密码」用邮箱设一个站点密码。
+
+登录后打开：
+
+设置 → 额度 → 预热与签到 → 插件 → AgentRouter
+
+把每日签到开关打开。
+
+ 模型
+
+Base URL 固定为 https://ps.air-outer.com/v1，模型名形如：
+
+text
+agentrouter/gpt-5.6-sol
+agentrouter/gpt-6-astra
+agentrouter/gpt-6.1-sol
+
+
+客户端仍然可以用 Chat Completions 或 Anthropic Messages；magpie 负责翻译成 Responses。
+
+ 内容过滤
+
+复制示例并填自己的词：
+
+bash
+cp content-filter.example.json content-filter.local.json
+
+
+json
+{
+  &quot;terms&quot;: [&quot;your-private-term&quot;]
+}
+
+
+改完重启 magpie（或重新加载插件）生效。content-filter.local.json 只放本机，不要提交到仓库。
+
+ “The requested item was created under a different Azure OpenAI resource”
+
+AgentRouter 在多个 Azure OpenAI 资源之间负载均衡。上一轮的：
+
+- previous_response_id
+- reasoning / encrypted_content
+- item</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/gufeng0__agentrouter-magpie-plugin.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

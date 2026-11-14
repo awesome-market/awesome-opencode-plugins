@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>joe-broadhead/opencode-tavily · OpenCode Plugins</title>
+<meta name="description" content="Unofficial OpenCode plugin for Tavily web search, extract, map, crawl and research">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-tavily, joe-broadhead, joe-broadhead/opencode-tavily, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/joe-broadhead__opencode-tavily">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="joe-broadhead/opencode-tavily · OpenCode Plugins">
+<meta property="og:description" content="Unofficial OpenCode plugin for Tavily web search, extract, map, crawl and research">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/joe-broadhead__opencode-tavily">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "joe-broadhead/opencode-tavily", "codeRepository": "https://github.com/joe-broadhead/opencode-tavily", "url": "https://opencode-plugins.zhuikan.com/repos/joe-broadhead__opencode-tavily", "description": "Unofficial OpenCode plugin for Tavily web search, extract, map, crawl and research", "author": {"@type": "Organization", "name": "joe-broadhead", "url": "https://github.com/joe-broadhead"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools,server,tui"}</script>
+</head>
+<body data-repo="joe-broadhead/opencode-tavily" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">joe-broadhead/opencode-tavily</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="joe-broadhead__opencode-tavily"><img class="rp-side-av" src="https://github.com/joe-broadhead.png?s=300" width="300" height="300" alt="joe-broadhead avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-tavily</div>
+      <a class="rp-side-owner" href="https://github.com/joe-broadhead">joe-broadhead</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/joe-broadhead">joe-broadhead</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-tavily</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Unofficial OpenCode plugin for Tavily web search, extract, map, crawl and research</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="joe-broadhead__opencode-affinity"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-affinity</a><a class="rp-same-link" href="joe-broadhead__opencode-ashby"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-ashby</a><a class="rp-same-link" href="joe-broadhead__opencode-boxd"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-boxd</a><a class="rp-same-link" href="joe-broadhead__opencode-browse"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-browse</a><a class="rp-same-link" href="joe-broadhead__opencode-charts"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-charts</a><a class="rp-same-link" href="joe-broadhead__opencode-elevenlabs"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-elevenlabs</a><a class="rp-same-link" href="joe-broadhead__opencode-github"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-github</a><a class="rp-same-link" href="joe-broadhead__opencode-granola"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-granola</a><a class="rp-same-link" href="joe-broadhead__opencode-gws"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-gws</a><a class="rp-same-link" href="joe-broadhead__opencode-history"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-history</a><a class="rp-same-link" href="joe-broadhead__opencode-inference"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-inference</a><a class="rp-same-link" href="joe-broadhead__opencode-jira"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-jira</a><a class="rp-same-link" href="joe-broadhead__opencode-jobs"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-jobs</a><a class="rp-same-link" href="joe-broadhead__opencode-linear"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-linear</a><a class="rp-same-link" href="joe-broadhead__opencode-mem"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-mem</a><a class="rp-same-link" href="joe-broadhead__opencode-messaging"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-messaging</a><a class="rp-same-link" href="joe-broadhead__opencode-metaview"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-metaview</a><a class="rp-same-link" href="joe-broadhead__opencode-notion"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-notion</a><a class="rp-same-link" href="joe-broadhead__opencode-openrouter"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-openrouter</a><a class="rp-same-link" href="joe-broadhead__opencode-plaud"><img class="rp-same-av" src="https://github.com/joe-broadhead.png" alt="" loading="lazy">opencode-plaud</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/joe-broadhead/opencode-tavily">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Tavily for OpenCode
+
+Search, extract, map, crawl and research the web from OpenCode with Tavily&#x27;s official MCP server.
+
+Unofficial; not affiliated with Tavily.
+
+ Requirements
+
+- OpenCode =2.2.3 =2.2.3 .
+
+ Sign in
+
+Run /connect and choose Tavily account. That is all most people need.
+
+/connect lists two Tavily entries:
+
+| Entry | What it is | What it signs in |
+| --- | --- | --- |
+| Tavily account | The OAuth sign-in for the plugin&#x27;s tavily MCP server. It is the default. | The five Tavily tools. Tavily bills the calls to your account. |
+| Tavily | OpenCode&#x27;s own API-key entry. Paste a key from app.tavily.com. | OpenCode&#x27;s websearch tool, and the five Tavily tools too: while a key is connected, the plugin uses it instead of OAuth, and Tavily account is not listed. |
+
+- The browser. In the TUI, /connect shows Tavily&#x27;s sign-in link; press o or Enter to open it in your browser. On the command line, opencode mcp auth tavily opens the browser automatically.
+- An API key instead. Choose Tavily in /connect, or run opencode auth login tavily. A key you connect wins over TAVILY_API_KEY. Remove the key to go back to OAuth. The plugin switches without a restart.
+- TAVILY_API_KEY works only in the environment of the OpenCode server, which is usually the background service. A key exported in your shell does not reach a service that is already running, so the plugin keeps using OAuth. Use /connect, or opencode service set env TAVILY_API_KEY ; see TAVILY_API_KEY and the background service.
+- /mcps → tavily is the same OAuth sign-in as Tavily account.
+
+Run /tavily-status to see which one is in use. With a key, it also shows whether Tavily accepts the key. Tavily&#x27;s MCP server connects with any key, so the plugin asks Tavily&#x27;s usage endpoint once per key, which costs no credits.
+
+ Use
+
+Ask for what you need. The model uses the skills to choose a tool, or you can name one.
+
+| Tool | Code Mode name | Permission name |
+| --- | --- | --- |
+| Search | tools.tavily.tavily_search | tavily_tavily_search |
+| Extract | tools.tavily.tavily_extract | tavily_tavily_extract |
+| Map | tools.tavily.tavily_map | tavily_tavily_map |
+| Crawl | tools.tavily.tavily_crawl | tavily_tavily_crawl |
+| Research | tools.tavily.tavily_research | tavily_tavily_research |
+
+- OpenCode puts MCP tools in Code Mode by default. With Code Mode off, they appear under their permission names. Tavily maintains the tools and their parameters.
+- OpenCode&#x27;s own websearch tool uses Tavily too, unless your opencode.json chooses another provider.
+- The skills: tavily (which tool to use, credit costs, citing URLs, and that page content is not trusted) and tavily-research (how to run a Research task and present its report).
+- Research takes several minutes, and OpenCode shows no progress while it runs. A call stops after 15 minutes (executionTimeoutMs). A task costs 4–110 credits with the mini model and 15–250 with pro; the skill asks you before it uses pro.
+
+ Status
+
+/tavily-status adds a status message to the se</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/joe-broadhead__opencode-tavily.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

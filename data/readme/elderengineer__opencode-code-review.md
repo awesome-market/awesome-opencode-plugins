@@ -1,0 +1,374 @@
+# opencode-code-review
+
+`/code-review max --fix` for [opencode](https://opencode.ai) — parallel finder
+lenses, 1-vote verification, project lenses, effort from low to max.
+Type `/code-review` and the plugin compiles a review workflow — parallel finder
+subagents, a 1-vote verification pass, an optional gap sweep, project lenses —
+as a deterministic prompt. The model only executes the compiled instructions.
+
+```
+/code-review medium --fix
+```
+
+## Install
+
+**From npm** (recommended):
+
+```bash
+bun add @elderengineer/opencode-code-review
+```
+
+Register the package in `~/.config/opencode/opencode.json`:
+
+```json
+{ "plugin": ["@elderengineer/opencode-code-review"] }
+```
+
+**From source** — clone or copy this folder:
+
+```bash
+cp -r . ~/.config/opencode/opencode-code-review
+```
+
+Register the local path in `~/.config/opencode/opencode.json`:
+
+```json
+{ "plugin": ["./opencode-code-review/plugin.ts"] }
+```
+
+**Project-scoped** works the same with `.opencode/` instead.
+
+Restart opencode after any install, config, or plugin change — plugins,
+commands, and agents load at startup only.
+
+## Quick start
+
+```
+/code-review            # medium effort (or the level you typed last time)
+/code-review high       # explicit level
+/code-review low        # quick single-pass scan, no subagents
+/code-review max --fix
+/code-review high --model auto   # cheapest favorite model, auto-fallback
+```
+
+## Usage reference
+
+```
+/code-review [low|medium|high|max] [--fix] [--comment] [--no-triage] [--lenses a,b,c] [--model auto|<model>] [--include-generated] [<target>] [using <model>]
+```
+
+| piece | meaning |
+|---|---|
+| level | effort; omitted → reuses the last level you typed (sticky), first run defaults to `medium` |
+| `--fix` | apply surviving findings to the working tree, not just report |
+| `--comment` | post findings to the PR (`gh`) or MR (`glab mr note`) |
+| `--no-triage` | run the full lens fleet instead of letting [triage](#selective-finders-triage) choose it |
+| `--lenses a,b,c` | pin the built-in finder lenses (comma-separated); skips triage |
+| `--include-generated` | review files git marks `linguist-generated` (excluded by default, see below) |
+| `<target>` | PR number, branch, `a..b` range, or path — narrows the diff under review |
+| `--model` | `auto` (cheapest favorite, see below) or a `provider/model` pin — same as `using` |
+| `using <model>` | pin the fleet model, e.g. `using opencode-go/deepseek-v4-flash` (see [Models & effort](#models--effort)) |
+
+Mistype a level (`hihg`) and the preamble says so and falls back; `--post` is
+accepted but always reported ignored.
+
+**Generated files are ignored by default.** Changed paths the repo's git
+attributes mark `linguist-generated` (lockfiles, ORM schema snapshots, build
+output) don't count toward diff sizing — a migration PR that drags in a
+4,500-line snapshot still reviews as the few hundred hand-written lines it
+actually is. The review names the excluded paths and lines, and its diff
+command carries `:(exclude,literal)` pathspecs for them, so the generated
+bulk never enters the finders' context. `--include-generated` opts back in
+(announced in the preamble) when the generated file itself is the subject.
+
+## Effort levels
+
+| level | finders | verify | sweep | cap |
+|---|---|---|---|---|
+| low | none — single diff pass | – | – | 4 |
+| medium | 8 lenses × 6 candidates | 1-vote, precision rubric | – | 8 |
+| high | 8 lenses × 6 candidates | 1-vote, recall rubric | – | 10 |
+| max | 10 lenses × 8 candidates | 1-vote + carry | yes | 15 |
+
+- **low** reviews the hunk view only; test/fixture hunks are skipped.
+- **precision rubric** (medium): keep CONFIRMED/PLAUSIBLE, refute aggressively.
+- **recall rubric** (high+): PLAUSIBLE by default; REFUTED only when provable
+  from the code.
+- medium/high/max run [triage](#selective-finders-triage) first, so the finder
+  count is the cap, not a fixed team.
+- Findings are a JSON array, ranked most-severe first, `[]` when clean.
+
+## Selective finders (triage)
+
+At medium and above the finder set is chosen per review, not fixed. Before the
+lens finders spawn, the executing agent reads the diff (Phase 0) and drops the
+perspective lenses the changed lines give nothing to act on — a documentation-
+only diff has no new computation to make efficient, nothing to simplify, no new
+code that might duplicate a helper.
+
+- Only `reuse`, `simplification`, `efficiency`, `altitude`, `conventions`
+  (and, at max, `language-pitfalls` and `wrapper-proxy`) can be dropped.
+- The correctness core — `line-scan`, `removed-behavior`, `cross-file` — always
+  runs, and so does every project lens. A lens a project has **replaced** with
+  its own text is never dropped.
+- The bias is to keep: a lens is dropped only with something concrete to point
+  at, and the review says in one line which lenses it dropped and why.
+- `--no-triage` runs the full fleet. `--lenses a,b,c` pins the built-in set and
+  skips the step entirely — useful when the caller already knows the change, for
+  example `--lenses line-scan,cross-file` for a small logic fix. A pin that
+  omits the correctness core is flagged in the review preamble. Project lenses
+  are unaffected by `--lenses`; path gating still decides them.
+
+## Models & effort
+
+By default the reviewer subagents **inherit your session's model**. The only
+default pin is variant on the top rungs:
+
+| level | model | variant |
+|---|---|---|
+| low / medium / high | session model | session variant |
+| max | session model | `max` (all models support max effort) |
+
+Two override mechanisms:
+
+1. **`using <model>` / `--model <model>`** in the command — pins the fleet
+   model for your reviews and sticks until changed. Example:
+   `/code-review medium using opencode-go/deepseek-v4-flash`.
+   `using default` clears the pin.
+
+2. **`--model auto`** — routes the fleet to the **cheapest of your favorite
+   models** (your TUI ★ list) instead of one fixed model:
+
+   - Prices come from opencode's own catalog, filtered to your connected
+     providers, blended `0.75·input + 0.25·output` (review reads far more
+     than it writes).
+   - Plan-pot models (`$0` in the catalog) are **not** treated as free —
+     they draw down metered quota — so they're priced at the cheapest cash
+     rate of the same model. They still sort first, honestly.
+   - Favorites missing from the catalog (renamed/deprecated) are dropped.
+   - The top 4 form a ladder: the cheapest runs the fleet, and the composed
+     prompt instructs a fallback to the next reviewer on model-shaped
+     failures (quota, credits, 402/429, rate limits, overloaded).
+     Confinement/contract failures still fail closed; no ever re-routes to a
+     general-purpose agent. Ladder exhausted → the review aborts with the
+     list of models tried.
+   - Ladder order at a glance: `bun compiler/cli.ts high --model auto --server http://127.0.0.1:4096`
+
+3. **`model:` in a lens file** — a project lens can pin a model for its own
+   specialist finder (see [Project lenses](#project-lenses)). Example: a
+   `security.md` lens running on a different model than the general fleet.
+
+**Mechanic, honestly:** opencode binds a subagent's model from its agent
+definition at startup — the task tool has no per-call model parameter. So all
+overrides are read when the plugin loads: `using`/`--model` persists to a
+sticky state file and pins the `reviewer-*` agents (with `auto`, it pins from
+the cached favorite ladder and injects hidden `reviewer-<level>-alt<N>`
+alternates), lens `model:` pins spawn per-lens agents
+(`reviewer-lens-<name>`). Either way, **restart opencode after changing them**
+for the new model to take effect. With `auto`, the ladder refreshes in the
+background on the first `/code-review` call, so startup stays fast.
+
+## How a review runs
+
+1. `/code-review` calls the `code_review_prompt` tool with your raw arguments.
+2. The tool compiles the full instruction prompt: preamble (level fallbacks) →
+   target clause → heavy-shape note (when the diff is large) → fleet hint →
+   generated-file note (when `linguist-generated` paths were excluded) →
+   level cell → flag appendices.
+3. The model follows it: gathers the diff (**Phase 0**), chooses the lens set
+   (**triage**, medium+), spawns `reviewer-<level>` finder subagents — one per
+   kept lens (**Phase 1**), runs one verifier per candidate (**Phase 2**),
+   optionally sweeps for gaps (**Phase 3**, max), emits ranked JSON findings.
+4. `--fix` applies them; `--comment` posts them.
+
+## Updates
+
+The plugin checks npm once a day for a newer published version and, when one
+exists, the next review mentions it with that version's release notes and the
+update command. It talks only to `registry.npmjs.org` and `api.github.com`
+(read-only; nothing is sent), prompts once per version, and is disabled by
+setting `CODE_REVIEW_NO_UPDATE_CHECK`.
+
+## Salvaging interrupted reviews
+
+When a review dies (wall-clock timeout, crash), most of its output survives in
+the child subagent sessions inside opencode's local database. The salvager
+recovers it read-only:
+
+```bash
+bun compiler/salvage.ts <parentSessionId> --out findings.partial.json
+```
+
+The parent session id comes from your run's event log or opencode's session
+list. The report contains, per reviewer child, the assembled assistant text
+plus any fenced JSON findings it emitted; children that died before producing
+text are listed as skipped. The database is opened read-only and nothing is
+written to it. Wire the command into your runner's timeout branch, then merge,
+dedupe, and cap the extracted findings into your report — they are partial
+results, never a completed review.
+
+**Scope:** the diff under review is `git diff @{upstream}...HEAD` (or
+`main...HEAD` / `HEAD~1`) **plus working-tree changes** (`git diff HEAD`).
+Untracked files that were never `git add`ed are invisible to every diff —
+stage them first. A single sandboxed `git diff --numstat` sizes the fleet hint
+(high+: `clamp(ceil(lines/150), 2, 8)` finders), fires the heavy-shape note,
+and gates path-scoped lenses.
+
+## Fleet lenses
+
+**Basic set (medium/high):**
+
+| lens | hunts |
+|---|---|
+| line-scan | per-line bugs: inverted conditions, off-by-one, null deref, missing `await`, falsy-zero, swallowed errors |
+| removed-behavior | deleted guards/invariants with no replacement |
+| cross-file | callers/callees broken by the change |
+| reuse | re-implementations of existing helpers |
+| simplification | redundant state, copy-paste, dead code |
+| efficiency | wasted work, sequential I/O, closure-retained scopes |
+| altitude | bandaids where the mechanism should generalize |
+| conventions | violations of AGENTS.md / CLAUDE.md rules (quoted, not vibes) |
+
+**Extended set (max)** adds: `language-pitfalls` and `wrapper-proxy`.
+
+Every finding needs a concrete failure scenario; correctness outranks cleanup
+when the cap forces a cut.
+
+## Project lenses
+
+Drop markdown files in the reviewed repo:
+
+```
+.opencode/code-review/lenses/<name>.md
+```
+
+One rule, by name:
+
+| name | effect |
+|---|---|
+| `code` | replaces the built-in code lens (prepended to every spawned agent; default empty) |
+| a built-in lens name (`line-scan`, `language-pitfalls`, `reuse`, …) | replaces that built-in lens's text (no effect at levels that don't run it; `language-pitfalls`/`wrapper-proxy` are max only) |
+| anything else | project perspective: prepended to every spawned agent **and** given a dedicated specialist finder at medium+ |
+
+Optional frontmatter:
+
+```markdown
+---
+paths:            # lens only activates when the diff touches a matching path
+  - "mobile/**"
+model: opencode/kimi-k3   # pin THIS lens's specialist finder to a model
+variant: max              # pin its variant (max works on every model)
+---
+You are reviewing the Android app (Kotlin, Compose, coroutines)…
+```
+
+- Gated lenses that don't match the diff fall back to built-in text.
+- Fleet math: medium/high run at most 8 + N finders, max at most 10 + N (N =
+  active new-name project lenses); [triage](#selective-finders-triage) may drop
+  perspective lenses before they spawn, and `low` never spawns. A built-in lens
+  a project replaced with its own text is never dropped by triage. Spawning is unthrottled — on a
+  rate-limit rejection the orchestrator waits, re-issues, and halves its
+  in-flight subagents until the provider recovers; a repeat failure on the same
+  spawn falls back to inline sequential work, so congestion degrades the review
+  instead of aborting it. A heavy shape — a diff of 2,500+ lines, or 800+
+  lines with two or more active project lenses — adds a one-line heads-up to
+  the review prompt suggesting a narrower target, which shrinks the diff and
+  changes which project lenses activate.
+- Every new-name project lens (not a built-in replacement) gets its own
+  `reviewer-lens-<name>` finder agent, registered at plugin load with its
+  `model:`/`variant:` pins (restart after adding one; lens text and `paths:`
+  need no restart).
+- Project review *rules* need no lens — put them in `AGENTS.md`, which the
+  conventions lens discovers per-directory.
+
+### Scaffolding: `/code-review:create-lens`
+
+Writing a lens by hand is optional — the command interviews you and writes
+the file:
+
+```
+/code-review:create-lens                      # fully interactive
+/code-review:create-lens security review of our public API   # goal prefilled
+```
+
+It asks for (skipping anything already answered): the **goal**, a **name**
+(must not collide with a built-in lens name), an optional **model** pin, an
+optional **effort** pin (recommends `max`), and optional **path gating** —
+then writes `.opencode/code-review/lenses/<name>.md`. It never overwrites
+without confirmation, and explains what needs a restart.
+
+## Reviewer subagents
+
+The plugin injects four hidden subagents, `reviewer-low` … `reviewer-max` —
+read-only (read/grep/glob/list; edit/bash/webfetch denied), one per effort
+rung, used for finders, verifiers, and the sweep. Plus one
+`reviewer-lens-<name>` per project lens (its `model:`/`variant:` pins bind at
+startup). With `--model auto`, hidden `reviewer-<level>-alt<N>` alternates
+carry the rest of the cost ladder.
+
+Projects override any of them field-by-field in `.opencode/opencode.json` —
+user config always wins:
+
+```json
+{ "agent": { "reviewer-high": { "prompt": "You are a Scala 3 reviewer…" } } }
+```
+
+## Flags in depth
+
+**Findings output** — JSON array of `{file, line, summary, failure_scenario}`,
+ranked, capped per level, `[]` when clean.
+
+**`--fix`** — applies findings to the working tree: correctness and cleanup
+alike. Skips (and notes) findings that would change intended behavior, need
+changes well outside the diff, or look like false positives.
+
+**`--comment`** — GitHub: one inline PR comment per finding via `gh`.
+GitLab (`!7` or `gitlab` in the target): one general MR note via
+`glab mr note`. No forge target → prints findings and says the flag was
+ignored.
+
+## Files & state
+
+| path | what |
+|---|---|
+| this folder | source of truth |
+| `~/.config/opencode/opencode-code-review/` | installed copy opencode loads — sync after changes |
+| `~/.config/opencode/opencode.json` | plugin registration |
+| `~/.local/state/opencode/code-review-level` | sticky effort level |
+| `~/.local/state/opencode/code-review-model` | sticky model pin (`auto` or `provider/model`) |
+| `~/.local/state/opencode/model.json` | your TUI favorite/recent models — read (never written) to build the `--model auto` ladder |
+| `<repo>/.opencode/code-review/lenses/` | project lenses |
+
+## Development
+
+```bash
+bun test/verify.ts              # behavioral checks
+bun compiler/cli.ts --cells     # dump the four level cells (snapshot)
+bun compiler/cli.ts high --fix  # inspect a composed prompt
+bun compiler/cli.ts --worktree <dir> low
+bun compiler/cli.ts high --model auto --server http://127.0.0.1:4096  # inspect the auto ladder
+```
+
+Prompt composition is deterministic code in `compiler/` (zero runtime deps:
+node builtins + `Bun.Glob`); fragment texts are stable and probed by the
+verify suite. After changing source: run the suite, copy changed files over
+the installed copy, restart opencode. See `AGENTS.md` for conventions.
+
+## Troubleshooting / FAQ
+
+- **`code_review_prompt` tool missing** — that session predates the plugin
+  load; toolsets snapshot at session creation. New session, or restart.
+- **`using <model>` had no effect** — it pins at next opencode start by
+  design; check `~/.local/state/opencode/code-review-model`.
+- **`--model auto` runs the session model** — no usable ladder was resolved:
+  favorites empty, none of their providers connected, or the catalog was
+  unreachable at startup. Star models in the TUI picker and restart.
+- **Auto ladder skipped a favorite** — it's absent from the connected
+  catalog (renamed/deprecated) or an unpriced pot with no cash sibling; the
+  ladder only contains models you can actually call.
+- **Lens specialist didn't spawn / model didn't apply** — lens agents
+  register at plugin load; restart after adding the lens file.
+- **Review found nothing but I have changes** — untracked files are invisible
+  to git diffs; `git add` them first.
+- **Level didn't apply** — an unrecognized level falls back with a notice;
+  the sticky level changes only when you type a valid one.

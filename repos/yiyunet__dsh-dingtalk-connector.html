@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yiyunet/dsh-dingtalk-connector · OpenCode Plugins</title>
+<meta name="description" content="把钉钉 AI 表格接入 DeepSeek Harness ｜ 10 个工具 + 设置面板 + 定时导出 ｜ Read &amp; write DingTalk AI Tables from DeepSeek Harness">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="dsh-dingtalk-connector, yiyunet, yiyunet/dsh-dingtalk-connector, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/yiyunet__dsh-dingtalk-connector">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="yiyunet/dsh-dingtalk-connector · OpenCode Plugins">
+<meta property="og:description" content="把钉钉 AI 表格接入 DeepSeek Harness ｜ 10 个工具 + 设置面板 + 定时导出 ｜ Read &amp; write DingTalk AI Tables from DeepSeek Harness">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/yiyunet__dsh-dingtalk-connector">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "yiyunet/dsh-dingtalk-connector", "codeRepository": "https://github.com/yiyunet/dsh-dingtalk-connector", "url": "https://opencode-plugins.zhuikan.com/repos/yiyunet__dsh-dingtalk-connector", "description": "把钉钉 AI 表格接入 DeepSeek Harness ｜ 10 个工具 + 设置面板 + 定时导出 ｜ Read & write DingTalk AI Tables from DeepSeek Harness", "author": {"@type": "Organization", "name": "yiyunet", "url": "https://github.com/yiyunet"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-14", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="yiyunet/dsh-dingtalk-connector" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">yiyunet/dsh-dingtalk-connector</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="yiyunet__dsh-dingtalk-connector"><img class="rp-side-av" src="https://github.com/yiyunet.png?s=300" width="300" height="300" alt="yiyunet avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">dsh-dingtalk-connector</div>
+      <a class="rp-side-owner" href="https://github.com/yiyunet">yiyunet</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/yiyunet">yiyunet</a>
+        <span class="rp-sep">/</span><span class="rp-name">dsh-dingtalk-connector</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">把钉钉 AI 表格接入 DeepSeek Harness ｜ 10 个工具 + 设置面板 + 定时导出 ｜ Read &amp; write DingTalk AI Tables from DeepSeek Harness</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-14</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/yiyunet/dsh-dingtalk-connector">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">dsh-dingtalk-connector
+
+让钉钉 AI 表格的数据，流进 DeepSeek Harness。
+
+MIT · 独立社区插件 · 与钉钉（DingTalk）、DeepSeek 无隶属或背书关系
+安全与边界 · 卸载与残留
+
+中文 | English
+
+---
+
+ 这是什么，适不适合你
+
+一个 DSH 插件，把钉钉 AI 表格（多维表 / aitable）接到 DeepSeek Harness 上。装完即得 10 个 dingtalk_aitable_ 工具和一个 「ANB 工具 → 钉钉文档」面板——在 Harness 里直接发现 Base、读数据表、按条件查记录、批量写回、导出带 BOM 的中文 CSV，并支持定时导出。
+
+架构：包装钉钉官方 dws（dingtalk-workspace-cli）执行 dws aitable ...，不直连 REST。这与钉钉官方 OpenClaw connector 同构——它自己也不直连 REST，而是注入 DWS_CLIENT_ID/SECRET 后调 dws（实测，2026-09-14 直读其仓库确认）。
+
+设计取向：只读优先 + 写门禁。写与删除默认全关，删除还需每次逐条确认。宁可多一步确认，也不给&quot;模型幻觉 + 权限过大&quot;留组合空间。
+
+ 这不是一个自包含插件——它依赖外部 CLI dws。三层依赖（Node / dws / 钉钉侧授权）缺一不可。
+
+ 首屏必读三条
+
+ 这三条最容易被误解，先看这里再看细节。
+
+1. 定时器跑在 DSH host 进程内——DSH 关着时不执行，重启后重算下次触发点。不是云端定时。
+2. 钉钉侧没有&quot;列出全部 Base&quot;的接口——扫描产出是「候选 ∪ 人工补录」，不保证穷尽；且 base search 的 hasMore: true 是误报（游标翻页无效）。
+3. 写与删除门禁默认全关——删除还需每次 confirm=true。
+
+ 本文每条技术结论均标明来源档位：实测 / 官方原文 / 推测，并附取得日期。
+
+ 能保证什么，不能保证什么
+
+| | 内容 |
+|---|---|
+| 保证 | 工具跑的是官方 CLI 的命令面（端点、鉴权、分页由 dws 负责）；写与删除默认不可用；CSV 带 BOM 并回读首 3 字节自证；面板可用性可用 diagnose 的 rpcEndpoint.registered 自证 |
+| 不保证 | 扫描能穷尽你组织下的全部 Base（钉钉侧无此接口）；模型不会误操作（写门禁只降低暴露面，不消灭风险）；钉钉 API 变更后的行为（跟随 dws 版本） |
+| 官方自身提醒 | 官方 connector 明确：模型幻觉、执行不可控、提示词注入是固有风险，建议避免在企业生产环境直接部署 |
+
+ 前置条件（三层依赖，缺一不可）
+
+| 层 | 要求 |
+|---|---|
+| ① 本机运行时 | Node ≥ 22.19；DSH 0.1.2-alpha.4 ~ 0.1.5-alpha.1 |
+| ② dws CLI | npm i -g dingtalk-workspace-cli，版本 ≥ 1.0.6（实测基线 v1.0.61） |
+| ③ 钉钉侧 | 授权 ＋ 开通「AI 表格记录读写」权限 ＋ 把应用加为 Base 协作者（可编辑）★最易漏 |
+
+ 1 安装 dws
+
+sh
+npm i -g dingtalk-workspace-cli
+dws --version           必须 = 1.0.6
+npm root -g             记下前缀，Windows 上要用它填 dwsEntry
+
+
+ ⚠️ dws 不是纯 JS 包——它带 postinstall，安装时下载并解压一个平台原生二进制（约 25 MB）。支持 Windows / macOS / Linux 的 x64 与 arm64 六个平台。解压依赖：Windows 用系统自带 powershell.exe，macOS / Linux 需要 tar 或 unzip。完整矩阵见 docs/安装与前置条件.md。
+
+ 2 授权（二选一）
+
+方式 A — 扫码登录（交互式）
+
+sh
+dws auth login          钉钉 App 扫码授权；token 自动刷新（access 2h / refresh 30d）
+dws auth status         确认已登录
+
+
+方式 B — 复用钉钉应用凭证（headless / 推荐给服务器）
+
+sh
+ Windows
+set DWS_CLIENT_ID=
+set DWS_CLIENT_SECRET=
+ macOS / Linux
+export DWS_CLIENT_ID=
+export DWS_CLIENT_SECRET=
+
+dws auth login
+
+
+ 凭证优先级：--token  DWS_CLIENT_ID/SECRET  OAuth 加密存储。凭证只走环境变量注入子进程，不进命令行参数（避免出现在进程列表里）。
+
+ 3 开通权限（极易漏，漏了必 403）
+
+1. 钉钉开发者后台 → 该应用 → 权限管理 → 开通 AI 表格（多维表）记录读写权限 → 发布生效
+2. 目标 Base → 右上角「协作/分享」→ 把该应用加为协作者，权限给到可编辑
+
+ 这两件事缺一不可。dws 报 permission denied / 403 时，九成是这里没做完。
+
+ 安装
+
+sh
+ 从 npm 安装
+dsh plugin --profile web add dsh-dingtalk-connector
+
+ 或从本地路径安装（开发时）
+dsh plugin --profile web add &quot;&quot;
+
+dsh --profile web --dump-config           期望看到 dingtalk-connector 这一层
+
+
+然后重启 dsh web。
+
+自带一个引导 CLI：
+
+sh
+npx dsh-dingtalk-connector install [--profile web]    安装 + 核对配置层
+npx dsh-dingtalk-connector doctor                     体检：dsh / dws / Node / 授权状态
+
+
+想撤掉它：见更新与卸载。
+
+ 快速开始：把一张表导成可用的 CSV
+
+装好不等于能用。四步的落点是一份能在 Excel 里正常打开的中文 CSV。
+
+1. 给什么输入 —— 一个关键词（用于发现 Base）或一个已知的 baseId，以及一个绝对路径的输出文件。
+2. 做什么操作 —— 先跑 dingtalk_aitable_diagnose 自检；再 dingtalk_aitable_scan(keywords=&quot;关键词&quot;, withTables=true) 找到 baseId 与 tableId；然后 dingtalk_aitable_export_csv(baseId, tableId, outputPath=&quot;.csv&quot;)。
+3. </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/yiyunet__dsh-dingtalk-connector.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

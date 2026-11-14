@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
+  <title>OpenCode Plugins</title>
+  <link href="https://opencode-plugins.zhuikan.com/feed.xml" rel="self"/>
+  <link href="https://opencode-plugins.zhuikan.com/"/>
+  <id>https://opencode-plugins.zhuikan.com/feed.xml</id>
+  <updated>2026-11-14T19:37:34Z</updated>
+  <entry>
+    <title>[首登] omercnet/opencode-plugin-langfuse</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/omercnet__opencode-plugin-langfuse"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/omercnet__opencode-plugin-langfuse</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Langfuse observability plugin for OpenCode - LLM tracing, prompt versioning, and cost tracking</summary>
+  </entry>
+  <entry>
+    <title>[首登] @fro.bot/systematic</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@fro.bot__systematic"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@fro.bot__systematic</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Compound-engineering loops for OpenCode, Pi, and Claude Code</summary>
+  </entry>
+  <entry>
+    <title>[首登] gabriel-trigo/opencode-telegram-bridge</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/gabriel-trigo__opencode-telegram-bridge"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/gabriel-trigo__opencode-telegram-bridge</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Telegram bot bridge for the OpenCode server</summary>
+  </entry>
+  <entry>
+    <title>[首登] kevinfx-code/magpie-wps-lingxi</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/kevinfx-code__magpie-wps-lingxi"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/kevinfx-code__magpie-wps-lingxi</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Magpie provider plugin for WPS Lingxi (WPS 灵犀 / Lingxi Claw): native Agent Runtime with structured tool calls, daily check-in, usage balance query, and OpenAI-compatible reverse proxy</summary>
+  </entry>
+  <entry>
+    <title>[首登] boyingliu01/xp-gate</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/boyingliu01__xp-gate"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/boyingliu01__xp-gate</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>XP-Gate quality gates + AI workflow skills for OpenCode</summary>
+  </entry>
+  <entry>
+    <title>[首登] benking007/imhub</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/benking007__imhub"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/benking007__imhub</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Universal messenger-to-agent bridge — connect WeChat/Feishu/Telegram/Discord to Claude Code/Codex/Copilot/OpenCode, or any custom agent via ACP</summary>
+  </entry>
+  <entry>
+    <title>[首登] jeffreyjyz/cmdcode-tools</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/jeffreyjyz__cmdcode-tools"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/jeffreyjyz__cmdcode-tools</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Command Code provider + usage dashboard for opencode: two providers (Anthropic wire for Claude, OpenAI wire for everything else) against api.commandcode.ai, live model list, plan gating, /cmd-usage. Requires the cmduse CLI for usage rendering.</summary>
+  </entry>
+  <entry>
+    <title>[首登] matteoantoci/eslint-config-ai-guardrails</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/matteoantoci__eslint-config-ai-guardrails"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/matteoantoci__eslint-config-ai-guardrails</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Strict, AI-friendly ESLint config with functional programming and TypeScript guardrails</summary>
+  </entry>
+  <entry>
+    <title>[首登] misonl/magpie-plugin-codar</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/misonl__magpie-plugin-codar"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/misonl__magpie-plugin-codar</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Codar (科搭) for magpie — its models as a provider, the daily check-in, and the account&#x27;s points on the card</summary>
+  </entry>
+  <entry>
+    <title>[首登] steammax/opencode-context-panel</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/steammax__opencode-context-panel"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/steammax__opencode-context-panel</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Claude-Code-style context breakdown panel for the OpenCode CLI sidebar</summary>
+  </entry>
+  <entry>
+    <title>[首登] youxufkhan/my-opencode-config</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/youxufkhan__my-opencode-config"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/youxufkhan__my-opencode-config</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>The ultimate OpenCode setup CLI. Automate your configuration and unlock the power of free and premium models in seconds.</summary>
+  </entry>
+  <entry>
+    <title>[首登] dwyi84/opencode-telegram-notify</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/dwyi84__opencode-telegram-notify"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/dwyi84__opencode-telegram-notify</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Telegram notifications for opencode session events - completion, errors, and permission requests</summary>
+  </entry>
+  <entry>
+    <title>[首登] goodfoot-io/git-span</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/goodfoot-io__git-span"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/goodfoot-io__git-span</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>In-session git-span for OpenCode: silent span-drift healing behind shell/read/edit/write/patch calls, and an installer for the git-span skills and expert agent.</summary>
+  </entry>
+  <entry>
+    <title>[首登] hung319/qwen-opencode-provider</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/hung319__qwen-opencode-provider"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/hung319__qwen-opencode-provider</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>OpenCode plugin for Qwen API - auto adds provider with 28+ models</summary>
+  </entry>
+  <entry>
+    <title>[首登] sadmansakib/nano-llm</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/sadmansakib__nano-llm"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/sadmansakib__nano-llm</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Nano LLM (&lt;your-nano-llm-endpoint&gt;) provider plugin for OpenCode: OpenAI-compatible, live model discovery, /connect API-key auth.</summary>
+  </entry>
+  <entry>
+    <title>[日增] stablyai/orca +322★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/stablyai__orca"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/stablyai__orca</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Orca lets you run a fleet of coding agents (e.g. Claude Code, Codex) with your own subscription. Available on desktop, mobile and remote runtime.</summary>
+  </entry>
+  <entry>
+    <title>[日增] dietrichgebert/ponytail +65★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/dietrichgebert__ponytail"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/dietrichgebert__ponytail</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Lazy senior dev mode for AI agents. The best code is the code you never wrote.</summary>
+  </entry>
+  <entry>
+    <title>[日增] agent-of-empires/agent-of-empires +48★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/agent-of-empires__agent-of-empires"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/agent-of-empires__agent-of-empires</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Manage multiple Claude Code, OpenCode agents from either TUI or Web for easy access on mobile. Also supports Mistral Vibe, Codex CLI, Gemini CLI, Pi.dev, Copilot CLI, Factory Droid Coding.</summary>
+  </entry>
+  <entry>
+    <title>[日增] @omniroute/opencode-plugin-v2 +31★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@omniroute__opencode-plugin-v2"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@omniroute__opencode-plugin-v2</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models, combos, enrichment, and naming.</summary>
+  </entry>
+  <entry>
+    <title>[日增] @omniroute/opencode-provider +31★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@omniroute__opencode-provider"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@omniroute__opencode-provider</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>OpenCode provider helper for the OmniRoute AI Gateway. Generates a schema-valid provider entry for opencode.json that delegates the runtime to @ai-sdk/openai-compatible.</summary>
+  </entry>
+  <entry>
+    <title>[日增] diegosouzapw/omniroute +31★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/diegosouzapw__omniroute"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/diegosouzapw__omniroute</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>OpenCode plugin for the OmniRoute AI Gateway. Drives dynamic model discovery, /connect auth flow, and multi-instance OmniRoute providers via the official @opencode-ai/plugin contract.</summary>
+  </entry>
+  <entry>
+    <title>[日增] getpaseo/paseo +27★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Orchestrate multiple coding agents from desktop and mobile</summary>
+  </entry>
+  <entry>
+    <title>[日增] vectorize-io/hindsight +21★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/vectorize-io__hindsight"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/vectorize-io__hindsight</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Hindsight memory plugin for OpenCode - Give your AI coding agent persistent long-term memory</summary>
+  </entry>
+  <entry>
+    <title>[日增] deusdata/codebase-memory-mcp +20★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Local code intelligence for developers and AI agents. Connect code, docs and infrastructure in a persistent graph, with CBM Lens, MCP tools, agent integrations and change-aware test selection.</summary>
+  </entry>
+  <entry>
+    <title>[日增] mksglu/context-mode +19★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/mksglu__context-mode"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/mksglu__context-mode</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Free, local plugin that keeps tool output out of your coding agent&#x27;s context window. Sandbox and SQLite FTS5 search, 99% fewer bytes in context. Works with Claude Code, Codex, Pi, OMP, OpenCode, Gemini CLI, Copilot CLI and 4 more agents. Zero telemetry.</summary>
+  </entry>
+  <entry>
+    <title>[日增] npm/context-mode +18★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/npm__context-mode"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/npm__context-mode</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Context window saver for 11 coding agents. Local and free: sandboxed code execution, FTS5 search, session continuity.</summary>
+  </entry>
+  <entry>
+    <title>[日增] jazzenchen/agent-hud-open +14★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas, tokens and sessions at a glance, answer requests and jump back in one click. On your screen, phone and watch.</summary>
+  </entry>
+  <entry>
+    <title>[日增] @openviking/opencode-plugin +13★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@openviking__opencode-plugin"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@openviking__opencode-plugin</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Unified OpenCode plugin for OpenViking repository retrieval and long-term memory</summary>
+  </entry>
+  <entry>
+    <title>[日增] chesterra/cccc +12★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/chesterra__cccc"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/chesterra__cccc</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Coordinate your coding agents like a group chat — read receipts, delivery tracking, and remote ops from your phone. One pip install, zero infrastructure. A production‑minded orchestrator for 24/7 workflow</summary>
+  </entry>
+  <entry>
+    <title>[日增] upstash/context7 +8★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/upstash__context7"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/upstash__context7</id>
+    <updated>2026-11-14T19:37:34Z</updated>
+    <summary>Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a documentation skill</summary>
+  </entry>
+</feed>

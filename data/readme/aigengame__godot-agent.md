@@ -1,0 +1,753 @@
+# gda — Godot Automation for AI Agents
+
+[![gda — Godot automation for AI agents](https://raw.githubusercontent.com/aigengame/godot-agent/main/assets/godot-agent-title.png)](https://aigengame.xyz/)
+
+**Read this in:** [简体中文](docs/README.zh-CN.md) · [Español](docs/README.es.md) · [日本語](docs/README.ja.md)
+
+[![CI](https://github.com/aigengame/godot-agent/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/aigengame/godot-agent/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush)
+[![PyPI](https://img.shields.io/pypi/v/gda)](https://pypi.org/project/gda/)
+[![Python](https://img.shields.io/badge/python-3.13%2B-blue)](https://www.python.org/)
+[![Godot](https://img.shields.io/badge/godot-4.6%2B-478CBF)](https://godotengine.org)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Linux%20%C2%B7%20Windows-lightgrey)](#how-it-works)
+[![MCP](https://img.shields.io/badge/MCP-server-000)](https://modelcontextprotocol.io)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**Build and verify Godot projects with AI coding agents, shell scripts, and CI.**
+`gda` provides Godot automation with headless validation as well as live runtime
+inspection and control through a CLI, a bundled Agent Skill, or an MCP server,
+returning structured results agents can act on.
+
+Two complementary modes cover this build-and-verify workflow:
+
+- **Headless** — create and edit project content, compile scripts, validate and boot
+  scenes, analyze project structure, and export builds without an editor plugin or daemon.
+- **Live** — inspect and drive the running game through a per-project daemon: runtime
+  tree and state, input simulation, frame capture, logs, errors, and performance.
+
+[Product overview](https://aigengame.xyz/) ·
+[CLI, Agent Skill, or MCP?](https://aigengame.xyz/godot-mcp/) ·
+[Playable demos](https://github.com/aigengame/gallery) ·
+[PyPI](https://pypi.org/project/gda/)
+
+## TL;DR
+
+Just tell your AI agent:
+
+> Install the gda CLI with `uv tool install gda` (or `pipx install gda`), and install its
+> Agent Skill with `npx skills add aigengame/godot-agent --skill gda -g`. Then read the skill,
+> follow it to set up gda for my Godot project, and check the setup with `gda info --json`.
+
+## Contents
+
+- [Why `gda`?](#why-gda)
+- [Capabilities at a glance](#capabilities-at-a-glance)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Choose your integration](#choose-your-integration)
+- [How it works](#how-it-works)
+- [Command reference](#command-reference)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Why `gda`?
+
+- **Verification across the game development lifecycle.** Headless validation confirms project readiness;
+  Live operations return runtime evidence about actual behavior.
+- **Structured results and discoverable schemas.** With `--json`, each command emits
+  exactly one result object on stdout. Typed input and output models also power
+  `--schema` and the generated MCP tool surface.
+- **Godot-native bounded context and ubiquitous language.** `gda` uses a single
+  Godot-aligned operation model and vocabulary, giving agents consistent terms for
+  project content and runtime state.
+- **Operate reliably in restricted environments.** Redirect user data and logs to
+  writable locations, isolate concurrent runs, and return typed environment failures
+  before Godot crashes. This makes it easier for agents to work in sandboxes.
+- **Three complementary access paths.** Run the CLI directly from an agent, shell, or
+  CI; install the bundled Agent Skill for reusable guidance; or expose the same
+  operations as MCP tools. See [CLI, Agent Skill, or MCP?](https://aigengame.xyz/godot-mcp/)
+  for comparison and tradeoffs.
+- **Bounded automation with actionable failures.** Timeouts, bounded output, typed
+  failures, diagnostics, and mutation reports help agents decide what happened and how
+  to recover.
+
+These capabilities were refined while
+[building a real game](https://aigengame.xyz/#showcase), with the work documented in a public
+[dogfooding record](https://github.com/aigengame/godot-agent/milestone/10).
+
+## Capabilities at a glance
+
+| Goal | What `gda` provides | Start with |
+| --- | --- | --- |
+| Build Godot project content (Headless) | Create and edit scenes, nodes, scripts, resources, project settings, shaders, and themes | `scene` / `node` / `script` / `resource` / `project` / `shader` / `theme` |
+| Verify project readiness (Headless) | Compile scripts, validate dependencies, boot scenes in a bounded preflight, analyze project structure, and export builds | `script validate` / `scene validate` / `scene preflight` / `project` / `export` |
+| Verify runtime behavior (Live) | Read runtime state, call declared methods, simulate input, capture frames, collect logs and errors, and sample performance | `gda daemon start`, then `game` / `input` / `screen` / `diag` / `logger` / `perf` |
+| Connect an AI coding agent | Use direct CLI execution, reusable Agent Skill guidance, or MCP tool discovery and calling | `gda` / `gda skill` / `gda-mcp` |
+| Run reliably in automation | Receive structured results, typed schemas and failures, bounded execution, isolated logs, and actionable diagnostics | `--json` / `--schema` / `--user-data-root` / timeouts |
+
+## Installation
+
+**Requirements:** Python 3.13+ and a [Godot](https://godotengine.org) 4.6+ binary (see the
+platform support table).
+
+Install `gda`, the Godot CLI for AI agents, from PyPI onto your `PATH`:
+
+```bash
+uv tool install gda      # or: pipx install gda
+gda --help
+```
+
+<details>
+<summary>Other ways to install (pip, from source)</summary>
+
+Into an existing environment:
+
+```bash
+pip install gda
+```
+
+From source (for development or unreleased changes):
+
+```bash
+git clone https://github.com/aigengame/godot-agent.git
+cd godot-agent
+uv sync                  # create the environment + install dependencies
+uv run gda --help
+```
+</details>
+
+## Quick start
+
+**Point `gda` at your Godot binary**, then ask the engine its version — no project needed:
+
+```bash
+export GDA_GODOT="/path/to/Godot"   # or pass --godot to any command; Windows: use *_console.exe
+gda info --json
+# {"major":4,"minor":6,"patch":3,"status":"stable","string":"4.6.3-stable (official)",…}
+```
+
+With `--json`, stdout is clean JSON you can pipe; all engine and script diagnostics go to stderr:
+
+```bash
+gda info --json | jq .major   # → 4
+```
+
+**No project yet?** `gda` still runs **projectless** on plain filesystem paths (relative to your
+current directory); only `res://` resolution needs a project. See [Configuration](#configuration).
+To create one, use a destination that is new or empty (entries such as `.git` do not count).
+`gda` writes one file, a `project.godot` that sets only the name:
+
+```bash
+gda project create ./my-game --name "My Game" --json
+# {"path":"/home/me/my-game","name":"My Game","created_dirs":["/home/me/my-game"],"project_file":"/home/me/my-game/project.godot"}
+```
+
+**Build a scene headlessly.** Point `gda` at a Godot project (a directory with `project.godot`)
+once; relative paths then resolve *inside* it, and nodes are addressed by their path relative to
+the scene root:
+
+```bash
+export GDA_PROJECT="/path/to/your/godot-project"   # or pass --project to any command
+gda scene create scenes/main.tscn --root-type Node2D --json
+gda node add  scenes/main.tscn --type Sprite2D --name Hero --json
+gda node set  scenes/main.tscn --node Hero --property position --value 10,20 --json
+gda scene validate scenes/main.tscn --json
+gda scene get scenes/main.tscn --json
+# {"path":"scenes/main.tscn","root":{"name":"main","type":"Node2D","children":[{"name":"Hero",…}]}}
+```
+
+**Inspect and drive the *running* game with Live operations.** These operations run the
+project's **main scene**, so point it at the one you just built via Godot's
+`application/run/main_scene` project setting (the editor's *Application → Run → Main Scene*),
+then start the daemon (Godot 4.6+):
+
+```bash
+gda project set application/run/main_scene --value res://scenes/main.tscn --json  # a Godot project setting key
+gda daemon start             # start the daemon for $GDA_PROJECT (installs the in-game harness)
+gda game tree --json         # the runtime scene tree, after _ready
+gda perf monitors --json     # live engine counters: fps, memory, node count
+gda daemon stop
+```
+
+(`gda screen capture` works live too, but needs a windowed session — start the daemon
+with `gda daemon start --windowed`.)
+
+## Choose your integration
+
+`gda` provides one operation surface through three complementary access paths. Use the CLI,
+the Agent Skill, the MCP server, or a combination that fits your workflow. The underlying
+operations and structured results stay the same.
+
+Not sure which path fits your workflow? See
+[Godot MCP vs CLI vs Agent Skill](https://aigengame.xyz/godot-mcp/).
+
+| Access path | Best for | How |
+| --- | --- | --- |
+| **CLI** (`gda`) | humans, shell scripts, CI, and agents that can run commands | `gda <group> <command> --json` |
+| **Agent Skill** (`gda skill`) | coding agents that support Agent Skills and prefer a token-light CLI workflow | print or install the bundled guidance (below) |
+| **MCP** (`gda-mcp`) | MCP-compatible clients that discover and call tools | run the stdio server (below) |
+
+### Use the Agent Skill
+
+`gda` ships an **Agent Skill** that teaches an AI agent *when and how* to drive Godot from the
+CLI. Use it when your coding agent supports Agent Skills and you want reusable guidance without
+registering a server. Install it with the [Skills CLI](https://github.com/vercel-labs/skills),
+which asks which agents to install it for (name them with `-a`):
+
+```bash
+npx skills add aigengame/godot-agent --skill gda       # this project
+npx skills add aigengame/godot-agent --skill gda -g    # all your projects
+```
+
+This copy tracks the repository's `main` branch. For guidance that matches your installed `gda`
+version, use `gda skill` instead. It prints the same file from the package, or installs it:
+
+```bash
+gda skill                                              # print SKILL.md (redirect it anywhere)
+gda skill --install --provider claude --scope user     # resolve a known agent's skills dir
+gda skill --install --dir ~/.claude/skills/gda         # …or give the directory yourself
+```
+
+Either way you still install `gda`, since the Agent Skill drives it. The
+[Agent Skill recipes](docs/gda-skill.md) list each agent's skills directory.
+
+### Use the MCP server
+
+`gda-mcp` is the bundled Godot MCP server for compatible clients. It implements the
+[Model Context Protocol](https://modelcontextprotocol.io) over stdio and is available through
+the `[mcp]` extra. Run it through `uvx` without a permanent install:
+
+```bash
+uvx --from "gda[mcp]" gda-mcp
+```
+
+The server resolves two pieces of context — which Godot **project** to drive and which Godot
+**binary** to run (MCP can't pass per-call flags):
+
+- **Project** — set `GDA_PROJECT`. Without it, `gda-mcp` uses the workspace **roots** the client
+  sends (the folder you have open) — but the MCP 2026-07-28 revision deprecates roots, so pinning
+  `GDA_PROJECT` is the setup that keeps working. See [Configuration](#configuration).
+- **Engine** — set `GDA_GODOT` to your Godot binary, e.g. `"GDA_GODOT": "/path/to/Godot"`.
+
+`gda-mcp` accepts both protocol eras — the pre-2026 MCP protocol and the **2026-07-28 revision** —
+but not with the same project resolution: a pre-2026 client still sends roots, a client on the new
+revision does not, so it resolves from `GDA_PROJECT` or the server's cwd. Pin `GDA_PROJECT` before
+your client moves. On the new revision `gda-mcp` also marks `tools/list` cacheable (1-hour TTL).
+
+#### Register with Coding Agents
+
+<details>
+<summary>Claude Code</summary>
+
+Project scope, `.mcp.json` at the repo root (auto-detects the project via `roots`):
+
+```json
+{
+  "mcpServers": {
+    "gda-mcp": {
+      "command": "uvx",
+      "args": ["--from", "gda[mcp]", "gda-mcp"]
+    }
+  }
+}
+```
+
+User scope (every project) — the CLI, which writes `~/.claude.json`:
+
+```bash
+claude mcp add --scope user gda-mcp -- uvx --from "gda[mcp]" gda-mcp
+```
+
+</details>
+
+<details>
+<summary>Codex</summary>
+
+Project scope, `.codex/config.toml` at the repo root (the project must be trusted):
+
+```toml
+[mcp_servers.gda-mcp]
+command = "uvx"
+args = ["--from", "gda[mcp]", "gda-mcp"]
+
+[mcp_servers.gda-mcp.env]
+GDA_PROJECT = "/absolute/path/to/your/godot/project"
+```
+
+User scope (available everywhere, but pinned to one project) — the same table in
+`~/.codex/config.toml`, or add it with the CLI. Codex has no workspace variable, so
+`GDA_PROJECT` is an absolute path; use project scope if you work across several projects:
+
+```bash
+codex mcp add gda-mcp --env GDA_PROJECT=/absolute/path/to/your/godot/project -- \
+  uvx --from "gda[mcp]" gda-mcp
+```
+
+</details>
+
+<details>
+<summary>Cursor</summary>
+
+Project scope, `.cursor/mcp.json` at the repo root (`${workspaceFolder}`
+tracks the open project):
+
+```json
+{
+  "mcpServers": {
+    "gda-mcp": {
+      "type": "stdio",
+      "command": "/path/to/uvx",
+      "args": ["--from", "gda[mcp]", "gda-mcp"],
+      "env": {
+        "GDA_PROJECT": "${workspaceFolder}"
+      }
+    }
+  }
+}
+```
+
+User scope (available everywhere, but pinned to one project) — the same config in
+`~/.cursor/mcp.json` with `GDA_PROJECT` set to an absolute path (`${workspaceFolder}` only
+works in project scope; use project scope for several projects). Cursor has no `mcp add`
+command — register via the JSON above or the Settings → MCP UI.
+
+> Cursor is GUI-launched with a minimal `PATH`, so a bare `uvx` may not resolve — hence the
+> absolute `command` above; fill it with the output of `which uvx`. Full recipes — PATH
+> injection, Claude Desktop, user vs project scope, per-agent project pinning — are in the
+> [registration recipes](docs/gda-mcp-registration.md).
+</details>
+
+## How it works
+
+`gda` is one Godot automation toolchain with three components and two complementary
+operation modes:
+
+| Component        | Role                                                                         |
+| ---------------- | ---------------------------------------------------------------------------- |
+| **`gda`**        | Runs Godot operations directly as a CLI and returns structured `--json` results. |
+| **`gda-mcp`**    | Maps the same operations and structured results to MCP tools generated from `--schema`. |
+| **`gda-daemon`** | Supervises a running game per project for Live operations.                  |
+
+- **Headless operations** run as one-shot processes — no daemon or editor plugin to install
+  (create a scene, edit a script, validate or boot a scene, export, analyze).
+- **Live operations** require a running game — `gda-daemon` launches it, injects an inert
+  in-game harness, and brokers requests over local IPC (runtime tree, input,
+  frame capture, performance, diagnostics).
+
+Headless validation confirms project readiness; Live operations return runtime evidence about
+actual behavior.
+
+The in-game harness `gda-daemon` injects is **dev-only**: `gda export run` strips it from the
+artifact entirely, and built any other way (editor GUI, raw `godot --export`) it still
+self-disables in the exported game — so a shipped game never *runs* anything daemon-related
+(and via `gda export run`, doesn't even carry it).
+
+**Platform & version support:**
+
+| Mode | Godot | Platforms |
+| ---- | ----- | --------- |
+| **Headless** | 4.6+ | macOS · Linux · Windows¹ |
+| **Live**² (via `gda-daemon`) | 4.6+ | macOS · Linux · Windows |
+
+¹ Headless is cross-platform by design (one-shot processes, no platform-specific
+  dependency) — Windows keeps the full headless surface, and the nightly CI exercises
+  it on a Windows runner too.
+² A windowed session, which `screen capture` and `screen frames` need, requires a
+  display: an on-console GUI session on macOS, `$DISPLAY` or `$WAYLAND_DISPLAY`
+  on Linux (Xvfb on a headless host), or an accessible interactive desktop on
+  Windows. Each command's `--schema` constraints state its supported platforms.
+
+## Command reference
+
+`gda` commands are **grouped by Godot domain object** and use a small, consistent verb
+vocabulary, so the same verb means the same thing in every group:
+
+| Verb                | Meaning                                                           |
+| ------------------- | ----------------------------------------------------------------- |
+| `create` / `delete` | Make / remove a **standalone** entity (scene, script, resource).  |
+| `add` / `remove`    | Add / remove a **sub-entity** within a container (node → scene).  |
+| `get` / `list`      | Read one entity / enumerate many.                                 |
+| `set`               | Mutate a property.                                                |
+| domain verbs        | `play`, `run`, `export`, `import`, … kept with their natural meaning. |
+
+Every command supports `--json` and `--schema`. Commands that read or mutate a `res://` path
+resolve a [project context](#configuration). Run `gda <group> <command> --help` for full
+flags — `gda --help` is the authoritative list of what is installed.
+
+**New here?** A good first path: `gda info` → `gda scene create` → `gda node add` →
+`gda script validate` → `gda export run`; then go live with `gda daemon start` → `gda game tree`.
+
+**Meta** — about `gda` / the engine itself
+
+| Command | What it does |
+| ------- | ------------ |
+| `gda info`   | Report the Godot engine version. |
+| `gda version` | Report which `gda` is installed and where it came from (`--json` adds the install provenance). |
+| `gda help`   | Show a command's help (`gda help scene get`) or the whole CLI's. |
+| `gda schema` | Emit the whole command surface as one machine-readable JSON manifest. |
+| `gda skill`  | Emit or install the bundled Agent Skill (`SKILL.md`) that teaches an agent how to drive `gda`. |
+
+### Headless commands — Godot 4.6+, all platforms
+
+**`scene`** — scene files (`.tscn`)
+
+| Command | What it does |
+| ------- | ------------ |
+| `scene create` | Create a new `.tscn` with the given root node type, or `--inherits` a base scene: a variant whose root is the base's root (not `node add --instance`, which composes a child). |
+| `scene get` | Read a scene and report its structured node tree. |
+| `scene list` | Enumerate the `.tscn` scenes in the resolved project. |
+| `scene get-exports` | List the `@export` properties a scene's nodes' scripts declare. |
+| `scene delete` | Delete a scene file and report what was removed. |
+| `scene validate` | Check a scene **statically** — dependencies resolve and bound scripts compile, sub-scenes included — without instantiating it (the project's autoloads still start, as on every `--project` command); a broken scene is a verdict (`valid: false`, exit `0`), not an error. |
+| `scene preflight` | Check a scene **dynamically** — boot it headless, run `_ready`, and report `started` plus the script errors seen; a failed start is a verdict, not an error. |
+
+Run both — `scene get` reads a scene with its script missing as healthy, only `validate`
+names the file, and only `preflight` catches a first-frame failure.
+
+**`node`** — nodes within a scene file
+
+| Command | What it does |
+| ------- | ------------ |
+| `node add` | Add a node under a parent, optionally at `--index`: a built-in type, a `class_name` script, or `--instance` to compose another scene as an instanced child. |
+| `node get` | Read a node's properties (by node path) as typed JSON. |
+| `node list` | List a scene's node tree with each node's path relative to the root. |
+| `node set` | Set a node property, coercing the value to its declared Godot type. On a `Control`, `position` writes the four offsets; a `Container`'s children are layout-managed and carry no offsets — set `custom_minimum_size`, the size flags, or the parent's layout. |
+| `node remove` | Remove a node (and its subtree) by node path. Refuses a node another scene declares: inherited, or inside an instanced child. |
+| `node duplicate` | Duplicate a node (and its subtree) under its parent. |
+| `node move` | Reparent a node (and its subtree) under a new parent, or reorder it with `--index`. Refuses a node another scene declares: inherited, or inside an instanced child. |
+| `node connect-signal` | Wire a source node's signal to a target node's method. |
+| `node disconnect-signal` | Unwire an existing signal→method connection. |
+
+**`script`** — GDScript files (`.gd`)
+
+| Command | What it does |
+| ------- | ------------ |
+| `script create` | Create a new `.gd` script from a template or verbatim `--content`. |
+| `script get` | Read a script's source plus its `class_name` / `extends` metadata. |
+| `script list` | Enumerate the `.gd` scripts in the resolved project. |
+| `script set` | Edit a script via search-replace, line-range, or full overwrite. |
+| `script delete` | Delete a script file and report what was removed. |
+| `script attach` | Attach a `.gd` script to a node (by node path) in a scene. |
+| `script validate` | Compile-check `.gd` scripts — several PATHs in one engine launch, or `--all` for the whole project — reporting one aggregate `valid` plus a per-script entry under `scripts`; a failing script is a verdict (`valid: false`, exit `0`), not an error. |
+| `script run` | Run a project script headless as a one-shot entry point, under `--timeout`. Its `exit_status` and `stderr` pass straight through; `stdout` is inline up to 64 KiB and, when truncated, the complete stdout is written to the file the result names — and a non-zero `quit()` is data, not a failure, unless you pass `--strict`. |
+
+**`project`** — the project as a whole (settings, autoloads, static analysis)
+
+| Command | What it does |
+| ------- | ------------ |
+| `project create` | Create a minimal project, a `project.godot` that sets only the name, in a new or empty destination directory; entries such as `.git` do not count. |
+| `project info` | Report project metadata (name, main scene, viewport, engine version). |
+| `project get` | Read a single project setting by section/key as typed JSON. |
+| `project list` | List the project's settings keys (customized by default; `--all` adds engine defaults, `--section` filters by prefix). |
+| `project set` | Set a project setting, coercing the value to its declared type. |
+| `project add-autoload` | Register an autoload singleton (name → script/scene). |
+| `project remove-autoload` | Unregister an autoload singleton by name. |
+| `project add-input-action` | Register an InputMap action bound to keys and/or a controller (`--key`, `--joy-button`, `--joy-axis` as `<axis>[:<sign>]`, `--device`, `--deadzone`, `--physical`); at least one binding is required. |
+| `project remove-input-action` | Unregister an InputMap action by name. |
+| `project scan` | Run the editor's filesystem scan, in one headless editor process, so the engine writes its index of `class_name` scripts. gda does not check whether the index is current: run this on a fresh checkout and after you add, rename or delete a `class_name` script. |
+| `project find-references` | Find every project file that references a given resource. |
+| `project dependencies` | Map each scene/resource to the resources it depends on. |
+| `project find-unused-resources` | Find resource files that nothing references. |
+| `project statistics` | Report the project's file/line counts, autoloads, and more. |
+
+**`resource`** — resource files (`.tres`) and the project's imported assets
+
+| Command | What it does |
+| ------- | ------------ |
+| `resource create` | Create a new `.tres` resource of the given type. |
+| `resource get` | Read a `.tres` resource's properties as typed JSON. |
+| `resource set` | Set a `.tres` property, coercing the value to its declared type. |
+| `resource delete` | Delete a `.tres` resource file and report what was removed. |
+| `resource uid` | Resolve a resource UID ↔ its `res://` path in both directions. |
+| `resource import` | Ensure assets are imported into the project cache (clean-worktree loading). |
+
+**`export`** — export presets and artifacts
+
+| Command | What it does |
+| ------- | ------------ |
+| `export list` | Enumerate the project's export presets (name, platform, …). |
+| `export get` | Report one preset's details plus export-template install status. |
+| `export run` | Export a named preset (`release` / `debug` / `pack`) to a destination, and report what it left in the project: every file created (classified), and the rewritten files outside the `.godot/` cache — a cold cache leaves thousands behind, and rewrites inside the cache are not reported. |
+| `export smoke` | Run an exported artifact headless and bounded, and report its exit status, output, and recognized diagnostics. `--quit-after` lets the engine shut down normally (it asserts no project completion), and `--timeout` is only a hard bound, so it cannot prove shutdown-only diagnostics are absent. |
+
+`export smoke` takes a macOS `.app` or a directly host-runnable file. End-to-end evidence covers macOS and Windows Desktop; Linux is not measured and not promised.
+
+**`shader`** — shader files (`.gdshader`)
+
+| Command | What it does |
+| ------- | ------------ |
+| `shader create` | Create a new `.gdshader` from a template or verbatim `--content`. |
+| `shader get` | Read a shader's source plus its `shader_type`. |
+| `shader set` | Edit a `.gdshader` via search-replace, line-range, or full overwrite. |
+
+**`theme`** — theme resources (`.tres`)
+
+| Command | What it does |
+| ------- | ------------ |
+| `theme create` | Create a new, loadable `.tres` Theme resource (no-clobber). |
+
+### Live commands — via `gda-daemon`; Godot 4.6+
+
+**`daemon`** — the live runtime lifecycle
+
+| Command | What it does |
+| ------- | ------------ |
+| `daemon start` | Start the per-project daemon and install the in-game harness; the engine session launches lazily, on the first operation that needs one (`--windowed` for `screen` capture). The project must define `application/run/main_scene`, or pass `--scene`. |
+| `daemon wait-ready` | Launch the engine session now and wait for it; `--timeout` is the daemon's budget for that launch, not a hard ceiling on the call. Read-only `diag` / `logger` tails never launch a session, so run this first when such a read is your first live command. A ready session is not a cleanly started scene: read `clean_start` before you read the game as evidence. |
+| `daemon stop` | Stop the project's daemon and any running engine session. |
+| `daemon status` | Report the daemon's state (running, windowed mode, session, and that session's startup verdict). |
+| `daemon install` | Install the in-game harness without starting a daemon, and report what it wrote. Idempotent; `daemon start` does this itself, so use it only to review or commit the `project.godot` change on its own. |
+| `daemon uninstall` | Remove the in-game harness — autoload entry, harness files, `.uid` sidecars — restoring `project.godot`, and report what was removed. Dev-tooling teardown only: `gda export run` already strips the harness from exported builds. |
+
+**`game`** — the running game's runtime scene graph
+
+| Command | What it does |
+| ------- | ------------ |
+| `game tree` | Read the running game's runtime scene tree (after `_ready`). |
+| `game find` | Find runtime nodes by engine class, script, group, name, or unique name, instead of by path. `--type` is the ENGINE class (subclass-inclusive) and never a project `class_name` — `--script res://path.gd` is what reaches that. |
+| `game get` | Read a runtime node's live properties by node path; explicit names can address attached-script variables. |
+| `game rect` | Read a runtime Control's layout output by node path: the rendered viewport rect, the same rect in the parent's space, and the intrinsic and combined minimum sizes. |
+| `game set` | Set a runtime node property, or an explicitly named attached-script variable, on the running game; `verified` reports whether the read-back matched. |
+| `game call` | Invoke one method the node's script declares in `GDA_CALLABLE` — the project's own read-only promise, which gda cannot verify — and project what it returns; nothing undeclared is ever called. |
+
+`game call` reads what `game get` cannot: state your project exposes as a method.
+`game set --property position` follows the same `Control` rule as `node set`.
+`game get` refuses a Control's `position`, `size`, `global_position` and `global_rect`;
+`game rect` is the read for them.
+
+**`diag`** — runtime diagnostics
+
+| Command | What it does |
+| ------- | ------------ |
+| `diag errors` | Tail the running game's runtime errors (categorized). |
+
+**`logger`** — structured runtime log
+
+| Command | What it does |
+| ------- | ------------ |
+| `logger tail` | Tail the running game's whole runtime log as structured records (`--level`, `--limit`, `--raw`). |
+
+**`perf`** — performance monitoring
+
+| Command | What it does |
+| ------- | ------------ |
+| `perf monitors` | Snapshot the engine's counters — or, with `--frames`, sample a window with statistics and budget verdicts (`--summary` omits the per-frame samples). |
+| `perf monitor` | Sample a node property or signal over a frame window (timeline). |
+
+**`input`** — input simulation
+
+| Command | What it does |
+| ------- | ------------ |
+| `input key` | Inject a key event (with modifiers). |
+| `input mouse-click` | Inject a complete click gesture (move, press, release) at `(x, y)`. |
+| `input mouse-move` | Inject mouse motion to `(x, y)`. |
+| `input action` | Press/release a mapped input action — polled state only, unless `--as-event` delivers it to `_input`/`_gui_input`. |
+| `input tap` | Tap one key or action: press, hold, release across frames (`--key` delivers an event, `--action` sets polled state unless `--as-event`). |
+| `input sequence` | Inject a multi-frame event timeline. |
+
+Read injected mouse coordinates from `event.position` — in a daemon session
+`get_mouse_position()` / `get_global_mouse_position()` can stay stale.
+
+In a windowed session, a loss of OS focus after `input action` releases the held
+state: the engine releases every pressed input, an injected action state included,
+when another application or a second windowed session takes the focus, and
+regaining the focus does not restore it. Press again after such a loss.
+
+**`screen`** — viewport capture
+
+| Command | What it does |
+| ------- | ------------ |
+| `screen capture` | Capture one viewport frame to a PNG; `--settle-frames N` lets the game run N frames first. |
+| `screen frames` | Capture an N-frame PNG sequence (`--summary` for a compact aggregate result; `--settle-frames` runs once, before the first frame). |
+
+A capture's receipt carries two frame counters: `engine_frame` is the boundary the read
+was taken at, `render_frame` the drawn frame the pixels are.
+Each `screen frames` item includes a receipt; `--summary` keeps only the first and last receipts.
+
+### Global flags
+
+| Flag       | Description                                                          |
+| ---------- | ------------------------------------------------------------------- |
+| `--json`    | Emit the outcome as a single JSON object on stdout — the result on success, the `{"error": {…}}` envelope on failure. Without it, both are printed as a concise human-readable rendering instead. Accepted before the command as well. |
+| `--schema`  | Emit the command's input/output JSON Schema contract (no Godot spawned). |
+| `--godot`   | Path to the Godot binary (overrides `$GDA_GODOT`). |
+| `--project` | Godot project directory for `res://` resolution (overrides `$GDA_PROJECT`; defaults to the current directory if it is a project). Domain commands only. Resolving a project runs that project's code — see [Project code execution](#configuration). |
+| `--version` | Print the installed `gda` version. With `--json`, also where it came from — install kind (`wheel`, `editable`, or `unknown`) and, for an editable install, the source checkout's Git revision. |
+| `--help`    | Show usage for `gda` or any command.                                |
+
+## Configuration
+
+`gda` finds the Godot binary from the **`--godot <path>`** flag, otherwise the
+**`GDA_GODOT`** environment variable — set one of these so `gda` can locate your engine.
+
+Domain commands resolve a **Godot project** so that `res://` paths resolve. A named
+directory must be a project, or `gda` reports an error; when nothing resolves, `gda` runs
+**projectless** — plain filesystem paths work, `res://` does not.
+
+| Context | Project resolution order |
+| --- | --- |
+| **CLI** | `--project` → `GDA_PROJECT` (both strict: an invalid one is an error) → the current directory, if it holds `project.godot` → projectless |
+| **MCP** (`gda-mcp`) | `GDA_PROJECT` (strict) → the client's workspace `root`, if it sends a valid one (pre-2026 clients) → the server's cwd, if it is a project → projectless |
+
+<details>
+<summary>Project code execution — what runs when you point at a project</summary>
+
+Pointing `gda` at a project runs some of that project's own code — by design, since the
+project is trusted ([ADR-0009](docs/adr/0009-trust-boundary-trusted-project.md)):
+
+- **Autoloads** start on every `--project` operation that boots the game-facing engine,
+  read-only ones included (a cached `resource import` boots nothing).
+- **Scene scripts' `_init`** runs wherever a scene is instantiated: every mutating `node`
+  command and `node get`; `scene get` / `scene list` / `node list` read without instantiating.
+- **`script run`** executes the named script in full; **`scene preflight`** boots the scene
+  and runs its `_ready`.
+- **`project scan`**, **`resource import`** on a cache miss and the native export of **`export run`**
+  boot the editor instead: the engine's importers and the project's import plugins run, with every
+  `@tool` autoload and the enabled editor plugins; plain autoloads do not. `export run` also
+  runs the export plugins those editor plugins register, after it reads the preset in an
+  ordinary operation that starts the autoloads.
+- **`game call`** runs the one method the node's `GDA_CALLABLE` declaration names; nothing
+  undeclared is ever called.
+
+</details>
+
+<details>
+<summary><strong>Under the hood</strong> — the structured-output contract & exit codes</summary>
+
+Headless Godot interleaves its banner, warnings, and `print()` output into stdout. `gda`
+solves this with a sentinel contract
+([ADR-0002](docs/adr/0002-headless-structured-output-contract.md)):
+
+- The GDScript payload emits **exactly one** result, wrapped in unique sentinels on stdout:
+
+  ```
+  <<<GDA:RESULT>>>{ …json… }<<<GDA:END>>>
+  ```
+
+- It routes **all** of its own diagnostics to stderr; stdout carries nothing but the contract.
+- `gda` extracts and parses only the bytes between the sentinels, ignoring the surrounding
+  engine noise, and surfaces stderr for inspection.
+
+This is what makes `gda`'s output safe to consume programmatically, and it generalizes to
+the per-message protocol the daemon uses for live operations.
+
+**Exit codes (the CLI ABI).** A failed `gda` run exits with a small, stable code so a shell
+or agent can branch on the failure **category without parsing the JSON error**:
+
+| Exit code | Category      | When                                                                  |
+| --------- | ------------- | --------------------------------------------------------------------- |
+| `0`       | —             | Success.                                                              |
+| `2`       | `usage`       | `gda` could not resolve what was asked for — an unrecognized command or option. A recognized near miss carries the invocation to use instead in the envelope's `hint`. |
+| `127`     | `environment` | The Godot binary could not be launched (shell convention: not found). |
+| `124`     | `environment` | Godot launched but did not return before the timeout (shell convention: timed out); the envelope carries the partial output captured so far. |
+| `3`       | `version`     | The detected Godot version is below the supported minimum.            |
+| `4`       | `operation`   | The engine ran but the operation failed — a registered operation error, an engine crash, or an unstructured non-zero exit. |
+| `5`       | `parse`       | The process claimed success but violated the structured-output contract. |
+| `6`       | `live`        | A live operation failed — e.g. no running daemon/session, or a live timeout. |
+
+These values are the public ABI; their authoritative source is
+[`src/gda/exit_codes.py`](src/gda/exit_codes.py). The `{"error": {category, code, …}}`
+envelope carries a **finer `code`** within each category (e.g. `path_not_found`,
+`already_exists`, `node_not_found` all sit under `operation` / exit `4`). The full
+registry lives in
+[ADR-0002's `GdaError.code` table](docs/adr/0002-headless-structured-output-contract.md#gdaerrorcode-registry).
+</details>
+
+<details>
+<summary><strong>Development</strong></summary>
+
+```bash
+uv sync                       # set up the environment
+
+uv run pytest                 # run the full suite (includes e2e tests against a real Godot)
+uv run pytest -m "not e2e"    # unit tests only (no Godot binary required)
+uv run pytest -m e2e          # only the end-to-end tests (needs Godot 4.6+ on this machine)
+uv run pytest -n 0            # any tier above serially (the default also goes serial under --pdb)
+uv run pytest -n 2            # any tier above on two workers, e.g. beside another e2e run
+uv run pytest -m e2e --splits 3 --group 2 --splitting-algorithm least_duration   # one third of the e2e tier, as one CI shard runs it
+
+uv run ruff check .           # lint
+uv run ruff format .          # auto-format (append --check to verify without writing)
+uv run pyright                # type-check (src/ + tests/, basic mode)
+```
+
+The `e2e` tier runs by default with `uv run pytest`, and **fails loudly** — saying how to
+fix it — when `GDA_GODOT` does not name a Godot binary, rather than skipping.
+Deselect the whole tier with `-m "not e2e"` (CI's per-PR job uses exactly this).
+
+Point `GDA_GODOT` at a standard Godot installation, or at a disposable copy of a
+self-contained build (one with a `_sc_` or `._sc_` file beside the editor executable or
+the macOS `.app`). Some e2e tests write the editor settings, and a self-contained build
+keeps them in an `editor_data` folder beside the build, where no environment variable
+moves them.
+
+Every tier runs on **4 xdist workers** by default, capped at the CPU count, with
+`--dist loadgroup` keeping the tests that open a window on one worker. That policy is
+`pyproject.toml`'s `addopts` and the default is in `tests/conftest.py`; CI runs the same
+entry with no flags. `PYTEST_XDIST_AUTO_NUM_WORKERS=<n>` changes the default for one run
+(CI maps the repository variable `PYTEST_WORKERS` to it), and an explicit `-n` wins over
+both. Adjust the count to your machine's core count: too many workers contend for CPU
+time. CI's e2e job shards the tier across runners with the same `--splits`/`--group`
+flags; the `e2e-shards` dispatch input or the repository variable `E2E_SHARDS` sets
+the count (default 4; 1 runs the tier as one job). The `e2e-select` dispatch input, a
+pytest `-k` expression, narrows the main e2e step to the tests it selects, as one job per
+operating system; the Linux rendered step on Xvfb still runs its whole set.
+
+Linting and formatting are enforced by [ruff](https://docs.astral.sh/ruff/) — one tool in
+place of flake8 + black + isort, configured under `[tool.ruff]` in `pyproject.toml` and
+pinned via `uv.lock` so local and CI agree. CI's `lint` job runs `ruff check .` and
+`ruff format --check .` on every PR; run `uv run ruff format .` before committing to stay
+green.
+
+Types are checked by [pyright](https://microsoft.github.io/pyright/) in `basic` mode, covering
+`src/` and `tests/` and configured under `[tool.pyright]` in `pyproject.toml` (also pinned via
+`uv.lock`). CI's `type-check` job runs `uv run --frozen pyright` on every PR.
+
+```
+src/gda/
+  cli.py            # composition root (Typer): mounts every command group
+  exit_codes.py     # the exit-status table (public ABI)
+  commands/         # one module per command group: its models, renderers, commands
+  surface/          # the command surface: the per-command descriptor (one
+                    # HeadlessCommand per command), the shared options, the CLI dispatch
+                    # tails + the runner seams the groups call, the `gda schema` manifest
+  core/             # the library the daemon, the surface and the groups build on
+    project/        # the project on disk: project.godot, file tree, import cache, paths
+    engine/         # one Godot process: binary resolution (flag > $GDA_GODOT),
+                    # the one-shot headless spawn seam, user data, the sentinel wire
+    contract/       # the shared typed I/O core (Pydantic) backing --json and --schema,
+                    # and the shared human-readable (non-JSON) render helpers
+    failure/        # failure classification + the error-code registry
+    steps/          # the shared steps: the editor context and the completed run
+  ops/operations.gd # the headless GDScript payload, dispatched by operation name
+  daemon/           # gda-daemon: server, session supervision, IPC protocol, discovery,
+                    # and the live-operation client that talks to it
+  harness/          # the inert in-game `gda` autoload injected into a live session
+  mcp/              # gda-mcp: the schema → MCP-tool server
+tests/              # unit + e2e tests against a real engine (shared fixtures in conftest.py)
+docs/adr/           # architecture decision records
+CONTEXT.md          # the project's shared domain language
+```
+
+`gda` has two external boundaries, each behind a seam fast tests inject through: spawning a
+one-shot headless process (`core/engine/launch.py`) and talking to a running game via the
+daemon (`daemon/client.py`). The e2e suite drives a real engine across both.
+</details>
+
+## Contributing
+
+Contributions are welcome. Read [`CONTEXT.md`](CONTEXT.md) to align with the project's
+shared language, and review the relevant [ADRs](docs/adr/) for the area you're touching.
+Issues and PRDs live as [GitHub issues](https://github.com/aigengame/godot-agent/issues).
+Commits follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+Python code is linted and formatted with [ruff](https://docs.astral.sh/ruff/) and type-checked
+with [pyright](https://microsoft.github.io/pyright/), both enforced in CI — run
+`uv run ruff format .` and `uv run pyright` before committing (see **Development** above).
+
+> **Working with an AI coding agent?** This project is built to be agent-navigable —
+> [`AGENTS.md`](AGENTS.md) is the entry point for coding agents, wiring in the project's
+> rules, domain docs, and skills.
+
+## License
+
+Released under the [MIT License](LICENSE). Copyright (c) 2026 aigengame.

@@ -1,0 +1,948 @@
+# Azure DevOps PR Review for OpenCode
+
+[![CI](https://github.com/WTLAIB/opencode-azure-devops-pr-review-v2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/WTLAIB/opencode-azure-devops-pr-review-v2/actions/workflows/ci.yml?query=branch%3Amain)
+[![npm](https://img.shields.io/npm/v/opencode-azure-devops-pr-review)](https://www.npmjs.com/package/opencode-azure-devops-pr-review)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Tested with OpenCode 2.2.4](https://img.shields.io/badge/OpenCode-2.2.4%20tested-blue)](docs/VALIDATION.md)
+
+**Review Azure DevOps pull requests from a URL. No checkout required.**
+
+Use your own OpenCode models to review code, inspect the proposed comments,
+and choose what gets published. No MCP server or CI pipeline setup is required.
+
+On Martian's open [Code Review Bench](#benchmark-results), `/pr-deep` found
+more of the listed issues in 50 real pull requests than any of the 21 tools on
+the benchmark's dashboard.
+
+AZPR is an independent community project. It is not built by or affiliated with
+the OpenCode team.
+
+[Get started](#your-first-review) · [Benchmark](#benchmark-results) ·
+[15-second recording](#watch-the-workflow) · [Full demo](docs/DEMO.md) ·
+[Documentation](#documentation)
+
+## See the review in Azure DevOps
+
+Findings include a source location, evidence and a suggested fix. Preview the
+planned comments in OpenCode, then publish them as inline comments and a PR
+summary.
+
+[![Actual Azure DevOps inline comment on fulfillment.py: the changed line replaces a deep copy with a shallow copy; the review explains the shared-state defect, cites evidence and suggests a fix.](docs/assets/azure-inline-review.png)](docs/assets/azure-inline-review.png)
+
+*Actual output on a dedicated test PR with seeded defects, from a different run
+than the recording below. The image joins cropped excerpts of the diff and the
+comment, with identifying UI removed; code and review text are unchanged. It
+shows the output format, not review accuracy. Click the image to enlarge, or
+[read the pictured comments and capture details](docs/DEMO.md#actual-azure-devops-comments).*
+
+<details>
+<summary>See the complete PR summary from the same review</summary>
+
+[![Actual Azure DevOps PR summary: zero high, three medium and zero low findings, with a review note and a finding index pointing to fulfillment.py lines 24, 29 and 37.](docs/assets/azure-review-summary.png)](docs/assets/azure-review-summary.png)
+
+The summary keeps the full finding index in one place. Like the image above, it
+is an actual capture excerpt with identifying UI removed and its text unchanged.
+
+</details>
+
+## Your first review
+
+1. Install the npm package using OpenCode's plugin manager (already installed?
+   see [upgrading](#upgrading); behind a company proxy, see
+   [company networks](docs/ENTERPRISE.md#company-networks) first):
+
+   ```sh
+   opencode plugin add opencode-azure-devops-pr-review@0.3.7
+   ```
+
+2. Follow the [quickstart](docs/QUICKSTART.md) to save your PAT in a private
+   file and run `/pr-setup` with your organization and one model. Restart the
+   OpenCode service (`opencode service restart`) to load the settings.
+3. In one OpenCode conversation, check access, then review and preview:
+
+   ```text
+   /pr-check https://dev.azure.com/YOUR_ORG/YOUR_PROJECT/_git/YOUR_REPO/pullrequest/123
+   /pr-review https://dev.azure.com/YOUR_ORG/YOUR_PROJECT/_git/YOUR_REPO/pullrequest/123 --preview
+   ```
+
+Replace the sample URL with your PR. Wait for `/pr-check` to report `READY`
+before starting the review; it uses no model. The review runs functional and risk
+reviewers, then separate verification. If the completed review has findings to
+comment on, `--preview` prepares their comments in a separate, cancellable run.
+**Nothing is posted by these commands.** Previewing comments also uses a model.
+For a lighter first pass, use `/pr-quick <PR URL> --preview`; its findings are
+not independently verified.
+
+<details>
+<summary>Optional: adjust findings and publish after reading the preview</summary>
+
+Read the report and preview. Before publishing, you can exclude a finding or
+change its severity using IDs from your report, for example:
+
+```text
+/pr-comment REVIEW_ID_FROM_RECEIPT --exclude F-1 --severity F-2=low
+```
+
+F-1 is excluded from the new preview; F-2 appears as low in the summary, with no
+new inline comment. Adjusting runs comment planning again with a model. Read the
+whole new preview, then publish from the same conversation:
+
+```text
+/pr-comment REVIEW_ID_FROM_RECEIPT --publish
+```
+
+Use the review ID from the completed receipt. The command posts the saved
+preview as the PAT owner and skips matching comments AZPR already posted. It
+never edits them; for an adjusted review, the receipt identifies those whose
+text differs from the new preview. See
+[adjusting findings](#adjusting-findings-after-a-preview) for how repeating an
+option replaces its earlier list.
+
+</details>
+
+## Why AZPR?
+
+- **Control what gets posted.** Read a preview, exclude findings or change
+  severity, then inspect the newly planned comments. The original review stays
+  intact. Publication rechecks the PR head, skips matching comments and reads
+  new comments back; automatic publication is opt-in.
+- **Read beyond the diff.** Reviewers can follow definitions, callers and
+  tests at the selected PR commit, without a local checkout or an Azure Code
+  Search index.
+- **Give findings a separate check.** Functional and risk reviewers propose
+  findings; verifier sessions re-read the source and look for counterevidence.
+  Quick mode skips that independent check for a lighter pass.
+- **Use the models you already have.** Assign models per role, use one model
+  for all roles, or configure stronger models for selected PRs with `/pr-deep`.
+
+For company networks, configure a proxy and additional CA certificates for
+AZPR's Azure requests; model-provider connections stay in OpenCode. Content
+search downloads a bounded repository archive into memory, source context goes
+to your selected model providers, and review records are saved locally. See
+[team setup and data handling](docs/ENTERPRISE.md) and
+[content-search limits](docs/AZURE_DEVOPS.md#who-calls-what).
+
+## Benchmark results
+
+On Martian's open [Code Review Bench](https://codereview.withmartian.com),
+which evaluates AI code reviewers on 50 real-world pull requests from
+**cal.com, Discourse, Grafana, Keycloak and Sentry**, **AZPR (`v0.3.5`,
+`/pr-deep`) found more of the benchmark's expected issues than any of the 21
+tools on its public dashboard.**
+
+- **Highest recall on the dashboard (67.7%):** AZPR caught more of the
+  expected issues than every tool listed there.
+- **Highest High and Critical recall, tied (74.2%):** level with
+  qodo-extended-v2 and augment on the most severe issues.
+- **Built for interactive triage (F2 54.1, would rank 6th):** `/pr-deep`
+  reports every defect it confirms instead of holding findings back, and you
+  choose which ones to publish.
+
+| Tool | Issues found (recall) | High and Critical found | Precision | F2 |
+| :--- | ---: | ---: | ---: | ---: |
+| **AZPR 0.3.5 (`/pr-deep`, Claude Opus 5.5)** | **67.7%** 🏆 | **74.2%** 🏆 | **30.0%** | **54.1** |
+| copilot-v2 | 66.5% | 71.2% | 38.5% | 58.0 |
+| cubic-v2 | 65.8% | 72.7% | 61.5% | 64.9 |
+| augment | 65.2% | 74.2% 🏆 | 59.5% | 64.0 |
+| qodo-extended-v2 | 64.6% | 74.2% 🏆 | 67.1% | 65.1 |
+| qodo-v2 | 62.0% | 71.2% | 55.4% | 60.6 |
+| coderabbit | 59.5% | 63.6% | 32.6% | 51.1 |
+
+*Data as of 2026-11-06: AZPR 0.3.5 reviewed the PRs on 2026-11-05 and was
+scored on 2026-11-06. Other tools: the six with the highest recall in the
+default view of Martian's dashboard (core issues, judged by Claude Opus 4.5;
+published results of 2026-08-30, still the latest on 2026-11-06), sorted by
+recall. The dashboard includes tools based on their public GitHub review
+activity, and AZPR reviews **Azure DevOps** pull requests, so we ran the
+official benchmark pipeline and judge ourselves, as Martian invites.*
+
+### Why `/pr-deep` favors recall
+
+Bots that comment on every pull request usually keep the number of comments
+low to avoid noise. AZPR posts nothing until you decide: **you review every
+finding in a preview and publish only the comments you want.**
+
+The benchmark's precision also counts accurate comments it does not list:
+
+1. **Unlisted issues count as false positives.** Code Review Bench lists about
+   three issues per PR and counts every comment that matches none of them as a
+   false positive. `/pr-deep` comments on every defect its verifier confirms
+   (6.5 per PR in this run).
+2. **Most unmatched findings were accurate.** We checked a random sample of 40
+   AZPR findings that matched no expected issue against the source code:
+   **36 were accurate**, and **18 were genuine defects** introduced or exposed
+   by the PR that the benchmark's list does not include.
+
+### Model and effort recommendations
+
+To find the best setup for `/pr-deep`, we compared **12 combinations of models
+and reasoning effort** on the same 50 PRs:
+
+- **Recommended: `claude-agent/opus#medium`.** Claude Opus 5.5 at medium effort
+  for all three review roles scored best. Its full 50-PR run took about 35
+  minutes, four PRs at a time.
+- **Why not higher or lower?** `high` scored about the same at a higher cost,
+  `xhigh` added more marginal findings, and `low` missed more issues, including
+  High-severity ones.
+
+The full method, the comparison of all 12 combinations and the limits are in
+the [validation record](docs/VALIDATION.md#martian-code-review-bench-2026-11-05-and-06).
+
+### Checked on a second benchmark
+
+0.3.6 changed two reviewer instructions because of issues this run missed:
+defects in code a pull request moves unchanged, and findings dropped because
+the behavior might be intended. They were written after reading three of the
+benchmark's expected issues, and in a local scoring run they raised its recall
+by 2.5 points. To see whether they help only there, 0.3.5 and 0.3.6 also
+reviewed the 25 pull requests of the
+[ReviewBench](https://github.com/review-bench/ReviewBench) test set, which was
+not used to write them, once each with `/pr-deep` and Claude Opus 5.5 at
+medium effort. Both were scored with ReviewBench's own judging pipeline and
+Claude Sonnet 5, the model that judges its leaderboard. We ran the pipeline
+ourselves, so this is not a leaderboard result.
+
+| ReviewBench test set | Issues found (recall) | Findings judged valid | High and medium found | Inline decisions (F1) |
+| :--- | ---: | ---: | ---: | ---: |
+| 0.3.5 | 35.5% | 95.6% | 55.3% | 70.0 |
+| 0.3.6 | 39.5% | 96.5% | 55.3% | 65.5 |
+| 0.3.7 | 37.5% | 97.4% | 54.7% | 83.0 |
+
+For 0.3.6, none of the four measures fell by more than the run-to-run
+variation allowed for in advance. The last one is agreement with the judge on
+which findings deserve an inline comment; it fell because more findings the
+judge rated medium or high were labeled low, 8 of them questions about intent,
+which that release's rule rates low. Our local judge scored these runs and a pair with GPT-6.1
+Sol. With Sol all four measures rose slightly; with Claude Opus 5.5 it rated
+2.4 points fewer of 0.3.6's findings valid, more than allowed. The criteria,
+both judges' results and the limits are in the
+[validation record](docs/VALIDATION.md#defects-in-moved-code-and-unknown-intent-2026-11-09).
+
+0.3.7 changes how severity is set for that reason: a change that breaks what
+worked before is at least medium, and the verifier sets each level without
+seeing the reviewer's label. It reviewed the same pull requests once, with the
+same setup, and was scored the same way. Agreement on inline comments rose
+from 65.5 to 83.0: 27% of the findings the judge rated medium or high were
+labeled low, against 51% for 0.3.6. Recall fell by 2.0 points and the high and
+medium issues found by 0.6, both within the variation allowed for 0.3.6. The
+runs and their limits are under
+[severity from verified harm](docs/VALIDATION.md#severity-from-verified-harm-2026-11-11-and-12).
+
+## Watch the workflow
+
+[![Real OpenCode run: exclude one finding, lower another to low, inspect the new preview, then publish and read the comments back from Azure DevOps.](docs/assets/adjust-findings-teaser.gif)](docs/DEMO.md#adjust-findings-before-publishing)
+
+*A 15-second edit of a real OpenCode 2.1.4 session on a dedicated test PR.
+Waiting time is shortened, so the length is not the review duration.
+[Recording details and longer walkthrough](docs/DEMO.md).*
+
+## Choose a review
+
+| Command | Best starting point | What runs |
+| --- | --- | --- |
+| `/pr-quick` | Small or routine changes | One reviewer per shard covers function and risk. Findings are **reported, not independently verified**. |
+| `/pr-review` | Changes that need an independent second check | Functional and risk reviewers, followed by separate verification sessions. |
+| `/pr-deep` | Important or risky changes worth a stronger model | The same verified pipeline as `/pr-review`, run with the stronger models you set in `models.deep`; usually slower and costlier. |
+
+All three modes use the same Azure comment layout. Quick comments disclose their
+method. Separate verification adds scrutiny; it does not guarantee correct
+findings or complete defect coverage. Mixing models is a choice about capability
+and cost, not a proven accuracy improvement. See [model configuration](#configuration).
+
+<details>
+<summary>Sessions, model requests and cost</summary>
+
+For a small PR that fits in one shard and one comment-planning page, quick
+usually needs one review session plus one planning session; review needs two
+reviewer sessions, a verifier and comment planning, plus a short severity
+rating when `models.review.rater` is set.
+**Sessions are not API requests:** each can make multiple requests, and repairs, retries, larger PRs
+and extra planning pages add work. Previewing comments also uses a model.
+See [measured runs and their limits](docs/VALIDATION.md) for cost and timing
+examples, rather than treating a session count as a price guarantee.
+
+</details>
+
+## Is this the right workflow?
+
+AZPR fits reviewers who already use OpenCode, review Azure DevOps Services PRs
+on demand, and want to choose their models and inspect comments before posting.
+It combines source retrieval, review stages and publication checks in one plugin.
+
+If you need an unattended review on every PR event, look for a webhook or CI
+integration; AZPR runs when you invoke a command. If your work includes editing
+code or running the project's tests, use a local checkout for that work.
+
+The [validation record](docs/VALIDATION.md) includes real model/Azure runs, a
+316-file test PR, isolated OpenCode host checks, and an offline test suite for
+runtime and packaging behavior. It also records missed defects and untested
+environments. The demo shows the workflow; for review quality, see the
+[benchmark results](#benchmark-results), and expect findings to vary between
+models and runs.
+
+## Compatibility
+
+| Component | Tested target |
+| --- | --- |
+| OpenCode | **OpenCode CLI 2.2.4** (`@opencode/cli`; V2 plugin API). On another OpenCode 2.x, `/pr-check` shows an OpenCode WARNING row and reviews still run. OpenCode 1.x is not supported. |
+| Operating system | **Ubuntu 22.04** (validation environment: WSL2). Other operating systems are not yet validated. |
+| Azure | **Azure DevOps Services**, REST API **7.1**. Azure DevOps Server is not supported by the current URL handling. |
+| Installation | OpenCode's plugin manager with the npm package or the versioned Git package, or the source installer with POSIX `sh` and Python 3; no plugin build step or npm dependencies. |
+| Models | Your OpenCode provider/model IDs with tool support. Each mode checks the models it uses. |
+
+The npm package, the Git package and the release source archive contain the
+same runtime. A fresh installation exposes `/pr-setup` before
+reviewing is enabled; the [quickstart](docs/QUICKSTART.md) configures one model
+for both quick and verified reviews.
+
+## Documentation
+
+| I want to… | Start here |
+| --- | --- |
+| Install AZPR and run a first review | [Step-by-step quickstart](docs/QUICKSTART.md) |
+| Upgrade an existing installation | [Upgrade instructions](#upgrading) |
+| Choose models, language or settings | [Configuration](#configuration) |
+| Adjust, preview or publish comments | [Commenting guide](docs/COMMENTING.md) |
+| Set up a company proxy or understand data handling | [Team setup](docs/ENTERPRISE.md) |
+| Understand what has been tested | [Validation and limitations](docs/VALIDATION.md) |
+| Troubleshoot or contribute | [Debugging](docs/DEBUGGING.md) · [Contributing](CONTRIBUTING.md) |
+
+## How reviews work
+
+<details>
+<summary>Review stages, recovery and saved results</summary>
+
+1. The runtime reads the PR deterministically from Azure DevOps: identity, the
+   latest iteration's source commit and merge base, and the complete
+   changed-file list. Reviewers read the repository through AZPR's own
+   read-only tools at exact commits.
+2. Two full-scope reviewers (functional and risk) review the changed files in
+   bounded **shards**. A shard that fills its model context is split in half
+   and run again instead of failing. Reviewer sessions never compact, so
+   OpenCode's opt-in `experimental.background_compaction` does not apply to
+   them: AZPR refuses its summary requests before anything is sent.
+3. A verifier independently re-checks every candidate finding against the
+   source, sharded by finding. Answers that break the output contract get a
+   short **correction turn** in the same session; whatever is still unusable is
+   downgraded per finding (UNREVIEWED, NEEDS_INFO) instead of discarding the review.
+   When findings that different verifiers confirmed end up in the same file (a
+   verifier moved one there, or the file had more findings than one verifier
+   holds), a short **duplicate check** with the verifier model merges only true
+   duplicates; it never drops a finding.
+4. The verifier's severity is final unless `models.<mode>.rater` names a
+   model. Then a **severity rating** session without tools reads the confirmed
+   findings as they will be reported and sets each one's final severity. It
+   sees neither the reviewer's nor the verifier's level, and a finding it does
+   not rate keeps the verifier's severity.
+5. The runtime rechecks the PR versions. Only a changed **source** commit makes
+   the review STALE; a moved base is reported as a warning.
+6. `/pr-comment` plans a preview with a model. With `--publish`, the runtime
+   posts the saved text itself, skipping comments that already exist and
+   reading every created comment back from Azure DevOps. Re-running a publish
+   is safe. `afterReview` or a flag after the PR URL can start this step after
+   a COMPLETE review ([automatic comments](#automatic-comments)).
+
+`/pr-quick` is the lighter alternative for small or routine PRs: one reviewer
+per shard covers both the functional and the risk focus and checks its own
+findings against the source it read; no verifier or duplicate check runs. The
+runtime checks only the form and source of those findings, so they are
+reported, not verified, and the report, the receipt and the posted comments
+say so. A small PR needs one review session (plus one planning session for
+comments) instead of three, or four with a rating model; each session still
+makes several model requests.
+
+`/pr-deep` is the heavier alternative for PRs that justify a stronger model: it
+runs the same review as `/pr-review` with the models of `models.deep`, so its
+depth comes from those models alone. On the test PRs a stronger model found
+regressions that the everyday model missed, at many times its cost and time
+(see [deep versus review](docs/VALIDATION.md#deep-versus-review-2026-10-19)).
+`/pr-check` says when `/pr-deep` is off or its models repeat the review models.
+
+Readiness checks, reviews, comment planning, adjustments and publication
+acknowledge `STARTED` and continue in the current OpenCode process; short
+`PROGRESS` notices and a final receipt return to the invoking conversation. Use
+the displayed `/pr-stop <run-id>` to cancel. `/pr-setup` (including `--help`),
+`/pr-stop`, `/pr-comment --show`, an adjustment that changes nothing and a
+refused command answer directly, without a background run.
+Completed reviews, previews and publication ledgers are saved privately and
+survive an OpenCode restart.
+
+See [current validation](docs/VALIDATION.md) for what was tested and what was
+not; earlier runs are kept in [validation history](docs/VALIDATION_HISTORY.md).
+
+</details>
+
+## Requirements and installation
+
+The plugin has no npm dependencies, build step or provider SDK. It calls the
+Azure DevOps REST API with the runtime's built-in `fetch`.
+
+### Native package (npm or Git)
+
+Install the npm package with OpenCode's plugin manager:
+
+```sh
+opencode plugin add opencode-azure-devops-pr-review@0.3.7
+```
+
+The same release is also a versioned Git package, which needs Git but not the
+npm registry:
+
+```sh
+opencode plugin add 'github:WTLAIB/opencode-azure-devops-pr-review-v2#v0.3.7'
+```
+
+Add only one of them. OpenCode 2.2.4 loads the plugin into a running OpenCode
+service within a few seconds; if `/pr-setup` does not appear in a new
+conversation, run `opencode service restart`. Then run `/pr-setup` for setup
+instructions. Native packages
+use `${XDG_CONFIG_HOME:-~/.config}/azpr/settings.json`; configuration and the
+separate PAT file stay outside the package cache when the plugin is updated.
+To select another configuration file, use an absolute path in the host config:
+
+```json
+{
+  "plugins": [{
+    "package": "opencode-azure-devops-pr-review@0.3.7",
+    "options": { "settingsFile": "/absolute/path/to/azpr/settings.json" }
+  }]
+}
+```
+
+Use one installation method per OpenCode profile. Existing source installations
+can keep using `install.sh --replace`. To move one to the native package,
+copy its settings to the external configuration path with owner-only
+permissions, archive the old installation with its uninstaller, then add the
+package. Keep the PAT file and private state directory in place.
+
+### Upgrading
+
+Keep one AZPR entry in the `plugins` list. **Running only `opencode plugin add`
+with a new version adds a second entry**: OpenCode keeps running the version
+listed first and reports the new one as `Duplicate plugin ID: azpr` (from
+0.3.1, `/pr-check` also warns about it). Upgrade when no AZPR command is
+running, since
+OpenCode 2.2.4 replaces the running plugin as soon as its entry changes.
+
+For an entry that `opencode plugin add` created, add the new version and,
+only when that succeeds, remove the previous one:
+
+```sh
+opencode plugin add opencode-azure-devops-pr-review@0.3.7 &&
+  opencode plugin remove opencode-azure-devops-pr-review@PREVIOUS_VERSION
+```
+
+The first command downloads the new version in your terminal, with that
+terminal's proxy settings. If it fails, `&&` skips the removal and nothing
+changes; do not remove the previous entry by itself after a failed download.
+Once the removal runs, the running OpenCode service switches to the new
+version within a few seconds, with no restart. Use the same commands with the
+`github:` specifications for the Git package, or to move between npm and Git.
+
+For an entry with options (an object with `package` and `options`), change
+only its `package` value and keep the options. The OpenCode service then
+downloads the new version itself, with the service's network settings (see
+[company networks](docs/ENTERPRISE.md#company-networks)); if that download fails,
+AZPR's commands disappear until the package is available and the service
+restarts.
+
+External settings, the PAT file and review records stay in place; a working
+configuration needs no new `/pr-setup`. `opencode plugin list` should then
+show a single `azpr` row with the new version (from 0.3.1, `/pr-check` names
+it too); if it still shows the previous one, run `opencode service restart`.
+Exact versions stay pinned, so `opencode plugin update` leaves them unchanged.
+See the [0.3.7 release notes](docs/releases/v0.3.7.md) for what changed and the
+[0.2.0 release notes](docs/releases/v0.2.0.md) for automatic comments, which
+remain disabled unless you configure `afterReview` or request them with a
+review command flag.
+
+### Source archive or checkout
+
+<details>
+<summary>Source installation and replacement</summary>
+
+Download the [v0.3.7 source archive](https://github.com/WTLAIB/opencode-azure-devops-pr-review-v2/archive/refs/tags/v0.3.7.tar.gz)
+and extract it, or check out tag `v0.3.7`. The installer needs POSIX `sh` and
+Python 3's standard library. From that source directory:
+
+```sh
+sh install.sh --config-dir /absolute/path/to/v2-opencode-config
+```
+
+The installer creates `plugins/azpr-v2/` with a generated ESM `package.json`
+and a `server.js` entry that re-exports `plugin.js`. It never edits the main
+OpenCode configuration, provider choices or MCP connections, and it refuses
+conflicting legacy files, reserved command names and unowned packages. Run
+`/pr-setup ... --replace` to configure the generated starter settings, or edit
+them yourself before restarting OpenCode.
+
+To replace an existing source installation (current settings are kept, new defaults
+are added, and a retired `mcp` section is moved into `azure`):
+
+```sh
+sh install.sh --config-dir /absolute/path/to/v2-opencode-config --replace
+```
+
+</details>
+
+### Manual copying without Git
+
+Keep these relative paths under one source directory, then run its installer.
+These **32 files** include the runtime and its license:
+
+<details>
+<summary>Show the required files</summary>
+
+```text
+install.sh
+LICENSE
+scripts/merge-settings.py
+config/settings.example.json
+src/plugin.js
+src/setup.mjs
+src/session.mjs
+src/runtime.mjs
+src/config.mjs
+src/output.mjs
+src/comments.mjs
+src/comment-data.mjs
+src/comment-work.mjs
+src/diagnostics.mjs
+src/attribution.mjs
+src/host.mjs
+src/tool-queue.mjs
+src/azure.mjs
+src/diff.mjs
+src/search.mjs
+src/review-tools.mjs
+src/review-work.mjs
+src/store.mjs
+src/prompts/common.md
+src/prompts/functional.md
+src/prompts/risk.md
+src/prompts/final.md
+src/prompts/dedupe.md
+src/prompts/rating.md
+src/prompts/quick.md
+src/prompts/comment-policy.md
+src/prompts/comment-plan.md
+```
+
+README, `docs/`, the changelog, the settings schema and `uninstall.sh` are optional.
+Keep `LICENSE` with copied or redistributed packages.
+
+</details>
+
+## Configuration
+
+Run `/pr-setup` to see the active settings path. Native packages use the
+external configuration described above; source installations retain their
+installed `plugins/azpr-v2/settings.json`. Edit that file and restart the
+OpenCode service (`opencode service restart`, or your own `opencode serve`
+process). A changed file blocks new commands until the restart; running
+commands keep the settings they started with.
+
+For initial setup, one command sets the organization, existing PAT file and
+the same model for review and quick roles without calling a model or Azure:
+
+```text
+/pr-setup --organization YOUR_ORG --model YOUR_PROVIDER/YOUR_MODEL --pat-file "/absolute/path/to/pat"
+```
+
+`--organization` also accepts a PR or organization URL. Without `--pat-file`,
+setup uses `${XDG_CONFIG_HOME:-~/.config}/azpr/pat`, the file the
+[quickstart](docs/QUICKSTART.md#2-save-the-pat-in-a-private-file-terminal)
+creates. An existing file requires `--replace`, which keeps the PAT file
+already set unless you name another; unrelated advanced settings and deep
+models are preserved. Setup checks the model catalog and PAT file before
+saving. It never accepts the PAT itself as a command argument. Restart the
+OpenCode service after saving, then run `/pr-check` to verify Azure read access.
+
+```json
+{
+  "models": {
+    "review": {
+      "functional": "YOUR_PROVIDER/YOUR_FUNCTIONAL_MODEL",
+      "risk": "YOUR_PROVIDER/YOUR_RISK_MODEL",
+      "verifier": "YOUR_PROVIDER/YOUR_VERIFIER_MODEL"
+    },
+    "deep": { "functional": "", "risk": "", "verifier": "" },
+    "quick": { "reviewer": "" }
+  },
+  "azure": {
+    "organization": "YOUR_ORGANIZATION",
+    "patFile": "/absolute/path/to/your/pat-file"
+  }
+}
+```
+
+Model IDs use `provider/model` form and must exist in OpenCode. To choose a
+model variant such as a reasoning effort, use OpenCode's `provider/model#variant`
+form (for example `provider/model#high`); `/pr-check` reports a variant the
+model does not offer. Without a variant the model's default is used. `/pr-deep`
+needs all three deep models and never falls back to the review models; choose
+models stronger than the review models there, since the models are the only
+difference from `/pr-review`. The [benchmark results](#benchmark-results)
+include a measured choice for `models.deep`. Likewise `/pr-quick` needs `models.quick.reviewer`,
+and a command checks only the models it uses, so an unavailable quick model
+never blocks `/pr-review`. Comment planning uses the review's risk model
+(`models.deep.risk` for a deep review, the quick reviewer for a quick review).
+`models.review` and `models.deep` also take an optional `rater`: a model that
+turns on the severity rating. Left out or empty, no rating runs and the
+verifier's severity is final.
+
+| Role | Focus and useful model capabilities |
+| --- | --- |
+| `functional` | Requirements, boundaries, state changes, API compatibility and regressions. Strong code comprehension in the project's language. |
+| `risk` | Failures, retries, concurrency, authorization and data consistency. Evidence-based reasoning across call paths and reliable tool use. Also plans comments. |
+| `verifier` | Independent source re-checks, counterevidence, a first severity, duplicate merging (including the same-file duplicate check) and the final report. Strong evidence judgment and instruction following. |
+| `rater` (optional) | Turns on the severity rating: the final severity of each confirmed finding, judged from the finding's text alone in a session without tools. Empty (the default): no rating, the verifier's severity is final. Set it to a model stronger than the reviewers': the step reads only the findings, so a stronger model costs little here, while a model rating its own review adds little. It needs no tool support. |
+| `quick.reviewer` | `/pr-quick` only: both focuses in one session per shard, its own source checks, and comment planning for quick reviews. Strong code comprehension, evidence judgment and reliable tool use. |
+
+A role's focus orders its attention and is not a filter: every reviewer files
+every concrete defect it finds, in any area, as a finding. A finding's severity
+says how much it matters to fix it before the change merges, judged from the
+harm the evidence shows and how often realistic use reaches it, not from the
+reviewer's confidence, the size of the fix or the kind of issue:
+
+- **high** (must fix before merging): realistic use leaves a core function or
+  what the change is for not working, or causes serious harm such as a
+  security breach, lost or exposed data, or silently wrong results.
+- **medium** (should fix in this change): realistic use hits a failure that
+  people notice and recover from, a rare trigger causes serious harm, or the
+  change breaks something that worked before, however rarely it is used.
+- **low** (can wait): anything else, such as a recoverable failure that only a
+  rare trigger reaches, or an issue with no effect on behavior.
+
+A rare trigger lowers the severity; it does not keep a defect out of the
+findings. Neither does the code's history: a defect on lines the PR adds or
+moves is a finding even when the same code existed before (a function moved to
+a new file), marked as carried over. Nor does a possible intention: behavior
+that is wrong only if the author did not mean it, with nothing showing whether
+they did, is a low finding (medium when it stops something that worked before
+from working) whose summary asks whether the author meant it and whose
+suggestion asks them to confirm or document the intent. Before asking, a
+reviewer looks for a statement of that intent in the tests, the comments and
+documents beside the code, the PR description and the commit messages.
+An easy fix and an effect the reviewer could not confirm are not reasons for a
+lower level. The verifier receives candidates without the reviewer's severity
+and sets its own, which is final unless a `rater` is configured: then the
+severity rating sets the final one from the finished finding. `/pr-quick` keeps
+the reviewer's. Concrete gaps the change leaves are findings too, rated
+by their effect: a changed behavior no test would catch where the project
+already tests comparable code, a test that cannot fail, a comment or document
+that now contradicts the code, and duplicated or dead code the change adds. A
+missing test is low unless the test is what the change delivers, and a
+document is rated by what following it does; documented steps that worked
+before the change and fail after it are a regression (medium) even though the
+failure shows at once. A verified behavior that only the author, or a
+specification outside the repository, can call intended is confirmed as a
+question, not set aside as NEEDS_INFO. A finding states one defect: a
+second one noticed on the way is filed on its own. A mistake repeated in places
+that each need their own fix is one finding per place. Identical copies of one file
+count as one place when one reviewer has them; in a large PR split into shards,
+copies that different reviewers get can each produce a finding.
+
+### All settings and defaults
+
+<details>
+<summary>Show the settings reference</summary>
+
+| Setting | Default and meaning |
+| --- | --- |
+| `enabled` | `true`; `false` registers nothing. |
+| `returnReport` | `receipt`; `full` also encloses the rendered report in the receipt. |
+| `outputLanguage` | `en`; used by reviews, the report and comments. `zh-TW` for Traditional Chinese. |
+| `runTimeoutSeconds` | `null` (no whole-command timer); an integer 10–7200 enables one. |
+| `shell` | `deny`: private reviewers cannot run shell commands (the tool is hidden). `ask`: each command needs your approval in OpenCode. `inherit`: host permissions decide. |
+| `progressNotices` | `true`: short PROGRESS notices in the invoking conversation. |
+| `deletePrivateSessions` | `true`: AZPR deletes its private reviewer sessions once they are no longer needed (see [retention](#retention-and-privacy)); `false` keeps every session. |
+| `afterReview.quick` / `.review` / `.deep` | `none` each: nothing follows a review; run `/pr-comment` yourself. `preview` plans a comment preview after a COMPLETE review of that mode (a model runs; nothing is posted); `publish` plans and posts it as the PAT owner; a comment that a safeguard holds back waits for a person. A flag after the PR URL overrides it for one run. See [automatic comments](#automatic-comments). |
+| `azure.organization` | Required. The `<org>` of `https://dev.azure.com/<org>`; PR URLs of other organizations are refused. |
+| `azure.pat` | A personal access token for that organization with **Code (Read)** and **Pull Request Threads (Read & write)**, or `""` when `azure.patFile` is set. Sent only to `https://dev.azure.com/<org>` and never logged. |
+| `azure.patFile` | `""`. Recommended: the absolute path of a file that holds only the PAT, so `settings.json` holds no secret. It must be a regular file you own that only you can access (mode 600, not a symbolic link). AZPR reads it at start and before each command; after replacing it, restart the OpenCode service. Set either this or `azure.pat`. |
+| `azure.concurrency` | `3` simultaneous Azure DevOps calls across all AZPR commands. |
+| `azure.callTimeoutSeconds` | `120`; a hung call is aborted and its slot released (reads are retried). |
+| `azure.archiveMegabytes` | `100` (1–1024): the largest repository zip that content search downloads per run and commit; a larger repository is not searched. It is held in memory during a review. |
+| `azure.proxy` | `""`: no AZPR proxy (`HTTPS_PROXY` and `NO_PROXY` in OpenCode's environment still apply; a host in `NO_PROXY` bypasses a set proxy too). A forward proxy for AZPR's Azure DevOps calls only, such as `http://proxy.example.com:8080`; credentials go in the URL as `http://user:password@host:port` (percent-encoded) and are never shown. See [proxies](docs/AZURE_DEVOPS.md#proxies-and-tls-inspection). |
+| `azure.caFile` | `""`. The absolute path of a PEM file with CA certificates AZPR trusts in addition to the built-in roots, for a proxy that inspects HTTPS. |
+| `azure.verifyTls` | `true`. `false` skips certificate checks for AZPR's Azure DevOps calls (like `curl -k`), so anyone who can intercept the connection can read the PAT; prefer `azure.caFile`. `/pr-check` warns while it is off. |
+| `workflow.shardFiles` | `25` changed files per initial-review session. |
+| `workflow.shardFindings` | At most `15` findings per verification session; one file's findings stay in the same session (a file is split only when it alone has more). |
+| `workflow.parallelSessions` | `4` reviewer sessions at once within a command; comment planning runs at most two pages at once (one when this is `1`). |
+| `workflow.repairAttempts` | `2` correction turns when an answer breaks the output contract. A quick review's one follow-up turn for unfinished work uses the same budget. |
+| `workflow.stageRetries` | `1` new-session retry after a transient failure (provider 429/5xx, interrupted stream) or an inactivity stop. A used-up usage or spend limit (provider quota, ChatGPT or OpenCode Go usage limit, OpenCode free-model or spend limit) is named and not retried, whatever its status, and AZPR refuses OpenCode's own retries of it. |
+| `workflow.stageIdleSeconds` | `600` (`0` turns it off, otherwise 60–7200): a reviewer stage that shows no activity this long while it waits on OpenCode (the model stream, a tool or the host stopped responding) is stopped with `failure=idle` and an error naming its last activity, then retried in a new session. Every model request, streamed chunk of output, tool start or end and announced host retry restarts the window, so a stage that keeps working, including a long answer that keeps streaming, is never cut. With shell allowed, an approval or a command that takes longer counts as inactivity. |
+| `debug.enabled` / `debug.directory` / `debug.keepRuns` | `false` / `""` / `20` run directories kept (`0` keeps all); see [debugging](docs/DEBUGGING.md). |
+
+`steps`, `maxStageCharacters`, `structuredOutput`, `comments`,
+`auxiliaryModels`, `outputRetries`, `verification` and `shellToolPermission`
+are unsupported and rejected; `mcp` is retired (the installer moves its limits
+into `azure`). There is deliberately no per-stage step cap; see the
+[roadmap](docs/ROADMAP.md#deferred) for why. The inactivity watchdog
+(`workflow.stageIdleSeconds`) is not one: it stops only a stage that stopped
+working.
+
+</details>
+
+### Azure DevOps access
+
+AZPR talks to the Azure DevOps Services REST API itself (api-version 7.1). Create
+a PAT scoped to **one organization** (global "all accessible organizations"
+PATs stop working on 2026-12-01) with **Code: Read** and **Pull Request Threads:
+Read & write**, which cover every call AZPR makes, and give it an expiry you
+renew. Keep it alone in a file that only you can read and point `azure.patFile`
+at it, so `settings.json` holds no secret: the
+[quickstart](docs/QUICKSTART.md#2-save-the-pat-in-a-private-file-terminal) shows
+how to create that file without echoing the PAT, recording it in your shell
+history or overwriting an existing file, and `/pr-setup` sets `azure.patFile`.
+
+To set it by hand, put that file's absolute path (for example
+`/home/you/.config/azpr/pat`) in `"patFile"`, leave `"pat"` empty in the
+settings file `/pr-setup` names, and restart the OpenCode service. `azure.pat`
+can hold the PAT instead; the
+installer keeps `settings.json` at mode 600. A file only you can read protects
+the PAT from other accounts, not from programs you run yourself, so keep its
+scopes minimal and its lifetime short. Keep the PAT out of this repository,
+shared settings profiles, chat and environment variables that child processes
+inherit. Behind a corporate proxy, also set `azure.proxy`, and `azure.caFile`
+when the proxy inspects HTTPS (see
+[proxies and TLS inspection](docs/AZURE_DEVOPS.md#proxies-and-tls-inspection),
+and [company networks](docs/ENTERPRISE.md#company-networks) for package
+downloads and model providers).
+
+Reviewers read source through six read-only AZPR tools (`azpr_read_diff`,
+`azpr_read_file`, `azpr_search_code`, `azpr_find_files`, `azpr_list_files`,
+`azpr_pr_threads`) that are visible only in AZPR's private sessions; other
+tools, including other MCP servers, are hidden from them. They start from each
+file's diff, read whole files only for the context a change needs, search the
+repository's contents at the PR's commit for callers, definitions and the code
+a test exercises, and see the PR's commit messages. See
+[Azure DevOps access](docs/AZURE_DEVOPS.md) for the API list, versions and
+troubleshooting.
+
+## Commands
+
+| Command | Behavior |
+| --- | --- |
+| `/pr-setup [options]` | Show setup guidance or save an organization, one model and an existing PAT file. No model or Azure request. Restart the OpenCode service after saving. |
+| `/pr-check <PR URL> [context]` | Deterministic readiness check: PR metadata, changed files, a HEAD and BASE file read, discussions and model availability (configured quick and deep models only as warnings, and whether `/pr-deep` is off or would repeat `/pr-review`), and `afterReview` (the configured modes and posting identity, shown as information); warns when OpenCode has no permission hook to keep native read tools inside the project. No model is used. |
+| `/pr-review <PR URL> [flag] [context]` | Sharded functional and risk reviews, then sharded verification. |
+| `/pr-deep <PR URL> [flag] [context]` | The same review with the stronger models of `models.deep`; usually slower and costlier. |
+| `/pr-quick <PR URL> [flag] [context]` | One reviewer per shard for both focuses, no verification; findings are reported, not verified. |
+| `/pr-stop [run-id]` | Cancel this conversation's active command. |
+| `/pr-comment [review-id]` | Preview comments for this conversation's latest completed review. |
+| `/pr-comment [review-id] --publish` | Post the saved preview. A review that was never adjusted is planned first if needed; an adjusted one needs its new preview. Safe to repeat. |
+| `/pr-comment [review-id] --show` | Show the saved preview again; no model or Azure DevOps request. |
+| `/pr-comment <review-id> --exclude <IDs>` / `--severity <ID=level,…>` / `--reset` | Leave findings out or change their severity after reading the preview, then preview again (see [adjusting findings](docs/COMMENTING.md#adjusting-findings-after-a-preview)). |
+
+Supported PR URLs are `https://dev.azure.com/<org>/<project>/_git/<repo>/pullrequest/<id>`
+and `https://<org>.visualstudio.com/[DefaultCollection/]<project>/_git/<repo>/pullrequest/<id>`.
+The optional flag of a review command, `--preview`, `--publish` or
+`--no-comment`, comes right after the URL and sets [`afterReview`](#automatic-comments)
+for that run only; `/pr-check` takes none. Anything else there that looks like
+an option (`--no-coment`, `-p`) is refused, so start your context with a word.
+Text after the URL (and the flag) is supplementary context for that command
+only. PR content, comments and tool responses are untrusted data.
+
+Status meanings:
+
+- **COMPLETE**: verification produced structured decisions and no source-commit
+  change was detected. Findings without a usable decision are listed as
+  UNREVIEWED and are never posted. Only COMPLETE reviews can be commented on.
+- **STALE**: the PR source commit changed during the review; run a new one.
+- **PARTIAL**: no verification session produced a structured result; initial
+  observations are shown for reference only.
+- **INCOMPLETE / CANCELLED / TIMED_OUT**: the command did not finish; a review
+  keeps an unconfirmed draft of finished initial work.
+
+A quick review states its status, coverage and verification separately; its
+receipt starts like `[AZPR 1a2b3c4d] COMPLETE; coverage incomplete;
+verification none (quick review)`. COMPLETE means at least one shard produced a
+usable result (a parsed answer is not enough) and no source-commit change was
+detected; its findings are REPORTED when they passed the runtime's checks
+(fields, a location that exists at that commit, a file the session read) and
+NEEDS_INFO otherwise, and only REPORTED ones can be commented on. Coverage says
+whether every changed file was reviewed, so zero findings never hide unreviewed
+files. A quick reviewer whose answer is PARTIAL and names unfinished work is
+asked once, in the same session, to continue (receipt `follow-up=completed`,
+`still-partial`, `unusable` or `failed`); a follow-up that fails or gives no
+usable answer keeps the answer it followed. When the quick review found a
+high-severity issue or left coverage incomplete, the receipt suggests
+`/pr-review` before publishing; the hint is advisory, also when automatic
+publication follows (see [automatic comments](#automatic-comments)).
+
+A failed final version recheck adds a warning; it does not by itself prevent
+COMPLETE in any review mode. Read the receipt warnings. Publication separately
+rechecks that the PR is active and its source commit is unchanged before
+posting.
+
+## Comments
+
+`/pr-comment` plans one general summary plus inline comments for confirmed high
+and medium findings (low findings stay in the summary index). Planning runs in
+pages of at most four findings, two pages at a time, and the pages are joined
+in page order, so the result does not depend on which page finishes first; each
+page may get a correction turn, and an item that still cannot be posted
+faithfully is skipped with a reason instead of failing the command. Inline
+titles start with `🔴 high:` or `🟡 medium:` followed
+by **📝 Summary**, **🔎 Evidence** and **💡 Suggested fix**; the summary starts
+with a 🤖 AI/model disclosure and may carry improvement suggestions. Comments of
+a quick review keep this layout; their disclosure line adds `Review method:
+quick review, not independently verified` (and, in the summary, incomplete
+coverage), and their inline comments need a location on a changed HEAD file.
+When two shards of a quick review report one defect, the planner may combine
+them into one comment under fixed rules (see [commenting](docs/COMMENTING.md)).
+
+### Adjusting findings after a preview
+
+When a preview contains a finding you disagree with, leave it out or change
+its severity, then read the new preview:
+
+```text
+/pr-comment <review-id> --exclude F-1 --severity F-2=low
+```
+
+Changed adjustments trigger new model planning when findings remain, so
+combine both options in one command when you use both. Repeating the saved
+adjustments changes nothing and does not plan again. Comments are planned
+without the excluded findings and with the new severities, so their wording
+may change; the summary index follows them, and nothing on the PR mentions the
+adjustment. Each option replaces its whole saved list: `--exclude F-1` and then
+`--exclude F-2` excludes only F-2. A changed severity changes how a finding is
+published, not the finding itself; when a finding is wrong, exclude it.
+Excluding every finding posts nothing. `--reset` clears the adjustments, and
+`/pr-comment <review-id> --show` shows the saved preview without a model. An
+adjusted review is posted only from the preview planned after its latest
+adjustment; once its publication has started, it is neither adjusted nor
+planned again. Comments that an earlier publication put on the PR are never
+changed: they are skipped as always, and the receipt of an adjusted review
+names those whose text differs from the preview. See
+[adjusting findings](docs/COMMENTING.md#adjusting-findings-after-a-preview).
+
+### Automatic comments
+
+By default nothing follows a review: you preview with `/pr-comment` and post
+with `/pr-comment <id> --publish`. `afterReview` sets, per mode, what follows
+a COMPLETE review, and a flag right after the PR URL sets it for one run:
+
+```json
+{ "afterReview": { "quick": "preview", "review": "none", "deep": "none" } }
+```
+
+```text
+/pr-review <PR URL> --preview     plan a preview after a COMPLETE review
+/pr-review <PR URL> --publish     plan and post the comments after a COMPLETE review
+/pr-review <PR URL> --no-comment  nothing follows this review, whatever afterReview says
+```
+
+The step runs after the review's receipt as a separate comment command with
+its own run ID, `STARTED` notice and receipt; `/pr-stop` stops it like any
+command. It is the same planning and publication as `/pr-comment`, so a
+preview uses a model, and `/pr-comment <id> --publish` later posts exactly that
+preview. Nothing follows a review that is not COMPLETE, or that was stopped
+while its report was delivered. A review without
+findings to comment on gets one notice instead, with no planning, model
+request or comment. When another AZPR command is running in the conversation
+or on the PR, the step is skipped and the notice names the command to run.
+
+Automatic publication posts as the PAT owner, item by item. A comment (or the
+summary) whose text contains an `@<…>` mention, an image, HTML that embeds
+content or runs a script (such as `<img>`, `<iframe>`, `<script>`, or an
+`on…=`, `src=` or `style=` attribute, read as a browser reads a tag), HTML
+that hides text (a comment, `<!…>`, `<?…>` or `</` without a tag name), or a
+`javascript:`, `vbscript:`, `data:` or `file://` link waits in the saved
+preview for a person;
+the other items are posted, and the receipt names each held item and why. The
+checks prefer a false alarm and also decode escapes and character references
+in script links and mentions, and read a link without tabs and line breaks, as
+a browser does (`java&#9;script:` is a script link). Ordinary web and mail
+links, markup that neither
+loads content nor runs a script (such as `<input name="id">` or
+`List<String>`), and literal code (fenced code blocks and code spans, such as
+`` `<img src="a.png">` ``) are posted; only mentions are checked in code too,
+since Azure DevOps may resolve them anywhere. Where a renderer could read the
+code differently, for example a fence inside a list, code next to an HTML
+line, or a backtick that a link or tag could take, the text is checked as
+written. A
+quick review is posted when you chose
+it: its comments keep the disclosure `quick review, not independently
+verified`, and its summary names incomplete coverage; its verification hint
+is advisory (set `afterReview.quick` to `preview` to read the comments first).
+When every finding is already discussed on the PR, typically by AZPR's own
+comment from an earlier run, there is nothing new to post: the receipt says
+`NOTHING_TO_POST` and the plan is saved (the summary's marker follows the
+inline comments, so re-reviewing an unchanged PR would otherwise add a summary
+each time). Publication itself still rechecks that the PR is active and
+unchanged. A command you type, such as `/pr-comment <id> --publish`, posts
+every item of the saved preview, held ones included.
+
+### Publication
+
+Publication is runtime code: it refuses an inactive PR or a changed source
+commit, lists every existing thread, skips items whose hidden marker already
+exists, creates the rest with the exact saved text, and reads the markers back.
+Markers are stable fingerprints of PR, file and anchored lines, so a later
+review of unchanged code does not post duplicates. A failed or uncertain item can
+simply be published again; a comment someone deleted on the PR is reported as
+`DELETED` and not posted again. See [commenting](docs/COMMENTING.md).
+
+## Retention and privacy
+
+Completed reviews, previews, publication ledgers and their source excerpts are
+kept under `${XDG_STATE_HOME:-~/.local/state}/opencode/azpr-v2/` with owner-only
+permissions. The newest 20 reviews are kept; older ones and stale scratch data
+are removed automatically. A receipt that cannot reach the conversation is saved
+under `receipts/` there. `/pr-comment` only accepts reviews started in the same
+conversation (or from one of that review's sessions).
+
+OpenCode does not delete sessions by itself, so AZPR removes its private
+reviewer sessions (`deletePrivateSessions`, on by default): a completed review's
+sessions go when the review is evicted, since `/pr-comment` needs them until
+then. A review that did not complete keeps only the session holding its report
+or draft (every session while debug is enabled), and these kept sessions follow
+the same limit of 20 runs. Your own conversations are never deleted.
+
+## Development and removal
+
+See [Contributing](CONTRIBUTING.md) for bug reports and development checks,
+[Security](SECURITY.md) for private vulnerability reporting, and the
+[code of conduct](CODE_OF_CONDUCT.md) for community conduct.
+
+```sh
+npm run check
+npm test
+node tests/host-v2-smoke.mjs /absolute/path/to/opencode
+node tests/host-v2-smoke.mjs /absolute/path/to/opencode --replace
+node tests/host-v2-smoke.mjs /absolute/path/to/opencode --native
+node tests/host-v2-comment-scale.mjs /absolute/path/to/opencode
+node tests/host-v2-background-compaction.mjs /absolute/path/to/opencode
+sh uninstall.sh --config-dir /absolute/path/to/v2-opencode-config
+sh uninstall.sh --config-dir /absolute/path/to/v2-opencode-config --apply
+```
+
+The host fixtures run a real OpenCode binary with a loopback fake model provider
+and a loopback fake Azure DevOps REST service in disposable directories under
+`.local/`.
+Uninstall without `--apply` previews; `--apply` archives only this package under
+`azpr-v2-backups` and leaves the private state directory for you to delete.
+For a native installation, remove the entry you added, for example
+`opencode plugin remove opencode-azure-devops-pr-review@0.3.7` or
+`opencode plugin remove 'github:WTLAIB/opencode-azure-devops-pr-review-v2#v0.3.7'`;
+the external settings, PAT file and private review state remain available.
+
+[Architecture](docs/ARCHITECTURE.md), [commenting](docs/COMMENTING.md),
+[Azure DevOps access](docs/AZURE_DEVOPS.md), [verification](docs/VERIFICATION.md),
+[debugging](docs/DEBUGGING.md), [roadmap](docs/ROADMAP.md),
+[current validation](docs/VALIDATION.md) and [AI maintenance guidance](AGENTS.md)
+describe the current behavior. Never commit `.local/`, diagnostics, credentials
+or personal model selections.
+
+## License and releases
+
+[MIT](LICENSE), copyright 2026 WTLAIB. See the [changelog](CHANGELOG.md) for the
+release scope, [v0.3.7](https://github.com/WTLAIB/opencode-azure-devops-pr-review-v2/releases/tag/v0.3.7)
+for downloads, the [npm package](https://www.npmjs.com/package/opencode-azure-devops-pr-review),
+[v0.2.0](https://github.com/WTLAIB/opencode-azure-devops-pr-review-v2/releases/tag/v0.2.0)
+for the recorded demonstration, and [releasing](docs/RELEASING.md) for the
+release process.

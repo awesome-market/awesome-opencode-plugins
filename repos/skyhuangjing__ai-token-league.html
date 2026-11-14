@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>skyhuangjing/ai-token-league · OpenCode Plugins</title>
+<meta name="description" content="在 magpie 窗口里加一个「AI Token League」用量页：把 magpie 看得见的全部用量（网关账本 + 全部本地 agent 会话，request id 去重）签名同步到 AI Token League 榜单。A usage page in magpie&#x27;s window: syncs everything magpie sees — gateway ledger plus al">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ai-token-league, skyhuangjing, skyhuangjing/ai-token-league, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/skyhuangjing__ai-token-league">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="skyhuangjing/ai-token-league · OpenCode Plugins">
+<meta property="og:description" content="在 magpie 窗口里加一个「AI Token League」用量页：把 magpie 看得见的全部用量（网关账本 + 全部本地 agent 会话，request id 去重）签名同步到 AI Token League 榜单。A usage page in magpie&#x27;s window: syncs everything magpie sees — gateway ledger plus al">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/skyhuangjing__ai-token-league">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "skyhuangjing/ai-token-league", "codeRepository": "https://github.com/SKYhuangjing/ai-token-league", "url": "https://opencode-plugins.zhuikan.com/repos/skyhuangjing__ai-token-league", "description": "在 magpie 窗口里加一个「AI Token League」用量页：把 magpie 看得见的全部用量（网关账本 + 全部本地 agent 会话，request id 去重）签名同步到 AI Token League 榜单。A usage page in magpie's window: syncs everything magpie sees — gateway ledger plus al", "author": {"@type": "Organization", "name": "skyhuangjing", "url": "https://github.com/SKYhuangjing"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server"}</script>
+</head>
+<body data-repo="skyhuangjing/ai-token-league" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">skyhuangjing/ai-token-league</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="skyhuangjing__ai-token-league"><img class="rp-side-av" src="https://github.com/SKYhuangjing.png?s=300" width="300" height="300" alt="skyhuangjing avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ai-token-league</div>
+      <a class="rp-side-owner" href="https://github.com/SKYhuangjing">skyhuangjing</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/SKYhuangjing">skyhuangjing</a>
+        <span class="rp-sep">/</span><span class="rp-name">ai-token-league</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">在 magpie 窗口里加一个「AI Token League」用量页：把 magpie 看得见的全部用量（网关账本 + 全部本地 agent 会话，request id 去重）签名同步到 AI Token League 榜单。A usage page in magpie&#x27;s window: syncs everything magpie sees — gateway ledger plus all local agent sessions, request-id deduped — to an AI T</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/SKYhuangjing/ai-token-league">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.2.3</span><a class="rp-dl-a" href="https://www.npmjs.com/package/magpie-atl-sync/v/0.2.3">0.2.3 ↓</a><span class="rp-dl-ver">0.2.3</span><span class="rp-dl-date">2026-11-02</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">13</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AI Token League English · 简体中文
+
+
+
+
+
+一款面向 Codex、Claude Code 和 Cursor 的本地优先 AI 编程 token 用量采集器与公开排行榜。
+
+ AI Token League 用来回答一个直接的问题：团队或社区里，谁在使用 AI 编程工具、用了多少 token、分布在哪些模型、项目和日期上。它只上传聚合用量事实，不上传 prompt、回答内容、源码、完整会话、真实绝对路径、Cursor session token 或身份私钥。
+
+功能：本地采集 · 公开排行榜 · Tauri 桌面端 · CLI 采集器 · 签名上传 · token 组成分析 · OpenRouter 价格 · 估算成本 · Admin 管理台 · JSON/MySQL 存储 · 桌面安装包 · 静默更新
+
+官方支持平台：macOS Apple silicon、macOS Intel、Windows x64。
+
+当前版本：0.7.21
+
+---
+
+ 效果截图
+
+!AI Token League 桌面客户端趋势页
+
+| 工作目录 | 来源 |
+| --- | --- |
+| !AI Token League 桌面客户端工作目录页 | !AI Token League 桌面客户端来源页 |
+
+| 公开首页 | 社区排行榜 |
+| --- | --- |
+| !AI Token League 公开首页 | !AI Token League 社区排行榜 |
+
+| Admin 使用量运营 | Admin 客户端设备 |
+| --- | --- |
+| !AI Token League Admin 使用量运营 | !AI Token League Admin 客户端设备 |
+
+---
+
+ 功能概览
+
+ 1. 公开排行榜
+
+- 公开排名：按今天、昨天、本周、上周、本月、上月等时间范围展示 token 用量排名。
+- 排行事实：主排行只看 totalTokens，成本只是辅助展示。
+- 参与者详情：查看参与者在模型、来源、workdir 和日期上的用量分布。
+- 隐私展示：workdir 使用 hash 与展示名，不上传真实绝对路径。
+
+ 2. 本地采集器
+
+- Codex 本地日志：扫描本机 Codex session JSONL 日志。
+- Claude Code 本地日志：扫描本机 Claude Code project logs。
+- Cursor Dashboard Usage：显式启用后读取 Cursor dashboard usage API；Cursor 不提供本地项目路径。
+- 来源开关：Sources 中按来源启停；开关只保存配置，不触发立即扫描。
+- Cursor 多 token：支持添加多个 Cursor token，并以账号摘要展示。
+
+ 3. 桌面应用
+
+- Today：查看本地当天用量、模型分布、workdir 分布和最近扫描状态。
+- Trend：查看个人 Daily 30d、Weekly 12w、Monthly 12m 趋势。
+- Settings：Profile、App、Sources、Cloud、About 分域配置。
+- 首次启动向导：新用户先确认身份、隐私、来源和云端连接，再开始采集。
+- 诊断导出：本地导出脱敏诊断包，包含运行日志、扫描/同步摘要和队列状态，用于排查客户端扫描、同步和云端数据差异。
+- 应用更新：支持手动检查、下载校验、重启升级和可配置静默更新。
+
+ 4. CLI 采集器
+
+- init：创建本地身份和配置；无参数首次运行时支持交互式初始化。
+- health：查看本地来源、版本和服务端兼容状态。
+- scan：扫描本地 usage facts。
+- register：向服务端注册匿名设备。
+- sync：上传签名后的聚合 usage batch。
+- export-identity / import-identity：迁移本地身份。
+
+ 5. Admin 管理台
+
+- Usage ranking：按日期、参与者、粒度查询服务端聚合用量。
+- Model prices：维护自定义模型价格，刷新 OpenRouter 价格缓存。
+- Missing price：定位缺价模型并映射到已有计费模型。
+- Reset user：在早期数据修正场景下，删除单个 participant 的服务端聚合数据并允许客户端重新同步。
+
+ 6. 发布与更新
+
+- zip 包：macOS arm64、macOS x64、Windows x64。
+- 原生安装包：macOS DMG、Windows NSIS exe。
+- release manifest：记录平台产物、checksum、安装包链接和协议兼容信息。
+- Cloud Connection：桌面端 update check 只从 app-server 读取 release config，不内置 OSS 地址。
+
+---
+
+ 支持的数据来源
+
+| 来源 | Provider ID | 状态 | 说明 |
+| --- | --- | --- | --- |
+| Codex | codex_local | 支持 | 扫描本地 Codex session JSONL 日志。 |
+| Claude Code | claude_code_local | 支持 | 扫描本地 Claude Code 项目日志。 |
+| Cursor | cursor_dashboard_usage | 显式启用后支持 | 使用 Cursor dashboard usage API；不提供真实项目路径。 |
+| MiMoCode | mimocode_local | 支持 | 扫描本地 MiMoCode SQLite 数据库。 |
+| OpenCode | opencode_local | 支持 | 扫描本地 OpenCode SQLite 数据库。 |
+| Hermes | hermes_local | 支持 | 扫描本地 Hermes SQLite 数据库。 |
+| OpenClaw | openclaw_local | 支持 | 扫描本地 OpenClaw JSONL 日志。 |
+| ZCode | zcode_local | 支持 | 扫描本地 ZCode SQLite 数据库。 |
+| WorkBuddy | workbuddy_local | 支持 | 扫描本地 WorkBuddy trace JSON 文件。 |
+| DeepSeek Harness | dsh_local | 支持 | 扫描本地 DeepSeek Harness 会话日志（多帧 zstd JSONL）。 |
+| Kimi | kimi_local | 支持 | 扫描本地 Kimi 桌面客户端 Agent 会话日志。 |
+| Antigravity | antigravity_local | 支持 | 扫描本地 Antigravity 会话数据库（SQLite + protobuf）。 |
+| Magpie（插件） | magpie_lo</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/SKYhuangjing/ai-token-league/releases"><b>0.2.3</b> <span class="rp-rel-tag">0.2.3</span> <span class="rp-item-extra">2026-11-02</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/skyhuangjing__ai-token-league.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

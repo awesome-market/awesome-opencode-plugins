@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aplas-plus/opencode-autoguard · OpenCode Plugins</title>
+<meta name="description" content="OpenCode plugin for automatic permission review with local safety rules, LLM judging, circuit breaking, and prompt-injection protection.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-autoguard, aplas-plus, aplas-plus/opencode-autoguard, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, security, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/aplas-plus__opencode-autoguard">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="aplas-plus/opencode-autoguard · OpenCode Plugins">
+<meta property="og:description" content="OpenCode plugin for automatic permission review with local safety rules, LLM judging, circuit breaking, and prompt-injection protection.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/aplas-plus__opencode-autoguard">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "aplas-plus/opencode-autoguard", "codeRepository": "https://github.com/APLaS-Plus/opencode-autoguard", "url": "https://opencode-plugins.zhuikan.com/repos/aplas-plus__opencode-autoguard", "description": "OpenCode plugin for automatic permission review with local safety rules, LLM judging, circuit breaking, and prompt-injection protection.", "author": {"@type": "Organization", "name": "aplas-plus", "url": "https://github.com/APLaS-Plus"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-03", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,security,server"}</script>
+</head>
+<body data-repo="aplas-plus/opencode-autoguard" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">aplas-plus/opencode-autoguard</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="aplas-plus__opencode-autoguard"><img class="rp-side-av" src="https://github.com/APLaS-Plus.png?s=300" width="300" height="300" alt="aplas-plus avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-autoguard</div>
+      <a class="rp-side-owner" href="https://github.com/APLaS-Plus">aplas-plus</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/APLaS-Plus">aplas-plus</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-autoguard</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode plugin for automatic permission review with local safety rules, LLM judging, circuit breaking, and prompt-injection protection.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span><span class="rp-stat" title="downloads30d">↓ <b>23</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-03</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/APLaS-Plus/opencode-autoguard">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.3.0</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-autoguard/v/0.3.0">0.3.0 ↓</a><span class="rp-dl-ver">0.3.0</span><span class="rp-dl-date">2026-09-03</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+1</div><div class="rp-metric-label">月增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">23</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-autoguard
+
+Language: 中文 · English
+
+一个实验性的 OpenCode 权限审核插件：监听待审批权限，先运行本地拒绝规则，再交给 OpenAI-compatible LLM judge，最后通过 OpenCode 的权限 reply API 自动回复。
+
+!OpenCode AutoGuard 封面
+
+ 当前状态：核心逻辑和真实 HTTP reply 链路已验证，但 OpenCode 不同运行模式的事件桥接与 pending store 仍有宿主侧差异。它不是安全边界，也不应在无人值守的生产环境中直接使用。
+
+版本历史见 CHANGELOG.md。
+
+ 评测基线
+
+项目用 562 例标注数据集回归权限审核链路。2026-08-31 基线结果：
+
+- 本地规则层：0 漏拦、0 误拦，并作为 npm run check 的加载期回归门禁。
+- judge 层：以 deepseek-chat 评测时，危险放行 0、注入攻击成功率 0、隐私泄漏 0。
+
+完整数据集与 judge 层评测见 eval/README.md。免费档 laguna 有速率限制，高频场景建议使用付费模型或本地 judge。
+
+ 快速开始
+
+ 重要：auto: [] 不代表插件完全不工作。 它只表示不自动接管任何权限 action。只要 contentReview.enabled 为 true（默认值），webfetch 正文仍会送入 judge。若要让插件完全停止审核，需同时设置 auto: [] 和 contentReview.enabled: false。
+
+需要 Node.js 22.14 或更高版本。
+
+ 1. 安装
+
+sh
+npm install opencode-autoguard
+
+
+ 2. 配置 OpenCode（npm 安装，推荐）
+
+在项目的 opencode.json 中加载，下面是云端 OpenAI-compatible endpoint 的通用写法；请从服务商当前的模型列表选择模型，并替换 endpoint、模型 ID 与凭据占位符：
+
+json
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;permission&quot;: {
+    &quot;bash&quot;: &quot;ask&quot;,
+    &quot;webfetch&quot;: &quot;ask&quot;
+  },
+  &quot;plugin&quot;: [
+    [
+      &quot;opencode-autoguard&quot;,
+      {
+        &quot;auto&quot;: [&quot;bash&quot;, &quot;webfetch&quot;],
+        &quot;defaultReply&quot;: &quot;once&quot;,
+        &quot;judge&quot;: {
+          &quot;baseURL&quot;: &quot;https://api.example.com/v1&quot;,
+          &quot;model&quot;: &quot;&quot;,
+          &quot;apiKey&quot;: &quot;&quot;,
+          &quot;timeoutMs&quot;: 10000
+        }
+      }
+    ]
+  ]
+}
+
+
+若使用本地 OpenAI-compatible 服务，仅替换 judge 配置，例如：
+
+json
+&quot;judge&quot;: {
+  &quot;baseURL&quot;: &quot;http://127.0.0.1:8000/v1&quot;,
+  &quot;model&quot;: &quot;&quot;,
+  &quot;apiKey&quot;: &quot;&quot;,
+  &quot;timeoutMs&quot;: 10000
+}
+
+
+模型 ID 必须以所接 endpoint 当前实际提供的名称为准；不要依赖 README 中固定的免费模型名称。
+
+ 3. 开发安装（贡献者）
+
+面向完整的 Git checkout：
+
+POSIX / macOS：
+
+sh
+cd /path/to/autoguard
+npm ci
+npm run check
+
+
+Windows PowerShell：
+
+powershell
+Set-Location C:\path\to\autoguard
+npm ci
+npm run check
+
+
+在 opencode.json 中用本地源码绝对路径加载：
+
+json
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;permission&quot;: {
+    &quot;bash&quot;: &quot;ask&quot;,
+    &quot;webfetch&quot;: &quot;ask&quot;
+  },
+  &quot;plugin&quot;: [
+    [
+      &quot;/absolute/path/to/autoguard/index.ts&quot;,
+      {
+        &quot;auto&quot;: [&quot;bash&quot;, &quot;webfetch&quot;],
+        &quot;defaultReply&quot;: &quot;once&quot;,
+        &quot;judge&quot;: {
+          &quot;baseURL&quot;: &quot;https://api.example.com/v1&quot;,
+          &quot;model&quot;: &quot;&quot;,
+          &quot;apiKey&quot;: &quot;&quot;,
+          &quot;timeoutMs&quot;: 10000
+        }
+      }
+    ]
+  ]
+}
+
+
+Windows 路径可写成 C:/absolute/path/to/autoguard/index.ts。
+
+修改插件或配置后应完全重启 OpenCode。permission: &quot;ask&quot; 决定 OpenCode 是否产生待审批请求；auto 决定 AutoGuard 是否接管该 action。权限自动审核需要两者同时满足。
+
+ Google Antigravity (AGY) 接入
+
+AutoGuard 原生支持作为 Google Antigravity (AGY) 的 Lifecycle Plugin / Hook 运行，保护 run_command、write_to_file 与 replace_file_content。
+
+ 核心特性
+
+- 直接复用 AGY 模型额度：无需配置外部第三方 API Key，默认使用后台常驻的 AGY 守护进程调用 Gemini 3.8 Flash (High)，平均响应仅 ~3 秒。
+- 三级防御体系：
+  - Tier A（秒过，
+
+
+或从 Git 仓库安装：
+
+sh
+git clone git@github.com:APLaS-Plus/opencode-autoguard.git
+agy plugin install ./opencode-autoguard
+
+
+ 方式 2：npm 一键配置脚本
+
+sh
+npm run setup:agy
+
+
+该脚本会自动检测当前系统的 agy CLI，校验插件完整性，并将 PreToolUse 钩子配置就绪。如果要在当前工作区（项目级）安装，可附加 --workspace：
+
+sh
+npm run setup:agy -- --workspace
+
+
+ 方式 3：手动配置 .agents/hooks.json
+
+在项目的 .agents/hooks.json（或全局 ~/.agents</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/APLaS-Plus/opencode-autoguard/releases"><b>0.3.0</b> <span class="rp-rel-tag">0.3.0</span> <span class="rp-item-extra">2026-09-03</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/aplas-plus__opencode-autoguard.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

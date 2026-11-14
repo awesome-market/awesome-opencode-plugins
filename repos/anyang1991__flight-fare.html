@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>anyang1991/flight-fare · OpenCode Plugins</title>
+<meta name="description" content="让 Agent 整理航班全价经济舱比价证据：在航司官网核验 Y 舱与公布价，保留原始截图、查询记录和核验结论，辅助机票报销材料准备。适用于具备浏览器能力的 Codex / Claude Code 等 Agent。Official airline fare evidence, with original screenshots.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="flight-fare, anyang1991, anyang1991/flight-fare, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/anyang1991__flight-fare">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="anyang1991/flight-fare · OpenCode Plugins">
+<meta property="og:description" content="让 Agent 整理航班全价经济舱比价证据：在航司官网核验 Y 舱与公布价，保留原始截图、查询记录和核验结论，辅助机票报销材料准备。适用于具备浏览器能力的 Codex / Claude Code 等 Agent。Official airline fare evidence, with original screenshots.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/anyang1991__flight-fare">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "anyang1991/flight-fare", "codeRepository": "https://github.com/anyang1991/flight-fare", "url": "https://opencode-plugins.zhuikan.com/repos/anyang1991__flight-fare", "description": "让 Agent 整理航班全价经济舱比价证据：在航司官网核验 Y 舱与公布价，保留原始截图、查询记录和核验结论，辅助机票报销材料准备。适用于具备浏览器能力的 Codex / Claude Code 等 Agent。Official airline fare evidence, with original screenshots.", "author": {"@type": "Organization", "name": "anyang1991", "url": "https://github.com/anyang1991"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-21", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="anyang1991/flight-fare" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">anyang1991/flight-fare</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="anyang1991__flight-fare"><img class="rp-side-av" src="https://github.com/anyang1991.png?s=300" width="300" height="300" alt="anyang1991 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">flight-fare</div>
+      <a class="rp-side-owner" href="https://github.com/anyang1991">anyang1991</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/anyang1991">anyang1991</a>
+        <span class="rp-sep">/</span><span class="rp-name">flight-fare</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">让 Agent 整理航班全价经济舱比价证据：在航司官网核验 Y 舱与公布价，保留原始截图、查询记录和核验结论，辅助机票报销材料准备。适用于具备浏览器能力的 Codex / Claude Code 等 Agent。Official airline fare evidence, with original screenshots.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-21</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/anyang1991/flight-fare">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">flight-fare ✈️
+
+ 航班全价比价证据，交给 Agent 整理。
+
+航司官网 · 原始截图 · 可追溯记录
+
+
+
+给支持浏览器操作的 AI agent 使用的 Agent Skill：查询航司官网的全价经济舱产品，核对页面明示的舱位与价格，保存原始截图和查询记录，辅助报销比价材料准备。
+
+安装使用 · 输入与输出 · 覆盖与实测 · 反馈问题
+
+
+
+!CA1501 全价经济舱官网截图示例
+
+上图来自仓库保存的历史查询：航班号、完整日期、航段、产品名称与价格同屏可读。交付的是浏览器原始渲染截图；图中报价仅记录当次查询。
+
+需要能操作网页并保存截图的浏览器工具。 skill 提供查询流程与站点经验，不包含浏览器本身；宿主需另行提供浏览器能力（见安装）。
+
+ 它做什么
+
+- 按航班号、日期、航段在目标航司官网查询经济舱报价，展开明细找到全价经济舱产品。
+- 保留官网原始产品名称与舱位代码；只认页面明示的“经济全价 / 全价经济舱 / Y 舱”证据，不按折扣倒算。
+- 保存浏览器原始渲染截图，一屏放不下时保存同一次查询的多张截图，并生成结构化 汇总.md。
+- 每次查询都输出 经验复盘.md，记录真实踩坑、有效修正、省 Token 做法和下次最短路径；成功、失败和需接续的任务均保留。
+- 支持 MU5137、3U8886、8L…、9C…、G5… 等含数字的航司代码，兼容 mu 5137 这类空格和小写输入。
+- 内置 24 个航司官网入口及站点经验，含两轮真实实测记录（见覆盖与实测状态）。
+
+ 边界
+
+- 只查询，不下单。 不填写旅客信息、不创建订单、不支付；验证码或登录由用户在官方页面完成。
+- 不改证据。 不修改页面文字、价格、日期、DOM/CSS，不隐藏航班行，不拼图或合成截图。
+- 不绕过限制。 不绕过验证码、登录或风控；登录墙航司由用户在官方页面登录后接续查询。
+- 不保证报销通过。 截图取自官网不等于财务必然接受，是否适用由用户所在单位的报销要求决定。
+- 不越界推断。 未来报价不能证明过去价格；未指定日期时最多顺延 14 天并标注“替代日期参考”；无法确认全价时如实标注，不用第三方价格、其他日期或其他航司替代。
+- 失败如实记录。 查询失败、证据不完整、需用户操作的项目都写入汇总，不遗漏。
+
+ 适合谁
+
+- 需要留存官网全价舱价格截图用于报销比价的个人用户。
+- 需要可追溯、可复核价格证据的财务或审计人员。
+- 希望给 AI agent 配备标准化取证流程的开发者与技能维护者。
+
+ 安装
+
+安装目录名保持 flight-fullfare-screenshot，与 SKILL.md 中的 name 一致。已有目录请先检查本地修改，不要直接覆盖。
+
+ 1. 安装 skill
+
+Codex（个人使用）
+
+macOS / Linux：
+
+sh
+mkdir -p ~/.agents/skills
+git clone https://github.com/anyang1991/flight-fare.git ~/.agents/skills/flight-fullfare-screenshot
+
+
+Windows PowerShell：
+
+powershell
+New-Item -ItemType Directory -Force -Path &quot;$HOME/.agents/skills&quot; | Out-Null
+git clone https://github.com/anyang1991/flight-fare.git &quot;$HOME/.agents/skills/flight-fullfare-screenshot&quot;
+
+
+目录依据 OpenAI 官方本地 skill 文档。也可以让 Codex 自带的 skill-installer 从本仓库安装。安装后在技能列表中检查；未出现时重启宿主。
+
+Claude Code
+
+sh
+mkdir -p ~/.claude/skills
+git clone https://github.com/anyang1991/flight-fare.git ~/.claude/skills/flight-fullfare-screenshot
+
+
+Windows PowerShell 将目标改为 &quot;$HOME/.claude/skills/flight-fullfare-screenshot&quot;。
+
+其他 agent
+
+将仓库放入该工具文档规定的 skills 目录，保留根目录 SKILL.md 和 references/。不支持 skills 的工具可以显式读取这两个文件。遵守各宿主的工具限制，不需要固定的 proxy、端口或浏览器配置。
+
+ 2. 安装浏览器工具（必装其一）
+
+skill 只提供流程与站点经验，浏览器能力由宿主提供。三种方案任选其一：
+
+方案 A：web-access（ZCode 生态；CDP 直连日常浏览器，天然携带登录态）
+
+sh
+git clone https://github.com/eze-is/web-access.git ~/.zcode/skills/web-access
+node ~/.zcode/skills/web-access/scripts/check-deps.mjs
+
+
+前置：Node.js 22+、本机装有 Chrome 或 Edge。check-deps 退出码：0 就绪；2 未确定默认浏览器，把 chrome 或 edge 写入 ~/.zcode/skills/web-access/config.env 的 WEB_ACCESS_BROWSER= 后重跑；1 按 stdout 提示操作后重跑。
+
+方案 B：Playwright MCP（Claude Code 等）
+
+sh
+claude mcp add playwright -- npx @playwright/mcp@latest
+
+
+方案 C：chrome-devtools MCP（Claude Code 等）
+
+sh
+claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest
+
+
+方案 A 用 curl http://localhost:3456/targets 确认 proxy；方案 B/C 在 agent 会话中确认 MCP 工具已挂载。
+
+ 3. 验证
+
+对 agent 说「查 MU5137 的全价经济舱截图」，确认能返回截图、汇总和经验复盘。
+
+ 代理环境注意（装不上时先看这里）
+
+- git clone / git push 长时间无响应，或报 HTTP2 framing layer / Failed to connect to github.com port 443 → 先检查网络和已有代理配置。使用本地代理时，确认进程与端口可用（如 nc -z 127.0.0.1 7890），再按实际端口配置仓库代理，例如 git config http.proxy http://127.0.0.1:7890。
+- curl 下载 zip 返回 200 但解压报错 → 下载被静默</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/anyang1991__flight-fare.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

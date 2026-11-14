@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yardonyan/mobile-design-spec · OpenCode Plugins</title>
+<meta name="description" content="把 iOS / Android / HarmonyOS / 小程序 / H5 五套移动端尺寸规范落到代码里，附零依赖换算与规范走查脚本 | Apply real mobile sizing specs to your code, with a zero-dependency converter and spec linter">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="mobile-design-spec, yardonyan, yardonyan/mobile-design-spec, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/yardonyan__mobile-design-spec">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="yardonyan/mobile-design-spec · OpenCode Plugins">
+<meta property="og:description" content="把 iOS / Android / HarmonyOS / 小程序 / H5 五套移动端尺寸规范落到代码里，附零依赖换算与规范走查脚本 | Apply real mobile sizing specs to your code, with a zero-dependency converter and spec linter">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/yardonyan__mobile-design-spec">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "yardonyan/mobile-design-spec", "codeRepository": "https://github.com/YardonYan/mobile-design-spec", "url": "https://opencode-plugins.zhuikan.com/repos/yardonyan__mobile-design-spec", "description": "把 iOS / Android / HarmonyOS / 小程序 / H5 五套移动端尺寸规范落到代码里，附零依赖换算与规范走查脚本 | Apply real mobile sizing specs to your code, with a zero-dependency converter and spec linter", "author": {"@type": "Organization", "name": "yardonyan", "url": "https://github.com/YardonYan"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-06", "license": "https://spdx.org/licenses/Apache-2.0.html", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="yardonyan/mobile-design-spec" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">yardonyan/mobile-design-spec</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="yardonyan__mobile-design-spec"><img class="rp-side-av" src="https://github.com/YardonYan.png?s=300" width="300" height="300" alt="yardonyan avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">mobile-design-spec</div>
+      <a class="rp-side-owner" href="https://github.com/YardonYan">yardonyan</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/YardonYan">yardonyan</a>
+        <span class="rp-sep">/</span><span class="rp-name">mobile-design-spec</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">把 iOS / Android / HarmonyOS / 小程序 / H5 五套移动端尺寸规范落到代码里，附零依赖换算与规范走查脚本 | Apply real mobile sizing specs to your code, with a zero-dependency converter and spec linter</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Apache-2.0</span><span class="rp-meta-bit">Created 2026-10-06</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="yardonyan__daily-log"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">daily-log</a><a class="rp-same-link" href="yardonyan__for-my-self-skills"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">for-my-self-skills</a><a class="rp-same-link" href="yardonyan__html-skill-effectiveness"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">html-skill-effectiveness</a><a class="rp-same-link" href="yardonyan__markdown-renderer-fix"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">markdown-renderer-fix</a><a class="rp-same-link" href="yardonyan__task-skill-orchestrator"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">task-skill-orchestrator</a><a class="rp-same-link" href="yardonyan__tech-blog-generator"><img class="rp-same-av" src="https://github.com/YardonYan.png" alt="" loading="lazy">tech-blog-generator</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/YardonYan/mobile-design-spec">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">一套 Skill，搞定五套移动端尺寸规范
+
+
+
+
+
+
+
+
+中文 · English
+
+
+
+---
+
+ 让 AI 编码助手按 Apple HIG、Material Design 3、HarmonyOS Design、微信小程序文档和 WCAG 的公开数值，直接改对移动端与响应式代码里的尺寸，并说得出每一条改动的依据。
+
+A Qoder / Claude Code Skill that applies real mobile sizing specs (iOS, Android, HarmonyOS, WeChat Mini Program, H5, plus tablet / desktop / TV / wearable) to your code, with a zero-dependency unit converter and spec linter.
+
+ 目录
+
+- 解决什么问题
+- 工作方式
+- 覆盖范围
+- 五套单位对照
+- 30 秒上手
+- 安装
+- 使用途径
+- 怎么调用
+- 走查规则清单
+- 数据基准与时效性
+- 机型为什么是这几台
+- 数据来自哪里
+- 数据文件与溯源
+- 项目结构
+- 测试与 CI
+- 已知局限
+- 排错
+- 贡献
+- 许可
+
+ 解决什么问题
+
+移动端做界面时反复出现的那几类问题：
+
+- 底部悬浮按钮被 iPhone 手势条挡住，用户&quot;怎么都按不到&quot;
+- 可点区域只有 24px，视觉稿看着没问题，手指点不准
+- 设计稿按 402pt 出，代码里抄了 Android 的 dp 数值
+- 小程序里混用固定 px，换台机器布局就散
+- 鸿蒙字体写成 vp，用户放大系统字号后文字不跟随
+- 折叠屏内屏和平板直接放大手机版，两侧全是空白
+- 标注只写&quot;间距 16&quot;，不写单位、平台和倍率，开发只能猜
+
+它不是给你一份读完就忘的文档，而是让 agent 读完规范后动手改代码，并按&quot;位置 → 原值 → 新值 → 依据&quot;汇报：
+
+
+submit-btn 高度 72rpx → 88rpx   依据: 小程序最小触控 88 x 88rpx (由 Apple 44pt 推得, 官方无明文)
+.page 左右边距 24rpx → 32rpx    依据: 微信推荐页面内容左右边距 30 ~ 32rpx
+Text fontSize &#x27;16vp&#x27; → 16       依据: 鸿蒙 fp 才跟随 Configuration.fontSizeScale 缩放
+
+
+ 工作方式
+
+
+
+SKILL.md 是常驻上下文的决策入口（约 150 行），负责判定平台、查跨平台速查表、套用硬性红线；八份 reference 只在实际需要时读进来——这是 Skill 相比长文档的核心优势。两个脚本不经 LLM，可以直接在命令行执行。
+
+ 覆盖范围
+
+| 形态 | 平台 | 关键数值 |
+| --- | --- | --- |
+| 手机 | iOS / Android / HarmonyOS / 微信小程序 / H5 | 主稿 402pt、411dp、384vp、750rpx、375px |
+| 平板 | iPadOS、Android 平板、鸿蒙平板 | ≥ 600dp 双栏、≥ 840dp 12 列、iPad 820 x 1180pt |
+| 折叠与三折叠 | Galaxy Z Fold、Pixel Fold、Mate X / XT 非凡大师、iPhone Duo | 外屏 323 ~ 360，展开 440 ~ 1108 |
+| 桌面与笔记本 | macOS、Chromebook、鸿蒙 PC | macOS 正文 13pt、Chromebook 窗口最小 300 x 450dp |
+| 客厅与空间计算 | tvOS、visionOS | tvOS 内容内缩上下 60 左右 80pt、visionOS 可点 60pt |
+| 穿戴 | watchOS、鸿蒙穿戴 | 相对缩放 90% ~ 119%、穿戴边距 26vp |
+| Web | 移动优先 + 桌面断点 | Tailwind / Bootstrap / MDC 三套实际阈值 |
+
+ 五套单位对照
+
+
+
+同一份设计稿换到不同平台，基准屏宽和单位都不一样。convert.cjs 做等比映射并给出取整建议与切图物理像素，下面这组最常用的触控下限关系可以直接记：
+
+
+44 pt  ≈  48 dp  ≈  48 vp  ≈  88 rpx  ≈  44 px
+
+
+ 30 秒上手
+
+bash
+git clone https://github.com/YardonYan/mobile-design-spec.git
+cd mobile-design-spec
+npm test                        15 项回归测试, 无需安装依赖
+node scripts/convert.cjs 88rpx --to pt,dp,vp
+node scripts/audit.cjs 你的样式目录
+
+
+要在 agent 里用，把整个目录放进它的 skills 目录，见下一节。
+
+ 安装
+
+ 用安装器（推荐）
+
+仓库自带一个零依赖的安装脚本，把它装到本机各个 AI 应用的 skills 目录，不需要手工拷贝：
+
+bash
+node tools/install.mjs --list                  看有哪些目标可选
+node tools/install.mjs --ai workbuddy          装到 WorkBuddy
+node tools/install.mjs --ai workbuddy --ai trae-cn --ai codebuddy    一次装多个
+node tools/install.mjs --ai all                装到全部目标
+node tools/install.mjs --ai all --dry-run      只预览，不写文件
+node tools/install.mjs --ai all --force        覆盖已存在的旧版本
+node tools/install.mjs --ai workbuddy --uninstall    卸载
+
+
+已核对存在的目标：WorkBuddy、TRAE 国内版、CodeBuddy、Claude Code、Codex CLI、OpenClaw、Qwen Code、cc-switch。cursor 与通用 .agents 用的是通行约定，未在本机核对。
+
+加 --project 改为装进当前项目的相对目录（如 .workbuddy/skills），适合随项目一起提交的用法。
+
+安装器只依赖 Node 标准库，会跳过 .git、node_modules、缓存等目录；装之前先检查 SKILL.md 是否在仓库根目录，不在就报错退出。
+
+ 作为插件安装（WorkBuddy / CodeBuddy / Claude Code）
+
+仓库根目录带 .codebuddy-plugin/ 与 .claude-plugin/ 两份清单，可以直接注</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/yardonyan__mobile-design-spec.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

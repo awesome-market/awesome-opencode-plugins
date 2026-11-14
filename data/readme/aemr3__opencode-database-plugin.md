@@ -1,0 +1,100 @@
+# opencode-database-plugin
+
+An [OpenCode](https://github.com/anomalyco/opencode) plugin that logs sessions, messages, tool executions, and token usage to PostgreSQL.
+
+## Features
+
+- Session tracking (creation, updates, deletion, errors, compaction)
+- Message and message part storage with full content
+- Tool execution logging with timing and results
+- Token usage tracking (input, output, cache, reasoning)
+- Cost estimation
+- Full-text search on session titles and message text
+
+## Installation
+
+Add the plugin to your `opencode.json` configuration:
+
+```json
+{
+  "plugin": ["opencode-database-plugin"]
+}
+```
+
+The plugin will be automatically installed at startup.
+
+## Configuration
+
+Set the `OPENCODE_DATABASE_URL` environment variable:
+
+```bash
+OPENCODE_DATABASE_URL=postgres://user:password@host:5432/database
+```
+
+Default: `postgres://opencode:opencode@postgres:5432/opencode`
+
+## Database Setup
+
+Run the schema file to create the required tables:
+
+```bash
+psql $OPENCODE_DATABASE_URL -f sql/schema.sql
+```
+
+## Database Schema
+
+### Tables
+
+| Table             | Description                                                |
+| ----------------- | ---------------------------------------------------------- |
+| `sessions`        | Chat sessions with token counts and cost                   |
+| `messages`        | Messages within sessions                                   |
+| `message_parts`   | Individual parts of messages (text, reasoning, tool calls) |
+| `tool_executions` | Tool execution logs with timing                            |
+| `session_errors`  | Session error records                                      |
+| `commands`        | Executed slash commands                                    |
+| `compactions`     | Context compaction history                                 |
+
+A message's text and files are its parts in `message_parts`. Databases set up from an
+older schema also have `messages.text`, `messages.content` and `conversation_view`, which
+the plugin no longer writes; drop them once nothing reads them:
+
+```sql
+DROP VIEW IF EXISTS conversation_view;
+ALTER TABLE messages DROP COLUMN IF EXISTS text, DROP COLUMN IF EXISTS content;
+```
+
+### Failed writes
+
+A write the database can't take yet, because it is unreachable, starting up or shutting
+down, is retried for about 30 seconds. One that still fails is reported through OpenCode's
+log under the `database` service.
+
+A write can also go unanswered and never fail, as on a connection that died under load, which
+would leave a tool call pending or running for good. So once a session goes idle, the plugin
+looks for its tool calls that still are, and only if it finds any, reads their messages back
+from OpenCode and writes those tool calls again as OpenCode holds them. A tool call's row only
+ever moves on to a later status, so writing it twice is safe.
+
+## Development
+
+```bash
+# Install dependencies
+bun install
+
+# Type check
+bun run typecheck
+
+# Run unit tests
+bun run test
+
+# Run integration tests (Docker, and a paid model through OPENCODE_API_KEY)
+OPENCODE_API_KEY=... bun run test:integration
+
+# Build
+bun run build
+```
+
+## License
+
+Apache 2.0

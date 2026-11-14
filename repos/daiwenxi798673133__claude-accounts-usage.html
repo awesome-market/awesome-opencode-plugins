@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>daiwenxi798673133/claude-accounts-usage · OpenCode Plugins</title>
+<meta name="description" content="OpenCode TUI plugin to view multi-account Claude and ChatGPT subscription usage and switch the active account. Coexists with @ex-machina/opencode-anthropic-auth and OpenCode built-in codex auth.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="claude-accounts-usage, daiwenxi798673133, daiwenxi798673133/claude-accounts-usage, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/daiwenxi798673133__claude-accounts-usage">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="daiwenxi798673133/claude-accounts-usage · OpenCode Plugins">
+<meta property="og:description" content="OpenCode TUI plugin to view multi-account Claude and ChatGPT subscription usage and switch the active account. Coexists with @ex-machina/opencode-anthropic-auth and OpenCode built-in codex auth.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/daiwenxi798673133__claude-accounts-usage">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "daiwenxi798673133/claude-accounts-usage", "codeRepository": "https://github.com/Daiwenxi798673133/claude-accounts-usage", "url": "https://opencode-plugins.zhuikan.com/repos/daiwenxi798673133__claude-accounts-usage", "description": "OpenCode TUI plugin to view multi-account Claude and ChatGPT subscription usage and switch the active account. Coexists with @ex-machina/opencode-anthropic-auth and OpenCode built-in codex auth.", "author": {"@type": "Organization", "name": "daiwenxi798673133", "url": "https://github.com/Daiwenxi798673133"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-06-12", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server,tui"}</script>
+</head>
+<body data-repo="daiwenxi798673133/claude-accounts-usage" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">daiwenxi798673133/claude-accounts-usage</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="daiwenxi798673133__claude-accounts-usage"><img class="rp-side-av" src="https://github.com/Daiwenxi798673133.png?s=300" width="300" height="300" alt="daiwenxi798673133 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">claude-accounts-usage</div>
+      <a class="rp-side-owner" href="https://github.com/Daiwenxi798673133">daiwenxi798673133</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Daiwenxi798673133">daiwenxi798673133</a>
+        <span class="rp-sep">/</span><span class="rp-name">claude-accounts-usage</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode TUI plugin to view multi-account Claude and ChatGPT subscription usage and switch the active account. Coexists with @ex-machina/opencode-anthropic-auth and OpenCode built-in codex auth.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>3</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-06-12</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Daiwenxi798673133/claude-accounts-usage">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.3.0</span><a class="rp-dl-a" href="https://www.npmjs.com/package/claude-accounts-usage/v/0.3.0">0.3.0 ↓</a><span class="rp-dl-ver">0.3.0</span><span class="rp-dl-date">2026-07-30</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">月增长</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">11</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">claude-accounts-usage
+
+一个 OpenCode TUI 插件,用来查看多个 Claude(Pro/Max)与 ChatGPT(Plus/Pro)账号的订阅用量、在账号之间切换,并查看本地 OpenCode 的用量统计仪表盘(/stats)。
+
+它不接管任何 auth provider:anthropic 条目仍由 @ex-machina/opencode-anthropic-auth 负责 OAuth 登录与请求注入,openai 条目仍由 OpenCode 自带的 codex 插件负责登录与 token 刷新。本插件只在工具层做&quot;账号档案 + 切换 + 用量展示&quot;,因此与两者共存。
+
+ 功能
+
+| 命令 | 作用 |
+|------|------|
+| /usage | 弹框显示账号用量,按 provider 分 Claude / ChatGPT 两页(tab / ←→ / h l 切页),并常驻一行「当前对话」显示本轮真实的 provider / model。两页都可 ↑↓ 选择、enter 切换(立即生效)、m 标记/取消&quot;不自动切&quot;、d 删除账号(再按一次 d 确认,当前账号不可删)、esc 关闭 |
+| /stats | 弹框显示本地 OpenCode 的用量统计仪表盘:总览 / 模型 / 提供方三个分页,含活跃热力图与 token 折线图,可切 All / 7天 / 30天 范围 |
+
+Claude 页显示 5h / 7d 两个窗口,外加各受限模型的周窗口(如 Fable,由 Anthropic 的 limits 动态返回),均带进度条与重置倒计时。ChatGPT 的窗口长度按订阅计划动态变化(某些计划只返回一个 30 天窗口),因此标签由接口返回的秒数换算,不假设固定两个窗口。
+
+两边的账号都会在插件加载时以及每次 /usage 时自动收录当前登录的账号,无需手动添加。
+
+ 用量统计仪表盘(/stats)
+
+直接读取本地 OpenCode 会话库(opencode.db)做统计,只读、不联网:
+
+- 三个分页:总览(整体 token / 花费 / 会话 / 消息 / 活跃天数 + 连续天数,GitHub 风格活跃热力图)、模型、提供方(各自的 token 折线图与明细,j/k 选择条目)。
+- 时间范围:All / 7天 / 30天,打开时一次性扫描全表、之后切范围走内存聚合,切换即时无卡顿。
+- 快捷键:tab / ←→ / h l 切页 · r 或 1/2/3 切范围 · j/k 选条目 · q / esc 关闭。
+
+ 数据来源是 OpenCode 自身记录的会话库,与 /usage 的&quot;订阅额度&quot;是两回事:/usage 看的是 Anthropic 订阅窗口剩余额度,/stats 看的是你本地累计的 token / 花费统计。
+
+ ChatGPT(OpenAI)多账号
+
+ChatGPT 账号的登录仍然由 opencode auth login 完成(走 OpenCode 自带的 codex 插件),本插件负责收录、展示、手动切换。
+
+- 收录:读 auth.json 的 openai 条目,按其自带的 chatgpt_account_id 建档。这比 Claude 侧更省——不需要额外调 profile 接口,邮箱和计划类型随用量接口一起返回。
+- 切换:把目标账号的 token 写进 auth.json 的 openai 条目。codex 插件每次请求都会重读,所以下一条消息就用新账号。
+- 故意不刷新目标 token:即使目标的 access token 已过期也原样写入。codex 插件是这个槽位唯一的刷新者,它会在下一次请求时自己惰性轮换;我们再去刷就是给一条一次性轮换链增加第二个写入者,只有风险没有收益。
+- 不覆盖 API key:openai 这个键被 OAuth 和纯 API key(sk-…)共用。若槽位里装的是 API key,切换会诚实报错并拒绝,绝不覆盖。
+- 非活跃账号的额度显示为「未知」:只有占着槽位的那个账号有新鲜 token 能查额度。其余行显示「额度未知(切换到该账号后可见)」——不显示缓存旧值、不估算。原因见下面的 openaiKeepalive。
+
+ 两个默认关闭的开关
+
+| 开关 | 默认 | 说明 |
+|---|---|---|
+| OPENAI_KEEPALIVE_ENABLED | false | 给非活跃 ChatGPT 账号做后台保活刷新。代码完整、测试充分,但在只有一个 ChatGPT 账号的环境里一次都不会执行(那个账号永远占着槽位),因此零真机覆盖,而它出错的后果是账号的 refresh token 整族被吊销、必须重新登录。等有第二个账号能真机验证再打开。关闭时的行为就是上面那条「额度未知」。 |
+| OPENAI_AUTOSWITCH_ENABLED | false | ChatGPT 撞限时自动切号。检测器已实现(严格要求 429 + 响应体 error.type === &quot;usage_limit_reached&quot;,不接受裸 429,因为 ChatGPT 的裸 429 可能只是瞬时限速,误切会白烧一个健康账号),但 OpenCode 的事件层是否会把 429 的响应体透给 TUI 插件尚未实测——session.status 只带一个 message 字符串。开关关闭时检测与决策日志照常输出(这正是用来确认的手段),只有切号动作被抑制。 |
+
+ 为什么刷新 ChatGPT token 这么小心
+
+auth.json 的 openai 条目有两个我们控制不了的写入者:codex 插件按请求惰性刷新(且不持有本插件的文件锁),以及我们自己。OpenAI 的 refresh token 用一次就轮换,服务端对重放的回答是 refresh_token_reused,吊销的是整个 token 族——不是单个 token 失效,而是那个账号彻底死掉、必须重新登录。
+
+安全性不来自文件锁(codex 不认它),而来自一条结构性事实:codex 只会刷新槽位当前的占用者。所以插件的规则是:
+
+- 覆盖槽位前,先把槽位里现有的 token 归档进账号库(链尖只被接管,绝不丢弃);
+- 槽位内容与我们的记账不一致时,以槽位为准(采纳,而不是把我们认为的&quot;当前账号&quot;重新写回去);
+- 判断一个账号能不能刷新时,在锁内实时重读 auth.json,按 chatgpt_account_id 和 refresh 字符串双重比对,绝不相信自己的记账;
+- 刚离开槽位的账号有一段隔离期不刷(此时可能还有 codex 的请求在飞);
+- 槽位读不出来时拒绝刷新任何账号——读不到不等于没人在用。
+
+ 限流自动切号(自动重试)
+
+当当前账号撞到订阅额度上限(5h 窗口或周/全模型窗口的 429)时,插件会中断当前请求、自动切到下一个可用账号,并在原 session 上自动发 continue 续接,无需手动干预。该能力始终开启。
+
+工作方式:
+
+- 检测:主要监听 OpenCode 的 session.status 的 re</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/Daiwenxi798673133/claude-accounts-usage/releases"><b>0.3.0</b> <span class="rp-rel-tag">0.3.0</span> <span class="rp-item-extra">2026-07-30</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/daiwenxi798673133__claude-accounts-usage.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

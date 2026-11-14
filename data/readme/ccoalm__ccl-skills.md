@@ -1,0 +1,166 @@
+# CCL Skills
+
+[![npm version](https://img.shields.io/npm/v/@ccoalm/ccl-skills)](https://www.npmjs.com/package/@ccoalm/ccl-skills)
+[![downloads](https://img.shields.io/npm/dt/@ccoalm/ccl-skills)](https://www.npmjs.com/package/@ccoalm/ccl-skills)
+[![license](https://img.shields.io/npm/l/@ccoalm/ccl-skills)](LICENSE)
+
+Reusable workflows that help coding agents plan, build, test, review, and release software.
+
+Not a prompt pack — a routed delivery system. 32 skills cover the whole lifecycle, and a routing layer reads what you asked for and hands it to the skill that owns that deliverable, so you never look one up. Ask it to fix a bug and `defect-diagnosis` takes over; ask for a feature and `product-rd-workflow` routes it through requirement shaping, risk gates, implementation, and release.
+
+Each skill is a method, not a suggestion, and it ships with the gate that protects it. The methods are what worked, written down. The gates are what went wrong, turned into a stop. A routing eval bank and CI gates check that both still fire.
+
+CCL Skills works with Claude Code, Codex, OpenCode, and other tools that support [Agent Skills](https://agentskills.io).
+
+```mermaid
+flowchart LR
+    A[Your task] --> B[Routing layer picks the owning skill]
+    B --> C[Follow its steps]
+    C --> D[Use its references and scripts]
+    D --> E[Pass its gates]
+    E --> F[Deliver the result]
+    F -. Keep what works .-> B
+```
+
+| [Browse all skills](docs/SKILLS.md) | [Read the theory](docs/skills-theory-foundations.md) | [Understand the architecture](docs/ARCHITECTURE.md) |
+| --- | --- | --- |
+| Find the workflow for your task | See why the rules exist | See how skills are selected, loaded, and checked |
+
+## Quick start
+
+Install the unified package with Node.js 20 or later:
+
+```bash
+npm install --global @ccoalm/ccl-skills
+ccl-skills install
+```
+
+The npm tarball includes the skills, agent context, plugin manifests, and runtime hooks. Claude Code and Codex consume the plugin hooks directly. OpenCode installs a native plugin plus the same bundled hook runtime, including edit isolation for `edit`, `write`, and `apply_patch`. Installation does not need a Git checkout.
+
+Task entry delivers the routing instruction before the agent investigates or analyzes the task: through `UserPromptSubmit` in Claude Code and Codex, and the system transform in OpenCode. It directs the agent to load the selected skill, keeps narrow tasks with their owners, and permits reuse of skills already loaded in the current context. For implementation and repair, it also calls for continued investigation, safe fixes and retesting when verification is missing or unsuccessful; a report alone is not completion. This delivers guidance; it does not prove the agent followed it.
+
+Skill loading also has a bounded recovery checkpoint: the first precise source edit, or a dispatch without current owner-load evidence, is returned to the agent once so it can load the applicable skills and retry. Compaction starts a new context window. This does not ask you to approve reading skills, and a retry or parallel sibling can proceed without proof of correct owner selection. Project-configured owner-dispatch and safety checks remain separate.
+
+On Claude Code and Codex, a non-status `proposed-next:` declaration at Stop now triggers one continuation recheck: execute it if it is already authorized and runnable, or preserve the current scope and explain the concrete blocker. A stop that hands a decision back to you (`blocked:`, waiting for approval, or a closing "should I proceed?") gets one recheck against the real blockers — missing credentials or authority, facts unavailable locally, actions the safety rules gate, overturning your established direction, an unsettled product tradeoff — so the agent decides routine choices itself and finishes remaining work. A final message that announces the agent's own next steps ("Next, I'll…", "接下来我会…") or parks one on a decision nobody asked for gets the same recheck, so announcing a plan is not a stopping point. Development review is the main agent's deep self-review followed by an external independent review it runs itself; human review or sign-off is reserved for merging or launching money, permission or data paths, breaking external contracts, and destructive steps. Status-only handoffs and the host's retry guard remain respected. This reminder cannot establish authorization or guarantee that the agent continues.
+
+The delivery and document reminders share one atomic attempt per user turn. Repeated stops in that turn are quiet even if the host retry flag resets or the blocker is reworded. A new user turn can receive a fresh reminder. If turn metadata or safe attempt state is unavailable, the hook shows nonblocking information and allows stopping.
+
+If npm returns `E404` before the initial registry release, install from source:
+
+```bash
+git clone https://github.com/ccoalm/ccl-skills.git
+cd ccl-skills
+make install
+```
+
+Both install paths configure every CLI they detect — Claude Code, Codex, and OpenCode. Restart the CLI afterwards so it reloads the skills.
+
+Confirm the install landed:
+
+```bash
+claude plugin list            # expect ccl-skills@ccl-skills
+codex plugin list             # expect ccl-skills
+ls ~/.config/opencode/skills  # expect the skill directories
+test -f ~/.config/opencode/ccl-skills/runtime/hooks/hooks.json
+```
+
+To pin one OpenCode project to this checkout instead of the global install:
+
+```bash
+bash scripts/install-opencode.sh --project
+```
+
+Run `make help` for every install, update, and evaluation target. The unified npm package lives in `packages/ccl-skills-npm` and requires Node.js 20 or later.
+
+## Install and update
+
+npm installs use one command for all detected hosts:
+
+```bash
+ccl-skills update       # preview; no network or global mutation
+ccl-skills update --yes # upgrade the package and refresh host assets
+```
+
+By default `update --yes` upgrades the global npm package to `@latest` first. Set `CCL_SKILLS_SKIP_SELF_UPDATE=1` for an assets-only refresh; `--allow-downgrade` always uses the currently invoked package instead of installing `@latest`.
+
+Git-checkout installs use `make update`.
+
+The host-specific behavior is:
+
+| Host | What an update actually requires |
+| --- | --- |
+| Claude Code | `make install` writes `extraKnownMarketplaces.ccl-skills` with `autoUpdate: true`, so Claude periodically refreshes the marketplace metadata. That does **not** guarantee a reinstall. For a deterministic update run `make update`, which calls `claude plugin update` — `claude plugin install` no-ops on an already-installed plugin and never updates it. |
+| Codex | `make update` refreshes the Git marketplace and reinstalls its plugin snapshot. On macOS, `npx --yes @ccoalm/ccl-skills@latest auto-update enable` explicitly schedules those two steps daily for an existing `ccl-skills@ccl-skills` Git installation in the current Codex profile. Replace `enable` with `status` or `disable` to inspect or stop it. See [automatic CCL updates](packages/ccl-skills-npm/README.md#automatic-ccl-updates) for requirements, logs and npm-snapshot limits. The checkout command `make install-codex-cron` remains a separate opt-in crontab installer. |
+| OpenCode | `scripts/install-opencode.sh` installs from the **current checkout and never fetches**. Either `git pull` first, or use `make update-opencode` / `make update-opencode-no-agent`, which run `git pull --ff-only` before installing. For npm-managed CCL assets on macOS, opt into daily updates with `npx --yes @ccoalm/ccl-skills@latest auto-update enable --host opencode`; use `status` or `disable` with the same host flag. Source-copy installs require an explicit backup and migration first; see [automatic CCL updates](packages/ccl-skills-npm/README.md#automatic-ccl-updates). |
+| npm (`@ccoalm/ccl-skills`) | The global package does not upgrade itself. Installed assets remain snapshots unless the OpenCode schedule above is explicitly enabled. `make update-npm` (`ccl-skills update --yes`) upgrades the package to `@latest` and then refreshes host assets. An interactive run prints an update notice on stderr — see the package README for its eligibility and opt-out rules. |
+
+For npm installs, Claude and Codex register package-owned local marketplaces and consume their plugin hooks. OpenCode installs its skills, native plugin, and hook runtime into host-visible shared paths after collision checks. npm uninstall retains those shared files and reports them for manual cleanup.
+
+Claude keeps one cache directory per installed version and they accumulate. `make prune-cache` removes the stale ones and keeps the active version; it refuses to delete anything when it cannot determine which version is active.
+
+## Install the gates into your own repository
+
+The repository checks are also distributable. This adds the agent-contract, owner-dispatch, and control-plane gates to a product repository:
+
+```bash
+make install-gates TARGET=/path/to/repo
+```
+
+The install is additive and starts **warn-only** because the installer cannot infer a target repository's owner mappings, baseline cleanliness, false-positive history, or risk tolerance. Enforcement is a deliberate repository decision: verify the specific gate is deterministic and ready, then set `enabled: true`, pass `--enforce` in CI, and remove `allow_failure`. This is an installation default, not a universal warn-to-block maturity sequence for every signal.
+
+## Use a skill
+
+Ask for a skill by name:
+
+```text
+Use product-rd-workflow to plan and deliver this feature.
+Use defect-diagnosis to find the cause of this failure.
+Use testing-strategy to add regression coverage.
+```
+
+The coding agent can also choose a skill from the task. It reads `skills/<name>/SKILL.md` first, then opens the references and scripts needed for that work.
+
+## Find the right skill
+
+[**docs/SKILLS.md**](docs/SKILLS.md) is the single authoritative catalog. It lists every skill in `skills/`, grouped by delivery stage, and gives each one two lines: when to use it, and when to use something else instead. Start there — this README deliberately keeps no second list of its own.
+
+## Supported tools
+
+Use `npx` to run the package without installing it globally. If the registry still returns `E404`, use the checkout alternative.
+
+| Tool | Install from this repository |
+| --- | --- |
+| Claude Code | `npx @ccoalm/ccl-skills@latest install --host claude` or `make install` |
+| Codex | `npx @ccoalm/ccl-skills@latest install --host codex` or `make install` |
+| OpenCode | `npx @ccoalm/ccl-skills@latest install --host opencode` or `make install`; [`scripts/install-opencode.sh --project`](scripts/install-opencode.sh) pins a single project |
+
+## Repository layout
+
+```text
+skills/           Skills, references, and their scripts
+agent-context/    Text injected into agent sessions; one file per injecting hook
+docs/             Guides for users and contributors
+hooks/            Canonical runtime checks consumed by Claude Code, Codex, and the OpenCode adapter
+scripts/          Installers, gate installers, and repository checks
+packages/         Unified npm package and the standalone OpenCode plugin source
+eval/             Skill evaluation cases
+specs/            Design notes for in-flight repository changes
+.claude-plugin/   Claude Code marketplace and plugin manifests
+.codex-plugin/    Codex plugin manifest
+.agents/          Codex marketplace manifest
+.github/          CI workflow
+.githooks/        Opt-in local git hooks; enable with `git config core.hooksPath .githooks`
+opencode.json     OpenCode config for using the skills from inside this checkout
+AGENTS.md         Rules for coding agents working in this repository
+.worktree-only    Repository-root marker: edits here must go through a worktree
+```
+
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) carries the full table, including what each manifest is for and which hook runs on which event.
+
+## Contributing
+
+Read [the contribution guide](docs/CONTRIBUTING.md) before making a change. It covers worktree setup, repository rules, review, and required checks.
+
+Verify with `make test`. It chains the three local lanes CI splits into `repository-gates`, `regression-fast`, and the `code-review` regression and abort-leak jobs. Two CI jobs sit outside it, so a green local run is not a green CI run: `regression-heavy`, and the `check-public-sanitization.py` step inside `repository-gates`. The [contribution guide](docs/CONTRIBUTING.md) has the per-lane table.
+
+Maintainers should also read the [npm release runbook](docs/npm-release.md) before changing a version or creating a release tag.

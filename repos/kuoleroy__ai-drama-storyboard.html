@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kuoleroy/ai-drama-storyboard · OpenCode Plugins</title>
+<meta name="description" content="AI 短剧分镜生成与投喂改造技能包：把剧本改造成可逐镜投喂各家 AI 视频生成 API 的自足分镜稿">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ai-drama-storyboard, kuoleroy, kuoleroy/ai-drama-storyboard, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/kuoleroy__ai-drama-storyboard">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="kuoleroy/ai-drama-storyboard · OpenCode Plugins">
+<meta property="og:description" content="AI 短剧分镜生成与投喂改造技能包：把剧本改造成可逐镜投喂各家 AI 视频生成 API 的自足分镜稿">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/kuoleroy__ai-drama-storyboard">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "kuoleroy/ai-drama-storyboard", "codeRepository": "https://github.com/kuoleroy/ai-drama-storyboard", "url": "https://opencode-plugins.zhuikan.com/repos/kuoleroy__ai-drama-storyboard", "description": "AI 短剧分镜生成与投喂改造技能包：把剧本改造成可逐镜投喂各家 AI 视频生成 API 的自足分镜稿", "author": {"@type": "Organization", "name": "kuoleroy", "url": "https://github.com/kuoleroy"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="kuoleroy/ai-drama-storyboard" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">kuoleroy/ai-drama-storyboard</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="kuoleroy__ai-drama-storyboard"><img class="rp-side-av" src="https://github.com/kuoleroy.png?s=300" width="300" height="300" alt="kuoleroy avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ai-drama-storyboard</div>
+      <a class="rp-side-owner" href="https://github.com/kuoleroy">kuoleroy</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/kuoleroy">kuoleroy</a>
+        <span class="rp-sep">/</span><span class="rp-name">ai-drama-storyboard</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">AI 短剧分镜生成与投喂改造技能包：把剧本改造成可逐镜投喂各家 AI 视频生成 API 的自足分镜稿</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="kuoleroy__mv-image-pipeline"><img class="rp-same-av" src="https://github.com/kuoleroy.png" alt="" loading="lazy">mv-image-pipeline</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/kuoleroy/ai-drama-storyboard">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">AI 短剧分镜生成与投喂改造 · Skill
+
+把剧本改造成可以逐镜丢给各家 AI 视频生成 API 的分镜稿。
+
+针对的硬约束只有一个：生成视频的 API 没有记忆。它读到&quot;上一镜&quot;&quot;承接前文&quot;&quot;沿用上一场的道具&quot;会困惑，甚至把这些字当成画面元素直接生成出来。本技能的全部工作，就是让每一镜都自足。
+
+---
+
+ 这个技能解决什么
+
+| 症状 | 根因 | 本技能的做法 |
+|---|---|---|
+| 某平台直接报错 400 | 段长  ⚠️ 段长 &lt; 4 秒会被 Veo 3 / Seedance 2.0 / Wan 直接拒收。
+
+所以 15 秒/镜应该切成 2 段（10+5），30 秒/镜切成 3 段（10+10+10），
+而不是常见写法的 15 秒 4 段、30 秒 8 段。
+
+导出器会自动按目标平台的档位重切，并抹平字段名差异：
+
+bash
+python3 scripts/export_for_api.py 分镜稿.txt --platform all -o ./api_export
+
+
+
+api_export/
+├── kling/
+│   ├── manifest.json    调用清单：params + prompt + 首帧续写链 + 使用说明
+│   ├── prompts.txt       人读的逐段提示词
+│   └── segments/         每段一个 txt
+├── veo/
+├── seedance/
+└── ...
+
+
+字段名差异（duration vs seconds vs duration_seconds、size 写 10801920、
+参考图字段 refer_image / images / reference_urls）由适配层统一处理。
+
+---
+
+ 快速开始
+
+bash
+ 锁稿核验（拿到剧本要拆分镜时先跑）：时长撑不撑得住、锁定清单齐不齐
+python3 scripts/check_handoff.py 稿子.txt --shots 130 --sec 15
+
+ 节拍密度（内容够不够厚？爽点密不密？）
+python3 scripts/check_beat_density.py 稿子.txt
+
+ 体检（结构、时间码、空段、粘连、重复、跨镜引用）
+python3 scripts/audit_storyboard.py 稿子.txt
+
+ 语义重复（换词再问、换人解释同一事实、承诺复读）
+python3 scripts/audit_repetition.py 稿子.txt
+
+ 空间方向（内外/进出防穿帮）
+python3 scripts/audit_spatial.py 稿子.txt
+
+ 通用性体检（段长是否落在各平台安全区）
+python3 scripts/export_for_api.py 稿子.txt --check
+
+ 机械修复（先自动备份）
+python3 scripts/fix_storyboard.py 稿子.txt [--dry]
+
+ 生成投喂版
+python3 scripts/build_feed_prompts.py 稿子.txt -o 输出.txt
+
+ 导出各家 API 调用包
+python3 scripts/export_for_api.py 稿子.txt --platform kling,veo,seedance -o ./api_export
+
+ 回归自检
+python3 scripts/selftest.py
+python3 scripts/e2e_test.py 稿子.txt
+
+
+也可以直接把技能装进 WorkBuddy：
+
+
+WorkBuddy → 设置 → 技能 → 添加本地技能 → 选 ai-drama-storyboard 目录
+
+
+---
+
+ 流水线全貌
+
+
+剧本定稿
+  ↓  check_handoff.py --shots N --sec M      ← 锁稿核验（时长撑不撑得住？清单齐不齐？）
+  ↓  check_beat_density.py                   ← 节拍密度（内容够厚吗？爽点密吗？）
+  ↓  交付锁稿清单 + 不可改动项清单
+分镜稿
+  ↓  audit_storyboard.py                      ← 体检（空段/粘连/重复/跨镜引用）
+  ↓  audit_repetition.py                      ← 语义重复（换词再问/换人解释/承诺复读）
+  ↓  人工通读（剧情完整性、语义重复必须靠人）
+  ↓  fix_storyboard.py                        ← 机械修复（保留原格式）
+  ↓  build_feed_prompts.py                    ← 每镜自足
+投喂稿
+  ↓  export_for_api.py --check                ← 通用性体检（段长合规）
+  ↓  export_for_api.py --platform all         ← 导出各家 API 调用包
+生成
+
+
+---
+
+ 目录结构
+
+
+ai-drama-storyboard/
+├── SKILL.md                          核心方法论（十二条铁律）
+├── references/
+│   ├── beat_density.md                节拍密度控制（爽不起来的根因）★
+│   ├── handoff_spec.md               剧本→分镜交接规范（锁稿核验）★
+│   ├── script_review.md              分镜稿审核与原格式修订规范 ★
+│   ├── spatial_anchor.md             空间方向三层锚定（内外防穿帮）★
+│   ├── visual_style.md               视觉风格库（52 风格 + 四视角场景图）★
+│   ├── short_prompts.md              三份短指令模板（连续性/违规/后缀）
+│   ├── api_compat.md                 各平台能力矩阵与通用基线 ★
+│   ├── field_spec.md                 各栏位写法规范
+│   ├── pitfalls.md                   踩坑详解（症状→根因→修法）
+│   └── creative_review.md            爽点评估与改造方法论
+├── scripts/
+│   ├── shotparse.py                  解析/写回公共库
+│   ├── check_handoff.py              锁稿核验器 ★
+│   ├── check_beat_density.py         节拍密度体检器 ★
+│   ├── audit_storyboard.py     </pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/kuoleroy__ai-drama-storyboard.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

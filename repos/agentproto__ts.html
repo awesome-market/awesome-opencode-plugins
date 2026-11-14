@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>agentproto/ts · OpenCode Plugins</title>
+<meta name="description" content="@agentproto/adapter-opencode — AIP-45 AGENT-CLI adapter for sst/opencode. Spawns `opencode acp` (via npx -y opencode-ai) and drives OpenCode as an agentproto agent CLI over stdio JSON-RPC.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ts, agentproto, agentproto/ts, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/agentproto__ts">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="agentproto/ts · OpenCode Plugins">
+<meta property="og:description" content="@agentproto/adapter-opencode — AIP-45 AGENT-CLI adapter for sst/opencode. Spawns `opencode acp` (via npx -y opencode-ai) and drives OpenCode as an agentproto agent CLI over stdio JSON-RPC.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/agentproto__ts">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "agentproto/ts", "codeRepository": "https://github.com/agentproto/ts", "url": "https://opencode-plugins.zhuikan.com/repos/agentproto__ts", "description": "@agentproto/adapter-opencode — AIP-45 AGENT-CLI adapter for sst/opencode. Spawns `opencode acp` (via npx -y opencode-ai) and drives OpenCode as an agentproto agent CLI over stdio JSON-RPC.", "author": {"@type": "Organization", "name": "agentproto", "url": "https://github.com/agentproto"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-06-20", "license": "https://spdx.org/licenses/Apache-2.0.html", "keywords": "models,tools,server"}</script>
+</head>
+<body data-repo="agentproto/ts" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">agentproto/ts</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="agentproto__ts"><img class="rp-side-av" src="https://github.com/agentproto.png?s=300" width="300" height="300" alt="agentproto avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ts</div>
+      <a class="rp-side-owner" href="https://github.com/agentproto">agentproto</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/agentproto">agentproto</a>
+        <span class="rp-sep">/</span><span class="rp-name">ts</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">@agentproto/adapter-opencode — AIP-45 AGENT-CLI adapter for sst/opencode. Spawns `opencode acp` (via npx -y opencode-ai) and drives OpenCode as an agentproto agent CLI over stdio JSON-RPC.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>9</b></span><span class="rp-stat" title="downloads30d">↓ <b>7,810</b></span><span class="rp-stat" title="downloads_month">↧ <b>3,429</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Apache-2.0</span><span class="rp-meta-bit">Created 2026-06-20</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/agentproto/ts">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">1.9.7</span><a class="rp-dl-a" href="https://www.npmjs.com/package/@agentproto/adapter-opencode/v/1.9.7">1.9.7 ↓</a><span class="rp-dl-ver">1.9.7</span><span class="rp-dl-date">2026-11-05</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">9</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">7,810</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">3,429</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">23</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">20</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1,000</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">agentproto/ts
+
+Let your coding agents work without you watching.
+
+agentproto runs Claude Code, Codex, Hermes, opencode, Mastra, and any other
+coding agent in the background, shows them all in one place, and checks each
+one&#x27;s work — with your tests or a reviewer model — before anything is
+committed. No more babysitting terminal windows.
+
+- Run them all the same way. Start, message, watch, and stop any agent
+  with the same commands. Fifteen agents under one lifecycle today.
+- Work checked before it lands. Attach a check — your tests, or a stronger
+  model reviewing the change — and it runs each time the agent finishes.
+  Commits wait for the check and your OK, even after you close your laptop.
+- Keep the tools you have. It drives the agent CLIs you already use —
+  nothing to rewrite. Agents can even run and check other agents.
+- And a full toolbox around them. Author tools as files and serve them,
+  import any MCP server and hand it to any agent, open tunnels, drive
+  browsers, schedule workflows and cron runs.
+
+The daemon is the flagship surface of something bigger: agentproto is an
+open agentic framework — the AIP specs define
+every agent component (tools, skills, agents, knowledge, workflows, policies)
+as a plain file with a declared contract, and this repo is the TypeScript
+runtime that loads, runs, and projects them into any host (CLI, HTTP, MCP,
+Mastra, Vercel AI SDK). Files with contracts is what lets any runtime load
+them — and lets agents read, write, and improve their own components.
+
+ Status: 1.32.0. APIs are stabilising; expect minor breaking changes
+ between releases.
+
+ Quick start
+
+Or bootstrap from zero in one line:
+
+bash
+ macOS / linux
+curl -fsSL https://raw.githubusercontent.com/agentproto/ts/main/scripts/bootstrap/install.sh | bash
+
+
+powershell
+ Windows 10/11 (PowerShell 5.1+)
+irm https://raw.githubusercontent.com/agentproto/ts/main/scripts/bootstrap/install.ps1 | iex
+
+
+Manual path:
+
+bash
+npm i -g @agentproto/cli
+agentproto install claude-code    auto-installs the adapter package too
+agentproto serve                  start the daemon (foreground)
+agentproto sessions start claude-code --cwd . --prompt &quot;refactor the payments module&quot;
+agentproto sessions --watch
+
+
+Then gate it: attach a policy to any session&#x27;s turn-end and stage the commit
+behind a human ack. See agentproto.sh for the full
+pitch, or jump straight to agentproto.sh/features
+for the honest split below.
+
+ What&#x27;s live vs. roadmap
+
+This repo ships two very different things under one name:
+
+- Tier 1 — live, verified hands-on: the daemon, the CLI, fifteen agent
+  adapters (Claude Code, Claude SDK, Codex, Gemini, Grok CLI, Hermes, jcode, opencode, Mastra Code +
+  in-process, Mastra Agent, OpenClaw, browser-as-agent, Antigravity, pi), durable policy gates,
+  nested orchestration with role gating, fan-in monitoring, workflows/cron,
+  and an MCP surface (~175 tools) on the daemon itself.
+- Tier 2 — the wider AIP spec family: 72 numbered specs live in
+  agentproto/agentproto. Mos</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/agentproto/ts/releases"><b>1.9.7</b> <span class="rp-rel-tag">1.9.7</span> <span class="rp-item-extra">2026-11-05</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/agentproto__ts.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

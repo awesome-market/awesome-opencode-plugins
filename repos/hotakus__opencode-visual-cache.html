@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hotakus/opencode-visual-cache · OpenCode Plugins</title>
+<meta name="description" content="OpenCode TUI plugin displaying real-time token cache hit rate in the sidebar">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-visual-cache, hotakus, hotakus/opencode-visual-cache, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/hotakus__opencode-visual-cache">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="hotakus/opencode-visual-cache · OpenCode Plugins">
+<meta property="og:description" content="OpenCode TUI plugin displaying real-time token cache hit rate in the sidebar">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/hotakus__opencode-visual-cache">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "hotakus/opencode-visual-cache", "codeRepository": "https://github.com/Hotakus/opencode-visual-cache", "url": "https://opencode-plugins.zhuikan.com/repos/hotakus__opencode-visual-cache", "description": "OpenCode TUI plugin displaying real-time token cache hit rate in the sidebar", "author": {"@type": "Organization", "name": "hotakus", "url": "https://github.com/Hotakus"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-05-18", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools,server,tui"}</script>
+</head>
+<body data-repo="hotakus/opencode-visual-cache" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">hotakus/opencode-visual-cache</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="hotakus__opencode-visual-cache"><img class="rp-side-av" src="https://github.com/Hotakus.png?s=300" width="300" height="300" alt="hotakus avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-visual-cache</div>
+      <a class="rp-side-owner" href="https://github.com/Hotakus">hotakus</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Hotakus">hotakus</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-visual-cache</span>
+      </h1>
+      <div class="rp-head-chips"><a class="rp-board-chip" href="../?board=weekly">weekly <b>#186</b></a></div>
+    </div>
+    <p class="rp-desc">OpenCode TUI plugin displaying real-time token cache hit rate in the sidebar</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>318</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-05-18</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="hotakus__opencode-subagent-magazine"><img class="rp-same-av" src="https://github.com/Hotakus.png" alt="" loading="lazy">opencode-subagent-magazine</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Hotakus/opencode-visual-cache">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">1.7.5</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-visual-cache/v/1.7.5">1.7.5 ↓</a><span class="rp-dl-ver">1.7.5</span><span class="rp-dl-date">2026-09-30</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">318</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">11</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">14</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenCode Visual Cache
+    实时 Token 缓存命中率 · TUI 侧边栏可视化
+    自适应主题色 · 自动低饱和设计语言 · 支持中/英双语
+
+
+
+如果你觉得这个插件不错的话，可以帮我点点小星星 ⭐，谢谢！
+
+
+
+
+
+
+!NPM Version
+
+
+
+---
+
+对 子代理监控 感兴趣吗？可以试试 opencode-subagent-magazine 这个插件！
+
+---
+
+ 1. 图片展示
+
+ 
+支持折叠，节省侧边栏占用👇 
+
+
+
+ 
+展开👇 
+
+
+
+
+
+---
+ 2. 功能
+
+- 缓存命中率：实时计算并显示缓存命中率，自适应宽度进度条
+- Token 明细：缓存读 / 缓存写 / 未命中 / 输出，标签左对齐 · 数据右对齐
+- 费用与节省：Session 累计费用 + 缓存命中带来的费用节省
+- 模型定价：显示当前模型的输入 / 缓存读 / 缓存写单价（从 provider 配置动态读取）
+- 折叠面板：主标题默认折叠，点击展开；明细、模型、分布各自独立折叠
+- 颜色自适应：命中率 ≥85% 绿 · ≥70% 橙 ·  注意：不要使用 opencode plugin add 安装本插件。该命令会把条目写入 opencode.jsonc（用于 server 插件），而本插件是 TUI 插件，会导致 server 插件加载报错：
+
+ 
+ Plugin must export a default definition with an id and an effect or setup function.
+ 
+
+ 如果已经用该命令安装过，请：
+ 1. 打开 ~/.config/opencode/opencode.jsonc，从 plugins 数组中删除本插件条目
+ 2. 按上述方式在 cli.json 的 plugins 中声明
+ 3. 重启 opencode
+
+ 排障：若插件未生效，可清理插件缓存后重启。V2 缓存在 ~/.cache/opencode/npm，V1 在 ~/.cache/opencode/packages。
+
+ 3.2 opencode 1.x
+
+方式一：命令安装（推荐）
+
+在 OpenCode 中按 Ctrl + P 打开命令面板，搜索 install plugin，输入：
+
+
+opencode-visual-cache@latest
+
+
+回车即可完成安装与配置。
+
+方式二：手动安装
+
+1. 安装插件
+
+bash
+npm install -g opencode-visual-cache@latest
+
+
+2. 配置 TUI 插件 —— 创建或编辑 ~/.config/opencode/tui.jsonc：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/tui.json&quot;,
+  &quot;plugin&quot;: [&quot;opencode-visual-cache@latest&quot;]
+}
+
+
+ 3.3 重启 OpenCode
+
+进入任意 session，侧边栏即可看到缓存统计面板。
+
+---
+
+ 4. 使用指南
+
+ 4.1 斜杠命令
+
+插件支持通过斜杠命令或命令面板（Ctrl + P）动态调整配置，设置即时生效并持久化（底部状态栏开关例外，见 4.3 区块可见性）：
+
+| 命令 | 功能 | 使用方式 |
+|------|------|---------|
+| /cache-session | 查看子代理缓存统计 | 自动列出子代理供选择，或手动粘贴 Session ID 切换面板数据源 |
+| /cache-session-back | 返回主会话统计 | 从子代理缓存视图切回主会话 |
+| /cache-currency | 切换货币单位 | 从列表选择货币（USD / CNY / EUR / JPY / GBP / KRW），自动填入默认汇率 |
+| /cache-rate | 调整汇率乘数 | 输入自定义汇率（如 7.2），用于费用换算 |
+| /cache-section | 开关区块与边框 | 独立控制 Token 明细 / 模型与定价 / 估算 Token 分布 / 已加载技能 / 余额 / 底部状态栏 / 面板边框的显隐（底部状态栏在 opencode 1.x 下默认关闭，开启需重启 TUI 生效） |
+| /cache-config | 查看当前配置 | 弹出当前货币、汇率、区块可见性状态 |
+| /cache-lang | 切换显示语言 | 从列表选择中文或 English，界面即时切换，无需重启 |
+| /cache-balance | 余额查询设置 | 选择余额提供商（菜单标注 Key 来源：用户 key / OpenCode / 未配置）/ 开关自动切换 |
+| /cache-balance-key | 设置余额 API Key | 两步流程：选择提供商 → 输入 API Key |
+
+
+  
+  
+
+
+切换货币时会自动填入离线内置的近似汇率（以 USD 为基准），用户可随时通过 /cache-rate 自定义。
+
+ 4.2 货币与汇率
+
+费用展示支持多币种切换：
+
+| 货币代码 | 符号 | 默认汇率（1 USD = ?） |
+|---------|------|---------------------|
+| USD | $ | 1 |
+| CNY | ¥ | 7.2 |
+| EUR | € | 0.92 |
+| JPY | JP¥ | 150 |
+| GBP | £ | 0.79 |
+| KRW | ₩ | 1350 |
+
+ 汇率会同步应用到 Session 累计费用、缓存节省金额、以及模型单价展示。
+
+ 基币说明：插件假设提供商定价均为美元（USD）。目前主流 AI API（OpenAI / Anthropic / Google / DeepSeek / xAI 等）的国际版均以 USD 计价。如果你使用的提供商以人民币或其他货币计价，请将汇率设为 1。
+
+ 4.3 区块可见性
+
+面板中的子区块可以独立关闭，方便在侧边栏空间紧张时隐藏不需要的信息：
+
+- Token 明细：缓存读 / 缓存写 / 未命中 / 输出
+- 模型与定价：费用 / 提供商 / 模型名 / 单价
+- 估算 Token 分布：按角色拆分的 Token 估算
+- 已加载技能：session 中 LLM 实际调用过的 Skill 名及估算 Token 占用
+- 余额：当前提供商账户余额（多提供商 + 自动切换）
+- 底部状态栏：输入框提示行的 命中率 · Tokens · 余额 单行统计（opencode 1.x 下默认关闭）
+
+通过 /cache-section 切换后即时生效、无需重启（底部状态栏例外，见下）。此外，该命令还可以开关面板的外边框——关闭后内容会顶格显示，释放额外空间。
+
+ 底部状态栏在 opencode 1.x 下默认关闭、开启需重启 TUI：opencode 1.x 的输入框只有重建宿主的 session_prompt 插槽才能挂状态栏，而该插槽为 replace 模式——多个重建者会被同时渲染。若</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/Hotakus/opencode-visual-cache/releases"><b>1.7.5</b> <span class="rp-rel-tag">1.7.5</span> <span class="rp-item-extra">2026-09-30</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/hotakus__opencode-visual-cache.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+# gutchapa-opencode-telegram
+
+> Control opencode from Telegram. Send prompts, files and 70+ slash commands from your phone, and get the agent's replies back in the chat. Runs as an opencode plugin or as a standalone bot. Ships a daily AI morning briefing that judges every news item and trending repo ✅ useful / ⏭️ skip against your actual setup.
+
+[![npm version](https://img.shields.io/npm/v/gutchapa-opencode-telegram)](https://www.npmjs.com/package/gutchapa-opencode-telegram)
+[![npm downloads](https://img.shields.io/npm/dm/gutchapa-opencode-telegram)](https://www.npmjs.com/package/gutchapa-opencode-telegram)
+[![license](https://img.shields.io/npm/l/gutchapa-opencode-telegram)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/gutchapa/opencode-telegram)](https://github.com/gutchapa/opencode-telegram)
+
+## Quick start
+
+Standalone bot (works even when opencode is not running):
+
+```bash
+npm install -g gutchapa-opencode-telegram
+export TELEGRAM_BOT_TOKEN=123456:ABC...
+export ALLOWED_TELEGRAM_USERS=your_telegram_user_id
+opencode-telegram-bot
+```
+
+As an opencode plugin, add it to `~/.config/opencode/opencode.json` and restart opencode:
+
+```json
+{
+  "plugin": ["gutchapa-opencode-telegram"]
+}
+```
+
+Telegram polling is opt-in for the plugin (`{ "enabled": true }` or `TELEGRAM_PLUGIN_ENABLED=1`). The token and allowed users go in plugin options or the env vars above. Full walkthrough below.
+
+## Morning briefing
+
+Every day at 07:30 your bot brews this — AI news, trending repos, your tracked repos — then judges **every item** against what you actually run:
+
+```
+• TabX — ✅ useful (free tab recall by meaning, try for Chrome research)
+• Llestia — ⏭️ skip (agent hiring marketplace, duplicate of what you run)
+• Trump AI Force — ⏭️ skip (news only, politics, no install)
+Bottom line: nothing to install today.
+```
+
+`/digest` fires one on demand. Real example from `~/.config/github-digest/sent/` — verdicts backed by live shell checks, never guesses.
+
+## Demo
+
+![Telegram demo](docs/demo.gif)
+
+> Telegram → `/status` → agent reply → file tool. Real session, ~30 seconds.
+>
+> ⭐ If this is useful, [star the repo](https://github.com/gutchapa/opencode-telegram) — it's the only signal that keeps it maintained.
+
+## How it runs
+
+Two ways, same bot:
+
+1. **As an opencode plugin** — registers with the running opencode instance
+   (TUI, `opencode serve`, or `opencode run`). Telegram polling is opt-in;
+   agentic replies go through the hosting opencode server.
+2. **As a standalone bot** (`opencode-telegram-bot` / `npm start`) — a
+   long-running Telegram poller that spawns `opencode run` for agentic replies.
+   Use this if you want the bot available even when opencode is not running
+   (e.g. via launchd, systemd, or Docker).
+
+Commands include `/reset`, `/status`, `/model`, `/goal`, `/skills`, `/tell`
+and 60+ more. Full setup walkthrough (launchd, systemd, Docker) is below.
+
+## Install as a plugin
+
+Add it to your opencode config (`~/.config/opencode/opencode.json`):
+
+```json
+{
+  "plugin": [
+    "gutchapa-opencode-telegram"
+  ]
+}
+```
+
+Configure your bot token. The plugin looks for it in this order:
+
+1. plugin options:
+   ```json
+   {
+     "plugin": [
+       ["gutchapa-opencode-telegram", { "botToken": "123456:ABC..." }]
+     ]
+   }
+   ```
+2. the `TELEGRAM_BOT_TOKEN` environment variable
+
+Telegram polling is opt-in so installing the plugin never silently starts a
+second poller. Enable it with a plugin option:
+
+```json
+{
+  "plugin": [
+    ["gutchapa-opencode-telegram", { "enabled": true }]
+  ]
+}
+```
+
+or with `TELEGRAM_PLUGIN_ENABLED=1` in the opencode process environment.
+
+Create a bot with [@BotFather](https://t.me/BotFather) to get a token.
+
+## Standalone mode
+
+```bash
+npm install -g gutchapa-opencode-telegram
+TELEGRAM_BOT_TOKEN=123456:ABC... opencode-telegram-bot
+```
+
+Or from a checkout:
+
+```bash
+npm install
+npm run build
+TELEGRAM_BOT_TOKEN=123456:ABC... npm start
+```
+
+For 24/7 availability, run it under launchd/systemd (see
+`examples/launchd.plist` for a macOS template).
+
+> **Note:** do not run the standalone bot and the plugin at the same time with
+> the same token — both poll Telegram's `getUpdates` and will steal each
+> other's updates.
+
+## Configuration
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `TELEGRAM_BOT_TOKEN` | _(required)_ | Bot token from BotFather |
+| `TELEGRAM_PLUGIN_ENABLED` | _(unset)_ | Set to `1` to enable Telegram polling when running as an opencode plugin |
+| `ALLOWED_TELEGRAM_USERS` | `<your_telegram_user_id>` | Comma-separated numeric Telegram user IDs allowed to run shell commands and agentic replies |
+| `OPENCODE_BIN` | `opencode` | Path to the `opencode` binary (standalone mode) |
+| `OPENCODE_CWD` | `~/.opencode-bot-ws` | Working directory for agentic runs / sessions |
+| `OPENCODE_TIMEOUT_MS` | `180000` | Agentic timeout |
+| `OPENCODE_MODEL` | _(unset)_ | Model for all replies (e.g. `opencode/muse-spark-1.3-contributor-free`); unset inherits the opencode-config default. Switch live with `/model <id>` |
+
+Every conversational message goes through `opencode run` on the configured
+model. There is no local-LLM fallback: if the run fails, the bot says so
+plainly instead of answering from a weaker model.
+
+## Daily digest (bundled, on by default)
+
+The bot ships a morning briefing — AI news, trending repos, your tracked
+repos, each judged for fit — formatted by your configured model and sent to
+your chat. First run starts with an empty memory: verdicts are verified live
+(`ls`, `which`, `brew list`) and anything unverifiable is marked as such, so
+early briefings under-claim rather than over-claim. Confirmed stable tools
+accumulate in `deployed.json`; review it occasionally, it is yours to curate.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `DIGEST_ENABLED` | `1` | Set to `0` to disable (or `/digest off`) |
+| `DIGEST_TIME` | `07:30` | Daily send time (24h, local) |
+| `DIGEST_CHAT_ID` | _(active chat)_ | Override delivery target |
+| `DIGEST_HOME` | `~/.config/github-digest` | Config, manifest, sent archive |
+| `DIGEST_CONTEXT` | _(generic)_ | Who the fitment judges for |
+| `GITHUB_TOKEN` | _(unset)_ | Optional, raises API rate limits |
+
+`/digest` sends one now, `/digest on|off|status` controls the scheduler.
+
+Pick ONE scheduler: the bundled in-bot scheduler (default on) or an
+external cron/launchd job calling the digest entrypoint — never both, or the
+briefing sends twice. Using external scheduling? Set `DIGEST_ENABLED=0`
+(or `/digest off`) to silence the built-in one. The once-per-day claim file
+(`digest-claim-<date>` in the state dir) also guards twin bot processes.
+
+## Commands
+
+Type `/` in Telegram to see the command menu (synced automatically at startup,
+both in private chats and groups). Highlights:
+
+- Tools: `/execute`, `/exec`, `/bash`, `/read`, `/search`, `/list`
+- Session: `/new`, `/reset`, `/restart`, `/status`, `/stop`, `/goal`,
+  `/steer`, `/tell`, `/fast`, `/focus`, `/prose`
+- Model & config: `/model`, `/models`, `/config`, `/plugins`, `/skills`,
+  `/activation`
+- Info: `/help`, `/commands`, `/whoami`, `/id`
+
+## Security
+
+- The bot token is read from env / options / local config only — never from
+  source code. `config.json` and `.env` are excluded from the published npm
+  package.
+- Shell commands (`/execute`) and agentic replies are restricted to
+  `ALLOWED_TELEGRAM_USERS`.
+- `/activation mention` makes the bot only reply when mentioned or when a
+  message starts with `/`.
+
+## Development
+
+```bash
+npm install
+npm run build
+```
+
+## Feedback & Support
+
+Found a bug, have a feature request, or want to say hi? Feedback lives on GitHub:
+
+- **Issues:** https://github.com/gutchapa/opencode-telegram/issues
+- **Discussions:** https://github.com/gutchapa/opencode-telegram/discussions
+- **Stars:** https://github.com/gutchapa/opencode-telegram — star it if you installed it; 3.5k installs / 0 stars is why this stays invisible.
+
+Check `npm run status` in a checkout of the repo for download and traffic stats.
+
+## License
+
+MIT

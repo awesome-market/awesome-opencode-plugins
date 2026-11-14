@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ddq568/opencode-stepx-auth · OpenCode Plugins</title>
+<meta name="description" content="Step Studio (studio.stepx.com) provider plugin for magpie/OpenCode — Step 5 Preview / DeepSeek V4.1 Flash / Auto, with tool-call emulation">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-stepx-auth, ddq568, ddq568/opencode-stepx-auth, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, security, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ddq568__opencode-stepx-auth">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ddq568/opencode-stepx-auth · OpenCode Plugins">
+<meta property="og:description" content="Step Studio (studio.stepx.com) provider plugin for magpie/OpenCode — Step 5 Preview / DeepSeek V4.1 Flash / Auto, with tool-call emulation">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ddq568__opencode-stepx-auth">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ddq568/opencode-stepx-auth", "codeRepository": "https://github.com/ddq568/opencode-stepx-auth", "url": "https://opencode-plugins.zhuikan.com/repos/ddq568__opencode-stepx-auth", "description": "Step Studio (studio.stepx.com) provider plugin for magpie/OpenCode — Step 5 Preview / DeepSeek V4.1 Flash / Auto, with tool-call emulation", "author": {"@type": "Organization", "name": "ddq568", "url": "https://github.com/ddq568"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-27", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,security,server"}</script>
+</head>
+<body data-repo="ddq568/opencode-stepx-auth" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ddq568/opencode-stepx-auth</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ddq568__opencode-stepx-auth"><img class="rp-side-av" src="https://github.com/ddq568.png?s=300" width="300" height="300" alt="ddq568 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-stepx-auth</div>
+      <a class="rp-side-owner" href="https://github.com/ddq568">ddq568</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/ddq568">ddq568</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-stepx-auth</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Step Studio (studio.stepx.com) provider plugin for magpie/OpenCode — Step 5 Preview / DeepSeek V4.1 Flash / Auto, with tool-call emulation</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-27</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/ddq568/opencode-stepx-auth">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">7</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-stepx-auth
+
+把 StepFun Step Studio（studio.stepx.com）的聊天模型接入 magpie / OpenCode 的 provider 插件（非官方逆向实现）。
+
+
+
+
+ 安装
+
+支持从 GitHub 仓库远程安装或本地路径安装：
+
+bash
+ 从 GitHub 仓库安装
+magpie plugin add github:ddq568/opencode-stepx-auth
+
+ 从本地克隆目录安装
+magpie plugin add ./magpie-plugin-stepx
+
+
+ 登录
+
+bash
+magpie plugin login stepx
+
+
+登录方式唯一：通过系统桌面浏览器（自动按系统查找 Chrome 或 Edge，或通过 chromePath 选项指定）打开 studio.stepx.com。用户在浏览器中完成扫码或验证码登录后，插件自动捕获会话 Cookie 并关闭窗口，凭据在有效周期内由插件管理并在站点轮换时自动更新持久化。
+
+ 快速开始
+
+完成登录后，在 OpenCode / magpie 中配置或选择模型：
+
+text
+stepx/deepseek-flash[1m]   推荐：代码与工具调用任务
+stepx/step-5-preview        纯问答与文本生成任务
+
+
+ 模型能力
+
+- stepx/deepseek-flash[1m]：推荐用于工具任务。通过真实工具链完整验证，具备可靠的指令遵循度、参数结构生成精度及多层反转义推导能力。
+- stepx/step-5-preview：仅推荐纯问答，不推荐用于工具任务。实测表明其存在两种典型失败模式：
+  1. 过度转义：构造复杂参数时易将转义符当字面量字符重复转义，造成载荷不匹配与思考死循环；
+  2. 工具可用性幻觉：未调用工具时思考链脑补工具不可用或环境缺失，单方面在正文中拒绝执行。
+  插件默认对其标记 tool_call: false；如确有需要，可通过配置 enableStep5Tools: true 强制恢复工具能力。
+
+ 工作原理
+
+1. Cookie 会话认证与自动轮换：利用桌面浏览器授权捕获会话 Cookie 与网页端接口通信，在收到站点 Set-Cookie 轮换事件时自动就地更新并回传宿主。
+2. 会话映射与 Verified-Echo：会话指纹映射至云端 Studio 独立项目，多轮续写实施严格的 verified-echo 回声校验；无法证明连续性的请求安全回退至新建项目。
+3.  文本协议仿真：通过首轮注入提示词并在流式输出中解析  标签驱动本地工具执行，回传 [tool_result]。明确标注：非原生 tool calling，上游无该入口。
+4. JSON 为主格式：默认且推荐使用规范的标准 JSON 格式传递参数，移除不安全的模糊推断与宽松容错。
+5. 错误 Fail-Closed：遇到坏 JSON、未闭合标签、歧义参数或协议冲突时直接抛出类型化错误，绝不伪装成功 stop。
+
+ 架构
+
+| 模块 | 职责 |
+| --- | --- |
+| src/errors.mjs | 类型化协议/HTTP 错误；失败绝不伪装 stop |
+| src/ledger.mjs | 规范化消息 ledger：结构只来自消息字段；内容逐字保留；tool_call/tool_result 按 id 精确关联 |
+| src/tools.mjs | 工具白名单、m_ 双向别名表（按声明构造，无冲突前缀）、JSON-Schema 严格子集校验 |
+| src/parser.mjs | 规范  流式解析（fail-closed：坏 JSON/缺 name/未闭合 → 类型化错误） |
+| src/prompt.mjs | 环境中性 + 用户机器执行锚点（跨平台探测式） |
+| src/transport.mjs | 可注入 HTTP/WS 边界 + 单回合生命周期（取消/清理/只结算一次） |
+| src/stream.mjs | SSE 渲染：工具调用整轮校验后才发送；上游失败发错误块、不发成功 finish |
+| src/session.mjs | 账号级运行时：项目池/并发锁/Cookie 全部按账号实例隔离；整请求 UTF-8 预算 |
+| src/login.mjs | 引导式浏览器登录与凭据拦截 |
+| src/models.mjs | 模型目录拉取、缓存与模型名解析 |
+
+ 从 v0.3.x 迁移
+
+1. 工具解析收敛为规范 JSON：默认采用 {&quot;name&quot;:...}；移除一切非标准宽容修复，解析失败严格 fail-closed。
+2. 工具名称严格别名映射：仅允许声明白名单与无冲突别名前缀映射，彻底废弃模糊路由与盲猜。
+3. 严格 Ajv Schema 校验：不支持的关键字或外部引用直接拒绝，杜绝虚假校验。
+4. Tool Choice 协议约束：协议违规抛出类型化 422 错误，不再静默降级或提前发送未校验调用。
+5. 异常会话阻断复用：请求异常中断后不再复用损坏的云端项目，保障多轮状态纯净。
+6. 前置 UTF-8 预算防御：网络请求前进行整请求字节预算预检，超限直接阻断返回 413。
+7. 真实 Usage 诊断：不伪造 token 计数，仅在诊断字段中按需提供上下文度量。
+8. 跨平台探测式执行锚点：移除系统偏见假设，提示词引导模型依赖用户环境探测而非主观推断。
+
+ 选项
+
+bash
+magpie plugin options stepx &#x27;{&quot;persona&quot;: true, &quot;maxProjects&quot;: 8, &quot;maxTurnBytes&quot;: 786432, &quot;elideToolResults&quot;: false, &quot;enableStep5Tools&quot;: false, &quot;chromePath&quot;: &quot;&quot;}&#x27;
+
+
+| 选项 | 默认 | 说明 |
+| --- | --- | --- |
+| persona | true | 首轮注入环境中性与用户机器执行锚点说明 |
+| maxProjects | 8 | 会话/项目池上限（仅回收本实例空闲项目；忙会话不回收） |
+| maxTurnBytes | 786432 | 整请求 UTF-8 序列化字节的保守预算（约 768 KiB）；超限返回 413 |
+| elideToolResults | false | 是否摘取过长工具结果（标注丢失范围；对话上下文永不截断） |
+| enableStep5Tools | false | 强制为 step-5-preview 恢复 tool_call: true（实测不推荐用于工具任务） |
+| chromePath | 自动查找 | 浏览器登录用的可执行文件路径 |
+
+ 测试
+
+测试套件采用全局拦截与离线 mock，完整覆盖 HTTP/WS、工具调用循环、协议校验与异常分支，不发起任何真实外部网络请求：
+
+bash
+npm test
+
+
+ 已知限制
+
+- 仿真非原生：工具调用完全基于提示词和文本块逆向仿真，非模型底层原生 fu</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/ddq568__opencode-stepx-auth.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

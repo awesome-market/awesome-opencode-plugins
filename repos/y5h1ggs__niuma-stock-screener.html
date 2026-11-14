@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>y5h1ggs/niuma-stock-screener · OpenCode Plugins</title>
+<meta name="description" content="A股 T+1 隔日接力选股全流程 + 卡片式HTML分析报告">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="niuma-stock-screener, y5h1ggs, y5h1ggs/niuma-stock-screener, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/y5h1ggs__niuma-stock-screener">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="y5h1ggs/niuma-stock-screener · OpenCode Plugins">
+<meta property="og:description" content="A股 T+1 隔日接力选股全流程 + 卡片式HTML分析报告">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/y5h1ggs__niuma-stock-screener">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "y5h1ggs/niuma-stock-screener", "codeRepository": "https://github.com/Y5H1ggs/niuma-stock-screener", "url": "https://opencode-plugins.zhuikan.com/repos/y5h1ggs__niuma-stock-screener", "description": "A股 T+1 隔日接力选股全流程 + 卡片式HTML分析报告", "author": {"@type": "Organization", "name": "y5h1ggs", "url": "https://github.com/Y5H1ggs"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-22", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="y5h1ggs/niuma-stock-screener" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">y5h1ggs/niuma-stock-screener</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="y5h1ggs__niuma-stock-screener"><img class="rp-side-av" src="https://github.com/Y5H1ggs.png?s=300" width="300" height="300" alt="y5h1ggs avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">niuma-stock-screener</div>
+      <a class="rp-side-owner" href="https://github.com/Y5H1ggs">y5h1ggs</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Y5H1ggs">y5h1ggs</a>
+        <span class="rp-sep">/</span><span class="rp-name">niuma-stock-screener</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">A股 T+1 隔日接力选股全流程 + 卡片式HTML分析报告</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-22</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Y5H1ggs/niuma-stock-screener">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">33</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">选股分析牛马工具
+
+!选股分析牛马工具 · v1.2.57
+
+一个 A 股个人研究复盘工具。把数据源、判读铁律、量化口径、仓位纪律，
+以及最关键的——一套会自我否证的检查机制——固化成可被 Agent 加载的 Skill。
+
+130 条踩坑 · 29 个离线测试 · 44 个脚本 · 0 个第三方依赖 · MIT
+
+---
+
+ 这个工具最重要的功能，是记录它自己错在哪
+
+ 它不会告诉你明天买什么。
+
+ 它会告诉你：你这个判断有多大概率是错的，以及错的时候你会在哪一步先发现。
+
+---
+
+ 为什么会有这个项目
+
+做 A 股个人研究，最不缺的是数据，最缺的是不被自己骗的机制。
+
+真实的痛点是这些，不是「没有选股公式」：
+
+| 你会遇到的事 | 常见工具的处理 | 这里怎么处理 |
+|---|---|---|
+| 接口字段单位差 100 倍，算出「某银行 0.09 元」 | 不报错，一路算到底 | 强制先 dump 原始记录确认量纲（P116） |
+| 盘中资金流是当日累计值，却当成每分钟增量相加 | 图表照画 | 文档级硬警告 + 恒等关系断言（P93） |
+| 板块代码凭记忆写，BK0475 其实是银行不是电力设备 | 数字自洽，看不出来 | board_check() 反查名称，不符抛异常而非返回空（P108） |
+| 给了一堆概率，但彼此矛盾（站上更高门槛的概率反而更大） | 分别估、并列展示 | 先构造分布，所有概率从同一分布读出，单调性违反直接抛错（P109） |
+| 预测做完了，从不回头看准不准 | 无 | 每个概率落台账，到期自动结算，算出系统性偏差 |
+| 模型 AUC 只有 0.51，还继续用它选股 | 继续用 | 明确禁用，写进文档并标注「未通过检验」 |
+
+每一条后面那个编号，都是 references/pitfalls.md 里的真实事故记录——不是虚构的最佳实践，是踩过的坑。
+
+---
+
+ 它和常见选股工具的区别
+
+| 维度 | 常见工具 | 本工具 |
+|---|---|---|
+| 输出 | 买入信号 / 目标价 | 候选池 + 情景概率树 + 可证伪条件 |
+| 确定性 | 斩钉截铁 | 「不交易」是合法结论（凯利 f\ ≤ 0 就不下注） |
+| 错误处理 | 尽量显得没问题 | 把错误本身做成资产（130 条踩坑库） |
+| 概率来源 | 模型输出 | 历史条件频率 + 台账校准；模型未通过检验就不用 |
+| 仓位 | 满仓 / 固定比例 | 凯利公式 + 2~3 只分散，单笔 ≤33% |
+| 验证 | 回测截图 | 外部真值比对（md5 / 远端 clone / 独立双源） |
+
+---
+
+ 三重门：结论怎么才敢出口
+
+!三重门：写作中查踩坑库、出口前过七问、事后做预测结算
+
+单独任何一道都会被绕过去：
+
+- 踩坑库管不了从没犯过的新错；
+- 出口七问管不了自己没想到的角度；
+- 预测结算管不了样本不足 30 笔时的一切。
+
+三道叠起来的价值不在「不出错」，而在「错了会被记录下来，且下次开工之前就能看到」。
+
+---
+
+ 它是什么 / 不是什么
+
+是：
+
+- 一套可复用的研究流程：取数 → 筛选 → 判读 → 概率 → 风控 → 台账 → 校准
+- 一个判读手册：references/ 下 8 份文档可以脱离代码单独读
+- 一个自我检查框架：29 个离线测试 + 4 类结构验收 + 隐私闸门
+- 一个训练材料：想学 A 股判读方法，从踩坑库读起比读教程有效
+- 一套基本面工具：估值分位 / 杜邦分解 / 三表勾稽 / 三维度荐股（规则透明，不是模型）
+
+不是：
+
+- ❌ 不是荐股工具——给的是概率与情景，不是买入信号
+- ❌ 不是实盘接单系统——研究工具，不含下单与账户对接
+- ❌ 不是估值择时工具——估值分位说的是「相对自己历史的贵贱」，不是买点
+- ❌ 不是高频 / Level-2 工具——只用公开免费接口
+
+---
+
+ 架构与数据流
+
+!架构与数据流：五路数据源经降级链到统一取数层，再到分析能力与输出
+
+ 四层解耦的核心约定：取数失败只降级「取数方式」，不降级业务口径。
+ 任一层源不可用时，下游拿到的是「不可用」而不是 0——避免把故障读成行情。
+
+---
+
+ 30 秒上手
+
+bash
+ ① 获取（二选一，见下方表格）
+git clone https://github.com/Y5H1ggs/niuma-stock-screener.git
+
+ ② 配个人参数（外置，脚本零硬编码）
+cp config.example.json config.json      填资金 / 权限 / 费率 / 止损
+
+ ③ 三连自检（装完先跑这个）
+python scripts/run.py doctor            环境体检
+python scripts/run.py test              29 个离线单测（约 0.1 秒）
+python scripts/run.py health --quick    接口连通性
+
+
+跑通标志：doctor 显示「核心文件 齐全」，test 显示 Ran 29 tests ... OK。
+
+ 两种获取方式
+
+| 方式 | 入口 | 适用 |
+|---|---|---|
+| 克隆仓库 | git clone https://github.com/Y5H1ggs/niuma-stock-screener.git | 要全部源码、测试与开发脚本 |
+| 下载云端包 | niuma-cloud-v1.2.57.zip（0.45 MB / 58 条目） | 直接上架 Skill。含 scripts + references + tests + README_CLOUD.md，不含个人参数与交易台账 |
+
+---
+
+ 使用指南
+
+下面六个场景覆盖 90% 的实际用法。命令可直接复制， 换成你自己的。
+
+ 场景 1 · 今天该不该买
+
+先判断环境，再挑票。顺序不能反。
+
+bash
+python scripts/run.py review --fetch       拉全市场 + 指数 + 板块，落盘
+python scripts/run.py review --analyze     涨跌分档、分位数、板块资金
+python scripts/run.py mood                 情绪温度
+
+
+看三个数：涨跌家数比、涨停梯队、板块资金净额。
+环境差的时候，正确答案是「不交易」——这是合法结论，不是失败。
+
+ 场景 2 · 单票三维度推演
+
+bash
+python scripts/run.py selfcheck 600000       17 项内部恒等断言，先确认数据可靠
+python scripts/run.py sector 600000          板块内资金接力偏好横向对比
+python scripts/run.py report 600000 --anon   出卡片式 HTML（--anon 脱敏）
+
+
+report.py 产出：抬头指标格 + 四维评级 + 逐条加减分理由 + 5</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/y5h1ggs__niuma-stock-screener.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

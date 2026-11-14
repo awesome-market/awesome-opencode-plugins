@@ -1,0 +1,231 @@
+<h1 align="center">
+  <img src="https://cdn.jsdelivr.net/gh/juliantanx/aiusage@main/packages/site/static/logo-icon.svg" alt="AIUsage logo" width="42" align="absmiddle" />
+  AIUsage
+</h1>
+
+<p align="center">
+  Local-first usage tracker for AI coding assistants.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@juliantanx/aiusage"><img src="https://img.shields.io/npm/v/@juliantanx/aiusage" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@juliantanx/aiusage"><img src="https://img.shields.io/npm/dm/@juliantanx/aiusage" alt="npm downloads" /></a>
+  <a href="https://github.com/juliantanx/aiusage/actions/workflows/test.yml"><img src="https://github.com/juliantanx/aiusage/actions/workflows/test.yml/badge.svg" alt="CI" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
+</p>
+
+<p align="center">
+  <strong><a href="https://aiusage.jtanx.com">Website</a></strong> ·
+  <strong><a href="https://aiusage.jtanx.com/docs">Docs</a></strong> ·
+  <strong><a href="https://aiusage.jtanx.com/leaderboard">Leaderboard</a></strong> ·
+  English | <a href="https://github.com/juliantanx/aiusage/blob/main/README_zh.md">中文</a>
+</p>
+
+Track tokens, cost, sessions, models, projects, tool calls, and quota pressure across **20+ AI coding tools** in one local dashboard. Local use needs no account, sends no telemetry, and does not require cloud sync.
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/juliantanx/aiusage@main/packages/site/static/screenshots/aiusage-demo.gif" alt="AIUsage dashboard demo" width="92%" />
+</p>
+
+## Highlights
+
+- **One local dashboard** for tokens, cost, sessions, models, projects, tool calls, and quotas.
+- **Broad parser support** for Claude Code, Codex, OpenCode, Cursor, Copilot, Gemini CLI, and more.
+- **Optional sync** through GitHub, S3, R2, or MinIO.
+- **Optional public leaderboard** with signed aggregate uploads only.
+- **Desktop widget** for a tray/menu-bar glance at recent usage.
+- **Private by default**: local parsing and local dashboards do not upload your prompts, completions, source code, or file paths.
+
+## Quick Start
+
+**Requirements:** Node.js 20+ on macOS, Linux, or Windows.
+
+```bash
+npm install -g @juliantanx/aiusage
+aiusage serve
+```
+
+Open `http://127.0.0.1:3847` to use the dashboard. `serve` starts the local web UI immediately and parses local logs in the background during startup.
+
+Prefer pnpm:
+
+```bash
+pnpm add -g @juliantanx/aiusage
+```
+
+Use Docker:
+
+```bash
+docker run -d \
+  -p 3847:3847 \
+  -e AIUSAGE_DASHBOARD_PASSWORD=change-me \
+  -v ~/.aiusage:/root/.aiusage \
+  juliantanx/aiusage
+```
+
+The container binds to `0.0.0.0` so it is reachable from outside Docker, and startup is refused unless `AIUSAGE_DASHBOARD_PASSWORD` is set to a non-empty value; replace `change-me` with your own password. Docker persists AIUsage data with the `~/.aiusage` mount. To parse AI tool logs from the host, also mount each source log directory and configure the matching `AIUSAGE_*_PATH` variable. See the [Docker docs](https://aiusage.jtanx.com/docs#docker).
+
+## Common Commands
+
+| Command | What it does |
+|---|---|
+| `aiusage` / `aiusage summary` | Print a terminal summary |
+| `aiusage parse` | Parse supported local AI tool logs |
+| `aiusage serve` | Start the local dashboard on port `3847` |
+| `aiusage status` | Show data source and local database status |
+| `aiusage export --format csv --range month` | Export usage data |
+| `aiusage init` | Configure optional sync |
+| `aiusage github login --repo OWNER/REPO` | Connect GitHub sync with the GitHub App |
+| `aiusage sync` | Sync with the configured backend |
+| `aiusage sync --repair` | Inspect and repair cross-device sync contamination (dry run by default) |
+| `aiusage widget` | Launch the desktop tray widget |
+| `aiusage leaderboard` | View public leaderboard rankings |
+| `aiusage login` / `aiusage upload` | Authorize this device and upload aggregate leaderboard data |
+| `aiusage pm2-start` | Run dashboard and widget as PM2 background services |
+
+Full CLI reference: [aiusage.jtanx.com/docs#cli-reference](https://aiusage.jtanx.com/docs#cli-reference).
+
+## Supported Tools
+
+| | | | | |
+|---|---|---|---|---|
+| `Claude Code` | `Codex` | `OpenCode` | `Cursor` | `Hermes` |
+| `Qoder` | `OpenClaw` | `KiloCode` | `Kelivo` | `Copilot` |
+| `Gemini CLI` | `Kimi Code` | `CodeBuddy` | `Kiro` | `Grok Build` |
+| `Antigravity` | `Roo Code` | `Zed` | `Goose` | `oh-my-pi` |
+| `pi` | `Craft` | `Droid` | `ZCode` | `CodeFuse` |
+| `Trae` | | | | |
+
+Default paths and environment variable overrides are documented in [Data Sources](https://aiusage.jtanx.com/docs#settings-sources) and [Source Env Vars](https://aiusage.jtanx.com/docs#settings-env).
+
+## Dashboard Password
+
+The dashboard binds to `127.0.0.1` by default. Use `aiusage serve --host ::1` for IPv6 loopback. Local access can remain passwordless; set `AIUSAGE_DASHBOARD_PASSWORD` to require authentication for detailed APIs, including the detailed summary, quotas, and settings. Only the aggregate totals shown on the home page stay public, through the minimal `/api/home-summary` endpoint.
+
+| Shell | Command |
+|---|---|
+| macOS / Linux | `AIUSAGE_DASHBOARD_PASSWORD="change-me" aiusage serve` |
+| Windows PowerShell | `$env:AIUSAGE_DASHBOARD_PASSWORD="change-me"; aiusage serve` |
+| Windows CMD | `set AIUSAGE_DASHBOARD_PASSWORD=change-me && aiusage serve` |
+
+To allow network access, explicitly use `aiusage serve --host 0.0.0.0` (or `--host ::` for IPv6) and set a non-empty `AIUSAGE_DASHBOARD_PASSWORD`; startup is refused without it. The Docker image uses this explicit network binding, so the password is mandatory there. For remote access, use HTTPS through a trusted reverse proxy that preserves the browser-facing Host header and replaces `X-Forwarded-Proto` with the browser-facing scheme.
+
+The API accepts same-origin browser requests only; cross-origin integrations are no longer supported. Native local clients can omit Origin. Credential settings show configured state and accept replacements; existing secret values and credential references are never returned. Blank credential fields keep the saved value. See [local API security and compatibility](docs/dashboard-security.md).
+
+For PM2 background services, pass the same variable when starting `aiusage pm2-start`, and use `pm2 restart aiusage-server --update-env` after changing it. Details: [Dashboard Password](https://aiusage.jtanx.com/docs#dashboard-password) and [PM2](https://aiusage.jtanx.com/docs#pm2).
+
+## Privacy and Data
+
+AIUsage is designed to be local-first.
+
+- Local parsing reads tool logs and stores parsed usage in `~/.aiusage/cache.db`.
+- Local dashboard mode does not require an account and does not send telemetry.
+- Optional sync is user-configured and can use GitHub, S3, R2, or MinIO.
+- Optional leaderboard uploads contain aggregate token totals for ranking periods. They do not include prompts, completions, source code, file paths, or local cost estimates.
+- Cost is an estimate based on pricing metadata and can change when pricing is refreshed or recalculated.
+- Historical totals depend on whether each AI tool still retains its source logs or local databases.
+
+Security issues should be reported privately when possible. See [SECURITY.md](./SECURITY.md).
+
+## Sync and Leaderboard
+
+Sync and leaderboard are independent optional features.
+
+- **Sync** keeps your own devices aligned through GitHub, S3, R2, or MinIO. Configure it with `aiusage init`, then run `aiusage sync`.
+  GitHub sync prefers `aiusage github login --repo OWNER/REPO` or **Connect GitHub** in local settings, using a least-privilege GitHub App without an AIUsage account. Fine-grained PATs remain an advanced fallback. See [GitHub App setup and migration](docs/github-sync.md).
+- **AIUsage Cloud sync** is available after device authorization: run `aiusage login`, then `aiusage init --backend cloud` and `aiusage sync`.
+- If versions up to 1.5.13 caused duplicate cross-device records, use `aiusage sync --repair` to inspect them before applying cleanup. See the [sync repair guide](./docs/sync-repair.md). Every device namespace is an authoritative snapshot of that device; see the [sync model](./docs/sync-namespaces.md).
+- **Leaderboard** is public ranking for users who explicitly upload aggregate totals. Authorize a device with `aiusage login`, then run `aiusage upload`.
+- Anonymous mode is available in [site settings](https://aiusage.jtanx.com/settings) for leaderboard participation.
+
+The official site handles accounts, OAuth login, profile settings, authorized devices, upload review status, and admin moderation. The CLI handles local parsing, local dashboards, sync, terminal summaries, and signed uploads.
+
+## Desktop Widget
+
+Install the optional tray/menu-bar widget:
+
+```bash
+npm install -g @juliantanx/aiusage-widget
+aiusage-widget
+```
+
+The widget reads the same local AIUsage database and can open the full dashboard from its tray menu. See [Widget docs](https://aiusage.jtanx.com/docs#widget).
+
+## Development
+
+```bash
+git clone https://github.com/juliantanx/aiusage.git
+cd aiusage
+pnpm install
+pnpm build
+pnpm test
+pnpm dev
+```
+
+`pnpm dev` builds the shared packages and starts only the local dashboard at `http://127.0.0.1:3847`. To develop account, authorization, or cloud-sync flows against the local official site, run `pnpm dev:site` separately on port `4000` and set `SITE_URL=http://localhost:4000` in `packages/cli/.env`. Without that override, the CLI uses `https://aiusage.jtanx.com`.
+
+Project layout:
+
+| Path | Purpose |
+|---|---|
+| `packages/core` | Shared types, schema, pricing, and utilities |
+| `packages/cli` | Published CLI, parsers, local API server, sync, PM2 helpers |
+| `packages/web` | Local dashboard UI bundled into the CLI |
+| `packages/widget` | Electron tray/menu-bar widget |
+| `packages/site` | Official website, docs, accounts, uploads, leaderboard |
+
+Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md), use the issue templates, and run `pnpm test` before opening a PR.
+
+## Documentation
+
+- [Full docs](https://aiusage.jtanx.com/docs)
+- [CLI reference](https://aiusage.jtanx.com/docs#cli-reference)
+- [Docker deployment](https://aiusage.jtanx.com/docs#docker)
+- [Sync setup](https://aiusage.jtanx.com/docs#sync)
+- [Widget](https://aiusage.jtanx.com/docs#widget)
+- [Changelog](./CHANGELOG.md)
+- [Security policy](./SECURITY.md)
+
+## Contributors
+
+Thanks to these wonderful people ([emoji key](https://allcontributors.org/en/reference/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/juliantanx"><img src="https://avatars.githubusercontent.com/u/59169896?v=4?s=100" width="100px;" alt="Julian"/><br /><sub><b>Julian</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=juliantanx" title="Code">💻</a> <a href="https://github.com/juliantanx/aiusage/commits?author=juliantanx" title="Documentation">📖</a> <a href="#infra-juliantanx" title="Infrastructure">🚇</a> <a href="#maintenance-juliantanx" title="Maintenance">🔧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Fiveo9"><img src="https://avatars.githubusercontent.com/u/57358895?v=4?s=100" width="100px;" alt="Fiveonine"/><br /><sub><b>Fiveonine</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=Fiveo9" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/joyshan1986"><img src="https://avatars.githubusercontent.com/u/105418356?v=4?s=100" width="100px;" alt="joyshan1986"/><br /><sub><b>joyshan1986</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=joyshan1986" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zhaolu83949426-hub"><img src="https://avatars.githubusercontent.com/u/260552457?v=4?s=100" width="100px;" alt="zhaolu83949426-hub"/><br /><sub><b>zhaolu83949426-hub</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=zhaolu83949426-hub" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Mnoisec"><img src="https://avatars.githubusercontent.com/u/28181883?v=4?s=100" width="100px;" alt="Mnoisec"/><br /><sub><b>Mnoisec</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=Mnoisec" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jlxyfll"><img src="https://avatars.githubusercontent.com/u/16436887?v=4?s=100" width="100px;" alt="jlxyfll"/><br /><sub><b>jlxyfll</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=jlxyfll" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ed-Bg"><img src="https://avatars.githubusercontent.com/u/68063080?v=4?s=100" width="100px;" alt="Harlan Hu"/><br /><sub><b>Harlan Hu</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=Ed-Bg" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lmingde"><img src="https://avatars.githubusercontent.com/u/38581341?v=4?s=100" width="100px;" alt="Mingde"/><br /><sub><b>Mingde</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/issues?q=author%3Almingde" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aaroncchung"><img src="https://avatars.githubusercontent.com/u/121737839?v=4?s=100" width="100px;" alt="Aaron C"/><br /><sub><b>Aaron C</b></sub></a><br /><a href="https://github.com/juliantanx/aiusage/commits?author=aaroncchung" title="Code">💻</a> <a href="https://github.com/juliantanx/aiusage/commits?author=aaroncchung" title="Documentation">📖</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://allcontributors.org) specification. Contributions of any kind welcome!
+
+## Community
+
+- Bugs: [GitHub Issues](https://github.com/juliantanx/aiusage/issues/new?template=bug_report.md)
+- Feature requests: [GitHub Issues](https://github.com/juliantanx/aiusage/issues/new?template=feature_request.md)
+- Questions: [GitHub Discussions](https://github.com/juliantanx/aiusage/discussions)
+
+[**linux.do**](https://linux.do/) - thanks to the linux.do community for support and inspiration during the development of this project.
+
+## License
+
+[MIT](./LICENSE) © [Julian](https://github.com/juliantanx)

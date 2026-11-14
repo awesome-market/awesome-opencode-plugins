@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zimzheng/prompt-to-canvas · OpenCode Plugins</title>
+<meta name="description" content="Agent skill for turning content into polished editable Excalidraw canvases.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="prompt-to-canvas, zimzheng, zimzheng/prompt-to-canvas, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/zimzheng__prompt-to-canvas">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="zimzheng/prompt-to-canvas · OpenCode Plugins">
+<meta property="og:description" content="Agent skill for turning content into polished editable Excalidraw canvases.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/zimzheng__prompt-to-canvas">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "zimzheng/prompt-to-canvas", "codeRepository": "https://github.com/Zimzheng/prompt-to-canvas", "url": "https://opencode-plugins.zhuikan.com/repos/zimzheng__prompt-to-canvas", "description": "Agent skill for turning content into polished editable Excalidraw canvases.", "author": {"@type": "Organization", "name": "zimzheng", "url": "https://github.com/Zimzheng"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-07-02", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="zimzheng/prompt-to-canvas" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">zimzheng/prompt-to-canvas</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="zimzheng__prompt-to-canvas"><img class="rp-side-av" src="https://github.com/Zimzheng.png?s=300" width="300" height="300" alt="zimzheng avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">prompt-to-canvas</div>
+      <a class="rp-side-owner" href="https://github.com/Zimzheng">zimzheng</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Zimzheng">zimzheng</a>
+        <span class="rp-sep">/</span><span class="rp-name">prompt-to-canvas</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agent skill for turning content into polished editable Excalidraw canvases.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>2</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-07-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Zimzheng/prompt-to-canvas">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Prompt to Canvas
+
+简体中文 | English
+
+把文字内容变成清晰、美观、可以继续编辑的 Excalidraw 画布。
+
+这是供 Codex、Claude Code 等 AI Agent 使用的技能。你提供内容与用途，Agent 负责理解关系、设计构图和视觉风格，再在内置本地编辑器中打开结果。
+
+安装使用 · 查看示例与源文件 · 浏览视觉参考
+
+ 看看效果
+
+以下为概念示例，图片来自实际编辑器导出，并非客户部署。点击图片查看说明、SVG 源文件与可编辑场景。
+
+业务流程：角色泳道、条件分支与修订回路
+
+
+
+系统架构：中心编排、专业角色与共享能力
+
+
+
+ 能做什么
+
+- 按内容构图：制作流程、架构、时间线、对比和概念关系图；可组合泳道、分支、嵌套边界、反馈与局部展开，不固定分栏、节点数或比例。
+- 自主选择风格：参考 35 种视觉语言或定义协调的自定义方向。未指定风格时直接选择；也可遵循品牌、参考图和系列要求。
+- 继续编辑：文字与形状保留为 Excalidraw 原生元素，支持分组、标签和箭头端点绑定。
+- 本地交付：内置编辑器支持中英文切换、浏览器自动保存和 PNG/SVG 导出，普通使用无需安装前端依赖。
+
+ 安装
+
+需要 Git、Node.js 20+，以及能够读取技能文件、执行本地命令的 Agent。以下命令适用于 macOS/Linux shell。
+
+bash
+git clone https://github.com/Zimzheng/prompt-to-canvas.git
+cd prompt-to-canvas
+
+
+选择对应的安装位置：
+
+Codex
+
+bash
+mkdir -p ~/.codex/skills
+cp -R src/skills/prompt-to-canvas ~/.codex/skills/
+sh ~/.codex/skills/prompt-to-canvas/scripts/preflight.sh
+
+
+Claude Code
+
+bash
+mkdir -p ~/.claude/skills
+cp -R src/skills/prompt-to-canvas ~/.claude/skills/
+sh ~/.claude/skills/prompt-to-canvas/scripts/preflight.sh
+
+
+预检成功会输出 Prompt to Canvas preflight OK。随后在 Agent 中开启新会话并指定 prompt-to-canvas。更新前请备份自己修改过的技能文件。
+
+ 使用
+
+告诉 Agent 内容和用途即可，风格可选。例如：
+
+text
+使用 prompt-to-canvas，画一张 AI 内容发布协作流程图。
+包含需求方、AI 编审、人工编辑和发布系统。
+表现自动校验、人工放行、退回修改和发布留痕，文字使用中文。
+
+
+Agent 会按内容设计构图、选择视觉方向，生成并检查画布，再提供本地编辑器链接。只有缺少影响正确性的关键信息时才追问。需要先比较视觉方向或生成多个方案时，可以明确提出。
+
+text
+内容与用途 → 关系与构图 → 视觉风格 → SVG
+          → 可编辑场景 → 本地编辑 → PNG / SVG
+
+
+保持编辑器进程运行才能访问本地链接。请保留生成的 SVG 和场景 JSON，并导出需要的图片；浏览器自动保存不能替代文件备份。
+
+ 使用边界与隐私
+
+- 技能依赖 Agent 分析和构图，不是独立的图表生成服务。
+- 转换器支持明确的 SVG 子集；曲线是可编辑采样点，文字尺寸是估算。复杂连线和文字需要实际渲染检查，不支持的可见特性会报错。
+- 当前没有自动布局、自动避障、内置 PDF 导出或多人协作。完整支持范围见转换能力说明。
+- 编辑器通过本地 HTTP 运行，并在浏览器 localStorage 自动保存。提交给 Agent 的内容仍受所用模型服务和运行环境的数据策略约束。
+
+ 开发与验证
+
+规则和转换器检查只需要 Node 在 PATH 中，无需安装前端依赖：
+
+bash
+npm test
+npm run preflight
+
+
+修改编辑器时，才需要安装依赖、启动开发环境并同步构建产物：
+
+bash
+npm ci
+npm run dev
+ 修改完成后构建并同步到技能包
+npm run build:skill
+
+
+编辑器源码位于 src/editor/，可分发技能位于 src/skills/prompt-to-canvas/。测试覆盖转换行为，不能代替生成结果的语义与视觉检查。欢迎通过 Issues 或 Pull Request 反馈和改进。
+
+ 文档
+
+技能工作流 · 视觉参考 · 转换能力与限制 · 示例源文件 · 发布指南 · 安全政策
+
+ 来源与许可证
+
+视觉风格库和预览素材源自 Zara Zhang 的 beautiful-feishu-whiteboard。本项目在其基础上适配本地 Excalidraw 工作流，扩展内容驱动构图、SVG 转换、编辑关联与场景校验；编辑能力由 Excalidraw 提供。
+
+采用 MIT 许可证。保留了上游许可证与署名；第三方来源和依赖说明见 NOTICE.md。</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/zimzheng__prompt-to-canvas.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

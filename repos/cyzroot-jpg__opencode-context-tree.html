@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cyzroot-jpg/opencode-context-tree · OpenCode Plugins</title>
+<meta name="description" content="Branch an OpenCode session into a context tree with switching, links, deletion, node compaction, and shared workspace state">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-context-tree, cyzroot-jpg, cyzroot-jpg/opencode-context-tree, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, tools, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cyzroot-jpg__opencode-context-tree">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cyzroot-jpg/opencode-context-tree · OpenCode Plugins">
+<meta property="og:description" content="Branch an OpenCode session into a context tree with switching, links, deletion, node compaction, and shared workspace state">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cyzroot-jpg__opencode-context-tree">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cyzroot-jpg/opencode-context-tree", "codeRepository": "https://github.com/cyzroot-jpg/opencode-context-tree", "url": "https://opencode-plugins.zhuikan.com/repos/cyzroot-jpg__opencode-context-tree", "description": "Branch an OpenCode session into a context tree with switching, links, deletion, node compaction, and shared workspace state", "author": {"@type": "Organization", "name": "cyzroot-jpg", "url": "https://github.com/cyzroot-jpg"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-28", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,tools,server,tui"}</script>
+</head>
+<body data-repo="cyzroot-jpg/opencode-context-tree" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cyzroot-jpg/opencode-context-tree</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cyzroot-jpg__opencode-context-tree"><img class="rp-side-av" src="https://github.com/cyzroot-jpg.png?s=300" width="300" height="300" alt="cyzroot-jpg avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-context-tree</div>
+      <a class="rp-side-owner" href="https://github.com/cyzroot-jpg">cyzroot-jpg</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/cyzroot-jpg">cyzroot-jpg</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-context-tree</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Branch an OpenCode session into a context tree with switching, links, deletion, node compaction, and shared workspace state</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-28</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/cyzroot-jpg/opencode-context-tree">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenCode Context Tree
+
+中文 | English
+
+把 OpenCode 会话变成一棵上下文树：每次提问是一个节点，可以随时切回旧节点、从旧节点继续分叉、跨分支引用内容、删除分支或只压缩某个节点。TUI 中看到的对话和模型实际收到的历史会一起切换。
+
+ 功能
+
+- 节点切换：选择任意历史提问，界面和模型上下文都回到该节点及其祖先。
+- 自然分叉：切回旧节点后继续提问，新消息会成为该节点的新子节点，不覆盖原来的后续对话。
+- 多根节点：在不继承当前上下文的情况下开始一条全新分支。
+- 跨分支链接：把另一个节点的路径加入当前节点的模型上下文，但不在界面中显示，适合引用另一条分支的结论。
+- 删除节点：递归删除节点及其后代；删除最后一个根节点后，下一次提问会开启新树。
+- 节点压缩：只压缩指定节点，压缩结果会绑定到该节点；切换分支时自动使用对应节点的压缩检查点。
+- 共享工作区状态：每个分支都能看到最新的文件变更、todo 和 shell 命令，避免旧分支误以为工作区没有变化。
+- 侧边栏提示：显示当前节点链接了哪些分支。
+
+树数据保存在 session metadata 的 opencode.contextTree 键下，不会写入对话消息。
+
+ 使用
+
+在会话中执行：
+
+text
+/tree                  选择并切换到某个上下文节点
+/tree new              下一次提问开启新的根节点
+/tree link             把另一个节点链接到当前节点（再次选择可取消链接）
+/tree delete           删除一个节点及其后代
+/tree compact          切换到某个节点并压缩它
+
+
+第一次执行 /tree 时，插件会根据已有的用户消息自动建立树；之后的新提问会自动追加节点。
+
+ 安装
+
+ 重要：完整功能需要 OpenCode 核心提供 history 会话钩子、压缩 metadata、TUI 消息过滤和手动压缩预览。这些扩展目前位于 fork 的 context-tree 分支，尚未进入公开版本。仅安装插件到官方版本时，节点切换和压缩不会生效。
+
+推荐使用带扩展的构建：
+
+sh
+git clone --branch context-tree https://github.com/cyzroot-jpg/opencode.git
+cd opencode
+bun install
+bun run dev
+
+
+然后安装插件：
+
+sh
+opencode plugin add &#x27;git+https://github.com/cyzroot-jpg/opencode-context-tree.git&#x27;
+
+
+也可以手动写入 opencode.jsonc：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;plugins&quot;: [&quot;git+https://github.com/cyzroot-jpg/opencode-context-tree.git&quot;]
+}
+
+
+开发时可以直接指向本地目录：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;plugins&quot;: [&quot;C:/path/to/opencode-context-tree&quot;]
+}
+
+
+插件同时提供 server 和 TUI 入口，必须先重启 OpenCode 或重新加载插件。
+
+ 兼容性
+
+- 需要 OpenCode 2.x。
+- 需要包含 context tree 核心扩展的构建（fork 分支 context-tree）。
+- 测试环境：OpenCode 2.1.4 + Bun 1.4.4。
+- 直接导出 TypeScript 源码，无构建步骤。
+
+ 开发
+
+sh
+bun install
+bun test
+bun run typecheck
+
+
+ 原理
+
+- server 插件在 prompt 时追加节点，在 history 时按活动路径和链接生成模型历史。
+- 手动压缩使用 SessionContext.preview() 预览当前节点的历史；压缩钩子把活动节点写入 compaction metadata。
+- TUI 插件提供 /tree 命令、选择对话框、侧边栏，并通过 ui.messages.filter 只显示活动路径。
+- 全局状态在每次请求前作为  系统块注入，不显示在对话中。
+
+ 限制
+
+- 树只覆盖用户提问节点；工具调用和助手回复归属于其所在提问区间。
+- 链接只影响模型上下文，不会把被链接分支的对话显示在当前界面。
+- 全局状态按 session 跟踪，VCS 状态最多每 2 秒刷新一次。
+- 删除和压缩会修改 session 数据，操作前请确认目标节点。
+
+ License
+
+MIT</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cyzroot-jpg__opencode-context-tree.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

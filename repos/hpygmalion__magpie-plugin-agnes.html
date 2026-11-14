@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hpygmalion/magpie-plugin-agnes · OpenCode Plugins</title>
+<meta name="description" content="🇨🇳 Agnes AI 国内/国际双版 API 插件：独立生图模型单列、免费对话模型标注（一键「只选免费」不误选生图）、512K/1M 大上下文+64K 输出、排除视频模型">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="magpie-plugin-agnes, hpygmalion, hpygmalion/magpie-plugin-agnes, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, other, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/hpygmalion__magpie-plugin-agnes">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="hpygmalion/magpie-plugin-agnes · OpenCode Plugins">
+<meta property="og:description" content="🇨🇳 Agnes AI 国内/国际双版 API 插件：独立生图模型单列、免费对话模型标注（一键「只选免费」不误选生图）、512K/1M 大上下文+64K 输出、排除视频模型">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/hpygmalion__magpie-plugin-agnes">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "hpygmalion/magpie-plugin-agnes", "codeRepository": "https://github.com/HPygmalion/magpie-plugin-agnes", "url": "https://opencode-plugins.zhuikan.com/repos/hpygmalion__magpie-plugin-agnes", "description": "🇨🇳 Agnes AI 国内/国际双版 API 插件：独立生图模型单列、免费对话模型标注（一键「只选免费」不误选生图）、512K/1M 大上下文+64K 输出、排除视频模型", "author": {"@type": "Organization", "name": "hpygmalion", "url": "https://github.com/HPygmalion"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "other,server"}</script>
+</head>
+<body data-repo="hpygmalion/magpie-plugin-agnes" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">hpygmalion/magpie-plugin-agnes</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="hpygmalion__magpie-plugin-agnes"><img class="rp-side-av" src="https://github.com/HPygmalion.png?s=300" width="300" height="300" alt="hpygmalion avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">magpie-plugin-agnes</div>
+      <a class="rp-side-owner" href="https://github.com/HPygmalion">hpygmalion</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/HPygmalion">hpygmalion</a>
+        <span class="rp-sep">/</span><span class="rp-name">magpie-plugin-agnes</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">🇨🇳 Agnes AI 国内/国际双版 API 插件：独立生图模型单列、免费对话模型标注（一键「只选免费」不误选生图）、512K/1M 大上下文+64K 输出、排除视频模型</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/other">other</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/HPygmalion/magpie-plugin-agnes">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">magpie-plugin-agnes
+
+ Agnes AI 国内与国际双版 API 插件，专为 Magpie 设计。轻量免登录浏览器，支持图像模型专属单列抽离与一键「只选免费」。
+
+---
+
+ 🌟 四大核心亮点
+
+1. 🇨🇳 支持国内与国际双版 API 直连  
+    国内版（https://api.agnes-ai.cn/v1 · ID: agnes-cn）与国际版（https://apihub.agnes-ai.com/v1 · ID: agnes-ai）双入口独立管理。  
+    直接填入对应站点的 API Key 即可使用，无需后台无头 Chrome 抓 Cookie 流程，网络、代理与账号互相隔离，稳定不打架。
+
+2. 🎨 独立「图像模型」抽离展示（对标 Loomy / Antigravity）  
+    专属单列抽离：针对 Agnes 的生图模型（如 agnes-image-2.5-flash、agnes-image-2.1-flash），通过标准白名单别名（-imagen 后缀），使其能被 Magpie 底层 gateway.Drawers 精准捕获并自动放置在弹窗底部的「图像模型」专属栏目中。  
+    对话防误选：生图模型不标记对话免费属性，点击「只选免费」绝不会误选生图模型。勾选纯文本模型后切换到「仅所选」视图保存，日常对话列表中只有干净的文本对话模型；生图模型在 Magpie 的「设置 → 图像」中作为主力出图模型勾选使用。  
+    协议透明还原：发出请求前自动还原为官方真实 ID（agnes-image-2.5-flash），将 response_format 规范化放入 extra_body，严格保持多图参考图顺序，智能补全尺寸并过滤非标参数。
+
+3. 🌟 标记免费模型与「只选免费」一键过滤  
+    免费模型标记：根据 Agnes 官方定价文档，agnes-2.5-flash 与 agnes-3.0-flash 当前针对默认（default）试用账号提供限时免费体验（¥0 / M），已标记 free: true。  
+     注：Agent Plan 用户按刊例价折算 Credits，活动有效期及规则以官方公告和账单为准。  
+    一键过滤：在 Magpie 弹窗中自动激活并展示绿色的「只选免费」按钮，点击即可一键勾选全部免费文本对话模型。
+
+4. ⚡️ 512K / 1.0M 大上下文与 64K 单次最大输出  
+    真实上下文窗口：Flash 系列配置 524,288 tokens（512K），Pro 系列配置 1,048,576 tokens（1.0M，药丸右侧显示 1.0M 角标）。  
+    最大回复上限：全系列文本模型准确配置 65,536 tokens（64K） 单次最大输出上限，完整透传给 Agent。  
+    思考档位齐全：两站点全系对话模型均默认支持 不思考 / 高。
+
+5. 🚫 彻底排除视频模型  
+    自动且严格过滤掉所有 agnes-video- 视频模型，即使上游后续发布新视频模型也绝不混入对话或出图清单。
+
+---
+
+ 插件概览
+
+| 入口 | Provider ID | API Base URL | 默认预填核心模型 |
+| --- | --- | --- | --- |
+| 国际版 API | agnes-ai | https://apihub.agnes-ai.com/v1 | 4 个核心文本模型 + 2 个生图模型 |
+| 国内版 API | agnes-cn | https://api.agnes-ai.cn/v1 | 4 个核心文本模型 + 2 个生图模型 |
+
+两个入口各自独立管理 API Key。密钥由 Magpie 统一保存，插件不另写凭据文件。
+
+---
+
+ 安装
+
+在 Magpie「扩展 → 插件 → 发现」底部安装框中输入：
+
+text
+github:HPygmalion/magpie-plugin-agnes
+
+
+或使用 Magpie 命令行：
+
+bash
+magpie plugin add github:HPygmalion/magpie-plugin-agnes
+
+
+安装后进入「模型 → 供应商」，点击添加对应入口并填入对应站点的 API Key 即可。
+
+---
+
+ 上游模型动态更新与安全边界
+
+当在供应商界面点击「重新获取模型」时，插件根据上游最新数据安全解析：
+ 图像模型：符合 agnes-image- 或明确输出 image 的模型，自动归入底部的「图像模型」独立区域，别名转换与生图适配器自动生效；
+ 对话模型：已文档化验证的型号附带准确规格；未建档的全新模型将根据上游实际返回的参数进行校验解析，不盲目凭模型名字臆测免费或虚报上下文；
+ 视频模型：自动拦截过滤丢弃，绝不污染列表。
+
+---
+
+ 离线测试
+
+项目自带完整的单元测试套件，使用 Node.js / Bun 原生测试运行器，不发起任何收费或外部网络请求：
+
+bash
+ Node.js
+npm test
+
+ 或 Bun
+bun test
+
+
+测试覆盖：
+- 国际与国内双 Provider 配置与官方 Logo 属性
+- 初始预填模型与动态拉取过滤
+- 严格排除视频模型，生图模型独立别名与抽离标记
+- 免费标志只作用于文本对话模型（确保「只选免费」只选中对话模型）
+- 512K/1M 上下文窗口与 64K 输出上限校验，两站点均支持「不思考 / 高」
+- 图像生成与编辑的协议转换（extra_body、尺寸补全、Data URI 格式化、参考图原序保持）
+- 嵌套 mask 拒绝、嵌套图片绕过防御及非法 response_format 校验
+- 对话请求透传与跨站隔离拦截
+
+---
+
+ 参考
+
+- Agnes 国内 API 文档
+- Agnes 国际 API 文档
+- Agnes 定价与免费政策
+- Magpie 插件开发参考
+
+MIT License.</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/hpygmalion__magpie-plugin-agnes.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

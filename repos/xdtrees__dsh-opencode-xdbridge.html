@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xdtrees/dsh-opencode-xdbridge · OpenCode Plugins</title>
+<meta name="description" content="xdtrees/dsh-opencode-xdbridge — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="dsh-opencode-xdbridge, xdtrees, xdtrees/dsh-opencode-xdbridge, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/xdtrees__dsh-opencode-xdbridge">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="xdtrees/dsh-opencode-xdbridge · OpenCode Plugins">
+<meta property="og:description" content="xdtrees/dsh-opencode-xdbridge — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/xdtrees__dsh-opencode-xdbridge">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "xdtrees/dsh-opencode-xdbridge", "codeRepository": "https://www.npmjs.com/package/dsh-opencode-xdbridge", "url": "https://opencode-plugins.zhuikan.com/repos/xdtrees__dsh-opencode-xdbridge", "description": "xdtrees/dsh-opencode-xdbridge — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "xdtrees", "url": "https://www.npmjs.com/~xdtrees"}, "isAccessibleForFree": true, "dateCreated": "2026-09-29"}</script>
+</head>
+<body data-repo="xdtrees/dsh-opencode-xdbridge" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">xdtrees/dsh-opencode-xdbridge</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="xdtrees__dsh-opencode-xdbridge"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+RDwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">dsh-opencode-xdbridge</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~xdtrees">xdtrees</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~xdtrees">xdtrees</a>
+        <span class="rp-sep">/</span><span class="rp-name">dsh-opencode-xdbridge</span>
+      </h1>
+      <div class="rp-head-chips"><a class="rp-board-chip" href="../?board=new">new <b>#196</b></a></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>16</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-09-29</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/dsh-opencode-xdbridge">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">16</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">DSH OpenCode XD Bridge
+
+
+
+
+
+在 DeepSeek Harness 里使用 OpenCode Zen 的免费模型。
+
+ 这是什么
+
+把 OpenCode 的免费模型（big-pickle、LongCat、MiMo、Nemotron、Space Bunny 等）接进 DSH 的模型选择器，作为 opencode-xdbridge 分组使用，并在设置 → OpenCode-XD 里提供一个可视化的交互入口。
+
+ 为什么必须这么做
+
+OpenCode Zen 的免费模型有一个服务端门禁：
+
+
+FreeTierError: OpenCode&#x27;s free tier can only be used from within OpenCode
+
+
+实测（2026-09-29）确认：
+
+- 直连不行：https://opencode.ai/zen/v1/chat/completions 直接请求返回 403。
+- 改 User-Agent 不行：试过 opencode、opencode/1.18.33、Bun/1.2.0 等 9 种写法，全部 403。判据不是 UA。
+- 必须跑真正的 OpenCode 进程：本机启动真实 opencode serve 后，同一批免费模型立刻可用。
+- 权限策略是关键：agent 的 permission 必须是 {&#x27;&#x27;:&#x27;ask&#x27;}；改成 {&#x27;&#x27;:&#x27;deny&#x27;} 或 tools: {&#x27;&#x27;:false} 会立刻变回 403。
+
+所以本插件不自造协议技巧，而是：下载官方 OpenCode 二进制 → 在隔离环境里跑起来 → 在本地转成 OpenAI 兼容端点 → 注册给 DSH。
+
+ 权限必须是 ask 意味着&quot;每个本地操作都要审批&quot;。插件在本地把所有审批请求全部拒绝，所以运行时看起来像正常 OpenCode 会话（门禁放行），但本地一个动作都不会执行。真正执行的是 DSH。
+
+ 安装
+
+从 npm（推荐，最省事）：
+
+sh
+dsh plugin --profile  add dsh-opencode-xdbridge
+
+
+从 GitHub 源码：
+
+sh
+dsh plugin --profile  add github:XDTrees/dsh-opencode-xdbridge
+
+
+或者手动链接（开发用）：
+
+powershell
+ 1. 链接插件到 profile
+New-Item -ItemType Junction -Path &quot;$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-opencode-xdbridge&quot; 
+  -Target &quot;D:\DSH\dsh-opencode-xdbridge&quot;
+
+ 2. 在 profile package.json 的 dsh.profile.bundles 里追加 &quot;dsh-opencode-xdbridge&quot;
+
+ 3. 重启 DSH Desktop
+
+
+首次启动会下载约 57 MB 的官方 OpenCode 运行时（只下载一次，缓存在数据目录）。
+
+ 关于这次下载
+
+下载的是 OpenCode 官方二进制（opencode-windows-x64 这个 npm 包，57.4 MB）。它必须存在，因为免费模型的门禁只认真实 OpenCode 进程发出的请求——插件自身只有 71 KB，不含模型代码。
+
+下载被设计成不会失败，只会慢：
+
+- 断点续传：已下载的部分会保留，中断后重启从断点继续，而不是从头再来。
+- 30 分钟总预算：不再有单次请求的 5 分钟硬超时。
+- 多源：优先 npm 官方 registry，取不到或太慢时自动改用本仓库 GitHub Release 上的同名包。
+- 完整性校验：下载后比对 npm registry 发布的 sha512，不一致就丢弃重来——所以任何来源（包括镜像）都不可能让不同的代码被执行。
+
+如果确实很慢，可以自己下载一次并指给它，插件会直接复制而不联网：
+
+sh
+ 方式一：把已装好的 opencode 指给它
+set OPENCODE_BINARY_PATH=C:\path\to\opencode.exe
+
+ 方式二：指定一个下载源
+set OPENCODE_XDBRIDGE_RUNTIME_URL=https://your-mirror/opencode-windows-x64-1.18.33.tgz
+
+
+ 使用
+
+重启后：
+
+1. 模型选择器里会出现 OpenCode 免费模型 分组（provider 为 opencode-xdbridge），直接选即可。
+2. 设置 → OpenCode-XD 是插件的交互面板（布局参考 OW Bridge 控制面板）。
+
+可用的模型随上游变化，插件每次启动都会重新读取。
+
+ 交互面板
+
+设置页里这张卡片就是插件的控制台：
+
+| 区域 | 作用 |
+| --- | --- |
+| 服务状态 | 状态点 + 一行当前状态（启动中 / 运行中 / 错误 / 重启中），错误时直接给「重试」 |
+| 指标条 | 已发现 / 可用 / 待检测 / 不可用 四个计数 |
+| 运行时信息 | OpenCode 版本、本地端点、数据目录 |
+| 模型目录 | 每个模型一行：名称、推荐用途、能力徽章（推理 / 图片）、状态徽章、最近响应耗时 |
+| 详情 | 点任意一行展开：推荐用途、上下文与输出上限、图片与工具能力、推理档位、最近一次调用的动作数 / 被拦截的本地尝试 / 转交的外部工具 |
+| 操作 | 读取模型（重新向上游取清单）、检测全部（逐个发真实请求验证）、重启运行时 |
+
+排序规则与 OW Bridge 一致：可用模型在前、待检测居中、不可用置底。
+
+ 推荐用途是怎么来的
+
+上游 OpenCode 的模型目录只提供 family、release_date、上下文与输出上限、图片与推理能力、推理档位——没有「推荐用途」字段。所以这一行是本插件按实测能力整理的，不是抄来的宣传语：
+
+- 每条说明都基于该模型真实上报的上下文窗口、输出上限、图片输入、推理档位；
+- 目录里没收录的新模型会自动退回按能力生成的一句话（例如「100 万上下文 · 图片输入 · 支持推理」），不会留空。
+
+要改文案，编辑 src/client/index.js 里的 USE_NOTES，然后 npm run build。
+
+ 图标
+
+导航行与页面标题使用同一个内联 SVG 标记（菱形 + 桥拱，呼应 OpenCode 与本插件的「桥」定位）。DSH 的 settings.section 契约不带图标字段，外壳对不认识的 id 一律画齿轮，所以导航图标是用 CSS mask 覆盖上去的（社区页面的通行做法）。
+
+几个设计取舍：
+
+- 检测是串行的。并行探测会争抢同一份上游免费额度，让每次测量都更慢也更不可信。
+- 检测会真的发请求，所以消耗少量免费额度；只回文本、不产生动作的模型会按「可用 · 仅对话」发布，而不是判为失败。
+- 读取模型与检测是两件事。「读取」只问上游有哪些模型，是启动读</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-13T10:22:36Z · Data license Apache-2.0 ·
+<a href="../data/repos/xdtrees__dsh-opencode-xdbridge.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

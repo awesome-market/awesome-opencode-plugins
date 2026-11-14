@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wx4766/html-to-video · OpenCode Plugins</title>
+<meta name="description" content="用代码逐帧做视频：HTML / Canvas 动画 → MP4 / GIF / 透明层 · Deterministic HTML-to-MP4 renderer: seek to t, screenshot, encode. No framework, no build step, no GPU.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="html-to-video, wx4766, wx4766/html-to-video, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/wx4766__html-to-video">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="wx4766/html-to-video · OpenCode Plugins">
+<meta property="og:description" content="用代码逐帧做视频：HTML / Canvas 动画 → MP4 / GIF / 透明层 · Deterministic HTML-to-MP4 renderer: seek to t, screenshot, encode. No framework, no build step, no GPU.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/wx4766__html-to-video">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "wx4766/html-to-video", "codeRepository": "https://github.com/wx4766/html-to-video", "url": "https://opencode-plugins.zhuikan.com/repos/wx4766__html-to-video", "description": "用代码逐帧做视频：HTML / Canvas 动画 → MP4 / GIF / 透明层 · Deterministic HTML-to-MP4 renderer: seek to t, screenshot, encode. No framework, no build step, no GPU.", "author": {"@type": "Organization", "name": "wx4766", "url": "https://github.com/wx4766"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-11", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="wx4766/html-to-video" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">wx4766/html-to-video</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="wx4766__html-to-video"><img class="rp-side-av" src="https://github.com/wx4766.png?s=300" width="300" height="300" alt="wx4766 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">html-to-video</div>
+      <a class="rp-side-owner" href="https://github.com/wx4766">wx4766</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/wx4766">wx4766</a>
+        <span class="rp-sep">/</span><span class="rp-name">html-to-video</span>
+      </h1>
+      <div class="rp-head-chips"><a class="rp-board-chip" href="../?board=new">new <b>#61</b></a></div>
+    </div>
+    <p class="rp-desc">用代码逐帧做视频：HTML / Canvas 动画 → MP4 / GIF / 透明层 · Deterministic HTML-to-MP4 renderer: seek to t, screenshot, encode. No framework, no build step, no GPU.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>180</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/wx4766/html-to-video">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">180</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">8</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">14</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">html-to-video · 用代码逐帧做视频
+
+English · 中文
+
+
+
+
+
+
+
+这段片子就是 docs/demo-hero.html（447 行、零依赖）渲出来的。自己复现一遍：
+node scripts/render-video-seek.js docs/demo-hero.html --duration=10 --fps=60
+
+把 HTML / Canvas 动画逐帧渲染成 MP4（可配乐、可出 GIF）。
+
+不是 AI 文生视频，而是：
+
+
+写 HTML/Canvas，把画面写成 frame(t) 纯函数
+   → 无头浏览器逐帧 seek 到时刻 t，截图
+   → ffmpeg 编成 H.264 MP4
+
+
+字幕、运镜、转场全在代码里，改一行代码重渲即可。
+
+ 为什么用它
+
+| | |
+|---|---|
+| 确定性 | 同样的输入永远得到同样的输出，可复现、可版本管理 |
+| 可控到帧 | 任意帧率（真 60fps，不是插帧），任意时刻精确对齐 |
+| 文字完美 | 中文字体渲染正常，不会像文生视频那样糊成一团或错别字 |
+| 零费用 | 本地跑，不调任何 API |
+| 有质量门 | 内置自动化验收：确定性、卡顿、跳变、半截字、叠字、字幕带、字体回退 |
+| 开箱即用 | 11 个模板改个配置块就出片，不用从零学 canvas |
+| 横竖屏都行 | 模板跟视口自适应，16:9 / 9:16 换 --width/--height 即可，不裁切 |
+| 能出「一支片子」 | 多镜头 + 8 种转场 + 持续运镜，一个 HTML 出整支，不用渲几段再拼 |
+| 自带素材 | 40+ 图标 / 参数化人物 / 卡片箭头 / 背景纹理，纯代码零依赖零版权风险 |
+| 能叠能配 | --alpha 出透明层叠到实拍上；--srt 挂外部字幕时间轴 |
+| 渲一次发一堆 | --gif / --poster / --batch 一次渲染出成片、动图、封面、批量任务 |
+
+适合：讲解动画、动态图解、产品演示、数据可视化动画、游戏宣传片。
+不适合：实拍感 / 氛围镜头（那个应该走 VideoGen）。
+
+ 和 Remotion / Motion Canvas 什么关系
+
+同类工具里最常被拿来比的三个，说清楚各自适合什么，省得你上手才发现选错：
+
+| | html-to-video | Remotion | Motion Canvas |
+|---|---|---|---|
+| 心智模型 | 一个 HTML 文件 + frame(t) 纯函数 | React 组件 + useCurrentFrame() | TS 生成器 + 场景图 |
+| 起步成本 | 复制模板、改顶部 CFG | 建 React 工程、学组件与 API | 装编辑器、学场景 API |
+| 构建步骤 | 无，浏览器直接跑 | 要打包 | 要构建 |
+| 工程化 | 测试 / CI / 六维 QA | 成熟生态、Lambda 云端渲染、播放器组件 | 编辑器体验好，适合手工精修 |
+| 许可 | MIT | 个人与 ≤3 人团队免费，4 人以上需商业许可 | MIT |
+
+一句话选择：要在 React 应用里内嵌视频编辑器、或大规模云端渲染 → Remotion 更合适；
+要手工一帧帧精修分镜 → Motion Canvas 更合适；
+只想把一屏现成的 HTML 变成 mp4，不想为此建个工程 → 用这个。
+
+尤其是「AI 写出来的 HTML 动画想变成视频」这种场景：不需要它懂框架，
+输出一个能跑的 HTML 就够了，剩下交给渲染器。
+
+ 交给 AI / 脚本跑：最舒服的一条路
+
+这个工具的三条性质凑在一起，正好是「无人值守出片」需要的：
+
+| 性质 | 带来的好处 |
+|---|---|
+| 镜头表是 JSON | 让模型产出 [{kind,dur,title}, ...] 比让它写 500 行 canvas 代码可靠得多 —— 改片子就是改 JSON |
+| 同输入同输出 | 改一句文案重渲，其它帧逐像素不变，可以做自动回归，不用担心「顺手改坏了别处」 |
+| 有质量门 | qa.js 把「黑屏 / 半截字 / 画面卡住 / 混入随机数」变成数字，脚本能自己判断渲坏了没有，不用人盯着看 |
+
+于是闭环是：LLM 写 JSON/HTML → 渲 → QA 自己判红绿 → 红了就照着报告改 → 再渲。
+人只在最后看一眼成片。
+
+ 14 个开箱即用模板
+
+拷贝一个，改顶部 CFG 里的文案和数据，直接出片。
+
+| | 模板 | 用途 |
+|---|---|---|
+|  | assets/templates/explainer.html | 多镜头讲解片：片头 → 人物+气泡 → 分条要点 → 条形对比 → 片尾，镜头带转场，可喂 JSON 镜头表；横屏三条要点自动并排成三栏，竖屏另有上下版式 |
+|  | assets/templates/title-card.html | 片头标题卡：主标题逐字弹入 + 副标题 + 标签 |
+|  | assets/templates/bar-chart.html | 条形图 / 排名：条形依次生长，数值同步滚动，第一条高亮 |
+|  | assets/templates/line-chart.html | 折线趋势：折线生长 + 数据点亮起 + 末点数值浮标 |
+|  | assets/templates/number-counter.html | 大数字 / KPI：从 0 滚到目标值 + 涨跌标签 + 进度条 |
+|  | assets/templates/timeline.html | 时间线 / 流程：中轴生长，节点逐个点亮 |
+|  | assets/templates/compare.html | 前后对比：左右两栏对照，底部结论条收口 |
+|  | assets/templates/flow-steps.html | 流程图动画：步骤依次点亮，当前步高亮外扩 |
+|  | assets/templates/subtitle-card.html | 逐句解说卡：一句话一句地出 + 分段进度条，可挂 SRT |
+|  | assets/templates/vertical-card.html | 竖屏 9:16 卡：大字标题 + 大数字，抖音 / 视频号 / Reels 用 |
+|  | assets/templates/vertical-subtitle.html | 竖屏字幕卡：关键词 自动高亮，原生 9:16 版式 |
+|  | assets/templates/quote-card.html | 引言卡 / 金句：大引号压底 + 引文逐行推进 + 出处短线，访谈 / 书摘 / 播客切片用 |
+|  | assets/templates/chapter-card.html | 章节卡 / 过渡页：序号水印 + 标题 + 章节进度点，把长片切成几段 |
+|  | assets/templates/ui-showcase.html | 界面演示：窗口推入 +</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/wx4766__html-to-video.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

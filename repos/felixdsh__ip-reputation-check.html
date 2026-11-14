@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>felixdsh/ip-reputation-check · OpenCode Plugins</title>
+<meta name="description" content="Multi-source IP lookup + egress verification + use-case node health (17 sources, evidence grading, optional real probe). Python CLI &amp; agent skill.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ip-reputation-check, felixdsh, felixdsh/ip-reputation-check, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, security, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/felixdsh__ip-reputation-check">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="felixdsh/ip-reputation-check · OpenCode Plugins">
+<meta property="og:description" content="Multi-source IP lookup + egress verification + use-case node health (17 sources, evidence grading, optional real probe). Python CLI &amp; agent skill.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/felixdsh__ip-reputation-check">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "felixdsh/ip-reputation-check", "codeRepository": "https://github.com/FelixDSH/ip-reputation-check", "url": "https://opencode-plugins.zhuikan.com/repos/felixdsh__ip-reputation-check", "description": "Multi-source IP lookup + egress verification + use-case node health (17 sources, evidence grading, optional real probe). Python CLI & agent skill.", "author": {"@type": "Organization", "name": "felixdsh", "url": "https://github.com/FelixDSH"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "license": "https://spdx.org/licenses/MIT.html", "keywords": "security,tools"}</script>
+</head>
+<body data-repo="felixdsh/ip-reputation-check" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">felixdsh/ip-reputation-check</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="felixdsh__ip-reputation-check"><img class="rp-side-av" src="https://github.com/FelixDSH.png?s=300" width="300" height="300" alt="felixdsh avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ip-reputation-check</div>
+      <a class="rp-side-owner" href="https://github.com/FelixDSH">felixdsh</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/FelixDSH">felixdsh</a>
+        <span class="rp-sep">/</span><span class="rp-name">ip-reputation-check</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Multi-source IP lookup + egress verification + use-case node health (17 sources, evidence grading, optional real probe). Python CLI &amp; agent skill.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/security">security</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/FelixDSH/ip-reputation-check">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">16</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">ip-reputation-check
+
+中文 | English
+
+ 多源 IP 查询 + 当前出口验证 + 面向用途的节点体检。给一个 IP 或一个节点，快速得到可核对的多维证据与常用站点可达性。
+
+ ⚠️ 定位：多源聚合初筛 + 证据分级，不是权威风控/安全鉴定；免费源精度有限，重要决策请交叉验证或用商业 API（MaxMind / IPQualityScore / Spur / VirusTotal / Spamhaus 等）。
+
+完整示例输出见 examples/demo.txt（由当前代码生成，非手写）。
+
+ 极简用法
+
+bash
+python scripts/ipcheck.py 8.8.8.8             直接给 IP（默认零配置）
+python scripts/ipcheck.py 8.8.8.8 --brief     一行式简报
+
+
+默认免 key 即可出：位置 / ASN / 机房·代理·VPN / 欺诈分 / 免 key 滥用名单 / 规则提示分 / 置信度。需要更多精度时可选配自己的免费 key（见「可选 Key」）。
+
+ 核心能力
+
+- 多源聚合（17 个源）：地理、ASN、代理/VPN/机房、欺诈分、滥用名单、RDAP 登记、BGP 路由、Tor 官方出口。
+- 证据可追溯：每字段列出「适用来源 + 支持/反对 + 强度」；登记(RDAP) 与路由(BGP) 分开；标记为VPN ≠ 实际是VPN。
+- 不误导：数据不足/空响应 → ⚪ 无法判定（绝不判&quot;干净&quot;）；DNSBL 临时失败→未知；Fake-IP→DoH 兜底但只信命中；私有/保留地址本地跳过。
+- 实测（可选）：probe / node / compare / history 从出口或代理真实只读探测；严格区分&quot;规则推算&quot;与&quot;实测&quot;。
+- 实用运维：批量 --file、CSV、监控 watch、源健康 health、来源级缓存、一键自检 selfcheck。
+
+ 命令速查
+
+bash
+ 被动查询
+python scripts/ipcheck.py check  [--file F] [--csv out.csv] [--json] [--brief] \
+       [--env] [--regions] [--no-platforms] [--refresh] [--interval S] [--only ...] [--gateway URL]
+
+ 实测（需从该出口/代理发起；默认关）
+python scripts/ipcheck.py probe  [--proxy URL] [--expect-ip IP] [--only google,openai,x,...] [--json]
+python scripts/ipcheck.py node   [--proxy URL] [--expect-ip IP] [--scenario browse|ai|stream|account|call|general] [--samples 3] [--save] [--json]
+python scripts/ipcheck.py compare --nodes &quot;http://p1,http://p2&quot; [--scenario ai] [--json]
+python scripts/ipcheck.py history [--node X] [--scenario ai] [--last 5]
+
+ 运维
+python scripts/ipcheck.py myip             出口 IP + 时区/DNS 环境一致性
+python scripts/ipcheck.py health           逐源健康检查（可用性/延迟）
+python scripts/ipcheck.py open         打开已填 IP 的 abuseipdb/iphub 网页
+python scripts/ipcheck.py stability [--rounds N] [--interactive]
+python scripts/ipcheck.py watch [IP...] [--egress] [--interval 60]
+python scripts/selfcheck.py                一键自检：全部离线测试 + 在线冒烟
+
+
+--only 源：ipinfo,ipapi,ipwhois,proxycheck,scamalytics,iphub,abuseipdb,stopforumspam,blocklistde,ipsum,spamhaus,virustotal,dbip,maxmind,rdap,ripe_bgp,tor_exit
+
+ 输出说明
+
+| 项目 | 含义 |
+|---|---|
+| 位置 / ASN / ISP / 云厂商 | 地理数据库 + 登记/路由；云厂商=按 ASN/组织名推断（非已确认用途） |
+| IP 类型 | 住宅 / 移动 / 机房·云 / 企业 / 教育 / 政府 / Tor / VPN / 代理；仅按可用证据判定 |
+| 代理 / VPN / 托管 / Tor | 数据库/规则标签，非实测（&quot;标记为VPN&quot;≠&quot;实际是VPN&quot;） |
+| 欺诈分 / 滥用置信度 | Scamalytics Fraud Score；AbuseIPDB（需 key）；Spamhaus（DNSBL，区分恶意/策略名单/PBL） |
+| 规则提示分 | 经验加权规则分，非概率；数据不足=无法判定 |
+| 置信度 + 证据强度 + 字段来源 | 源等级×一致度；每字段支持/反对来源；按字段适用来源 |
+| 平台/站点适配度 | 规则推算，非实测；红灯=易触发风控，不代表一定不可用/会封号 |
+| 使用建议 | 能否注册/养号/爬虫/支付/流媒体（启发式，随证据匹配） |
+
+ 数据源
+
+| 源 | 提供 | Key |
+|---|---|---|
+| ipinfo / ip-api / ipwho.is | 地理 / ASN（ip-api 含 proxy/hosting 标记） | 免 |
+| proxycheck | 代理 / VPN / 类型 | 免（有日限） |
+| scamalytics | 欺诈分（网页解析/API） | 免 / 可选 API |
+| iphub | 代理分级 | 游客免（可能 Turnstile）/ 推荐 key |
+| AbuseIPDB | 滥用置信度 | 需 ABUSEIPDB_API_KEY |
+| StopForumSpam / blocklist.de / IPsum | 垃圾信息 / 攻击 / 聚合黑名单 | 免 |
+| Spamhaus DNSBL | SBL/XBL/DROP=恶意；PBL=发信策略 | 免（DNS） |
+| VirusTotal | 多引擎 | 可选 VIRUSTOTAL_API_KEY |
+| DB-IP / MaxMind GeoLite2 | 地理（后者最权威，本地库） |</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/felixdsh__ip-reputation-check.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

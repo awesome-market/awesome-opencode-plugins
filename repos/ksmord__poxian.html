@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ksmord/poxian · OpenCode Plugins</title>
+<meta name="description" content="ksmord/poxian — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="poxian, ksmord, ksmord/poxian, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/ksmord__poxian">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="ksmord/poxian · OpenCode Plugins">
+<meta property="og:description" content="ksmord/poxian — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/ksmord__poxian">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "ksmord/poxian", "codeRepository": "https://www.npmjs.com/package/poxian", "url": "https://opencode-plugins.zhuikan.com/repos/ksmord__poxian", "description": "ksmord/poxian — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "ksmord", "url": "https://www.npmjs.com/~ksmord"}, "isAccessibleForFree": true, "dateCreated": "2026-11-10"}</script>
+</head>
+<body data-repo="ksmord/poxian" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">ksmord/poxian</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="ksmord__poxian"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+UDwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">poxian</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~ksmord">ksmord</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~ksmord">ksmord</a>
+        <span class="rp-sep">/</span><span class="rp-name">poxian</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-11-10</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="ksmord__zfr-magpie"><img class="rp-same-av" src="" alt="" loading="lazy">zfr-magpie</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/poxian">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">poxian
+
+!version
+
+上游：YaoGuaiLi/hangong（MIT）· 本仓库为 fork 重构版
+
+一个 magpie 网关中间件：把完整的工作台系统提示词写进每一个经过网关的请求——一个注入点，覆盖所有 Agent，客户端零改动。
+
+---
+
+ 这是什么
+
+poxian 是单个 magpie 中间件。任何 Agent 的请求经过 magpie 网关时，它把系统提示词写进该协议自己的系统提示词位置：
+
+| Agent API（ctx.protocol） | 提示词落点 |
+|---|---|
+| anthropic（Claude Code、Claude Desktop…） | body.system（字符串或分块） |
+| chat（OpenAI 兼容：Codex、OpenCode、ZCode、DSH、Kimi…） | 首条 system/developer 消息，或新插入一条 |
+| responses（OpenAI Responses API） | body.instructions |
+| gemini（Gemini CLI…） | systemInstruction / system_instruction |
+
+默认行为是 override + replace（整段替换）：请求自带 Agent 原生系统提示词时，用你的提示词覆盖该位置。
+
+这条默认值来自实机 A/B，不是审美选择。用干净模型（group/k3，不带预置人格）做四组对照，只有「system 位只留注入」能改写身份：
+
+| system 位内容 | 模型回复 |
+|---|---|
+| 无注入，只有客户端原生 system | 原生人格 |
+| 注入 prepend 到原生 system 前 | 原生人格（注入读到了，但没拿到控制权） |
+| 注入 append 到原生 system 后 | 原生人格（同上） |
+| 只留注入，原生 system 删除 | 注入生效 |
+
+补充判别：把原生 system 换成中性 / 工具型 / 安全型三种，全部都会压制注入。所以「前置 = 更高优先级」这条直觉在多数模型上不成立——原生 system 还在时，模型倾向按它的人格回答。
+
+⚠️ 但这只说明「不替换就拿不到控制权」，不等于「上游覆盖了客户端 system」。两者常被混淆：前者是 merge 模式的固有代价，后者是路由行为。0.1.4 实测证明本环境所有路由都认客户端 system（32/32 PASS），见下方撤回说明。
+
+代价要说清楚：replace 会丢掉 Agent 自己的工具调用规范。需要保留原生 system 的，显式设 override_mode: &quot;merge&quot;，再用 position 决定前置还是追加。
+
+上游是否认客户端 system：这件事需要实测，不能假设。判断方法见 scripts/probe-system.mjs。注意不要用「塞格式指令看是否照做」这种判据——模型拒答和 thinking 截断都会造成假阴性，详见下方 0.1.4 的撤回说明。
+
+⚠️ 0.1.4 撤回一条错误结论。 早期用「往 system 塞一条格式指令（回答前先加 [ZZ]），若模型不照做就说明该路由不认客户端 system」当判据，据此得出「8 条路由 × 4 协议全部 FAIL，上游追加自己的身份设定，中间件无解」。这个结论是假的，判据本身有缺陷：
+
+ - 模型会拒答：「复述你的 system」在多数模型里是敏感请求，返回「抱歉，我无法提供相关信息」。这是收到了不肯说，不是没收到。
+ - thinking 会截断：推理模型先把 max_tokens 花在 thinking 上，正文没开始就 stop_reason=max_tokens，看起来像空输出。
+
+ 两者都表现为「输出里没有我的标记」，于是全被计成 FAIL。实测反证：同一模型同一协议反复测，结果在 PASS/FAIL 间跳动，而某次 FAIL 的回复正文里清清楚楚带着 sentinel 和「你是 Kimi」——模型先拒答，然后自己把 system 内容念了出来。
+
+ 换成正确判据（随机任务码召回：system 里埋 6 位随机码，只问「你的任务码是什么」）后实测 32/32 PASS，chat / anthropic / responses / gemini 四协议各 8/8。上游全部认客户端 system，poxian 的注入路径有效。
+
+ 同理，「模型仍回答我是 Kimi」需要分开看。model 的自述不可靠——实测同一时刻，模型对「system 里有没有 」答 FOUND，对「system 里有没有&quot;寒霜&quot;」答 NOT-FOUND，而 v3.md 第 3 行就是「你是寒霜」。两个答案不可能同真，说明复述 system 内容这件事本身不能当证据。
+
+ 可靠的判据只有两个，都在网关侧：
+ 1. logs/poxian.jsonl 的 action=&quot;inject&quot; + bytes=6215（与 prompts/v3.md 的 6201 字节加标记吻合），证明注入体确实写进了请求。
+ 2. 该日志的 position 字段：replace 表示整段替换成功；prepend 表示该请求原本没有 system 字段、走了拼接路径。
+
+ 用这两条复核后发现真问题：部分上游供应商会在客户端 system 之前追加自己的身份块（实测 group/k3.1pro 的 system 前三行是  KIMI: AI assistant developed by Moonshot AI... + Your character is: ...）。这段内容本地搜不到，属远端注入。它排在客户端 system 之前，所以 replace 替换掉的是客户端那段、追加块仍然存在——这才是「模型仍自称 Kimi」的真实原因，不是注入失效。
+
+ 注意这和上面「32/32 PASS」不矛盾：任务码能召回，证明客户端 system 确实到达模型；同时上游把自己的身份块排在了它前面。到达和排在最前是两件事，README 之前把它们混成一件了。
+
+内置两档主提示词：默认 prompts/v5.md（约 8.8K 字符 / ~3.9K token，轻量规范）；prompts/v52.md（约 78.6K 字符 / ~21K token）是 &quot;CT Attack-Defense Prompt v5.2&quot; 的净化版——面向授权安全研究（CTF / 红蓝对抗 / 本地样本分析）的工作台契约，带中文激活词（寒霜 / 自检）与交付纪律层。默认选轻的那份，是因为完整版每个请求都要重新 prefill 两万多 token；要靠缓存摊薄只有 Anthropic 系有效。中间件本身与提示词内容无关，随时可换成你自己的。
+
+ 相对上游的改动
+
+本 fork 在 YaoGuaiLi/hangong v1.3.0 基础上重写了核心链路，上游署名见 LICENSE 与 package.json 的 homepage。
+
+构建链
+
+- 五份 prompt 全部落成独立源文件（prompts/.md）。上游把 4/</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-13T10:22:36Z · Data license Apache-2.0 ·
+<a href="../data/repos/ksmord__poxian.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

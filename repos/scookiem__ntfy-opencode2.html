@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>scookiem/ntfy-opencode2 · OpenCode Plugins</title>
+<meta name="description" content="Send OpenCode V2 session completion notifications to ntfy.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ntfy-opencode2, scookiem, scookiem/ntfy-opencode2, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, notifications, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/scookiem__ntfy-opencode2">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="scookiem/ntfy-opencode2 · OpenCode Plugins">
+<meta property="og:description" content="Send OpenCode V2 session completion notifications to ntfy.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/scookiem__ntfy-opencode2">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "scookiem/ntfy-opencode2", "codeRepository": "https://github.com/scookiem/ntfy-opencode2", "url": "https://opencode-plugins.zhuikan.com/repos/scookiem__ntfy-opencode2", "description": "Send OpenCode V2 session completion notifications to ntfy.", "author": {"@type": "Organization", "name": "scookiem", "url": "https://github.com/scookiem"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-09-26", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,notifications,server"}</script>
+</head>
+<body data-repo="scookiem/ntfy-opencode2" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">scookiem/ntfy-opencode2</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="scookiem__ntfy-opencode2"><img class="rp-side-av" src="https://github.com/scookiem.png?s=300" width="300" height="300" alt="scookiem avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ntfy-opencode2</div>
+      <a class="rp-side-owner" href="https://github.com/scookiem">scookiem</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/scookiem">scookiem</a>
+        <span class="rp-sep">/</span><span class="rp-name">ntfy-opencode2</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Send OpenCode V2 session completion notifications to ntfy.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/notifications">notifications</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-09-26</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/scookiem/ntfy-opencode2">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.1.1</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-ntfy-plugin/v/0.1.1">0.1.1 ↓</a><span class="rp-dl-ver">0.1.1</span><span class="rp-dl-date">2026-09-26</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-ntfy-plugin
+
+一个 OpenCode V2 插件：把任务执行结果推送到 ntfy，让你在手机、桌面或浏览器上第一时间知道 OpenCode 什么时候做完了、失败了，或者正在等你授权。
+
+本插件通过 npm 包名加载，安装后只需在 opencode.jsonc 里填一次 topic 即可使用。
+
+ 功能特性
+
+OpenCode 运行过程中，以下事件会推送到你配置的 ntfy topic：
+
+| 事件 | 开关 | 通知标题 | 默认 |
+| --- | --- | --- | --- |
+| session.execution.succeeded | notifySucceeded | [opencode] 主任务·已完成 / 子任务·已完成 | 开 |
+| session.execution.failed | notifyFailed | [opencode] 主任务·执行失败 | 开 |
+| session.execution.interrupted | notifyInterrupted | [opencode] 主任务·已中断 | 开 |
+| permission.asked | notifyPermission | [opencode] 主任务·需要授权 | 开 |
+| form.created | notifyForm | [opencode] 主任务·需要回答问题 | 开 |
+| session.idle | notifyIdle ×（notifySucceeded / notifyFailed / notifyInterrupted） | [opencode] 主任务·已失败 / 已中断 / 已完成 | 开 |
+| session.execution.started | notifyStarted | [opencode] 主任务·开始 | 关 |
+| session.retry.scheduled | notifyRetry | [opencode] 主任务·即将重试 | 关 |
+
+所有事件还受范围开关 notifyRoot / notifyChildren 控制（主任务 / 子任务），详见配置。
+
+说明：
+
+- 按执行生命周期去重：同一会话的每一轮执行只推送一条终态通知——session.idle 与 session.execution.succeeded / failed / interrupted 只是同一轮的不同信号，按轮次合并（先到先通知，迟到的被抑制），不会双发；新的 session.execution.started 开启新一轮，同会话的下一轮任务可再次通知开始/成功/失败/中断。started 重投（同一事件，含&quot;相同 durable seq 但信封 id 不同&quot;的重发）不会重置已通知的终态；即使 notifyStarted=false，started 事件仍维护生命周期。session.idle 的通知是 notifyIdle 与对应结果开关的交集（两者都开才发送）；session.execution. 事件不受 notifyIdle 影响。轮次状态有容量上限（20 条会话，只保留最近的），语义仍是&quot;防重&quot;。
+- 授权请求按工具调用精确去重：同一次工具调用（同一消息 + 同一 tool id）无论权限请求 id 如何变化只推送一次，宿主对同一次工具调用重复发起授权也不会重复打扰；不同的工具调用即使动作和资源完全相同也算新请求，会正常推送。没有来源信息（source）的授权请求退化为按&quot;会话 + 动作 + 资源&quot;去重。
+- 表单（form.created）按表单 ID（frm_ 开头的稳定 ID）精确去重：同一表单被宿主重复推送只通知一次；不同的表单即使会话、标题完全相同也算新表单，会各通知一次（仅当表单缺少 ID 的旧版数据才退化为按&quot;会话 + 标题&quot;去重）。form.replied / form.cancelled 只做簿记、不另发通知；已通知记录予以保留，宿主在用户回答或取消后重复推送同一表单不会再打扰。
+- 主任务和子任务分别由 notifyRoot / notifyChildren 控制，详见配置。
+- 通知标题不含 emoji，图标由 ntfy 的 Tags 提供（如对勾、红叉、警示灯）。
+- 正文中的 Token 汇总为整个会话的累计值，不是单轮增量。
+- 插件只推送启动后发生的事件；重启 OpenCode 之前已经跑完的任务不会补发通知。
+- 事件流意外断开时插件会无限重连（1s 起步指数退避、60s 封顶、带抖动），但断线间隙内的事件不补发：宿主没有补发/回放接口，去重机制只对实际收到的事件防重。重连失败只在开启 debug 时记录日志，不会刷屏、不会放弃。
+
+ 安装
+
+前置要求：Node.js 18+，以及已安装的 OpenCode V2。
+
+1. 安装插件。在项目目录执行（这一步只是预装，也可以跳过——OpenCode 检测到 plugins 里的 npm 包时会自动安装）：
+
+   bash
+   npm install opencode-ntfy-plugin
+   
+
+2. 在项目的 opencode.jsonc 中注册插件并填入 topic：
+
+   jsonc
+   {
+     &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+     &quot;plugins&quot;: [
+       {
+         &quot;package&quot;: &quot;opencode-ntfy-plugin&quot;,
+         &quot;options&quot;: { &quot;topic&quot;: &quot;你的topic&quot; }
+       }
+     ]
+   }
+   
+
+3. 重启 OpenCode。必须重启，否则加载的还是旧代码（见常见问题）。
+
+4. 用 ntfy App 或 ntfy.sh 网页版订阅你的 topic，然后在 OpenCode 里跑一个任务，即可收到通知。
+
+ 配置
+
+完整配置示例（token、tag、priority 为可选项，未列出时使用下表默认值）：
+
+jsonc
+{
+  &quot;$schema&quot;: &quot;https://opencode.ai/config.json&quot;,
+  &quot;plugins&quot;: [
+    {
+      &quot;package&quot;: &quot;opencode-ntfy-plugin&quot;,
+      &quot;options&quot;: {
+        &quot;server&quot;: &quot;https://ntfy.sh&quot;,
+        &quot;topic&quot;: &quot;你的topic&quot;,
+        &quot;notifyRoot&quot;: true,
+        &quot;notifyChildren&quot;: true,
+        &quot;notifyStarted&quot;: false,
+        &quot;notifyIdle&quot;: true,
+        &quot;notifySucceeded&quot;: true,
+        &quot;notifyFailed&quot;: true,
+        &quot;notifyInterrupted&quot;: true,
+        </pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/scookiem/ntfy-opencode2/releases"><b>0.1.1</b> <span class="rp-rel-tag">0.1.1</span> <span class="rp-item-extra">2026-09-26</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/scookiem__ntfy-opencode2.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

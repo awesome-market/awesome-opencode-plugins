@@ -1,0 +1,111 @@
+<div align="center">
+
+# opencode-spec
+
+[![CI](https://github.com/devcxl/opencode-spec/actions/workflows/build-verify.yml/badge.svg)](https://github.com/devcxl/opencode-spec/actions/workflows/build-verify.yml)
+[![Release](https://github.com/devcxl/opencode-spec/actions/workflows/create-release-tag.yml/badge.svg)](https://github.com/devcxl/opencode-spec/actions/workflows/create-release-tag.yml)
+[![Publish to npm](https://github.com/devcxl/opencode-spec/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/devcxl/opencode-spec/actions/workflows/npm-publish.yml)
+[![npm version](https://img.shields.io/npm/v/@devcxl/opencode-spec)](https://www.npmjs.com/package/@devcxl/opencode-spec)
+[![npm downloads](https://img.shields.io/npm/dm/@devcxl/opencode-spec)](https://www.npmjs.com/package/@devcxl/opencode-spec)
+
+中文 | [English](README.en.md)
+
+`opencode-spec` 是一个 OpenCode 插件，用于把 OpenSpec 风格的规格驱动开发流程接入 OpenCode。
+
+</div>
+
+## 核心能力
+
+插件面向 OpenCode V2，在运行时注册以下能力（不向项目 `.opencode/` 目录写入文件）：
+
+- **commands**（12 个核心命令，支持 6 个标准简写别名）：`/opsx-propose`、`/opsx-explore`、`/opsx-apply`、`/opsx-archive`，以及标准简写 `/opsx-new`、`/opsx-continue`、`/opsx-ff`、`/opsx-update`、`/opsx-sync`、`/opsx-verify`（同时完全兼容原 `/opsx-*-change` 命名）
+- **skills**（12 个核心技能，支持上游标准别名）：`openspec-propose`、`openspec-explore`、`openspec-apply`（及 `openspec-apply-change`）、`openspec-archive`（及 `openspec-archive-change`）及 8 个扩展技能
+
+每个 skill 内置 JavaScript 参考脚本，替代外部 openspec CLI。
+
+## 安装
+
+需要 OpenCode V2。在项目根目录的 `opencode.json` 中加入：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["@devcxl/opencode-spec"]
+}
+```
+
+前置条件：**OpenCode 所使用的 shell 必须能直接执行 `node`**。
+
+## 配置
+
+OpenSpec 默认输出到项目根下的 `openspec/` 目录。如需自定义，通过 V2 的插件选项传入 `directory`：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    { "package": "@devcxl/opencode-spec", "options": { "directory": "docs" } }
+  ]
+}
+```
+
+也可通过环境变量 `OPENSPEC_DIR` 指定，优先级高于配置。
+
+## 工作流
+
+```
+propose → apply → archive
+explore（可选，随时使用）
+```
+
+**核心命令**
+
+| 命令 | Skill | 功能 |
+|------|-------|------|
+| `/opsx-propose` | `openspec-propose` | 创建 change 并生成 proposal/specs/design/tasks |
+| `/opsx-explore` | `openspec-explore` | 探索问题、澄清需求 |
+| `/opsx-apply` | `openspec-apply` | 按 tasks 执行实现 |
+| `/opsx-archive` | `openspec-archive` | 归档完成的 change |
+
+**扩展命令**
+
+| 命令 | 别名 | Skill | 功能 |
+|------|------|-------|------|
+| `/opsx-new-change` | `/opsx-new` | `openspec-new-change` | 启动新变更，逐步创建 artifact |
+| `/opsx-continue-change` | `/opsx-continue` | `openspec-continue-change` | 继续创建下一个 artifact |
+| `/opsx-ff-change` | `/opsx-ff` | `openspec-ff-change` | 快速生成全部 planning artifacts |
+| `/opsx-update-change` | `/opsx-update` | `openspec-update-change` | 更新 planning artifacts 并保持一致性 |
+| `/opsx-sync-specs` | `/opsx-sync` | `openspec-sync-specs` | 同步 delta specs 到 main specs |
+| `/opsx-verify-change` | `/opsx-verify` | `openspec-verify-change` | 验证实现与 artifact 匹配 |
+| `/opsx-bulk-archive` | — | `openspec-bulk-archive-change` | 批量归档多个变更 |
+| `/opsx-onboard` | — | `openspec-onboard` | 引导式完整工作流教学 |
+
+## 注入方式
+
+插件启动时通过 OpenCode V2 的插件接口在运行时注册 commands 和 skills：
+
+- **commands**：运行时注册，无需写入项目目录即可被 `/` 触发
+- **skills**：直接从插件包的 `assets/skills/` 读取，注册时在内存中替换脚本路径；不创建临时副本或写入项目目录
+
+## 本地开发
+
+```bash
+npm install
+npm test
+npm run build
+```
+
+## 致谢
+
+本项目的工作流设计受到 [OpenSpec](https://github.com/Fission-AI/OpenSpec) 启发。
+
+## 文档索引
+
+- [`README.zh.md`](README.zh.md)：中文 README 版本
+- [`README.en.md`](README.en.md)：English README
+- [`docs/zh/usage.md`](docs/zh/usage.md)：中文使用指南
+- [`docs/zh/reference.md`](docs/zh/reference.md)：中文参考文档
+- [`docs/zh/architecture.md`](docs/zh/architecture.md)：中文实现原理
+- [`docs/en/usage.md`](docs/en/usage.md)：English usage guide
+- [`docs/en/reference.md`](docs/en/reference.md)：English reference
+- [`docs/en/architecture.md`](docs/en/architecture.md)：English architecture

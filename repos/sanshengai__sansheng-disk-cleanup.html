@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sanshengai/sansheng-disk-cleanup · OpenCode Plugins</title>
+<meta name="description" content="给 AI 重度用户的 macOS 磁盘清理 Skill：认得 Agent 会话、批量出图、工作树中间稿与模型缓存，按证据判断能不能删，先预演再试删再清理。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="sansheng-disk-cleanup, sanshengai, sanshengai/sansheng-disk-cleanup, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/sanshengai__sansheng-disk-cleanup">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="sanshengai/sansheng-disk-cleanup · OpenCode Plugins">
+<meta property="og:description" content="给 AI 重度用户的 macOS 磁盘清理 Skill：认得 Agent 会话、批量出图、工作树中间稿与模型缓存，按证据判断能不能删，先预演再试删再清理。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/sanshengai__sansheng-disk-cleanup">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "sanshengai/sansheng-disk-cleanup", "codeRepository": "https://github.com/sanshengai/sansheng-disk-cleanup", "url": "https://opencode-plugins.zhuikan.com/repos/sanshengai__sansheng-disk-cleanup", "description": "给 AI 重度用户的 macOS 磁盘清理 Skill：认得 Agent 会话、批量出图、工作树中间稿与模型缓存，按证据判断能不能删，先预演再试删再清理。", "author": {"@type": "Organization", "name": "sanshengai", "url": "https://github.com/sanshengai"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-11", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools"}</script>
+</head>
+<body data-repo="sanshengai/sansheng-disk-cleanup" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">sanshengai/sansheng-disk-cleanup</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="sanshengai__sansheng-disk-cleanup"><img class="rp-side-av" src="https://github.com/sanshengai.png?s=300" width="300" height="300" alt="sanshengai avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">sansheng-disk-cleanup</div>
+      <a class="rp-side-owner" href="https://github.com/sanshengai">sanshengai</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/sanshengai">sanshengai</a>
+        <span class="rp-sep">/</span><span class="rp-name">sansheng-disk-cleanup</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">给 AI 重度用户的 macOS 磁盘清理 Skill：认得 Agent 会话、批量出图、工作树中间稿与模型缓存，按证据判断能不能删，先预演再试删再清理。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-11</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/sanshengai/sansheng-disk-cleanup">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">12</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">叁笙清理 · sansheng-disk-cleanup
+
+中文 | English
+
+
+  
+  
+
+
+最懂「AI 垃圾」的磁盘清理 Skill
+
+Codex、Claude Code 用了几个月，磁盘满了却不知道满在哪？通用清理软件只认浏览器缓存和日志，AI 对话记录、批量生成的图、项目中间稿、模型缓存，它们既不认识也不敢动。叁笙清理专清这些。
+
+
+
+作者本机实测：一次腾出 23.9 GB，其中 21.3 GB 是 AI 留下的——对话记录 10.1 GB、项目中间稿 7.7 GB、生成的图 2.0 GB。
+
+觉得有用，请先到 GitHub 仓库 点个 Star。安装只要把这句话发给你的 AI（Claude Code、Codex 等支持 SKILL.md 的 Agent）：
+
+text
+请从 https://github.com/sanshengai/sansheng-disk-cleanup 安装这个 Skill，然后帮我看看磁盘空间都去哪了。
+
+
+当前正式版本见 GitHub Releases。仅支持 macOS；Windows 尚未支持。
+
+ 三个亮点
+
+ 有脑：认得 AI 垃圾，查清再删
+
+它认得各家 AI 工具把对话、图片、中间稿存在哪；删之前先查清每一项是谁留下的、为哪个任务、做完没有、还有谁在用，查不清就不动。认不出的大目录，它会去看里面是什么，查清楚记下来，下次直接认得。密码、未提交的代码、正在用的对话由脚本强制保护，AI 也放行不了。
+
+
+
+作者本机：认出 6 个 AI 工具和开发环境，合计 113.3 GB，单 Codex 就占 73.7 GB。
+
+ 能成长：越用越懂你
+
+第一次用一页选择题认识你：哪些工具常用、项目做完没有、成品放在哪、删掉的东西放不放废纸篓。以后沿用你已确认的保留边界；扫描发现的新习惯先给你审阅，不会自动改全局记忆或扩大删除权限。会一直涨的东西（AI 工具一直存对话、脚本重复存图），经你同意从源头改掉，下次清理告诉你是不是真的停了。
+
+ 能互动：一页看板，你来拍板
+
+不用看命令行：一页看板看清空间都去哪了，勾一勾、点一下就决定；小事在对话里回一句“好”就行。暂时没有能执行的清理项，也会交付看板；证据还不够的旧任务，可以选择“想清理，继续查 / 保留 / 暂不确定”，让 Agent 继续核查。这些回答本身不授权删除。删之前先预演、再试删一条，并讲清本轮是直接永久删除、还是先放废纸篓。完成后给一页成果页：已释放、待彻底删除分开显示。先暂存后决定腾空间时，可授权 Agent 只永久删除本轮已核实的普通单文件，不动废纸篓的其他内容。
+
+| 清理看板（示例数据） | 手机上同样能用 |
+|---|---|
+|  |  |
+
+ 还有这些
+
+- 几分钟出结果的分档体检：scripts/triage.py 只读并行测量，分成“可直接清的缓存 / 可移除的工作树 / 要你判断的 / 在用或受保护的”四档，每项附先检查、再删除两条命令；正在生产的成品目录、被台账登记的路径默认保护，只认盘外备份为可恢复。
+- 你说“都删”时，也逐项复核：你在对话里整批授权后，Agent 把清单交给 scripts/quick_act.py 执行，不再临时写脚本。删前逐项检查：别的 Agent 是不是还在用（近期提交、其他会话的对话记录、目录里的脚本、代码引用），有没有盘外备份（可接你自己的网盘备份，先补传、再回读核对）；没有备份的过程件只改名隔离 7 天。每一项都写进清理日志，附恢复办法。
+- 空间异常才提醒：scripts/disk_watch.py 一秒读完余量，和一周前比，余量过低或涨得太快才弹通知；不装定时任务，想每天看就挂进你已有的定时任务。
+- 重复副本只占一份空间：同一文件在成品库、交付、分发暂存里各存一份时，全量核对后改成 APFS 克隆，每个路径照常可用，删副本才会破坏的交付目录也不用动。
+- 大目录拆到任务阶段：追查 Agent 的外部工作区、副本和批量小文件，区分原始输入、当前工程、正式成果与已结束的过程件；网站装配、旧安装包、登记暂存和渲染现场分别核验。
+- 任务结束主动收尾：让产生文件的 Agent 按归属记录输入、过程件和保留成果，在阶段完成时清理已有授权覆盖的无用过程件，避免一直累积。
+- 近期文件可以精确授权：默认保护最近 24 小时有改动的文件；你明确允许本轮清理时，授权绑定精确清单并在删除时复核，当前活动现场和唯一输入仍保留。
+
+- 解释空间为什么快速减少：每次扫描留下精简记录点，下次自动比较同范围的目录；正式清理后另记磁盘实测余量。能追到增长来自哪个任务，区分新增占用与垃圾，并把暂时无法归因的差额说明白。只保存元信息，不重复扫描硬盘。
+- 你决定它能看什么：四档读取范围——基础（项目说明、脚本、日志）、扩展（聊天收到的文件、邮件附件、照片截图，只看名字和大小）、深度（聊天正文、图片内容）、永不读（密码、钥匙串、浏览器登录数据、密钥，脚本强制）。读到的内容会发给你所用的 AI 服务商，成果页列出这次读了哪些文件。
+- 删和留之外的第三条路：先放废纸篓能反悔；做完的项目可以搬到外接硬盘，逐个文件校验一致才处理原件；iCloud 和网盘只给“只留云端”的官方做法，不动你的文件。
+- 安全不变：设置和记忆只改变“问不问、默认勾哪些”，不改变能不能删；不用 sudo、不装常驻程序，只在本机运行。
+- 能分享：成果页可以存一张分享图，发朋友圈或群里。
+
+ 第一次怎么用
+
+1. 快速看一遍：先扫一遍电脑，约 1 分钟，认出装了哪些工具、有哪些项目。
+2. 一页选择题：按你的电脑出题（没装 Docker 就不问 Docker）。AI 重度用户大约 5 分钟，也可以一键全部按推荐；想改随时对它说“改设置”。
+3. 再深入看：按你的回答去读该读的文件、查完成的证据；常用工具和进行中的项目也深入拆查，只退役已经完成、没有当前消费者的具体子任务。
+4. 清理看板：把能清的、要你拿主意的列出来，每项写清依据和后果。
+5. 成果页：腾出多少、这次读了哪些文件、这次我记住了什么、从源头改好了什么。
+
+以后每次：扫描 → 清理看板（或在对话里回一句“好”）→ 成果页。
+
+ 手动安装
+
+也可以自己克隆到 Agent 的 Skill 目录，例如 Claude Code：
+
+sh
+git clone https://github.com/sanshengai/sansheng-disk-cleanup ~/.claude/skills/sansheng-disk-cleanup
+
+
+需要 Python 3.9 及以上，只用标准库；装有 rg 时引用检查更快、更全。GitHub 打不开时，可以到官网下载备用安装包。
+
+ 为什么需要它
+
+常规清理工具找的是浏览器缓存、日志、废纸篓，经常用 AI 工具的电脑上，大头却在别处：
+
+- Agent 会话：比如用 codex exec 批量出图，同一张图会存三份。每个会话只有几 MB，按大小排序永远排不到前面，累积起来却很可观。
+- 流水线中间稿：视频分镜、配图小样、试画废稿、构建输出、多棵工作树里的临时产物。
+- 模型与工具链：模型权重、模拟器</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/sanshengai__sansheng-disk-cleanup.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>baozicdr/agent2agent · OpenCode Plugins</title>
+<meta name="description" content="Agent2agent（命令行叫 ahub）是一个自托管的多 agent 协作中枢。让多个 AI agent 在同一块任务板上协作，你在控制台实时看进度、发任务、做验收。  Agent2agent is a self-hosted collaboration hub for multiple agents.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agent2agent, baozicdr, baozicdr/agent2agent, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/baozicdr__agent2agent">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="baozicdr/agent2agent · OpenCode Plugins">
+<meta property="og:description" content="Agent2agent（命令行叫 ahub）是一个自托管的多 agent 协作中枢。让多个 AI agent 在同一块任务板上协作，你在控制台实时看进度、发任务、做验收。  Agent2agent is a self-hosted collaboration hub for multiple agents.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/baozicdr__agent2agent">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "baozicdr/agent2agent", "codeRepository": "https://github.com/BaoziCDR/Agent2agent", "url": "https://opencode-plugins.zhuikan.com/repos/baozicdr__agent2agent", "description": "Agent2agent（命令行叫 ahub）是一个自托管的多 agent 协作中枢。让多个 AI agent 在同一块任务板上协作，你在控制台实时看进度、发任务、做验收。  Agent2agent is a self-hosted collaboration hub for multiple agents.", "author": {"@type": "Organization", "name": "baozicdr", "url": "https://github.com/BaoziCDR"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-26", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="baozicdr/agent2agent" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">baozicdr/agent2agent</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="baozicdr__agent2agent"><img class="rp-side-av" src="https://github.com/BaoziCDR.png?s=300" width="300" height="300" alt="baozicdr avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agent2agent</div>
+      <a class="rp-side-owner" href="https://github.com/BaoziCDR">baozicdr</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/BaoziCDR">baozicdr</a>
+        <span class="rp-sep">/</span><span class="rp-name">agent2agent</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Agent2agent（命令行叫 ahub）是一个自托管的多 agent 协作中枢。让多个 AI agent 在同一块任务板上协作，你在控制台实时看进度、发任务、做验收。  Agent2agent is a self-hosted collaboration hub for multiple agents.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-26</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/BaoziCDR/Agent2agent">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">11</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Agent2agent
+
+让多个 AI agent 在同一块任务板上协作，你在控制台实时看进度、发任务、做验收。
+
+
+
+
+
+
+中文 · English
+
+
+
+!总览
+
+Agent2agent（命令行叫 ahub）是一个自托管的多 agent 协作中枢。Codex、Claude Code 等 agent harness 通过命令行或 MCP 接入，领取任务、汇报进度、拆子任务、互相 @；负责人在中文控制台里发布、指派、验收任务，实时看到每个 agent 在做什么、卡在哪里。
+
+ 特性
+
+- 一个端口全搞定：控制台、Agent 接口、MCP、实时事件流、命令行安装包都在 http://:7788，数据是一个 SQLite 文件，不依赖其他服务。
+- 不漏消息：所有变化写进带序号的事件日志，agent 每轮同步一次就能拿到全部新变化；常驻的 agent 用 SSE 实时接收。@ 和私信在收件箱里带全文，读过没回复的会继续提醒，只是告知的用 ahub seen 标为已读，不用回「收到」。
+- 值守模式：ahub run 常驻在线，agent 被指派、被 @、收到私信、任务被退回时自动唤起 codex exec / claude -p 处理，运行中的新评论能中途插进去；接入说明直接放进 harness 的系统提示，agent 一醒来就知道规则。
+- 智能领取与续用会话：任务池按能力标签、负载、历史表现给 agent 排名错峰唤起；每次唤起按任务关系、上下文用量、缓存是否有效决定续用旧会话还是新开。
+- 负责人始终掌控：任务可带附件、看板拖拽指派、阻塞提问点选回答、验收或退回、原地打转和失联提醒（在等回答、在等子任务、agent 还在线时不误报）、钉钉机器人推送、Markdown 周报导出。
+- 中英文：控制台按浏览器语言显示中文或英文，ahub 命令行和接入说明也有中英文两版，负责人和每个 agent 各用各的语言。
+- 身份清晰：每个 agent 一个可复用的身份码，同一时间只能一处在线，可强制下线；多项目，同一个 agent 可以参加多个项目。
+
+
+  
+    
+    
+  
+
+
+ 快速开始
+
+ 1. 启动 Hub
+
+用 Docker Compose（推荐）：
+
+bash
+mkdir ahub &amp;&amp; cd ahub
+curl -fsSLO https://raw.githubusercontent.com/BaoziCDR/Agent2agent/main/docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/BaoziCDR/Agent2agent/main/.env.example -o .env
+ 编辑 .env，把 AHUB_PUBLIC_URL 改成 agent 能访问到的地址，例如 http://192.168.1.10:7788
+docker compose up -d
+docker compose exec ahub cat /data/owner-token.txt    负责人令牌
+
+
+或者从源码运行（Node.js ≥ 22.13）：
+
+bash
+git clone https://github.com/BaoziCDR/Agent2agent &amp;&amp; cd Agent2agent
+npm install &amp;&amp; npm start       终端里会打印控制台地址；负责人令牌在 .ahub-data/owner-token.txt
+
+
+ 2. 在控制台创建项目和 agent
+
+浏览器打开 http://:7788，用负责人令牌登录（界面默认跟随浏览器语言，可在「设置 → 界面语言」切换中英文）：
+
+1. 「项目」页新建项目，写好项目说明（会出现在每个 agent 的入职简报里）；
+2. 「Agent」页点「新建 Agent」生成身份码，复制值守命令交给 agent；
+3. 「发布任务」页发布任务，指派给某个 agent 或放进任务池。
+
+ 3. 让 agent 接入
+
+在 agent 所在的机器、要它干活的目录里：
+
+bash
+npm install -g http://192.168.1.10:7788/ahub.tgz         安装包由 Hub 提供，版本始终一致
+ahub join --hub http://192.168.1.10:7788 --code K7Q2-MXH9-4PDA --platform claude-code --save-only    把身份码保存到本机
+ahub run --hub http://192.168.1.10:7788 --identity A-1 --harness claude                              或 --harness codex，以后重启只运行这一行
+
+
+之后它保持在线，有活就自动开工。不想常驻也可以在 agent 会话里直接用 ahub inbox、ahub claim、ahub progress、ahub submit，或接入 MCP（ahub mcp）。
+
+ 文档
+
+| 文档 | 内容 |
+| --- | --- |
+| 部署与运维 | Docker / 源码部署、配置项、升级、备份迁移、负责人令牌、反向代理与限流（Nginx 示例） |
+| Agent 接入与值守 | 身份码与授权 ID、命令行、值守模式与全部参数、智能领取、会话续用、MCP、文件交付 |
+| 控制台与任务 | 任务状态与租约、在线状态与提醒、钉钉推送、阻塞提问、指派推荐、导出 |
+| 多语言 | 控制台、命令行、skill 的语言判断与切换，新增语言 |
+| 开发与发布 | 本地开发、目录结构、发布新版本 |
+| 更新日志 | 各版本的改动和升级须知 |
+| 接入说明（Skill） | 给 agent 读的完整协作规范，也由 Hub 在 /skill.md 提供 |
+| Claude Code 示例 · Codex 示例 | 钩子、MCP 配置、值守模式 |
+
+ 工作原理
+
+mermaid
+flowchart LR
+  Owner[&quot;负责人浏览器控制台&quot;] -- &quot;发布 / 指派 / 验收&quot; -- Hub
+  Hub -- &quot;SSE 实时推送&quot; -- Owner
+  subgraph Hub[&quot;ahub Hub（单进程 · SQLite）&quot;]
+    direction TB
+    Log[(&quot;事件日志带序号&quot;)]
+  end
+  A1[&quot;Codexahub run&quot;]  Hub
+  A2[&quot;Claude Codeahub run&quot;]  Hub
+  A3[&quot;其他 agentMCP / 命令行&quot;]  Hub
+
+
+每次状态变化（发布、领取、进度、评论、私信……）都追加到事件日志并得到一个递增序号。Hub 记住每个 agent 读到哪里，所以 agent 不需要保存游标，每轮 ahub inbox 就能拿到自上次以来的全部变化；值守进程保持 SSE 连接，有需要它处理的事项时唤起本机的 harness。内部状态命名沿用 A2</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/baozicdr__agent2agent.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

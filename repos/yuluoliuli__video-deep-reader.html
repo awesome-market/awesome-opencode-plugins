@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yuluoliuli/video-deep-reader · OpenCode Plugins</title>
+<meta name="description" content="Evidence-grounded Bilibili &amp; local video analysis skill / 证据化视频解读 for Codex: captions, actual frames, timestamped proof. Experimental v0.1.2.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="video-deep-reader, yuluoliuli, yuluoliuli/video-deep-reader, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/yuluoliuli__video-deep-reader">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="yuluoliuli/video-deep-reader · OpenCode Plugins">
+<meta property="og:description" content="Evidence-grounded Bilibili &amp; local video analysis skill / 证据化视频解读 for Codex: captions, actual frames, timestamped proof. Experimental v0.1.2.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/yuluoliuli__video-deep-reader">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "yuluoliuli/video-deep-reader", "codeRepository": "https://github.com/yuluoliuli/video-deep-reader", "url": "https://opencode-plugins.zhuikan.com/repos/yuluoliuli__video-deep-reader", "description": "Evidence-grounded Bilibili & local video analysis skill / 证据化视频解读 for Codex: captions, actual frames, timestamped proof. Experimental v0.1.2.", "author": {"@type": "Organization", "name": "yuluoliuli", "url": "https://github.com/yuluoliuli"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-22", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="yuluoliuli/video-deep-reader" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">yuluoliuli/video-deep-reader</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="yuluoliuli__video-deep-reader"><img class="rp-side-av" src="https://github.com/yuluoliuli.png?s=300" width="300" height="300" alt="yuluoliuli avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">video-deep-reader</div>
+      <a class="rp-side-owner" href="https://github.com/yuluoliuli">yuluoliuli</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/yuluoliuli">yuluoliuli</a>
+        <span class="rp-sep">/</span><span class="rp-name">video-deep-reader</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Evidence-grounded Bilibili &amp; local video analysis skill / 证据化视频解读 for Codex: captions, actual frames, timestamped proof. Experimental v0.1.2.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-22</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/yuluoliuli/video-deep-reader">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">简体中文 · English
+
+
+
+  
+
+
+
+  
+  
+  
+  
+
+
+
+  Read the video. Check the evidence. Keep the receipts.
+  面向 Codex 等 Agent：把 B站或本地视频变成可回看的时间戳字幕、实际画面和证据化解读。
+
+
+ [!IMPORTANT]
+ Experimental v0.1.2. 素材获取成功不代表视频结论已经被验证。最终报告必须注明实际看过哪些字幕和画面，以及仍有哪些限制。
+
+ 为什么不是普通视频总结
+
+| 普通字幕总结 | Video Deep Reader |
+|---|---|
+| 只读口播 | 字幕与画面联合阅读 |
+| 容易漏掉图表、操作和结果页 | 默认观看全片代表帧，再按问题补帧 |
+| 把作者说法当成结论 | 区分作者说法、实际画面、模型推断和外部核实 |
+| 一个“完整度 100%”就结束 | 时间覆盖率、缺失状态和未核验部分分别记录 |
+| 自动清理临时文件 | 默认保留全部素材与失败残片 |
+
+它尤其适合检查评测视频有没有对照实验、教程是否展示了成功结果、字幕有没有识别错产品名，以及“完成 100%”的总结卡片究竟证明了什么。
+
+!Four-stage workflow: acquire, inspect, follow up, report
+
+ 能做什么
+
+- B站 BV、视频链接、指定单 P，以及本地视频配 JSON / SRT / VTT 字幕。
+- 平台字幕优先；默认提取 12 张全片代表帧，支持 HH:MM:SS 定向补帧。
+- 生成字幕、元信息、帧清单、时间覆盖率和状态，原始字幕保持不变。
+- 当前 Agent 负责分析，不要求额外 LLM API。
+- 不绕过登录、付费、地区或版权限制；无追更、定时任务、自启或自动删除。
+
+ 快速开始
+
+ 1. 安装
+
+需要 Python 3.10+、PATH 中的 FFmpeg 和 ffprobe。采集脚本只使用 Python 标准库。
+
+sh
+git clone https://github.com/yuluoliuli/video-deep-reader.git \
+  ~/.agents/skills/video-deep-reader
+
+
+Codex 也可使用 ~/.codex/skills/video-deep-reader。其他宿主需要支持读取 SKILL.md、执行 Python 和查看图片；2026-10-23 已通过一次 DSH 桌面对话显式调用的本地视频流程，自动选技能与其他模型兼容仍未验证。
+
+ 2. 向 Agent 提出带证据的问题
+
+text
+用 video-deep-reader 解读这个视频。
+重点检查作者关于速度和 Token 节省的结论有没有对照数据，
+列出实际看过的画面、时间点和不能证明的部分。
+链接：
+
+
+ 3. 或直接采集素材
+
+sh
+python -X utf8 scripts/read_video.py BV1toJR6HEVy --out ./runs/example
+python -X utf8 scripts/read_video.py &quot;https://www.bilibili.com/video/BV1toJR6HEVy/?p=1&quot; --out ./runs/page-one
+python -X utf8 scripts/read_video.py ./video.mp4 --subtitle ./captions.srt --out ./runs/local
+
+
+
+用现有视频和字幕定向补帧
+
+先查看之前 manifest.json 的 video_path，确认文件存在并用它作为源视频。以下示例适用于远程视频已下载到输出目录的情况；本地输入不会复制到该目录，应改用原视频路径。失败残片目录保留，重试使用新的输出目录。
+
+sh
+python -X utf8 scripts/read_video.py ./runs/example/video-only.mp4 \
+  --frames-only --frames 0 \
+  --times &quot;02:42,03:11&quot; \
+  --subtitle ./runs/example/segments.json \
+  --out ./runs/focus
+
+
+
+
+
+常用参数
+
+| 参数 | 用途 |
+|---|---|
+| --page N | 指定分 P，优先于 URL 的 p |
+| --frames N | 代表帧数量，默认 12，最大 48；0 表示不抽帧 |
+| --times &quot;00:30,02:42&quot; | 追加关键时间点 |
+| --subtitle PATH | 使用现有 JSON / SRT / VTT 字幕 |
+| --cookie-file PATH | 使用已有、经授权的 B站凭据 |
+| --max-mb N | 下载上限，默认 500MB |
+| --frames-only | 不复用完整采集流程，只从本地视频补帧 |
+
+
+
+ 输出契约
+
+text
+runs/example/
+├── metadata.json        来源、标题、UP 主、分P、时长
+├── segments.json        原始字幕片段及时间戳
+├── transcript.txt       便于阅读的时间戳字幕
+├── frames.json          帧时间、文件、附近字幕、核验状态
+├── frames/.jpg         实际代表帧与补充帧
+├── video-only.mp4       远程下载成功时保留的仅视频流，不含音轨；本地输入不复制
+└── manifest.json        状态、覆盖率、警告、失败信息
+
+
+| 状态 | 退出码 | 含义 |
+|---|---:|---|
+| acquired | 0 | 素材采集完成；仍需 Agent 读字幕、看图并写分析 |
+| partial | 2 | 有缺失；报告可以回答的部分，并明确限制 |
+| failed | 1 | 采集失败；保留已有素材和脱敏错误 |
+
+analysis.md 与 visual-evidence.md 由宿主 Agent 按技能指令创建。采集脚本本身不会生成或包装结论。
+
+ 证据长什么样
+
+| 时间 | 类型 | 观察 | 能证明 | 不能证明 |
+|---|---|---|---|---|
+| 02:42 | 作者说法 | 提出执行两项任务 | 演示目标 | 两项都已完成 |
+| 03:11 | 实际画面 | 页面正在翻动 | 页面确实出现 | 数据覆盖全部字段 |
+| 04:12 | 实际画面 | 结果页与统计表 | 产出过结果和缺失记录 | 数据没有错误 |
+| 06:13 | 模型推断 | 示例表单用于讲解接管 | 视频提出了这一概念 | 真实站点测试成功 |
+
+时间覆盖率只说明字幕覆盖了多长时间，不说明字幕文字准确。没有“理解视频 100 分”。
+
+ 已验证与尚未验证
+
+已通过：
+
+- Window</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/yuluoliuli__video-deep-reader.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

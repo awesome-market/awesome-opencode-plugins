@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yf040528/video-recreation-skill · OpenCode Plugins</title>
+<meta name="description" content="给中文短视频创作者：一条爆款视频 → 自动拆解/重写/生成/质检 → 可发布的二创成片；Claude Code：/plugin marketplace add Yf040528/video-recreation-skill">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="video-recreation-skill, yf040528, yf040528/video-recreation-skill, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/yf040528__video-recreation-skill">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="yf040528/video-recreation-skill · OpenCode Plugins">
+<meta property="og:description" content="给中文短视频创作者：一条爆款视频 → 自动拆解/重写/生成/质检 → 可发布的二创成片；Claude Code：/plugin marketplace add Yf040528/video-recreation-skill">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/yf040528__video-recreation-skill">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "yf040528/video-recreation-skill", "codeRepository": "https://github.com/Yf040528/video-recreation-skill", "url": "https://opencode-plugins.zhuikan.com/repos/yf040528__video-recreation-skill", "description": "给中文短视频创作者：一条爆款视频 → 自动拆解/重写/生成/质检 → 可发布的二创成片；Claude Code：/plugin marketplace add Yf040528/video-recreation-skill", "author": {"@type": "Organization", "name": "yf040528", "url": "https://github.com/Yf040528"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-08", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="yf040528/video-recreation-skill" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">yf040528/video-recreation-skill</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="yf040528__video-recreation-skill"><img class="rp-side-av" src="https://github.com/Yf040528.png?s=300" width="300" height="300" alt="yf040528 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">video-recreation-skill</div>
+      <a class="rp-side-owner" href="https://github.com/Yf040528">yf040528</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/Yf040528">yf040528</a>
+        <span class="rp-sep">/</span><span class="rp-name">video-recreation-skill</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">给中文短视频创作者：一条爆款视频 → 自动拆解/重写/生成/质检 → 可发布的二创成片；Claude Code：/plugin marketplace add Yf040528/video-recreation-skill</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>4</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-08</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/Yf040528/video-recreation-skill">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">4</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">video-recreation-skill（VIDEO_AGENT_SKILL V2.2）— 爆款视频二创工作流 + 电商视频提示词模板
+
+English version
+
+ 五级质检 + 人物/商品一致性锚点 + 品牌片尾：一条爆款视频 → 自动拆解/重写/生成/质检 → 可发布的二创成片。
+
+ 由 FrameFlow 出品。FrameFlow 是 yimiagent.cn 的产品名，两者是同一个平台。
+
+电商视频提示词模板见 prompts/ecommerce-video：39 个电商品类 × 7 种爆款结构（273 个）+ 6 个通用模板，共 285 个，可直接用于 Seedance、可灵 Kling、万相 Wan、MiniMax 等视频模型。独立仓库：Yf040528/ecommerce-video-prompts。
+
+!License
+!Version
+!Status
+!Platform-orange)
+
+---
+
+ 和同类 Skill 的区别
+
+|  | video-recreation-skill（本仓库） | 常见的通用复刻 Skill |
+|---|---|---|
+| 质检 | 五级质检：脚本 → 图片 → 视频 → 音频 → 成片，失败阻断下游并报失败码 | 多数只给提示词，没有质检关卡和失败码 |
+| 人物 / 商品一致性 | 全局人物锚点 + 服装锚点 + 商品锚点，跨镜头强制一致，漂移则质检失败 | 只有“保留关系”原则，没有锚点机制 |
+| 品牌片尾 | 原片末尾的品牌 / 店铺 / 关注页自动替换成干净品牌片尾 | 无 |
+| 二创档位 | 保守 / 中度 / 大胆三档 + 元素级替换表 | 只有“保留骨架、换外皮”一句话策略 |
+| 场景 | 带货、风水 / 民俗、AI 漫剧、产品广告各有专属流程 | 通用，不分场景 |
+| 形态 | 厚规范（SKILL + specs + schemas + 提示词模板）+ 网页工作台一键用 | 薄 Skill，或只给提示词、不出成片 |
+
+ 上表“常见的通用复刻 Skill”指 2026-11-07 核对过的同类公开仓库的共性，不是针对某一家的逐项断言。
+
+ 安装（30 秒）
+
+ 方式一：Claude Code 插件（推荐）
+
+
+/plugin marketplace add Yf040528/video-recreation-skill
+/plugin install video-recreation@video-recreation-skills
+
+
+装完在 Claude Code 里直接说“做一条爆款二创”即可触发。
+
+ 方式二：通用 Skill 安装
+
+
+npx skills add Yf040528/video-recreation-skill
+
+
+如提示选择 Skill，选 video-recreation-skill。
+
+ 方式三：手动复制
+
+把 skills/video-recreation-skill 整个文件夹复制到你所用 Agent 的 skills 目录（Claude Code：~/.claude/skills/），或把 skills/video-recreation-skill/SKILL.md 内容作为自定义指令导入。
+
+ 不用装，先看效果 / 有问题去哪问
+
+- 网页一键用（零技术门槛）：打开 FrameFlow（yimiagent.cn），新建「爆款二创」任务，上传参考视频即可。
+- 定价与模型：以 yimiagent.cn/pricing 和 yimiagent.cn/models 为准，本仓库不写具体价格。
+- 提问：装不上先按上面三路安装逐一试，仍有问题去 Issues 或 Discussions 发帖，附上你用的安装方式、参考视频类型、档位和质检失败码。
+
+ 电商视频提示词模板
+
+电商视频提示词模板见 prompts/ecommerce-video。覆盖护肤、彩妆、女装、男装、鞋靴、箱包、零食、生鲜、饮品、母婴、玩具、家居、小家电、数码、运动、宠物等 39 个品类，每个品类都有痛点开场、卖点特写、前后对比、场景种草、开箱上手、达人口播、限时促销 7 种结构。装了本 Skill 的 Agent 会按品类自动选模板并填好你的产品；不想自己拼，在 FrameFlow 无限画布 的图生视频节点下点「模板」即可直接使用。
+
+ 支持的模型（网页工作台已上线，以 /models 为准）
+
+Skill 本身不绑定模型：它只声明「需要什么能力」，在 FrameFlow 网页工作台里可以用「自动匹配」按能力选模型；通过公开 API 调用时由你指定模型。以下是在 yimiagent.cn/models 上 2026-11-07 10:10 核对时已上线的模型（共 22 个），增减以该页为准，本仓库不写具体价格：
+
+- 生视频：Seedance 2.0 Mini、Seedance 2.0 Fast、Seedance 2.0、Seedance 2.5 Image to Video、Wan 3.0、HappyHorse 1.1 Image-to-Video、MiniMax H3、MiniMax H3 Max
+- 生图（分镜关键帧）：GPT Image 2.5、GPT-Image-2、Gemini-3-Pro-Image（Nano Banana Pro）、Gemini-3.1-Flash-Image（Nano Banana 2）、Nano Banana 2.1、Ideogram 4.5
+- 对话 / 分析（拆解、脚本与文本处理）：GPT-5.6 Sol、GPT-6.1 Sol、doubao-seed-2-1-turbo、doubao-seed-2-1-pro、Qwen3 VL Plus、Qwen3.7 Plus、Gemini 3.8 Flash、Claude Opus 5.5
+
+ 这是什么
+
+这是一个面向中文短视频创作的二创（recreation）工作流规范。它把「看到一条爆款视频，想做出自己的版本」这件事，拆成了机器可执行的步骤：拆解原片 → 重写脚本 → 生成分镜关键帧 → 图生视频 → 视觉质检 → 剪辑合成。
+
+适用场景：
+
+- 带货短视频：产品图 + 参考爆款 → 保留卖点结构，替换成你自己的产品、人物和场景
+- 风水 / 民俗 / 传统文化内容：寺庙、本命年、祈福等题材的结构化二创
+- AI 漫剧：角色一致性控制、分镜规划、台词与口型
+- 产品广告：商品锚点锁定，保证多镜头之间产品外观不漂移
+
+ 解决的核心痛点
+
+| 痛点 | 这个工作流怎么处理 |
+|---|---|
+| AI 生图人物换一张就变脸 | 全局人物锚点 + 服装锚点，跨镜头强制一致，漂移则质检失败 |
+| 产品每个镜头长得不一样 | 商品锚点图片锁定，生成时自动附加产品参考 |
+| 二创出来跟原片一模一样 | 三档策略：保守（完整复刻）/ 中度（同风格换实例）/ 大胆（重写） |
+| 口型对不上 | 声音随画面原生生成，台词按时长分配到对应镜头 |
+| 原片带抖音搜索页、品牌卡片 | 自动识别并替换成干净的品牌片尾 |
+| 改</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/yf040528__video-recreation-skill.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

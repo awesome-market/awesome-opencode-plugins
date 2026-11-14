@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0xfin/fin-doc-pipeline · OpenCode Plugins</title>
+<meta name="description" content="多文本处理工具：编码探测、去重合并、校验纠错、排版与 12 种格式互转，也可作为 Agent 技能调用。      Multi-text processing tool: encoding detection, deduplication and merging, validation and error correction, formatting, and conversion between">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="fin-doc-pipeline, 0xfin, 0xfin/fin-doc-pipeline, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/0xfin__fin-doc-pipeline">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="0xfin/fin-doc-pipeline · OpenCode Plugins">
+<meta property="og:description" content="多文本处理工具：编码探测、去重合并、校验纠错、排版与 12 种格式互转，也可作为 Agent 技能调用。      Multi-text processing tool: encoding detection, deduplication and merging, validation and error correction, formatting, and conversion between">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/0xfin__fin-doc-pipeline">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "0xfin/fin-doc-pipeline", "codeRepository": "https://github.com/0xFin/fin-doc-pipeline", "url": "https://opencode-plugins.zhuikan.com/repos/0xfin__fin-doc-pipeline", "description": "多文本处理工具：编码探测、去重合并、校验纠错、排版与 12 种格式互转，也可作为 Agent 技能调用。      Multi-text processing tool: encoding detection, deduplication and merging, validation and error correction, formatting, and conversion between", "author": {"@type": "Organization", "name": "0xfin", "url": "https://github.com/0xFin"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-02", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="0xfin/fin-doc-pipeline" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">0xfin/fin-doc-pipeline</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="0xfin__fin-doc-pipeline"><img class="rp-side-av" src="https://github.com/0xFin.png?s=300" width="300" height="300" alt="0xfin avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">fin-doc-pipeline</div>
+      <a class="rp-side-owner" href="https://github.com/0xFin">0xfin</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/0xFin">0xfin</a>
+        <span class="rp-sep">/</span><span class="rp-name">fin-doc-pipeline</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">多文本处理工具：编码探测、去重合并、校验纠错、排版与 12 种格式互转，也可作为 Agent 技能调用。      Multi-text processing tool: encoding detection, deduplication and merging, validation and error correction, formatting, and conversion between 12 formats—also callable as an Agent skill.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-02</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/0xFin/fin-doc-pipeline">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">6</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">fin-doc-pipeline
+
+零依赖的中文文本处理流水线
+编码识别 · 去重合并 · 简体中文校对 · 统一排版 · 12 种格式互转
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+简体中文 · English
+
+---
+
+ 把一堆杂乱的真实文本，变成干净、排版一致、可以直接阅读或发布的文档。
+
+sh
+npm i -g fin-doc-pipeline
+
+fin-doc-pipeline inspect 某书.txt                            体检：编码 / 结构 / 问题
+fin-doc-pipeline merge 第一卷.txt 第二卷.txt -o 全书.txt       去重合并
+fin-doc-pipeline format 全书.txt --proofread -o 全书.校对.txt   中文校对
+fin-doc-pipeline convert 全书.txt --to epub,docx,pdf          导出成品
+
+
+在线版： · 也可以双击仓库里的 index.html，完全离线运行。
+
+ 为什么值得用
+
+- 评分制编码探测：所有候选编码都解一遍再打分。200 KB 的 GBK 小说里一个坏字节，不会把整本书变成乱码。
+- 章节身份 =（分组, 编号）：番外第001章 与正文 第001章 是两个章节，不会互相覆盖。
+- 零依赖 · 完全离线 · 确定性：只用 Node 内置模块，同样的输入永远得到同样的输出。
+- 不静默丢内容：被丢弃的段落、文件、章节版本都写进旁路报告，成品保持干净。
+
+ 功能一览
+
+| | 能力 |
+| :-- | :-- |
+| 🔍 | 编码探测 UTF-8(BOM) / UTF-16 / GBK / GB18030 / Big5，评分制而非「先到先得」 |
+| 🧱 | 结构解析 章 / 节 / 卷 / 特殊篇目 / 番外分组；兼容 Markdown、DOCX、EPUB、HTML 的层级 |
+| 🧹 | 三级去重 相同文件、跨文件同号章节、章内重复段落 |
+| 🔀 | 两种合并 versions（同书多版本逐章择优）与 concat（多书拼接） |
+| ✅ | 校对 20 条结构与文本规则 + 9 条简体中文规则（繁转简、标点、英文、日期、错别字、语病、拟标题） |
+| 🖋 | 排版 标题模板、缩进、空行策略、软换行重排、标点规范化 |
+| 📦 | 20+ 种输入 · 12 种输出，一条命令任意组合 |
+| 🤖 | 面向 Agent 全部命令支持 --json / --dry-run，自带 SKILL.md |
+| 🛡 | 安全默认 不删源文件；删除需要两个开关，且默认进废纸篓 |
+
+ 快速开始
+
+ 1. 先体检
+
+sh
+fin-doc-pipeline inspect 某书.txt
+
+
+text
+■ 某书.txt
+   大小   2.8 MB   编码 GBK（置信度 100%）
+   结构   章节 293   小节 12   特殊篇目 1   卷 3   段落 15272   字数 802531
+   检查   错误 0   警告 10   提示 0
+
+
+ 2. 合并同一本书的分卷
+
+sh
+fin-doc-pipeline merge 第一卷.txt 第二卷.txt 第三卷.txt -o 全书.txt
+
+
+同一章出现在多个文件里时，自动采用最完整的那一版；每个取舍都写进 .report.md。
+
+ 3. 校对并导出
+
+sh
+fin-doc-pipeline format 全书.txt --proofread -o 全书.校对.txt
+fin-doc-pipeline convert 全书.校对.txt --to epub,docx,pdf
+
+
+ 简体中文校对
+
+--proofread 一个开关跑完全部规则：
+
+sh
+fin-doc-pipeline format 书.txt --proofread -o 校对.txt
+fin-doc-pipeline format 书.txt --simplify       只做繁转简
+fin-doc-pipeline format 书.txt --auto-titles    只补章节标题
+fin-doc-pipeline check 书.txt                   只报告，不改文件
+
+
+| 规则 | 处理 |
+| --- | --- |
+| C001 | 繁体字 → 简体字；乾 / 著 / 瞭 / 藉 按上下文修正（乾隆、著作、瞭望、慰藉 保留） |
+| C002 | 「」『』 → “”‘’；中文旁的半角 , ; : ? ! ( ) → 全角 |
+| C003 | 连续重复标点只留一个，…… 不处理 |
+| C004 | 数字与英文半角；单词首字母大写；KFC / USD / USDT 等缩写与产品名全大写 |
+| C005 | 日期统一 yyyy-MM-dd HH:mm：2024年3月5日 12:30 → 2024-03-05 12:30 |
+| C006 | 内置常见错别字表：按耐→按捺、既使→即使… |
+| C007 | 重复用字：的的、了了、词词 → 单字 |
+| C008 | 缺标题的章节读全章提炼标题：关键词按词频、跨段覆盖、首尾位置打分，各章通用的词降权；全文没有重复词（小说叙事）时取首句主干。不超过 6 字 |
+| C009 | 语病提示（大约…左右、原因是…造成的），只报告不改写 |
+| C010 | 中英文之间补一个空格：中文English → 中文 English。数字不处理，避免拆坏「第1章」 |
+| C011 | 段首出现收尾标点（，。、；：？！）】》」』”’），多为硬换行残渣；行首是开引号 “ 的对话不算问题。只提示不改 |
+| C012 | 数字与单位之间补空格：5kg → 5 kg、100km → 100 km。百分号与 ℃ 不处理 |
+| C013 | 书名号、括号嵌套：内层宜换成 〈〉 或不同层级的括号。只提示不改 |
+| C014 | 双引号内再套双引号，内层宜用单引号 ‘’ 。只提示不改 |
+
+check 同时检查原始文本层：BOM、换行风格、连续空行、行尾空白、Tab 缩进；
+check --fix 会一并修好。
+
+确定性且幂等：同一份文本跑第二遍不会再改动。语序与语义层面的问题只提示，
+避免把正确的句子改错。
+
+ 支持的格式
+
+| 类别 | 输入 | 输出 |
+| :-- | :-- | :-- |
+| 纯文本 | txt md rst ini log srt tex | txt md |
+| 结构化 | json yaml xml csv js ts | json yaml xml csv js |
+| 标记 | html rtf | html rtf |
+| Office / 电子书 | docx epub | docx epub |
+| 版式文档 | pdf | pdf（A5，自动页码，中文可选中） |
+
+ 安装
+
+要求 Node.js 18+。没有任何第三方依赖，不需要 npm ins</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/0xfin__fin-doc-pipeline.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wuwei-apc/opencode-diff-review · OpenCode Plugins</title>
+<meta name="description" content="Per-file AI change review for OpenCode v2: side-by-side diff, block/line/file/session revert.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-diff-review, wuwei-apc, wuwei-apc/opencode-diff-review, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, workflow, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/wuwei-apc__opencode-diff-review">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="wuwei-apc/opencode-diff-review · OpenCode Plugins">
+<meta property="og:description" content="Per-file AI change review for OpenCode v2: side-by-side diff, block/line/file/session revert.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/wuwei-apc__opencode-diff-review">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "wuwei-apc/opencode-diff-review", "codeRepository": "https://github.com/wuwei-apc/opencode-diff-review", "url": "https://opencode-plugins.zhuikan.com/repos/wuwei-apc__opencode-diff-review", "description": "Per-file AI change review for OpenCode v2: side-by-side diff, block/line/file/session revert.", "author": {"@type": "Organization", "name": "wuwei-apc", "url": "https://github.com/wuwei-apc"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-27", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,workflow,server,tui"}</script>
+</head>
+<body data-repo="wuwei-apc/opencode-diff-review" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">wuwei-apc/opencode-diff-review</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="wuwei-apc__opencode-diff-review"><img class="rp-side-av" src="https://github.com/wuwei-apc.png?s=300" width="300" height="300" alt="wuwei-apc avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-diff-review</div>
+      <a class="rp-side-owner" href="https://github.com/wuwei-apc">wuwei-apc</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/wuwei-apc">wuwei-apc</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-diff-review</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">Per-file AI change review for OpenCode v2: side-by-side diff, block/line/file/session revert.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span><span class="rp-stat" title="downloads30d">↓ <b>370</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-27</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/wuwei-apc/opencode-diff-review">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">2.1.0</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-diff-review/v/2.1.0">2.1.0 ↓</a><span class="rp-dl-ver">2.1.0</span><span class="rp-dl-date">2026-10-27</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">370</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-diff-review
+
+给 OpenCode v2 用的「AI 改了什么」逐文件查看与撤回插件。
+
+AI 每写一次文件，插件就会在写入前保存一份原始内容快照。于是你可以随时：
+
+| 需求 | 做法 |
+| --- | --- |
+| 快速查看 | ctrl+shift+r 或 /diff-review 打开 IDEA 风格双栏页，按改动块浏览，可打字过滤文件 |
+| 同意 / 不同意 | 每块中间列有两个可点的箭头：✓ 同意（保留并前移基线）/ ✗ 不同意（还原这块）；顶部工具条同样有块级、文件级、全部级的同意/不同意 |
+| 逐行处理 | 块上按 ⋮，或页面内 ctrl+shift+j/k 选块后操作；不同意时也可以只挑其中某几行 |
+| 单文件撤回 | 左侧文件树每行末尾的 ↺，把文件恢复到 AI 第一次改它之前 |
+| 全部撤回 | 工具条 ✗不同意全部，一条命令把所有被 AI 改过的文件还原 |
+| 查看 diff | 左栏是 AI 修改前，右栏是当前，行号左右对齐，删除行与新增行按改动块配对显示 |
+
+ 只依赖 OpenCode 自身，不需要 git 仓库，也不会动你的 git index。
+
+三份文档的分工：
+
+| 文档 | 面向谁 | 装什么 |
+| --- | --- | --- |
+| 教程.md | 使用者 | 安装方式的唯一权威来源：四种装法、验收、实战、升级卸载 |
+| 使用文档.md | 使用者 | 装好之后怎么用：界面细节、场景、配置、排错 |
+| README（本文件） | 维护者 | 原理、配置项、开发、发布到 npm |
+
+ 命令名说明：本文统一用 opencode 指 OpenCode v2 的命令行。若你的机器上 v2 的可执行文件
+ 叫别的名字（例如和 v1 并存时的 opencode2），把命令里的 opencode 换成它即可。
+
+---
+
+ 1. 它是怎么工作的
+
+
+AI 调用 write/edit/patch
+        │
+        ├─ execute.before ──► 快照文件当前内容（每个文件只存第一次）
+        │
+        └─ execute.after  ──► 读回新内容，和快照比对
+                              相同 → 忽略（读文件之类的工具不会污染列表）
+                              不同 → 进入待撤回列表
+
+
+撤回时：
+
+- 修改过 → 把首次快照写回文件（所以改 10 次也只还原到动手前的状态）
+- AI 新建的文件 → 直接删除
+- AI 删掉的文件 → 把快照写回
+
+只撤其中一块或一行时，不是靠快照覆盖，而是反向应用选中的 diff 行：
+add 行删除、del 行恢复、未选中的行原样保留，然后整份文件按原换行风格写回。
+选中的行覆盖了全部改动时，退化为整文件还原，直接写回首次快照。
+
+快照写到 OpenCode 数据目录下的自有仓库，不进项目工作区：
+
+
+~/.local/share/opencode/opencode-diff-plugin/v1//.json
+
+
+每个文件一条独立记录，服务端只负责采集写入，面板进程直接读同一份数据。
+
+---
+
+ 2. 安装
+
+一行命令（OpenCode v2 自带的能力）：
+
+bash
+opencode plugin add opencode-diff-review
+
+
+装完 opencode plugin list 能看到 opencode.diff.tracker：
+
+
+ID                     VERSION  SOURCE
+opencode.diff.tracker  2.1.0    opencode-diff-review
+
+
+ 四种安装方式
+
+| 方式 | 命令 | 能配 options | 说明 |
+| --- | --- | --- | --- |
+| ① npm（推荐） | opencode plugin add opencode-diff-review | ✗ | 从 npm 拉，装进 OpenCode 缓存目录 |
+| ② Git | opencode plugin add git@github.com:wuwei-apc/opencode-diff-review.git | ✗ | 从 Git 仓库拉 |
+| ③ 配置引用 | opencode.json 里写 { &quot;package&quot;: &quot;/你的/插件目录&quot;, &quot;options&quot;: { … } } | ✓ | 插件放任意位置，唯一能配选项的方式 |
+| ④ 手动放目录 | 解压 .tgz 或 git clone 到 ~/.config/opencode/plugins/opencode-diff-review/ | ✗ | 零配置、可离线 |
+
+只选一种。装两种会被加载两次，每次改文件记两条。
+
+完整的安装步骤、作用域规则、镜像源处理、每种方式的升级与卸载，见 教程.md 第 2 节。
+
+ 插件的两个入口
+
+插件由两个入口组成，必须在同一个包里：
+
+- index.ts — 服务端插件，负责采集（tool.hook）
+- tui.ts — 终端面板，负责界面与快捷键
+
+两者通过磁盘上的共享仓库交换数据，不依赖插件 RPC，所以缺一不可。
+OpenCode 按包的 exports 解析这两个入口（&quot;.&quot; → 服务端，&quot;./tui&quot; → 面板），
+一条配置就把两个部分都加载起来。
+
+ 关于依赖
+
+@opencode/plugin 是插件自己的 dependencies；@opentui/solid、@opentui/core、solid-js
+声明为 peerDependencies——它们由 OpenCode 运行时提供，opencode plugin add 会自动装好，
+不会在你的机器上多出第二份 Solid 运行时。
+
+手动放目录（方式 ④）不会自动装依赖。正常情况不用管；如果面板报「找不到 @opentui/solid」，
+在该目录里跑一次 npm install --omit=dev 即可（这条命令依赖 peerDependencies 写的是版本范围而不是
+精确锁死，理由见第 7 节）。
+
+只有要自己跑类型检查 / 测试时才需要：
+
+bash
+npm install         或 bun install
+
+
+---
+
+ 3. 使用
+
+| 入口 | 说明 |
+| --- | --- |
+| ctrl+shift+r | 默认快捷键 |
+| /diff-review | 斜杠命令（可改名，见配置） |
+| 命令面板搜索「查看 / 撤回 AI 文件变更」 | 同上 |
+
+ 页面结构
+
+
+ ┌ ▲ ▼ 块 1/3  ✓同意块  ✗不同意块 │ ✓同意全部  ✗不同意全部 │ ⟳刷新  ⏻退出(Esc) ┐
+ │ 文件 3           │          AI 修改前            │ → │        当前          │
+ │ </pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/wuwei-apc/opencode-diff-review/releases"><b>2.1.0</b> <span class="rp-rel-tag">2.1.0</span> <span class="rp-item-extra">2026-10-27</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/wuwei-apc__opencode-diff-review.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

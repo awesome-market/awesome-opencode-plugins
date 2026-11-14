@@ -1,0 +1,392 @@
+# HiAPI Skills
+
+Official HiAPI skill directory for AI Agents.
+
+**HiAPI Skills • Install • API Key • [HiAPI](https://www.hiapi.ai/en)**
+
+[Get API Key](https://www.hiapi.ai/en/dashboard/api-keys) · [Pricing](https://www.hiapi.ai/en/pricing) · [Docs](https://www.hiapi.ai/docs) · [GPT Image 2 Prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts) · [AI Video Prompts](https://github.com/HiAPIAI/awesome-ai-video-prompts) · [Remote MCP Guide](https://www.hiapi.ai/docs/for-ai/) · [简体中文](README.zh-CN.md)
+
+> **HiAPI Matrix:** 🎨 [Image Prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts) · 🎬 [Video Prompts](https://github.com/HiAPIAI/awesome-ai-video-prompts) · 🛠️ **Agent Skills (you are here)** · 🤖 [Remote MCP](https://www.hiapi.ai/docs/for-ai/) · 📖 [API Docs](https://www.hiapi.ai/docs)
+
+---
+
+> AI Agent? Start with [llms-install.md](llms-install.md). It tells your agent which skill to install, how to set `HIAPI_API_KEY`, and what to do when a key, balance, quota, or model request fails.
+
+---
+
+## What Is This?
+
+This is the official directory of HiAPI skills for OpenClaw, Claude Code, Codex, OpenCode, Cursor-style agent workflows, and other tools that can read local skills. It helps you choose the right HiAPI entry point before installing a specific skill.
+
+HiAPI is an AI API platform built for developers: one API, all AI models. These skills package common image and video generation workflows so an AI Agent can call a focused model without guessing endpoints or parameters.
+
+Use this repository when you want to choose a HiAPI skill. Install the individual skill repository when you are ready to generate images or videos.
+
+---
+
+## Public Entry Map
+
+| Entry | Link | Use it when... |
+| --- | --- | --- |
+| Image Prompt Gallery | [awesome-gpt-image-2-prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts) | You want output-backed GPT Image 2 recipes before generating images. |
+| Video Prompt Gallery | [awesome-ai-video-prompts](https://github.com/HiAPIAI/awesome-ai-video-prompts) | You want rights-aware Seedance 2.0 and 2.5 recipe metadata before generating. |
+| Agent Skills | [hiapi-skills](https://github.com/HiAPIAI/hiapi-skills) | You want to browse available HiAPI skills and choose one focused workflow. |
+| Remote MCP | `https://mcp.hiapi.ai/mcp` | Your client supports remote MCP and can pass `Authorization: Bearer <HIAPI_API_KEY>`. |
+| Async Tasks API | [www.hiapi.ai/docs/api-reference](https://www.hiapi.ai/docs/api-reference/) | You are building a backend service that needs `POST /v1/tasks`, polling, signed callbacks, and task history. |
+| API Cookbook | [www.hiapi.ai/docs](https://www.hiapi.ai/docs) | You want direct API request shapes, model parameters, and integration guides. |
+
+These entry points solve different jobs:
+
+- **Prompt Galleries** — output-backed recipes for creators and developers who want a working starting point before calling an API.
+- **Agent Skills** — installable single-model workflows for agents that need a stable model-specific tool, plus a prompt-only director that turns briefs into runnable video prompts.
+- **Remote MCP** — a hosted MCP endpoint for clients that can pass a HiAPI API key in request headers.
+- **Async Tasks API** — the durable `/v1/tasks` contract for product integrations, queues, polling, signed callbacks, and task history.
+- **API Cookbook** — docs and examples for direct API integration.
+
+---
+
+## Available Skills
+
+| Skill | Best For | Model | Repository |
+| --- | --- | --- | --- |
+| GPT Image 2 | Posters, illustrations, social graphics, product visuals, cover images, reference edits | `gpt-image-2/text-to-image` / `gpt-image-2/image-to-image` (routes: default, `beta`, `ext` multi-ratio 4K) | [hiapi-gpt-image-2-skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-skill) |
+| GPT Image 2.5 | Single-image generation, reference-guided visuals, image variations; prompts up to 20,000 characters. Existing projects only — new image projects should start with GPT Image 2.6 below | `gpt-image-2.5-flare/text-to-image` / `gpt-image-2.5-flare/image-to-image` (default), Sunburst equivalents, pro quality tiers `gpt-image-2.5-flare@pro` / `gpt-image-2.5-sunburst@pro` | [GPT Image 2.5 image generation and editing skill for Codex and Claude Code](https://github.com/HiAPIAI/hiapi-gpt-image-2-5-skill) |
+| GPT Image 2.6 | Single-image generation, SVG and GIF output (text-to-image only), mask or markup local edits, reference-guided visuals; prompts up to 32,000 characters | `gpt-image-2.6-flare/text-to-image` / `gpt-image-2.6-flare/image-to-image` (default), Sunburst equivalents; one model carries both quality and resolution | [GPT Image 2.6 image generation and editing skill for Codex and Claude Code](https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill) |
+| Seedream 5.0 Pro | In-image text & signage, brush calligraphy posters, photoreal portraits, reference-based edits & composites | `seedream-5.0-pro` | [hiapi-seedream-5-0-pro-skill](https://github.com/HiAPIAI/hiapi-seedream-5-0-pro-skill) |
+| Seedance 2.5 Video | Up to 30s text/image/reference video, mode-specific 480p/720p/1080p, native audio, paid-task recovery, QC | `seedance-2.5/*` | [hiapi-seedance-2-5-video-skill](https://github.com/HiAPIAI/hiapi-seedance-2-5-video-skill) |
+| Seedance 2.0 Video | Text-to-video, image-to-video, cinematic clips, product videos, storyboards | `seedance-2.0` | [hiapi-seedance-2-0-video-skill](https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill) |
+| HappyHorse 1.0 Video | Lightweight text-to-video drafts, short social clips, ad concepts | `happyhorse-1-0` | [hiapi-happyhorse-1-0-video-skill](https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill) |
+| Video Prompt Generator | Direct briefs, links, and topics into scene-by-scene Seedance/HappyHorse prompts before generating | — (prompt-only) | [hiapi-video-prompt-generator-skill](https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill) |
+| Realistic Video Prompting | Phone, DV, VHS, Super 8, GoPro, CCTV, documentary, anti-AI preflight, and model-agnostic handoff | — (prompt layer for any video model) | [realistic-video-prompting](https://github.com/HiAPIAI/realistic-video-prompting) |
+| Image-to-Video Director | Feasibility-aware camera motion, model-ready I2V prompts, and motion QC from one approved still | — (model-agnostic workflow) | [hiapi-image-to-video-camera-motion-skill](https://github.com/HiAPIAI/hiapi-image-to-video-camera-motion-skill) |
+| Awesome AI Product Video Workflows | Product-image audits, hero visuals, ecommerce videos, UGC ads, social variants, and source-grounded QC | — (workflow library) | [awesome-ai-video-workflows](https://github.com/HiAPIAI/awesome-ai-video-workflows) |
+| HiAPI Animation Forge | Asset-first 2D-to-3D planning, Blender previews, source-lock checks, and optional generative rendering | — (production workflow) | [hiapi-2d-to-3d-video-skill](https://github.com/HiAPIAI/hiapi-2d-to-3d-video-skill) |
+| HiAPI Hand-Painted Animation | Hand-painted animated shorts, explainers and lyric videos in one watercolour-and-ink look, with optional lyrics and song | — (production workflow) | [hiapi-hand-painted-animation-skill](https://github.com/HiAPIAI/hiapi-hand-painted-animation-skill) |
+| HiAPI Brand Kit | One business idea → editable SVG logo system, colours, type, voice, photorealistic mockups with the exact logo, and a brand book | — (production workflow) | [hiapi-brand-kit-skill](https://github.com/HiAPIAI/hiapi-brand-kit-skill) |
+| HiAPI Game Asset Studio | One game idea → consistent sprites, tilesets, UI icons, backgrounds, music, voice lines and a trailer, plus a playable prototype | — (production workflow) | [hiapi-game-asset-studio-skill](https://github.com/HiAPIAI/hiapi-game-asset-studio-skill) |
+
+### Product Video Adapter Collection
+
+[`hiapi-product-video-skills`](https://github.com/HiAPIAI/hiapi-product-video-skills) is an active `release-candidate` collection with four installable adapters: `ugc-ad`, `fashion-lookbook`, `food-commercial`, and `product-spokesperson`. It is indexed as a bundle because the repository does not expose one root-level `SKILL.md`. See the [adapter guide](docs/product-video-skills.md).
+
+---
+
+## Choose an Entry
+
+| I want to... | Open |
+| --- | --- |
+| Find a tested image prompt and output example | [Awesome GPT Image 2 Prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts) |
+| Find a video prompt and source-backed example | [Awesome AI Video Prompts](https://github.com/HiAPIAI/awesome-ai-video-prompts) |
+| Generate or edit images with GPT Image 2 | [GPT Image 2 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-skill) |
+| Generate or edit one GPT Image 2.5 image | [GPT Image 2.5 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-5-skill) |
+| Generate or edit one GPT Image 2.6 image, including SVG, GIF, or masked local edits | [GPT Image 2.6 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill) |
+| Produce up to 30s Seedance 2.5 video from text, frames, or multimodal references | [Seedance 2.5 Video Skill](https://github.com/HiAPIAI/hiapi-seedance-2-5-video-skill) |
+| Generate or animate videos with a stronger video workflow | [Seedance 2.0 Video Skill](https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill) |
+| Quickly generate short text-to-video clips | [HappyHorse 1.0 Video Skill](https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill) |
+| Turn a one-line brief or link into a scene-by-scene video prompt before generating | [Video Prompt Generator Skill](https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill) |
+| Make a phone/DV/VHS/documentary prompt less AI-looking, then route it to any selected video model | [Realistic Video Prompting](https://github.com/HiAPIAI/realistic-video-prompting) |
+| Direct safe camera motion from one approved still | [Image-to-Video Director](https://github.com/HiAPIAI/hiapi-image-to-video-camera-motion-skill) |
+| Turn product images or listings into grounded product-video workflows | [Awesome AI Product Video Workflows](https://github.com/HiAPIAI/awesome-ai-video-workflows) |
+| Plan a source-locked 2D-to-3D production or Blender preview | [HiAPI Animation Forge](https://github.com/HiAPIAI/hiapi-2d-to-3d-video-skill) |
+| Make a hand-painted animated short, explainer or song video | [HiAPI Hand-Painted Animation](https://github.com/HiAPIAI/hiapi-hand-painted-animation-skill) |
+| Design a brand identity with a logo, mockups and a brand book | [HiAPI Brand Kit](https://github.com/HiAPIAI/hiapi-brand-kit-skill) |
+| Make a consistent game asset pack and a playable prototype | [HiAPI Game Asset Studio](https://github.com/HiAPIAI/hiapi-game-asset-studio-skill) |
+| Install one product-video adapter for UGC, fashion, food, or spokesperson work | [Product Video Skills](docs/product-video-skills.md) |
+| Install the realistic prompt and Seedance skills together | [Direct install and archived bundle migration](./docs/realistic-video-workflow.md) (old bundle: [hiapi-realistic-video-workflow](https://github.com/HiAPIAI/hiapi-realistic-video-workflow)) |
+| Let an agent access more HiAPI models from chat | [HiAPI Remote MCP Guide](https://www.hiapi.ai/docs/for-ai/) |
+| Build a server-side integration with webhooks and task history | [Async Tasks API](https://www.hiapi.ai/docs/api-reference/) |
+
+Skills are best when you want a stable, focused workflow. Remote MCP is better when you want a chat agent to discover and call multiple HiAPI tools. The MCP endpoint is `https://mcp.hiapi.ai/mcp`.
+
+For application code, use the direct `/v1/tasks` API: submit with `POST https://api.hiapi.ai/v1/tasks`, poll `GET https://api.hiapi.ai/v1/tasks/{taskId}`, or register `callback.url` to receive terminal-state webhooks signed by `X-HiAPI-Timestamp` and `X-HiAPI-Signature`.
+
+---
+
+## MCP vs Skill
+
+Both routes use the same HiAPI account and the same `HIAPI_API_KEY`. Pick by how your agent runs and how stable you want the workflow.
+
+| Dimension | Single-Model Skill | Remote MCP |
+| --- | --- | --- |
+| What it is | A local skill folder loaded by your agent (Codex, Claude Code, OpenClaw, …) | A hosted MCP endpoint at `https://mcp.hiapi.ai/mcp` |
+| Install path | `git clone` or `openclaw skills add` into the agent's skills directory | Add one JSON block to the agent's MCP config — no clone required |
+| Network | Direct HTTPS to `api.hiapi.ai` from the user's machine | Agent → `mcp.hiapi.ai` (hosted MCP) → `api.hiapi.ai` |
+| Best for | Stable, focused, single-model workflows — image-only or video-only | Chat agents that need to discover and call multiple HiAPI tools in one session |
+| Model surface | One model family per generation skill (`gpt-image-2`, `seedance-2.5/*`, `seedance-2.0`, `happyhorse-1-0`), plus prompt-only skills | All MCP-exposed tools: `generate_image`, `generate_video`, `list_models`, … |
+| Updates | You pull from the repo when there's a new version | Hosted — capabilities update server-side |
+| Required client support | Any agent that can read a local skills folder | Client must support remote MCP URLs and custom headers (`Authorization: Bearer …`) |
+| Image upload | Local file paths supported by the skill scripts | Upload via URL — local-file upload is being expanded |
+| Use it when | The model and use case are fixed and you want zero configuration drift | You don't know in advance which tool the agent will need |
+
+If both fit, install a single-model skill first — it has the smallest moving parts. Add Remote MCP later when you need a wider tool surface in chat.
+
+## Skills vs Remote MCP vs /v1/tasks
+
+| Route | Choose it when | Primary interface |
+| --- | --- | --- |
+| Skills | The user asked for one known model or a repeatable local workflow. | Local skill scripts plus `HIAPI_API_KEY` |
+| Remote MCP | The user wants an agent to discover models and tools in chat. | `https://mcp.hiapi.ai/mcp` |
+| Direct `/v1/tasks` | You are building product code, queues, automations, or server-side callbacks. | `POST /v1/tasks`, `GET /v1/tasks/{taskId}`, `GET /v1/tasks` |
+
+The async task lifecycle is `queued` -> `handling` -> `archiving` -> `success` or `fail`. Successful tasks return `output[]` assets with `url`, `type`, and `expireAt`. Failed tasks return `error.code`, including `INVALID_REQUEST`, `MODEL_UNAVAILABLE`, `TASK_FAILED`, `TASK_TIMEOUT`, and `STORAGE_UNAVAILABLE`.
+
+---
+
+## Install One Skill
+
+Pick the repository for the workflow you need. Prompt-only skills do not require an API key.
+
+### One Command (Recommended)
+
+```bash
+# GPT Image 2
+npx -y github:HiAPIAI/hiapi-gpt-image-2-skill -y
+
+# GPT Image 2.6 (SVG, GIF, mask edits, signed auto-update)
+npx -y github:HiAPIAI/hiapi-gpt-image-2-6-skill -y
+
+# Seedream 5.0 Pro
+npx -y github:HiAPIAI/hiapi-seedream-5-0-pro-skill -y
+
+# Seedance 2.5 Video
+npx -y github:HiAPIAI/hiapi-seedance-2-5-video-skill -y
+
+# Seedance 2.0 Video
+npx -y github:HiAPIAI/hiapi-seedance-2-0-video-skill -y
+
+# HappyHorse 1.0 Video
+npx -y github:HiAPIAI/hiapi-happyhorse-1-0-video-skill -y
+
+# Video Prompt Generator (prompt-only, no API key needed)
+npx -y github:HiAPIAI/hiapi-video-prompt-generator-skill -y
+
+# Realistic Video Prompting (prompt-only by default)
+npx -y github:HiAPIAI/realistic-video-prompting -y
+
+# Product Video Workflows
+npx -y github:HiAPIAI/awesome-ai-video-workflows -y
+
+# HiAPI Animation Forge
+npx -y github:HiAPIAI/hiapi-2d-to-3d-video-skill -y
+
+# HiAPI Hand-Painted Animation
+npx -y github:HiAPIAI/hiapi-hand-painted-animation-skill -y
+
+# HiAPI Brand Kit
+npx -y github:HiAPIAI/hiapi-brand-kit-skill -y
+
+# HiAPI Game Asset Studio
+npx -y github:HiAPIAI/hiapi-game-asset-studio-skill -y
+
+# Image-to-Video Director (portable clone install)
+git clone https://github.com/HiAPIAI/hiapi-image-to-video-camera-motion-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/image-to-video-director"
+
+# Install both independent skills (replacement for the archived bundle)
+npx -y github:HiAPIAI/realistic-video-prompting -y
+npx -y github:HiAPIAI/hiapi-seedance-2-0-video-skill -y
+```
+
+Each installer auto-detects Codex (`~/.codex/skills`) and Claude Code (`~/.claude/skills`). Pass `--codex`, `--claude`, `--target=/path`, or set `AGENT_SKILLS_DIR` to override. Requires Node 18+ and `git` on PATH.
+
+### OpenClaw
+
+```bash
+# GPT Image 2
+openclaw skills add https://github.com/HiAPIAI/hiapi-gpt-image-2-skill
+
+# GPT Image 2.6
+openclaw skills add https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill
+
+# Seedream 5.0 Pro
+openclaw skills add https://github.com/HiAPIAI/hiapi-seedream-5-0-pro-skill
+
+# Seedance 2.5 Video
+openclaw skills add https://github.com/HiAPIAI/hiapi-seedance-2-5-video-skill
+
+# Seedance 2.0 Video
+openclaw skills add https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill
+
+# HappyHorse 1.0 Video
+openclaw skills add https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill
+
+# Video Prompt Generator
+openclaw skills add https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill
+
+# Realistic Video Prompting
+openclaw skills add https://github.com/HiAPIAI/realistic-video-prompting
+```
+
+Install GPT Image 2.5 or 2.6 with the official Skills CLI:
+
+```bash
+npx skills add HiAPIAI/hiapi-gpt-image-2-5-skill --skill hiapi-gpt-image-2-5
+npx skills add HiAPIAI/hiapi-gpt-image-2-6-skill --skill hiapi-gpt-image-2-6
+```
+
+### Codex
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+
+rm -rf "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-gpt-image-2"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-gpt-image-2"
+
+rm -rf "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-gpt-image-2-6"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-gpt-image-2-6"
+
+rm -rf "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-seedance-2-0-video"
+git clone https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-seedance-2-0-video"
+
+rm -rf "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-happyhorse-1-0-video"
+git clone https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-happyhorse-1-0-video"
+
+rm -rf "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-video-prompt-generator"
+git clone https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill.git "${CODEX_HOME:-$HOME/.codex}/skills/hiapi-video-prompt-generator"
+```
+
+Restart Codex after installing skills.
+
+### Claude Code
+
+```bash
+mkdir -p "$HOME/.claude/skills"
+
+rm -rf "$HOME/.claude/skills/hiapi-gpt-image-2"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-skill.git "$HOME/.claude/skills/hiapi-gpt-image-2"
+
+rm -rf "$HOME/.claude/skills/hiapi-gpt-image-2-6"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill.git "$HOME/.claude/skills/hiapi-gpt-image-2-6"
+
+rm -rf "$HOME/.claude/skills/hiapi-seedance-2-0-video"
+git clone https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill.git "$HOME/.claude/skills/hiapi-seedance-2-0-video"
+
+rm -rf "$HOME/.claude/skills/hiapi-happyhorse-1-0-video"
+git clone https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill.git "$HOME/.claude/skills/hiapi-happyhorse-1-0-video"
+
+rm -rf "$HOME/.claude/skills/hiapi-video-prompt-generator"
+git clone https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill.git "$HOME/.claude/skills/hiapi-video-prompt-generator"
+```
+
+### Any Agent With A Skills Folder
+
+```bash
+export AGENT_SKILLS_DIR="/path/to/your/agent/skills"
+mkdir -p "$AGENT_SKILLS_DIR"
+
+rm -rf "$AGENT_SKILLS_DIR/hiapi-gpt-image-2"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-skill.git "$AGENT_SKILLS_DIR/hiapi-gpt-image-2"
+
+rm -rf "$AGENT_SKILLS_DIR/hiapi-gpt-image-2-6"
+git clone https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill.git "$AGENT_SKILLS_DIR/hiapi-gpt-image-2-6"
+
+rm -rf "$AGENT_SKILLS_DIR/hiapi-seedance-2-0-video"
+git clone https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill.git "$AGENT_SKILLS_DIR/hiapi-seedance-2-0-video"
+
+rm -rf "$AGENT_SKILLS_DIR/hiapi-happyhorse-1-0-video"
+git clone https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill.git "$AGENT_SKILLS_DIR/hiapi-happyhorse-1-0-video"
+
+rm -rf "$AGENT_SKILLS_DIR/hiapi-video-prompt-generator"
+git clone https://github.com/HiAPIAI/hiapi-video-prompt-generator-skill.git "$AGENT_SKILLS_DIR/hiapi-video-prompt-generator"
+```
+
+---
+
+## Get API Key
+
+1. Open [HiAPI API Keys](https://www.hiapi.ai/en/dashboard/api-keys).
+2. Create or sign in to your HiAPI account.
+3. Create or copy an API key.
+4. Set it in the terminal where your agent runs:
+
+```bash
+export HIAPI_API_KEY="your_hiapi_api_key_here"
+export HIAPI_BASE_URL="https://api.hiapi.ai"
+```
+
+Each skill includes a `scripts/check-config.mjs` helper so your agent can verify the key and network path before generation.
+
+---
+
+## Agent Prompt
+
+Copy this to your AI Agent:
+
+```text
+Use HiAPI skills for image and video generation.
+
+If I ask for an image, install or use:
+https://github.com/HiAPIAI/hiapi-gpt-image-2-skill
+
+If I explicitly ask for GPT Image 2.6, or want SVG, GIF, or masked local edits, use this image generation and editing workflow:
+https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill
+Install it with `npx -y github:HiAPIAI/hiapi-gpt-image-2-6-skill -y`.
+
+If I explicitly ask for GPT Image 2.5, use this image generation and editing workflow:
+https://github.com/HiAPIAI/hiapi-gpt-image-2-5-skill
+Install it with `npx skills add HiAPIAI/hiapi-gpt-image-2-5-skill --skill hiapi-gpt-image-2-5`.
+
+If I ask for a stronger video workflow or image-to-video, install or use:
+https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill
+
+If I ask for a quick text-to-video clip, install or use:
+https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill
+
+Use HIAPI_API_KEY for authentication. If the key is missing, invalid, rate-limited, or the account has insufficient balance, show the user the next step and link to HiAPI.
+```
+
+## Prompt Gallery Workflow
+
+Use [awesome-gpt-image-2-prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts) when the user needs inspiration, style references, or a prompt starting point. Each case includes a result image, source attribution, aspect ratio, and a HiAPI Draw link. After the user chooses a case, use the relevant skill or direct API request to generate a new result with their own subject, product, text, or scene.
+
+---
+
+## Machine-Readable Index
+
+This repository includes [skills.json](skills.json), a machine-readable index of the current HiAPI skill repositories, model pages, install commands, and intended use cases.
+
+---
+
+## Troubleshooting
+
+| Problem | Next Step |
+| --- | --- |
+| Missing `HIAPI_API_KEY` | Create or copy a key at [HiAPI API Keys](https://www.hiapi.ai/en/dashboard/api-keys), then export `HIAPI_API_KEY`. |
+| Invalid key or unauthorized request | Check the key or create a new one at [HiAPI API Keys](https://www.hiapi.ai/en/dashboard/api-keys). |
+| Insufficient balance, quota, or payment status | Check your account in the [HiAPI Dashboard](https://www.hiapi.ai/en/dashboard) and review [Pricing](https://www.hiapi.ai/en/pricing). |
+| Rate limited | Wait and retry, or reduce concurrent generations. |
+| Unsure which model to use | Start with the table above, or follow the [HiAPI Remote MCP Guide](https://www.hiapi.ai/docs/for-ai/) so your agent can inspect available tools. |
+
+---
+
+## Related HiAPI Repositories
+
+- [HiAPI GPT Image 2 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-skill)
+- [HiAPI GPT Image 2.5 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-5-skill)
+- [HiAPI GPT Image 2.6 Skill](https://github.com/HiAPIAI/hiapi-gpt-image-2-6-skill)
+- [HiAPI Seedance 2.0 Video Skill](https://github.com/HiAPIAI/hiapi-seedance-2-0-video-skill)
+- [HiAPI HappyHorse 1.0 Video Skill](https://github.com/HiAPIAI/hiapi-happyhorse-1-0-video-skill)
+- [Image-to-Video Director](https://github.com/HiAPIAI/hiapi-image-to-video-camera-motion-skill)
+- [Awesome AI Product Video Workflows](https://github.com/HiAPIAI/awesome-ai-video-workflows)
+- [HiAPI Animation Forge](https://github.com/HiAPIAI/hiapi-2d-to-3d-video-skill)
+- [HiAPI Hand-Painted Animation](https://github.com/HiAPIAI/hiapi-hand-painted-animation-skill)
+- [HiAPI Brand Kit](https://github.com/HiAPIAI/hiapi-brand-kit-skill)
+- [HiAPI Game Asset Studio](https://github.com/HiAPIAI/hiapi-game-asset-studio-skill)
+- [HiAPI Product Video Skills](https://github.com/HiAPIAI/hiapi-product-video-skills)
+- [Awesome GPT Image 2 Prompts](https://github.com/HiAPIAI/awesome-gpt-image-2-prompts)
+- [Awesome AI Video Prompts](https://github.com/HiAPIAI/awesome-ai-video-prompts)
+
+---
+
+## Seedance 2.5 required update
+
+Install version 1.2.0 or later before new paid generation. It supports reference-mode duration=-1 and estimates reference plus output duration. The central minimum is 1.2.0; the latest verified version is required for new creation. Recovery of existing tasks remains available.
+
+`npx -y github:HiAPIAI/hiapi-seedance-2-5-video-skill -y`
+
+## License
+
+MIT
+
+---
+
+[HiAPI](https://www.hiapi.ai/en) — One API, all AI models.

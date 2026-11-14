@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tkhs101/opencode-step-pause · OpenCode Plugins</title>
+<meta name="description" content="OpenCode V2 plugin: periodic in-chat progress checkpoints every N steps, without extra turns or waiting for the user.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-step-pause, tkhs101, tkhs101/opencode-step-pause, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/tkhs101__opencode-step-pause">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="tkhs101/opencode-step-pause · OpenCode Plugins">
+<meta property="og:description" content="OpenCode V2 plugin: periodic in-chat progress checkpoints every N steps, without extra turns or waiting for the user.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/tkhs101__opencode-step-pause">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "tkhs101/opencode-step-pause", "codeRepository": "https://github.com/tkhs101/opencode-step-pause", "url": "https://opencode-plugins.zhuikan.com/repos/tkhs101__opencode-step-pause", "description": "OpenCode V2 plugin: periodic in-chat progress checkpoints every N steps, without extra turns or waiting for the user.", "author": {"@type": "Organization", "name": "tkhs101", "url": "https://github.com/tkhs101"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-10-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions,server"}</script>
+</head>
+<body data-repo="tkhs101/opencode-step-pause" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">tkhs101/opencode-step-pause</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="tkhs101__opencode-step-pause"><img class="rp-side-av" src="https://github.com/tkhs101.png?s=300" width="300" height="300" alt="tkhs101 avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-step-pause</div>
+      <a class="rp-side-owner" href="https://github.com/tkhs101">tkhs101</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/tkhs101">tkhs101</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-step-pause</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode V2 plugin: periodic in-chat progress checkpoints every N steps, without extra turns or waiting for the user.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="tkhs101__opencode-zen-freex"><img class="rp-same-av" src="https://github.com/tkhs101.png" alt="" loading="lazy">opencode-zen-freex</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/tkhs101/opencode-step-pause">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-step-pause
+
+ 每 N 步自动在对话里汇报一次进度，说完立刻继续。
+ 不占额外回合、不等你回复、不生成进度文档。
+
+这是 cxv117793-blip/dsh-step-pause v0.4.9（MIT）的 OpenCode V2 移植版。核心机制、提示词、完成判定和自动续跑刹车都来自原项目，按 OpenCode V2 的插件接口重写。
+
+- 目标版本：OpenCode 2.2.x（在 2.2.1 类型定义、2.2.4 真机上验证）
+- 状态：0.1.0，MVP
+- 不包含：GUI 设置页、统计面板、多语言、V1 兼容
+
+---
+
+ 它做什么
+
+长任务跑到第 20、40 步时，模型会主动停下来写几行：
+
+text
+1. 正在做什么：给设置页补上表格导出的失败重试
+2. 已完成什么：定位到 retry 没有重置 backoff；改了 3 处；单测补了 2 组
+3. 接下来做什么：跑全量测试，然后提交
+4. 卡点：无
+
+
+然后在同一条回复里继续调用工具。检查点不会变成新的用户回合，也不会写进会话历史。
+
+如果模型在检查点后只写了文字就停下，插件可以在轮次关闭前塞一条续跑提示，把它拉回来继续；次数有硬上限。
+
+---
+
+ 安装
+
+ 1. 放到本地目录
+
+bash
+git clone https://github.com/tkhs101/opencode-step-pause.git ~/opencode-step-pause
+cd ~/opencode-step-pause
+npm install
+
+
+ 2. 在 opencode.json 里注册
+
+json
+{
+  &quot;plugins&quot;: [
+    {
+      &quot;package&quot;: &quot;/home/you/opencode-step-pause&quot;,
+      &quot;options&quot;: {
+        &quot;everyNSteps&quot;: 20
+      }
+    }
+  ]
+}
+
+
+package 使用绝对路径。改完后重启 OpenCode（或重新加载插件）。
+
+ 3. 验证
+
+把 debug 打开，运行一个多步任务：
+
+json
+{
+  &quot;plugins&quot;: [
+    {
+      &quot;package&quot;: &quot;/home/you/opencode-step-pause&quot;,
+      &quot;options&quot;: {
+        &quot;everyNSteps&quot;: 2,
+        &quot;debug&quot;: true
+      }
+    }
+  ]
+}
+
+
+调试日志会写到系统临时目录下的 opencode-step-pause.log（通常是 /tmp/opencode-step-pause.log），可用环境变量 OPENCODE_STEP_PAUSE_DEBUG_FILE 指定其他路径。日志里能看到 context / inject / resume 等事件；对话里会在第 2、4、6… 步出现进度小结。
+
+---
+
+ 配置
+
+所有字段都在 plugins[].options 里，保存后重启生效（当前 MVP 没有热更新）。
+
+| 键 | 默认 | 说明 |
+|---|---|---|
+| enabled | true | 总开关 |
+| everyNSteps | 20 | 每多少步汇报一次，实际生效范围 2–500；写 1 会被夹成 2 |
+| maxReportsPerTurn | 0 | 每轮最多汇报几次，0 表示不限制，上限 1000 |
+| prompt | 内置 | 注入的提示词，支持 {{step}} {{every}} {{turn}} |
+| mainAgentOnly | true | 只在主智能体里汇报，子智能体不汇报 |
+| autoResume | true | 检查点后纯文字停下时，自动续跑 |
+| maxAutoResumesPerTurn | 2 | 每轮最多自动续跑几次；0 等于关闭 |
+| debug | false | 输出插件调试日志 |
+
+示例：
+
+json
+{
+  &quot;plugins&quot;: [
+    {
+      &quot;package&quot;: &quot;/home/you/opencode-step-pause&quot;,
+      &quot;options&quot;: {
+        &quot;everyNSteps&quot;: 10,
+        &quot;maxReportsPerTurn&quot;: 6,
+        &quot;mainAgentOnly&quot;: true,
+        &quot;autoResume&quot;: true,
+        &quot;maxAutoResumesPerTurn&quot;: 1
+      }
+    }
+  ]
+}
+
+
+---
+
+ 工作原理
+
+OpenCode V2 的 context hook 在每次模型请求前运行，拿到的是本次请求的消息数组。插件向这个数组插入一条 user 消息，模型在同一次请求里就能看到；这条消息不会被持久化，所以不会污染后续会话。
+
+ 步数怎么算
+
+一个“逻辑轮次”从最后一条真实用户消息开始。插件同时维护三个计数：
+
+1. L1（主计数）：turnKey 之后、event.messages 里的 assistant 消息数。
+   - turnKey 是真实用户消息的 ID，不是“最近一条 user-role 消息”。
+   - 因此 compaction、shell、skill 等 user-role 消息不会把计数打断。
+2. L2（修正）：session.step.ended 事件里唯一的 assistantMessageID。
+   - 事件流可能比下一次 context hook 晚几毫秒，所以 L2 只做修正。
+3. L3（回合识别）：对新出现的 user-role 消息调用 session.context() 查真实类型。
+   - 只有 type === &quot;user&quot; 才重置轮次。
+   - 查询失败时保守地按真实用户消息处理。
+
+最终：
+
+text
+completed = max(L1, L2)
+currentStep = completed + 1
+
+
+第一次看到某个 session（或插件重载）时，会从消息记录回填 L1/L2，并把历史 assistant ID 标记为已计数，避免延迟事件重复计数。
+
+ 自动续跑
+
+只在以下条件全部满足时续跑：
+
+- 本轮刚在注入检查点的那一步（或上一次续跑后的那一步）结束；
+- 每轮续跑次数未超过 maxAutoResumesPerTurn；
+- 没有后台任务在跑；
+- 主智能体；
+- 最后一条 assistant 消息是纯文本，不含 tool call；
+- 没有明确写“任务已完成”；
+- assistant 消息不是错误、不是空文本。
+
+任何一条不满足就放手，让轮次正常结束。续跑通过 ctx.session.synthetic({ resume: true, delivery: &quot;steer&quot; }) 注入，不传 description，所以时间线里不会出现额外的续跑条目。
+
+ 完成判定
+
+完成判定沿用原项目的保守启发式：
+
+-</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/tkhs101__opencode-step-pause.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+# git-span
+
+`git-span` records the relationships in a codebase that no schema, type system,
+test, or build step enforces. A span connects exact line ranges or whole files,
+stores the reason they must stay aligned, and reports when any anchor moves,
+changes, or disappears.
+
+Span declarations are ordinary tracked files under `.span/`, so they travel
+with the code through branches, reviews, merges, and CI. The CLI is complete on
+its own, and integrations for Claude Code, OpenAI Codex, OpenCode, and
+Antigravity surface relevant spans while an agent works.
+
+## Install
+
+```bash
+npm install -g git-span
+git span --version
+```
+
+The npm package selects the native binary for Linux, macOS, or Windows. Agent
+plugins call `git span` from `PATH`; install the CLI anywhere an agent session
+runs before installing its plugin.
+
+Full agent setup is documented at [git-span.com](https://git-span.com):
+
+- Claude Code installs from the `goodfoot-io/git-span` marketplace.
+- Codex installs from the same repository marketplace and requires hook review through `/hooks`.
+- OpenCode loads the `opencode-git-span` npm plugin and uses its installer for skills and the expert agent.
+- Antigravity installs `plugins-antigravity/git-span` with `agy plugin install`.
+
+## Quick start
+
+```bash
+git span add checkout-request-flow \
+  src/client.ts#L10-L40 \
+  src/server.ts#L20-L64
+
+git span why checkout-request-flow \
+  "The server contract is authoritative for the request fields the client sends."
+
+git add .span
+git commit -m "Record checkout request coupling"
+git span drift
+```
+
+Use `git span list` and `git span show <name>` to inspect declarations,
+`git span tree` to explore their blast radius, and `git span history <name>`
+to review provenance. `git span drift --fix` repairs safe positional movement;
+meaning-changing drift remains visible for review. See
+[git-span.com](https://git-span.com) for the complete CLI reference.
+
+## VS Code
+
+The `goodfoot.git-span` extension uses the independently installed `git span`
+binary from `PATH`. It provides:
+
+- a custom editor for files under `.span/`, including anchor diffs and source navigation;
+- **Git Span: Show CLI Version**;
+- **Git Span: Open Terminal**.
+
+See [git-span.com](https://git-span.com) for usage and troubleshooting. Repository-specific extension notes live in [packages/extension/README.md](packages/extension/README.md).
+
+## Development
+
+During local development, run commands from `packages/git-span`:
+
+```bash
+cd packages/git-span
+yarn build:local
+```
+
+`build:local` compiles the release binary into the shared Cargo target root,
+installs it to `~/.local/bin`, and regenerates the man page; the bare
+`yarn build` only regenerates the man page.
+
+Common command shape:
+
+```bash
+git span doctor
+git span add checkout-request-flow src/client.ts#L10-L40 src/server.ts#L20-L64
+git span why checkout-request-flow "The browser initiates the charge request that the Stripe-backed server validates; the server contract is authoritative for accepted fields."
+git span config checkout-request-flow copy_detection any-file-in-repo   # set one resolver knob; bare `git span config <name>` reads all three
+git add .span && git commit -m "Record checkout-request-flow span"
+git span drift checkout-request-flow
+git span replace checkout-request-flow src/client.ts#L10-L40 src/client.ts#L12-L42   # atomic swap: retire the old anchor, install the new, or nothing
+git add .span && git commit -m "Move checkout-request-flow anchor after the handler rename"
+```
+
+### Exit codes
+
+`git-span` follows the POSIX convention used by `git` and `cargo`:
+
+- **0** — success.
+- **1** — operational failure: the command was well-formed, but
+  the environment or repository state prevents completion.
+  Example: `git span show nope` when `nope` is not a known span.
+- **2** — usage error: the command itself is malformed (unknown
+  flag, missing required argument). Example: `git span show --bogus`.
+
+`git span drift` overlays its own §10.4 contract on top of this:
+exit 1 when drift is found, exit 0 with `--no-exit-code`. There is no
+`pre-commit` subcommand; span coverage is instead created by the
+`.githooks/pre-commit.wiki.sh` hook, which runs `wiki check --fix` as an
+advisory best-effort pass (it never aborts the commit) and never stages
+files that were already dirty before the hook ran.
+
+## Monorepo Layout
+
+```text
+.
+├── packages/
+│   ├── git-span/       # git-span Rust CLI
+│   ├── extension/      # goodfoot.git-span VS Code extension
+│   ├── agent-hooks/    # shared four-host agent integration sources
+│   ├── website/        # git-span.com
+│   └── discover/       # internal span-candidate discovery engine
+├── npm/
+│   └── git-span-*/     # platform-specific binary distribution packages
+├── skills-src/         # authored agent-skill templates (the ONLY place to edit skills)
+├── plugins-*/          # per-platform plugin trees; their skills/ subtrees are generated
+├── wiki/               # source-anchored architecture and operating guidance
+└── scripts/
+    ├── sync-versions.sh
+    ├── validate.sh
+    └── release.sh
+```
+
+The `plugins-claude|codex|opencode|antigravity/git-span/skills` trees are committed build
+output rendered from `skills-src/` — never edit them directly. See
+[skills-src/README.md](skills-src/README.md) for the authoring workflow.
+
+## Development Prerequisites
+
+Before running tests or building the CLI locally, install the following tools:
+
+**cargo-nextest** (test runner):
+
+```bash
+cargo install cargo-nextest --locked
+```
+
+For faster installation using prebuilt binaries, see the
+[nextest install docs](https://nexte.st/book/pre-built-binaries.html).
+
+**Linker (Linux only):**
+
+```bash
+sudo apt-get install mold        # Ubuntu/Debian — recommended
+# sudo apt-get install lld       # alternative linker (override with CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER)
+```
+
+The mold cc wrapper [packages/git-span/scripts/cc.mold-wrapper.sh](packages/git-span/scripts/cc.mold-wrapper.sh)
+must be on `PATH` under its bare name `cc.mold-wrapper`: the devcontainer
+installs it to `/usr/local/bin`; for other environments:
+
+```bash
+install -m 755 packages/git-span/scripts/cc.mold-wrapper.sh ~/.local/bin/cc.mold-wrapper
+```
+
+The `[target.*].linker` config pins the bare name on purpose — a relative-path
+linker resolves to a per-worktree absolute path that Cargo hashes into every
+unit fingerprint, forcing full-graph recompiles whenever a sibling worktree's
+build ran; the bare name hashes identically from every worktree and is looked
+up on `PATH` at spawn time. Scripted builds self-heal via
+[with-target-lock.sh](packages/git-span/scripts/with-target-lock.sh), which
+materializes the wrapper at `~/.local/bin` if missing.
+
+On macOS no extra install is required — the mold linker config is gated to
+Linux GNU targets only. If you cross-compile to Linux from macOS, install `lld`
+(via Homebrew or Xcode) and override the linker:
+
+```bash
+CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="/opt/homebrew/opt/lld/bin/lld" cargo build
+```
+
+(The per-target `CARGO_TARGET_*_LINKER` env var overrides `[target.*].linker` in config files.)
+
+**Per-user Cargo target directory:**
+
+Build artifacts are stored in a shared per-user directory at
+`/var/cache/git-span/cargo-target/<crate>/<group>/` — `<group>` is `check`
+(non-codegen `cargo check`/`clippy`) or `build` (codegen `cargo test`/`build`).
+The two are kept separate on purpose: mixing rmeta-only (`check`) and rlib
+(`build`) artifacts in one directory causes spurious `can't find crate` link
+failures. See
+[packages/git-span/scripts/cargo-build-system.md](packages/git-span/scripts/cargo-build-system.md)
+for details. In the devcontainer the root is backed by a named volume
+(`git-span-cargo-target`, mounted at `/var/cache/git-span/cargo-target`) on
+container-native storage — the relocation that lets scripted cargo tasks
+compile with default parallelism again — and it stays shared across all
+worktrees on the same machine: a worktree cloned from `main` will reuse
+dependency artifacts already built by another worktree. On machines without
+that rebuild — a host, plain Docker, or a pre-rebuild container — the default
+`/var/cache/git-span/cargo-target` is root-owned, so set
+`GIT_SPAN_CARGO_TARGET_ROOT` to a writable path before running any cargo task.
+
+Override the target root via `GIT_SPAN_CARGO_TARGET_ROOT`:
+
+```bash
+GIT_SPAN_CARGO_TARGET_ROOT=/tmp/my-target yarn test
+```
+
+**Cross-worktree cache states:** because cargo fingerprints embed absolute
+source paths, the shared root is only fully warm for the worktree that built
+into it most recently — registry dependencies stay shared across worktrees,
+but a workspace's own crates (`git-span`, `git-span-core`) rebuild whenever a
+*different* worktree built last (seconds idle, up to ~2 minutes on a loaded
+machine). Test suites that build the git-span binary budget for this:
+[buildWorkspaceGitSpan()](packages/agent-hooks/test/real-bundle-helpers.ts)
+enforces its own `GIT_SPAN_CARGO_BUILD_BUDGET_MS` deadline (default 480s,
+under the portability suites' 600s hook timeouts) and turns an over-budget
+build into an error naming the invalidation, the elapsed time, and the
+remediation paths (`$GIT_SPAN_CARGO_TARGET_ROOT/.fingerprint-tripwire/`
+captures written automatically by slow invalidating builds) instead of dying
+as a bare hook timeout.
+
+Note: `yarn build:clean` cleans only the `git-span/build` subdirectory of the
+shared target root. Running it while another worktree is building waits for that
+build (it takes the exclusive target-root lock) rather than corrupting it.
+
+## Contributing
+
+```bash
+git clone https://github.com/goodfoot-io/git-span.git
+cd git-span
+yarn install
+yarn workspace git-span build:local
+yarn validate
+```
+
+Use Yarn for all JavaScript package management. Per-package validation should
+run from the package directory that contains the changed files:
+
+```bash
+cd packages/git-span
+yarn lint
+yarn typecheck
+yarn test
+
+cd ../extension
+yarn lint
+yarn typecheck
+yarn test
+```
+
+Run `yarn validate` from the workspace root before finalizing code or
+configuration changes.
+
+### Test caches
+
+`yarn test` runs workspace tests through [Turborepo](turbo.json), one package
+at a time. Repeated successful tasks replay their cached logs. Package-level
+`yarn test` commands use the same cache, and the extension also runs its Vitest
+unit suite before its Electron suite. Builds, lint, and typechecks keep their
+existing commands.
+
+On a task cache miss, the four Vitest suites use `@goodfoot/vitest-cache`.
+Each package's `vitest.cache.json` lists reviewed tests and non-import inputs;
+unlisted tests execute without file-level reuse. Add or review declarations
+when introducing filesystem reads or subprocesses. Website browser and protocol
+gates remain separate from the default test command.
+
+```bash
+yarn test:skip-cache                 # execute every test without either cache
+yarn workspace discover test config.test.ts
+yarn workspace git-span-extension test:unit
+```
+
+Turbo stores results under `.turbo/cache` and shares them across linked
+worktrees. Vitest result records live under
+`${TMPDIR:-/tmp}/goodfoot-vitest-cache`, keyed by the common Git directory;
+its module cache lives under `node_modules/.experimental-vitest-cache`.
+CI restores all three stores. Remote Turbo caching is disabled. Changing the
+installed toolchain or external test services requires `yarn test:skip-cache`;
+those ambient resources are outside repository content hashes.
+
+### Manpage
+
+The CLI ships a `git-span(1)` manpage generated from the clap definitions. To
+browse it without installing:
+
+```bash
+MANPATH=packages/git-span/man man git-span
+```
+
+Regenerate after changing CLI flags or descriptions:
+
+```bash
+cd packages/git-span
+yarn build:man
+```
+
+The regression test in `packages/git-span/tests/cases/manpage.rs` fails if
+the checked-in artifact drifts from what the generator produces.
+
+## Releases
+
+Releases are tag-driven from `goodfoot-io/git-span`. CLI and extension release
+assets use `git-span` names, including `git-span-v*` tags and
+`git-span-cli-checksums.json`.
+
+## License
+
+MIT - Copyright (c) 2026 Goodfoot Media LLC. See [LICENSE](./LICENSE).

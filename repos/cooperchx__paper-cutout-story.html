@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cooperchx/paper-cutout-story · OpenCode Plugins</title>
+<meta name="description" content="照片剪纸拼贴动画 Skill：人物姿态循环、城市贴图、纸质转场与剪字；含上海/伦敦/巴黎成品GIF、完整素材和跨agent制作流程">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="paper-cutout-story, cooperchx, cooperchx/paper-cutout-story, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/cooperchx__paper-cutout-story">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="cooperchx/paper-cutout-story · OpenCode Plugins">
+<meta property="og:description" content="照片剪纸拼贴动画 Skill：人物姿态循环、城市贴图、纸质转场与剪字；含上海/伦敦/巴黎成品GIF、完整素材和跨agent制作流程">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/cooperchx__paper-cutout-story">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "cooperchx/paper-cutout-story", "codeRepository": "https://github.com/cooperchx/paper-cutout-story", "url": "https://opencode-plugins.zhuikan.com/repos/cooperchx__paper-cutout-story", "description": "照片剪纸拼贴动画 Skill：人物姿态循环、城市贴图、纸质转场与剪字；含上海/伦敦/巴黎成品GIF、完整素材和跨agent制作流程", "author": {"@type": "Organization", "name": "cooperchx", "url": "https://github.com/cooperchx"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-01", "keywords": "workflow,tools"}</script>
+</head>
+<body data-repo="cooperchx/paper-cutout-story" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">cooperchx/paper-cutout-story</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="cooperchx__paper-cutout-story"><img class="rp-side-av" src="https://github.com/cooperchx.png?s=300" width="300" height="300" alt="cooperchx avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">paper-cutout-story</div>
+      <a class="rp-side-owner" href="https://github.com/cooperchx">cooperchx</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/cooperchx">cooperchx</a>
+        <span class="rp-sep">/</span><span class="rp-name">paper-cutout-story</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">照片剪纸拼贴动画 Skill：人物姿态循环、城市贴图、纸质转场与剪字；含上海/伦敦/巴黎成品GIF、完整素材和跨agent制作流程</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-11-01</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/cooperchx/paper-cutout-story">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">2</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">纸片剧场 · Paper Cutout Story
+
+给一张人物图，让 TA 走进由照片、报纸和贴纸搭起来的世界。
+
+一套可供生图型 agent 使用的开放制作技能：参考拆解 → 创意与分镜 → 同人动作图 → 城市/场景贴图 → 纸边与剪字 → 动作循环 → 道具转场 → 检查与导出。包含真实案例、完整资产和可编辑工程，而不只有提示词。
+
+开始使用 · Agent 入口 · 完整制作回顾 · 全部视频/GIF · 全部图片目录 · English
+
+ 成品预览
+
+| 上海 · 12 秒 | 香港 · 52 秒 | 伦敦 · 15 秒 | 巴黎 · 9 秒 |
+|:--:|:--:|:--:|:--:|
+|  |  |  |  |
+| MP4 · 工程 | MP4 | MP4 · 工程 | MP4 · 工程 |
+
+GIF 为完整时长、低分辨率无声预览，MP4 保留原始输出与声音。仓库收录 12 个视频及对应 GIF、10 份阶段工程、75 张去重图片资产，另有 6 张用户提供的参考图。早期版本和动作预览在完整作品页；伦敦 v2 仅存在工作工程，没有伪造该版成片。
+
+ 素材是什么样的
+
+前迈 A过渡 C前迈 B建筑碎片
+
+所有图片均可在图片索引查找。去重库保留文件哈希与原工程别名；工程内也保留实际引用的图片，不依赖本机缓存路径。原始输入照片与设计参考单独放在 assets/references。
+
+ 这种形式的核心
+
+- 少量人物姿态有序循环：人物内部动作与整张贴图的运动轨迹分开控制。
+- 场景在眼前逐件搭建：道路、建筑、店面、交通设施、生活道具错时进入，形成活动而非海报。
+- 图片道具带出转场：报纸、明信片、咖啡杯、车辆等成为巨幅前景，遮住换场时刻。
+- 统一的实体纸感：薄纸边、轻影、哑光印刷与适量独立晃动；脸部保持干净。
+- 镜头与文字有层次：全身、半身、服装细节交替，报刊剪字有清楚阅读顺序。
+
+不需要整段文生视频。图片生成器负责素材；时间线负责素材如何表演。不同城市应改变构图、路线、素材角色和收尾，而不只是替换标题。
+
+ 开始使用
+
+ 直接交给任意 agent
+
+下载或克隆仓库，让 agent 读取根目录的 SKILL.md。该文件用英文写核心执行规则，便于跨环境使用；本页和过程回顾用中文说明。
+
+text
+读取 paper-cutout-story/SKILL.md。
+以我提供的人物照片为主角，制作一条 9 秒巴黎 Citywalk 纸质拼贴短片。
+人物正常左右迈步，使用过渡姿势；加入半身与服装细节。
+转场只用一张明信片划过。标题 Paris Citywalk，输出 MP4、GIF、素材和工程。
+先检查两轮人物动作，再继续完整制作，不必逐步等我确认。
+
+
+ 安装为 skill
+
+bash
+ Codex
+ git clone https://github.com/cooperchx/paper-cutout-story.git ~/.codex/skills/paper-cutout-story
+
+
+Claude Code 等支持 skills 的环境可放入其技能目录；无法自动发现技能的 agent 直接阅读 SKILL.md 即可。已有同名目录时先保留原版本，不要覆盖。也可以只复制技能说明、references、scripts、templates 和 agents 目录作轻量安装，示例媒体按需获取。
+
+ 有哪些工具就走哪条路
+
+| 你的 agent 能力 | 可完成的交付 |
+|---|---|
+| 生图／图片编辑 | 人物动作组、城市贴图、分镜、提示词、时间线配方 |
+| 生图 + Node + Chromium/Puppeteer + FFmpeg | 使用附带 Canvas 模板导出 MP4 与 GIF |
+| 生图 + 剪辑软件 | 按同一分层与时序制作，用软件导出 |
+| 已有合格素材 + 合成能力 | 直接复用，不强制再生图 |
+
+不绑定某个模型、付费插件或视频生成服务。只有生图功能时，不能直接声称已编码出视频。 透明输出、参考图编辑和身份一致性取决于所用生成器，替代路线见能力适配。
+
+ 可选：本地可执行模板
+
+安装 Node 22.12+、Python 3（分析/GIF脚本）、FFmpeg；Puppeteer 安装会准备 Chromium。普通浏览器预览不需要 Puppeteer。
+
+bash
+npm install
+python3 -m http.server 8000
+ 浏览器打开 http://localhost:8000/templates/player.html
+
+
+另一个终端导出：
+
+bash
+node scripts/render.mjs examples/paris-portable.json rendered/paris.mp4
+python3 scripts/make_gif.py rendered/paris.mp4 rendered/paris.gif --width 270 --fps 12
+
+
+示例 JSON 演示完整9秒、三场景、三姿态循环、单图遮挡与音轨。它是可移植实现示例，不是历史 HyperFrames 成片的逐像素复刻。换自己的图片和文字即可修改；具体字段见渲染说明。原始制作工程仍完整保存在 projects/。
+
+ 如何适配不同需求
+
+支持分析参考、只出人物图、只做贴纸、生成完整视频、局部修正与跨城市改版。人物穿搭、旅行、咖啡/食品、产品展示都可使用；产品不套人物步态规则。时长、比例、语言、主体数量与动作复杂度按需求决定，不固定为9秒或三场景。适配决策表
+
+ 最重要的修正经验
+
+1. 姿态数量不等于动作正确。 必须看到左右腿真正交换，不可镜像整个人代替。
+2. 错误解剖不能靠合成拉伸补。 巴黎 v2 重新生成人物图，取消下半身独立缩放。
+3. 仅滑动一张人物图不等于走路。 校园初试保留作反例。
+4. 地点需要生活内容。 伦敦 v5 补入道路、地铁、出租车、电话亭、书店花店、咖啡桌椅。
+5. 转场看不透明像素。 包围盒满屏仍可能从车窗、边角漏出下一场。
+
+全部用户反馈、判断与改法在过程回顾。其他 agent 可以先阅读失败和修正，再开始生成。
+
+ 仓库结构
+
+text
+SKILL.md                   通用执行入口
+references/                步态、提示词、构图、能力适配、合成与检查
+scripts/ + templates/      抽帧、GIF、无框架浏览器渲染
+examples/                  可运行时间线示例
+projects/                  10 份实际制作阶段工程和完整引用资产
+assets/                    75 张去重图片、6 张参考输入、来源索引
+media/videos/ + gifs/       11 个原始 MP4 与完整 GIF 预览
+docs/                      制作回顾、全部作品、图片索引、验证报告
+
+
+ 验证与许可
+
+验证报告记录打包完整性、原输出媒体参数和独立渲染</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/cooperchx__paper-cutout-story.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/PlainConceptsPlatform/agent-harness/refs/heads/main/docs/public/assets/logo.png" alt="agent-harness" width="160" />
+
+# 🧰 agent-harness
+
+**Installs the Plain Concepts Platform Harness into any codebase, and keeps it up to date. Wires [OpenCode](https://opencode.ai), [OpenSpec](https://github.com/fission-ai/openspec), [codegraph](https://github.com/colbymchenry/codegraph), and [agentmemory](https://github.com/rohitg00/agentmemory) into a multi-agent workflow that runs on native parallel subagents.**
+
+GitHub, Azure DevOps, Jira, GitLab, browser-based backlog, or combinations (for example, Jira backlog plus GitHub repository, or browser backlog plus GitLab repository).
+
+**[harness.platform.plainconcepts.dev](https://harness.platform.plainconcepts.dev)**
+
+[![npm version](https://img.shields.io/npm/v/@plainconceptsplatform/agent-harness?style=flat-square&color=black)](https://www.npmjs.com/package/@plainconceptsplatform/agent-harness) [![npm downloads](https://img.shields.io/npm/dm/@plainconceptsplatform/agent-harness?style=flat-square&color=black)](https://www.npmjs.com/package/@plainconceptsplatform/agent-harness) [![license](https://img.shields.io/npm/l/@plainconceptsplatform/agent-harness?style=flat-square&color=black)](./LICENSE) [![node](https://img.shields.io/node/v/@plainconceptsplatform/agent-harness?style=flat-square&color=black)](https://nodejs.org)
+
+</div>
+
+## What is this?
+
+Most codebases have no `AGENTS.md`, no architecture documentation an agent can read, and no defined workflow for picking up a task. So agents improvise, and you get a different answer every run.
+
+**agent-harness** is the CLI that installs the **Plain Concepts Platform Harness** into a repository and keeps it up to date.
+
+The harness is ours. We build it, our projects run on it, and this CLI is how it gets into a codebase. It is the set of files agents work from: slash commands, `pc-*` skills (the `pc-` is Plain Concepts), an agent team, OpenCode plugins, an OpenSpec workspace, and generated `ARCHITECTURE.md` and `DESIGN.md`.
+
+Underneath, it wires OpenCode to OpenSpec for change management, native subagent waves for parallel work, codegraph for code intelligence, and agentmemory for context that survives between sessions.
+
+The CLI has three jobs:
+
+| Command | What it does |
+| --- | --- |
+| `npx @plainconceptsplatform/agent-harness` | Installs the harness. A wizard runs once and saves your answers to `.opencode/harness.json`. |
+| `npx @plainconceptsplatform/agent-harness update` | Reinstalls the harness from those saved answers, no questions asked. Keeps files you edited. |
+| `npx @plainconceptsplatform/agent-harness join` | Sets up a teammate's machine. Touches no committed file. |
+
+You run the first one once per repository, and the second whenever we ship a release.
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/PlainConceptsPlatform/agent-harness/refs/heads/main/docs/public/assets/demo.gif" alt="agent-harness demo" width="700" />
+</div>
+
+## Quick start
+
+```bash
+npx @plainconceptsplatform/agent-harness@latest
+```
+
+Requires **Node.js 18 or higher**.
+
+### Run specific steps
+
+You can run individual setup or maintenance steps without running the full wizard:
+
+```bash
+# Run one step directly
+npx @plainconceptsplatform/agent-harness clean
+npx @plainconceptsplatform/agent-harness platform
+npx @plainconceptsplatform/agent-harness copy
+npx @plainconceptsplatform/agent-harness openspec
+npx @plainconceptsplatform/agent-harness models
+npx @plainconceptsplatform/agent-harness optimization
+npx @plainconceptsplatform/agent-harness browser
+npx @plainconceptsplatform/agent-harness metadata
+npx @plainconceptsplatform/agent-harness join
+
+# Show CLI help and all commands
+npx @plainconceptsplatform/agent-harness --help
+npx @plainconceptsplatform/agent-harness -h
+```
+
+When available, step commands reuse context from `.opencode/harness.json`.
+
+### Keeping the harness current
+
+A new release of agent-harness ships new commands, skills and plugins. To pull them into a project that already has the harness:
+
+```bash
+npx @plainconceptsplatform/agent-harness@latest update
+```
+
+`update` re-runs every file patch from `.opencode/harness.json` and asks nothing. It keeps a hash of each file it manages in `.opencode/harness-managed.json`, so it leaves your hand edits alone and reports them as preserved. It also skips generated skills like `pc-guardrails-project`, whose contents came from a `/make-*` command rather than from us.
+
+Reach for individual steps when you want something narrower:
+
+- `clean` to reset old AI files
+- `copy` if templates or skills changed in a new agent-harness release
+- `optimization` to reconfigure RTK, quota, Simple English, codegraph, agentmemory, or humanizer, and the guardrails optimization markers
+- `metadata` last, to refresh `.opencode/harness.json`
+- `join` if you are new to a project that already has the harness and want the local tooling it expects
+
+> **Upgrading from `opencode-onboard` v1?** v2 renamed the config files and the skill prefix (`ob-` became `pc-`), and it does not migrate v1 projects. The CLI detects one and refuses to run rather than half-patching it. Re-onboard on a clean branch: remove `.opencode/` and `.agents/skills/ob-*`, then run the wizard again.
+
+> **Browser tooling changed in v3.10.** `agent-browser` (which launched its own isolated Chrome for Testing) was replaced by [`browse`](https://opencode.ai/product/browse), the OpenCode MCP server that drives the user's real Chrome-family browser with their logins, tabs, cookies, and extensions. Agent tabs open in the background in collapsed groups; when only a person can proceed (login, 2FA, captcha, payment), browse hands the tab back and continues once the user clicks Continue. Running `update` replaces the `agent-browser` MCP server entry with `browse`, installs the new CLI, and runs `browse install` which opens the Chrome Web Store for the extension and pairs it. Skills you wrote that call `agent-browser` CLI commands or `agent_browser_*` MCP tools must switch to the `browse` CLI or the `browse.execute` / `browse.session_*` MCP tools. Backlog-browser users: browse uses your real browser, so work-item pages behind your own login are already authenticated — no separate login session is needed.
+
+---
+
+## Installing the harness
+
+The first run is a 10-step wizard. It keeps the current step visible, plus the last two completed steps, so progress is always clear.
+
+| Step | What happens |
+| --- | --- |
+| **1. Source scope** | Choose current repository or sibling source roots for code analysis |
+| **2. Clean AI files** | Detects existing `AGENTS.md`, `.cursorrules`, `CLAUDE.md`, `.agents/` and so on, then removes them. Preserves your `.agents/skills/` directory. |
+| **3. Choose platform** | Backlog (GitHub, Azure DevOps, Jira, browser-based, or None) plus repository (GitHub, Azure DevOps, GitLab, or None). Supports mixed platforms, for example browser backlog plus GitHub repository, or Jira backlog plus GitLab repository. |
+| **4. Check platform CLI** | Verifies `gh` (GitHub), or `az` plus `azure-devops` extension (Azure DevOps), or `acli` (Jira), or `glab` (GitLab). Skips CLI checks for browser-based or None platforms. |
+| **5. Copy scaffolding** | Copies agents, built-in skills, bootstrap documentation, writes source-roots metadata, applies AGENTS bootstrap patching, copies `skills-lock.json`, then runs `npx skills` |
+| **6. Initialize OpenSpec** | Runs `npx @fission-ai/openspec init` silently for structured change management |
+| **7. Choose models** | Fetches live model list from [models.dev](https://models.dev), lets you pick plan, build, and fast models with cost indicators and canonical pricing |
+| **8. Token optimization tools** | Optional and recommended. One checklist step for RTK check, opencode-quota setup, Simple English install, codegraph install, agentmemory install, humanizer install, and token-optimization rule injection into guardrails |
+| **9. Install browser tooling** | Installs `@opencode/browse` globally and pairs it with the user's real browser via the browse extension |
+| **10. Write onboarding metadata** | Writes `.opencode/harness.json` with selected setup details |
+
+When it finishes, open OpenCode in your project and type:
+
+```
+/repo-initialize
+```
+
+OpenCode asks if this is a greenfield or brownfield project. For brownfield projects it generates `ARCHITECTURE.md` and `DESIGN.md` from your actual codebase, archives project history, then activates the full agent team. For greenfield projects it skips documentation generation and leaves placeholder files you can populate later with `/make-architecture` and `/make-design`.
+
+---
+
+## Commands
+
+Custom slash commands are installed into `.opencode/commands/` and are available directly in OpenCode.
+
+Commands that other commands (or agents) need to execute are thin wrappers around `pc-*` skills in `.agents/skills/`. The command handles user invocation and arguments, and the skill holds the procedure. OpenCode has no mechanism for a command to run another command, but any agent can load a skill mid-conversation, which is what makes pipelines like `/plan-goal` composable.
+
+| Command | Description |
+| ------- | ----------- |
+| `/repo-help` | Show all commands and when to use each one. Start here if you are unsure. |
+| `/repo-onboard` | Guided tour of the project and its agentic infrastructure. Explains agents, commands, skills, OpenSpec workflow, and configuration. Read-only. |
+| `/repo-audit` | Read-only audit of every configured source root against fullstack abilities and guardrails. Reports prioritized architecture, quality, dependency, lockfile, tooling, and CI findings. |
+| `/repo-initialize` | Initialize the project. Asks greenfield versus brownfield, then activates the agent team. |
+| `/plan-explore` | Think through an idea or investigate a problem before committing to a plan. |
+| `/plan-mockup <screen or flow>` | Draw a self-contained HTML mockup of a UI change from this repository's own design tokens and components, with every region mapped to the real component to build it with. States UX intent, not a spec. Can publish it to an issue, where the refine and implement workflows pick it up. |
+| `/plan-story <feature or need>` | Write a repo-aware user story from a feature idea: Gherkin acceptance criteria and an implementation plan, wrapped in the repository's issue form. Writes no files. |
+| `/plan-propose <url or idea>` | Parse a GitHub Issue, Azure DevOps, Jira, or browser URL, or a direct idea, into a structured plan (proposal, specs, tasks). Enriches each task with agent and model assignments. |
+| `/plan-quick <task>` | Quick plan for focused changes. Reads the codebase, creates a task checklist in the Todo pane, and stops. No OpenSpec, no proposals, no specs. |
+| `/plan-apply` | Implement tasks from the current plan. Detects format automatically: OpenSpec-annotated tasks run as parallel subagent waves; plain checkboxes run sequentially in-session. |
+| `/ops-ship` | Create a pull request for the current branch with screenshots if the user interface changed. |
+| `/ops-review` | Read and triage pull request review feedback. Reports what needs fixing. |
+| `/ops-backlog` | Create an issue in the backlog platform (GitHub, Azure DevOps, or Jira) from a description. |
+| `/plan-archive` | Archive a completed OpenSpec change. |
+| `/plan-goal <feature or URL>` | Autonomous, no-confirmation pipeline: branch off main, then explore, propose, apply, archive (one commit per phase). Default mode: merge to main and delete the feature branch. Add `branch` to keep the feature branch without merging or pushing. `push` pushes the branch; `pr` pushes and opens a PR. For loop-engineering. |
+| `/make-engineer` | Interactive persona-driven form to add a custom specialist engineer. Pick a persona, then confirm an inspected-and-recommended skill set (architecture/patterns like FSD or design patterns, framework, testing, infra) before it installs. |
+| `/make-architecture` | Generate or regenerate `ARCHITECTURE.md` from the codebase. |
+| `/make-design` | Generate or regenerate `DESIGN.md` from the design system. |
+| `/make-guardrails` | Generate a `pc-guardrails-project` skill from `ARCHITECTURE.md` and project config files. Extracts architecture boundaries, naming, code style, testing, and git workflow rules. Updates all `*-engineer.md` to load the skill. |
+| `/repo-verify` | Write the verification plan for the current branch's change: a journey through the new functionality as a fenced YAML block in `verification-plan.md`, stored with the change. The evidence workflow from `@plainconceptsplatform/workflows` replays it in headless Chromium when the pull request merges and archives one screenshot per waypoint in an `evidence/` folder beside the plan. Backend-only changes are traced through to the frontend when their contract is consumed there; a `not-applicable` stub is written when no UI surface is reachable. Does not run checks or take screenshots. Runs automatically in `/plan-goal`. |
+| `/make-user-model [user] <tier> <model>` | Set the model for a tier (`plan`, `build`, `fast`). Writes to `harness.json` (team) or `harness.user.json` (user override, gitignored) when `user` prefix is used. Restart to pick up changes: the `pc-subagent-tiers` plugin rebuilds tier agents at startup. Pass a model id or `current` for the active session model. |
+
+---
+
+## Agents and Skills
+
+agent-harness draws a hard line between two concepts:
+
+### Agents, universal behaviors
+
+Agents define _how to work_. They are universal personas (same behavior across projects and stacks).
+
+Current baseline uses a generic execution model:
+
+```
+build                  primary. Implements. Full write access. The default.
+plan                   primary. Same body as build, but cannot edit or spawn.
+fullstack-engineer     subagent. The body build and plan share, and the fallback worker.
+*-engineer             subagent. User-created specialists, spawned for parallel implementation.
+*-engineer.<tier>      subagent. The same specialist pinned to a plan/build/fast model.
+```
+
+`build` and `plan` are the only agents a human selects, and they are overrides of opencode's own two primaries rather than new names. The `pc-subagent-tiers` plugin regenerates both from `fullstack-engineer.md` on every startup, so they always carry the current abilities, each on its own tier model. `plan` differs from `build` in two frontmatter lines: `edit: deny` and `task: deny`; spawning is denied because a plan session that can call `task()` can have a build worker make the change for it. It keeps `bash` so planning can read git and openspec state, and `pc-system-reminders` holds that shell to inspection commands. Everything else is `mode: subagent` and reached through `task()`, never picked from the agent list. Project-specific specialization comes from user-created engineers via `/make-engineer`. During `/plan-apply` the lead inspects the engineers that actually exist in `.opencode/agents/` and spawns matching specialists. Prefer a specialist over `fullstack-engineer`; if none matches, create one.
+
+### Skills, platform knowledge
+
+Skills define _what to know_. They provide project rules, platform behavior, and task-specific execution guidance. Agents auto-detect and load relevant skills; **you do not manually choose skills per prompt**.
+
+If you choose backlog platform `None`, no userstory skills are injected into the workflow. The project works from direct conversation, local repository context, and optional OpenSpec artifacts only. If you choose repository platform `None`, no pull request skills are injected.
+
+Current loading model:
+
+- `pc-guardrails-generic` is mandatory baseline for every agent (git, secrets, quality rules, plus the engineer workflow)
+- `AGENTS.md` states the file paths to read before any edit, shell command or subagent spawn, so agents that do not discover `.agents/skills` natively (Claude Code reads `.claude/skills`) still load the guardrails
+- Baseline context rules and token-optimization guidance live in `AGENTS.md` (always in context), not in a skill
+- Humanizer and Simple English are read on demand before writing prose; they are not transitive requirements of the guardrails
+
+Default `fullstack-engineer` abilities:
+
+```
+## Abilities
+- Guardrails: @pc-guardrails-generic, @pc-guardrails-project
+```
+
+Users are expected to create additional skills and map them into abilities over time.
+
+Built-in skills (`pc-` prefix) shipped with agent-harness:
+
+| Skill | Purpose |
+| ----- | ------- |
+| `pc-guardrails-generic` | Foundation for user guardrails skills |
+| `pc-guardrails-project` | Project-specific guardrails, populated by `/make-guardrails` |
+| `pc-userstory-gh` | Parse a GitHub Issue URL into a structured work item |
+| `pc-userstory-az` | Parse an Azure DevOps work item URL |
+| `pc-userstory-jira` | Parse a Jira issue URL via `acli` CLI |
+| `pc-userstory-browser` | Parse work item from any URL via browser automation (Linear, Trello, and so on) |
+| `browser-automation` | Browser control via `browse` (user's real browser, localhost + external sites with handoffs) |
+| `pc-plan-explore` | Read-only exploration procedure behind `/plan-explore`; autonomous mode used by `/plan-goal` |
+| `pc-plan-mockup` | HTML mockup procedure behind `/plan-mockup`; autonomous mode used by the refine workflow |
+| `pc-plan-story` | User story procedure behind `/plan-story`; used by the refine workflow |
+| `pc-plan-propose` | Proposal + task-enrichment procedure behind `/plan-propose`; autonomous mode used by `/plan-goal` |
+| `pc-plan-apply` | Wave-implementation procedure behind `/plan-apply`; autonomous mode used by `/plan-goal` |
+| `pc-plan-archive` | Archive procedure behind `/plan-archive` (platform flow injected at onboarding); autonomous mode used by `/plan-goal` |
+| `pc-ops-ship` | PR-creation procedure behind `/ops-ship` (platform flow injected at onboarding); used by `/plan-goal` pr mode |
+| `pc-make-architecture` | ARCHITECTURE.md generation behind `/make-architecture`; used by `/repo-initialize` |
+| `pc-make-design` | DESIGN.md generation behind `/make-design`; used by `/repo-initialize` |
+| `pc-make-guardrails` | Guardrails generation behind `/make-guardrails`; used by `/repo-initialize` |
+| `pc-make-engineer` | Custom engineer creation behind `/make-engineer` |
+| `pc-make-user-model` | Tier model configuration behind `/make-user-model` |
+| `pc-plan-goal` | Autonomous full-lifecycle pipeline behind `/plan-goal` |
+| `pc-plan-quick` | Quick task checklist behind `/plan-quick` |
+| `pc-repo-audit` | Read-only health audit across configured source roots and fullstack abilities |
+| `pc-repo-verify` | Writes the verification plan (`verification-plan.md`): a journey as a fenced YAML block, replayed in headless Chromium by the evidence workflow when the pull request merges. Its `PC-PROJECT-ENVIRONMENT` slot records how the project starts and signs in. Used by `/repo-verify` and `/plan-goal` |
+| `pc-repo-initialize` | Project initialization behind `/repo-initialize` |
+| `pc-repo-onboard` | Guided project tour behind `/repo-onboard` |
+| `pc-repo-help` | The command reference displayed by `/repo-help`; used by `/repo-initialize` |
+
+Platform operations are injected during onboarding: pull request creation into the `pc-ops-ship` skill (loaded by `/ops-ship`, and by `/plan-goal` in `pr` mode), archive PR flow into the `pc-plan-archive` skill, and pull request review / issue creation directly into the `/ops-review` and `/ops-backlog` command files.
+
+Skills live in `.agents/skills/`. Any `SKILL.md` file in a subdirectory is automatically discoverable. Write your own and agents will pick them up.
+
+### Models, plan / build / fast
+
+During onboarding you pick three models:
+
+| Role | Used by | Pick |
+| ---- | ------- | ---- |
+| **plan** | Main OpenCode session (the lead) | Something capable with strong reasoning |
+| **build** | Specialist engineers (default tier) | Something capable for implementation |
+| **fast** | Light helpers (fast tier) | Something fast and cheap |
+
+Models are fetched live from [models.dev](https://models.dev) (3000+ models, cached weekly). Cost tiers `[$]` `[$$]` `[$$$]` always reflect the canonical provider price, so `github-copilot/claude-opus-4.7` shows `[$$]` not `[$]`.
+
+---
+
+## The pipeline
+
+When you give the lead agent a work item URL, execution follows this pipeline. If backlog platform is `None`, skip the work item stage. If repository platform is `None`, skip the pull request stage:
+
+```
+lead
+                   ↓
+          parse work item via userstory skill
+                   ↓
+               plan-propose
+         proposal + specs + tasks
+                   ↓
+              [confirm with user]
+                   ↓
+   wave of subagents (*-engineer, per-tier model)
+  each implements its assigned tasks → returns result → lead commits group
+                   ↓
+        verify (tests, build, lint as needed)
+                   ↓
+     lead (ship mode, if configured)
+   commit → push → pull request → feedback loop
+```
+
+1. Load the platform userstory skill (installed as `pc-userstory`, from the variant matching your backlog platform)
+2. Run `/plan-propose` to produce `proposal.md`, specs, and `tasks.md`
+3. Confirm with user before implementation
+4. Run `/plan-apply` to orchestrate implementation in waves
+5. Each wave spawns engineers in parallel (custom `*-engineer` specialists, each carrying its own tier model), capped at `agents.maxConcurrent`
+6. Each subagent receives its task IDs in its prompt, loads relevant abilities, implements, and returns; the lead commits each group
+7. Verify with tests, build, and lint according to task scope
+8. Ship or update pull request via lead flow
+
+For unattended Loop Task runs, keep a concrete shell verification task as the final exit-code gate. Inside `/plan-goal`, `/plan-apply` step 10 runs lint, typecheck, test, and build commands and is the checks gate; `/repo-verify` then writes `verification-plan.md` (the journey the evidence workflow replays in headless Chromium once the pull request merges). The final shell task independently proves the critical commands passed before commit or pull request actions.
+
+Agents run as native OpenCode subagents in parallel waves: no external plugin, no git worktrees. The lead's Todo pane is the live board, and the `pc-subagent-monitor` plugin mirrors state to `.opencode/harness-run.json`. Navigate into any running subagent with `ctrl+x ↓` then `←`/`→`.
+
+---
+
+## What gets installed
+
+```
+your-project/
+├── AGENTS.md                        ← bootstrap mode, replaced after first "/repo-initialize"
+├── ARCHITECTURE.md                  ← prompt for agents to fill in from your codebase
+├── DESIGN.md                        ← prompt for agents to fill in from your codebase
+├── opencode.jsonc                   ← native OpenCode 2 config: agents, permissions, MCP servers
+├── .opencode/
+│   ├── harness.json                 ← harness config: platform, models, maxConcurrentAgents
+│   ├── harness-managed.json         ← hashes of every managed file, so "update" spares your edits
+│   ├── agents/                      ← build.md + plan.md (generated primaries), fullstack-engineer,
+│   │                                   and user-created *-engineer files (all subagents)
+│   ├── plugins/
+│   │   ├── pc-commit-coauthor.js    ← server plugin: adds the opencode Co-Authored-By trailer to every agent commit
+│   │   ├── pc-subagent-monitor.js   ← server plugin: subagent state → .opencode/harness-run.json, and the wave cap
+│   │   ├── pc-subagent-tiers.js     ← server plugin: derives tier agents and the two primaries
+│   │   └── pc-system-reminders.js   ← server plugin: gates work on the agent's abilities, denies the never-rules
+│   └── scripts/
+│       ├── check-diff.mjs           ← the comments and tests gate on the current diff (see below)
+│       ├── code-rules.mjs           ← its rules, the same ones Project-Health scores a repository with
+│       └── platform-contract.mjs    ← reads .platform/contract.yml, the platform contract (see below)
+└── .agents/
+    └── skills/
+        ├── pc-guardrails-generic/  ← foundation for user guardrails
+        ├── pc-guardrails-project/  ← populated by /make-guardrails
+        ├── pc-userstory/           ← the variant matching your backlog platform, renamed on install
+        └── browser-automation/
+```
+
+On OpenCode 2 the terminal client is configured globally (`~/.config/opencode/cli.json`), so the harness ships no project-local `tui.json`; the native session sidebar shows subagents without a sidecar panel.
+
+Platform skills ship as suffixed variants (`pc-userstory-gh`, `pc-userstory-az`, `pc-userstory-jira`, `pc-userstory-browser`) and the installer copies only the matching one, renamed to its generic name. Platform operations (ship, review, backlog) are injected directly into the `/ops-*` command files from `cli/fragments/ops-*/` during onboarding. Source-roots metadata lands in `.opencode/source-roots.json`. The always-shipped reminder plugin holds editing, shell and spawning until every ability under the agent's `## Abilities` is loaded, guardrails first, and re-arms after compaction. `AGENTS.md` names the guardrails files by path so the same contract survives in agents that only have a read tool. Token-optimization guidance is injected into `pc-guardrails-generic` marker blocks during onboarding; Humanizer and Simple English are named by path and loaded when prose is written, not held as transitive requirements.
+
+---
+
+## Comments and tests gate
+
+`node .opencode/scripts/check-diff.mjs [--base <ref>] [--json]` reads the diff against the merge base with `origin/HEAD` (committed, uncommitted and untracked) and exits 1 when it:
+
+- adds more comment lines than 10% of the code lines it adds (2 are always allowed);
+- adds a slop shape (banner, region, untracked TODO, a doc comment that repeats the name, commented-out code, an apology), a comment block of five lines or more, an incident story, or a doc comment on an internal symbol;
+- touches a file and leaves slop in it, or leaves it with more comments per code line than before;
+- grows the tests more than the code: test lines beyond the code lines added (40 always allowed), more than 40 cases per 1,000 code lines (3 always allowed), or any new skipped, focused, snapshot, assertion-less or mock-only test;
+- changes a path the platform contract says a template owns, or finds a contract it cannot read (see [Platform contracts](#platform-contracts)).
+
+It also warns, without failing, on a new file named like something the contract marks for reuse (`reuse-shadow`).
+
+A tool directive (`nosemgrep`, `biome-ignore`, `eslint-disable`, `@ts-expect-error`, coverage ignores) is not a comment and costs nothing. Code added to a file that has methods in the complexity baseline (`scripts/complexity-baseline.json`, keys `path::method`) counts twice toward the test budget: that gate fails a method whose coverage drops, so its new branches need tests.
+
+`pc-plan-apply` runs it with the other checks, and the workflows run it before a bot pull request can merge. A project changes the limits in `.opencode/harness.json`:
+
+```json
+"codeRules": { "commentRatio": 0.1, "commentAllowance": 2, "testRatio": 1, "testAllowance": 40, "casesPerKloc": 40, "caseAllowance": 3, "complexityBaseline": "scripts/complexity-baseline.json" }
+```
+
+## Platform contracts
+
+A repository that receives shared code from an upstream template can describe that relationship in `.platform/contract.yml`. The template can be delivered by Copier, cookiecutter, a git subtree or by hand; the harness reads only the file. It uses the contract to keep agents off the shared code and to point them at what the template already provides.
+
+The format is open. Other tools may read the same file, such as a workflow that syncs the template or a dashboard of template versions. None of them is required, and the harness never calls them.
+
+```yaml
+version: 1
+source:
+  name: Acme app template
+  url: https://github.com/acme/app-template
+  changes: https://github.com/acme/app-template/issues/new
+owned:
+  - .platform/contract.yml
+  - src/platform/**
+reuse:
+  docs: [docs/platform/]
+  packages: ["@acme/ui"]
+  names: [DataTable]
+exceptions: .platform/exceptions.yml
+sync:
+  marker: .copier-answers.yml
+  version:
+    file: .copier-answers.yml
+    key: _commit
+  update: copier update --trust --defaults --conflict inline
+```
+
+The template delivers the file, so the template owns it and lists it under `owned`.
+
+| Field | Required | What the harness does with it |
+| --- | --- | --- |
+| `version` | yes | Reads `1`. Any other value is an error. |
+| `source.name` | yes | Names the owner in every message. |
+| `source.url` | yes | Shown in the AGENTS.md block, and the default for `source.changes`. |
+| `source.changes` | no | Where every message tells the agent to ask for a change. |
+| `owned` | yes | gitwildmatch globs, repository-relative; a leading `/` anchors to the root and `!` excludes. `pc-system-reminders` denies agent edits to these paths, and `check-diff` reports `platform-file` for each one the diff changes. |
+| `reuse.docs` | no | Listed in the AGENTS.md block as reading before building something new. `pc-make-architecture` links to these pages instead of describing their topics again. |
+| `reuse.packages` | no | Listed in the AGENTS.md block. `check-diff` reads each package from `node_modules` and takes its reusable names from the `exports` subpaths and from the identifiers its type declarations export. |
+| `reuse.names` | no | More reusable names, for what cannot be derived from a package. |
+| `exceptions` | no | The exceptions file. Default `.platform/exceptions.yml`. |
+| `sync.marker` | no | A diff that changes this file is a template sync. `check-diff` lets it rewrite owned paths, and `pc-system-reminders` allows edits to them while the file has uncommitted changes, so a sync's conflicts can be resolved. |
+| `sync.version`, `sync.update` | no | Validated but not used: they are for the tool that updates the repository from the template. |
+
+### Reuse before you build
+
+When the contract has `reuse`, `agent-harness` install and `update` write this block into AGENTS.md between `<!-- PC-PLATFORM-CONTRACT-START -->` and `<!-- PC-PLATFORM-CONTRACT-END -->`, appending the pair when AGENTS.md has none. For the example above:
+
+```markdown
+## Reuse before you build
+
+This repository receives shared code from Acme app template (https://github.com/acme/app-template), declared in `.platform/contract.yml`.
+
+- Never design something new before reading `docs/platform/`.
+- Never re-implement an export of `@acme/ui`; import it.
+- Never write your own `DataTable`; reuse the existing one.
+- Never edit a path listed under `owned`. Ask for the change at https://github.com/acme/app-template/issues/new, or add a dated exception to `.platform/exceptions.yml`.
+```
+
+Without a contract, or without `reuse`, the block is empty. With `reuse`, `pc-plan-propose` gives every proposal a `## What is reused` section, and `pc-plan-apply` stops on a proposal that lacks it. `check-diff` warns with `reuse-shadow`, without failing, when a new source file's name matches a reusable name: `data-table.tsx`, `DataTable.tsx` and `data_table.ts` all match `DataTable`.
+
+### Exceptions
+
+An app that needs to diverge from an owned path for a while records it in the exceptions file:
+
+```yaml
+exceptions:
+  - path: src/platform/audit/**
+    reason: Local audit sink until the template supports it
+    issue: https://github.com/acme/app-template/issues/12
+    expires: 2026-12-31
+```
+
+An exception covers the owned paths its glob matches until the end of its `expires` day, in both `pc-system-reminders` and `check-diff`. An expired entry no longer applies.
+
+### Errors
+
+A contract that does not read gives one error that names the file and the field, such as ``.platform/contract.yml: `source.name` is required and must be a non-empty string.`` The guards never pass silently on it: `check-diff` fails with `platform-contract`, and `pc-system-reminders` denies every edit outside `.platform/` until the file is fixed. Install and update warn and leave the AGENTS.md block as it was.
+
+### The legacy implicit contract
+
+Harness 3.7.0 read `.copier-answers.yml` and `.platform/manifest`, one glob per line. A repository with both files and no `contract.yml` is still read, as this contract:
+
+- `source.name` is the repository name at the end of `_src_path`, and `source.url` and `source.changes` are `_src_path`;
+- `owned` is the manifest's lines;
+- `sync.marker` and `sync.version.file` are `.copier-answers.yml`, with `sync.version.key` `_commit`;
+- there is no `reuse`.
+
+When both exist, `contract.yml` wins. A repository with neither sees no change in any tool.
+
+## The bootstrap sequence
+
+The first time you type `init` in OpenCode after onboarding, the agent asks whether this is a **greenfield** or **brownfield** project:
+
+### Brownfield (existing codebase)
+
+1. Bootstrap-mode `AGENTS.md` triggers the initialization workflow
+2. OpenCode archives existing project context into OpenSpec (`project-history`)
+3. OpenCode runs `/make-architecture` to generate real `ARCHITECTURE.md` from your codebase
+4. OpenCode runs `/make-design` to generate real `DESIGN.md` from your design system
+5. OpenSpec `config.yaml` is populated with discovered tech stack and domain context
+6. Bootstrap `AGENTS.md` is replaced with production guidance
+7. Team workflows become fully active for normal implementation tasks
+
+### Greenfield (new project, little or no existing code)
+
+1. Bootstrap-mode `AGENTS.md` triggers the initialization workflow
+2. OpenSpec `config.yaml` is populated with what is known (intended stack, domain)
+3. Bootstrap `AGENTS.md` is replaced with production guidance
+4. `ARCHITECTURE.md` and `DESIGN.md` are left as placeholder files
+
+Once your codebase has meaningful content, run:
+- `/make-architecture` to generate architecture documentation
+- `/make-design` to generate design system documentation
+
+Both commands are safe to rerun at any time as the project evolves.
+
+---
+
+## Token Budget Controls
+
+Long unattended agent sessions can consume significant tokens. Set these controls up **before** first use:
+
+1. **Set provider-side limits first**: monthly soft-limit plus hard usage cap in your provider dashboard:
+   - OpenAI: [platform.openai.com/account/limits](https://platform.openai.com/account/limits)
+   - Anthropic: [console.anthropic.com](https://console.anthropic.com)
+   - Google AI Studio: [aistudio.google.com/app/usage](https://aistudio.google.com/app/usage)
+
+2. **Route models by task type**: use a fast and cheap model (for example `haiku`, `gpt-4o-mini`) for orchestration and status loops; reserve expensive models (for example `sonnet`, `opus`, `gpt-4o`) for implementation tasks only.
+
+3. **Monitor provider dashboards**: check usage at your provider's dashboard before and during `/plan-apply` sessions.
+
+4. **Confirm before large runs**: the onboarded `/plan-apply` workflow will ask for your confirmation before spawning agents for Medium (4 to 7 tasks) or High (8 or more tasks) scope sessions.
+
+---
+
+## Prerequisites
+
+| Requirement | Notes |
+| ----------- | ----- |
+| **Node.js 18 or higher** | Required |
+| **[OpenCode](https://opencode.ai)** | The agent runtime |
+| **[gh CLI](https://cli.github.com)** | GitHub platform, must be authenticated |
+| **[az CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)** plus azure-devops extension | Azure DevOps platform |
+| **[acli](https://developer.atlassian.com/cloud/acli/guides/install-acli/)** | Jira (Atlassian) backlog platform, must be authenticated |
+| **[glab](https://gitlab.com/gitlab-org/cli/#installation)** | GitLab repository platform, must be authenticated |
+
+---
+
+## Development
+
+The repository splits along one line: **`harness/` is the product, `cli/` is the machinery that installs it.**
+
+```
+harness/   what lands in your repository, copied verbatim
+cli/       the installer: commands, wizard steps, presets, fragments
+skills/    skills about this CLI, for agents that operate it
+docs/      the documentation site
+```
+
+Browse `harness/` to see what the Plain Concepts Platform Harness actually is, without reading a line of installer code.
+
+Inside `cli/`, the layout follows the ten wizard steps: one directory per step under `cli/steps/`, each owning its prompts and its file writes, with `cli/commands/` holding the top-level entry points (`wizard`, `update`, `join`, `migrate`, `single`).
+
+Data the CLI reads lives in two places, split by kind:
+
+**`cli/presets/`** holds JSON that shapes the wizard's questions and defaults:
+
+- `source.json` controls source-scope prompt options
+- `platforms.json` controls platform labels, CLI checks, and backlog-only flags
+- `clean.json` controls AI file detection and preservation
+- `models.json` controls model role prompts and agent assignments
+- `optimization.json` controls RTK, quota, Simple English, codegraph, agentmemory, and humanizer checklist defaults
+- `quota.json` controls opencode-quota defaults
+- `browser.json` controls the browse installer (npm package + browser extension pairing)
+
+**`cli/fragments/`** holds Markdown injected into the installed harness, one directory per marker family: `archive/`, `guardrails/`, `ops-backlog/`, `ops-review/`, `ops-ship/`. Each file is the platform-specific body that replaces a `<!-- PC-PLATFORM-*-START -->` block.
+
+Every filename the harness writes into a project is declared once in `cli/utils/paths.js`. Change it there, and remember the OpenCode plugins under `harness/.opencode/plugins/` read those same names at runtime.
+
+`skills/` holds both the installable `pc-*` skills and the `agent-harness-cli` skill for agents operating this CLI. See [skills/README.md](./skills/README.md). All of them ship to npm and are discoverable by `npx skills`, so you can install individual skills into any project without the full harness:
+
+```bash
+npx skills add PlainConceptsPlatform/agent-harness
+# or scope to a single skill:
+npx skills add PlainConceptsPlatform/agent-harness --skill pc-ops-ship
+```
+
+```bash
+git clone https://github.com/PlainConceptsPlatform/agent-harness.git
+cd agent-harness
+pnpm install
+
+# Run the CLI locally
+node cli/index.js
+
+# Run tests
+pnpm test
+
+# Run linting
+pnpm lint
+
+# Fix auto-fixable lint issues
+pnpm lint:fix
+
+# Watch mode
+pnpm test:watch
+```
+
+Tests are written with [Vitest](https://vitest.dev). Linting uses ESLint flat config with Node ESM defaults and stricter correctness rules.
+
+---
+
+## License
+
+MIT © [Plain Concepts](https://github.com/PlainConceptsPlatform)

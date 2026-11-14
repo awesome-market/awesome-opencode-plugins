@@ -1,0 +1,156 @@
+# OpenCode Alfred
+
+**Tu centro de control de agentes de IA, dentro de VS Code.**
+Gestiona opencode, Claude Code y Codex desde un mismo panel: agentes, MCP, skills,
+plugins, contexto, consumo… y háblale al ordenador, o dítale lo que quieres pedir.
+
+Sin editar YAML a mano. Sin cambiar de ventana.
+
+> **opencode es el centro.** La extensión está pensada y orientada a opencode: ahí funciona
+> todo. Claude Code y Codex son **experimentales**: se pueden explorar y manejar en parte,
+> pero su soporte todavía no funciona del todo bien y puede cambiar.
+
+---
+
+## Manifiesto
+
+Desde siempre he sido un apasionado de los IDE. Todavía echo de menos a Delphi, aunque está
+claro que los tiempos han cambiado: ahora lo llaman *vibe coding*, el código abierto empieza
+a imponerse al cerrado, los IDE parecen estar perdiendo su sentido y, para colmo, cada vez
+cuesta más encontrar juegos en formato físico.
+
+A veces me siento como un viejo sentado en una hamaca, mirando al horizonte y criticando a
+la juventud XD.
+
+Pero uno no abandona sus costumbres tan fácilmente.
+
+Aquí os dejo mi herramienta de trabajo habitual. La he bautizado como **Alfred**. (Taii sabe
+por qué.)
+
+Quizá los tiempos cambien, las herramientas evolucionen y la forma de programar sea otra,
+pero siempre quedará ese pequeño placer de tener tu propio entorno de trabajo, a tu manera.
+
+Bienvenidos a Alfred.
+
+---
+
+## Qué hace
+
+- **Agentes con formulario.** Crea, edita, duplica y borra agentes y subagentes de
+  opencode (global o proyecto) sin tocar frontmatter. Permisos por herramienta y por
+  patrón, con vista previa del YAML.
+- **Un explorador para tres CLIs.** opencode, Claude Code y Codex en la misma barra:
+  agentes, MCP, skills y plugins de cada uno, con interruptores para activar y
+  desactivar. Y una vista **Control** con el grupo de sesión (`‹ [terminal] ›`) y dos filas de
+  botones de icono: los conectores, `ASIGNAR AGENTES`, `OLLAMA` (Mente local), el generador de
+  imágenes y el chatbot, más pizarra, dictado, voz, estadísticas de prompt y bases de datos.
+- **Contexto bajo control.** Cuánto has gastado de la ventana del modelo, qué parte es
+  prompt fijo, y un botón para compactar antes de que reviente.
+- **Estadísticas de verdad.** Tokens, coste, tiempo y sesiones por agente, leídos en
+  solo lectura de la base de opencode. Y un panel de prompts con lista multiselección,
+  agregado de la selección, línea de tiempo concatenada agrupada por agente y barras de
+  tokens y coste.
+- **Consumo de proveedores.** Saldo y topes de DeepSeek, OpenAI, GitHub Copilot y
+  OpenCode Go, sin salir del editor.
+- **Voz.** Lee en voz alta lo que selecciones y dicta en un bloc con adjuntos,
+  imágenes, pegar y arrastrar. Cuatro motores de voz y tres de dictado; funciona sin
+  conexión con lo que ya trae Windows. El panel enseña también lo que está en marcha aunque
+  no sea un agente: generar una imagen, transcribir voz o cargar modelos de Ollama salen con
+  borde discontinuo e icono. Encima del ecualizador lleva un **monitor del equipo** con
+  temperatura y uso de CPU y GPU, y memoria y VRAM, con su barra de bloques. Al arrancar no
+  pide permisos: la temperatura de la CPU sale en `—` hasta que pulses ese dato en el monitor
+  (subrayado punteado), y ese clic es el único que abre el UAC. Mientras espera se pinta `…`;
+  si se cancela, vuelve `—` con un aviso. El uso de CPU, la RAM, la GPU, la VRAM y la
+  temperatura de la GPU se leen sin permisos y sin ninguna ventana de PowerShell. Sin
+  muestra, todo en guiones.
+- **Mente local.** El cerebro Ollama, en su pestaña: instalar o desinstalar con `winget`,
+  modelos con su tamaño y el espacio del disco, descargar, borrar y encender o apagar. Al
+  encender, Ollama aparece en los conectores y en la asignación de modelos de opencode.
+- **Generador de imágenes.** Texto a imagen e imagen a imagen con un ComfyUI propio (con sus
+  checkpoints y LoRAs, y semilla fijable para repetir una toma) o con OpenAI y cualquier
+  servicio compatible con URL base propia y tu clave. Recuerda tus ajustes entre sesiones,
+  comprueba el enlace con ComfyUI al abrir la pestaña y tiene pasos y guía propios. Las imágenes
+  quedan en `.alfred/imagenes`,
+  el panel enseña las 20 últimas y se borran una a una o todas. Con **COMPARTIR CON ALFRED**
+  los agentes generan con ese mismo motor por el MCP (`generar_imagen`, `consultar_estado`) y lo
+  que generan cae en el historial.
+- **Pizarra.** Dibuja, pega imágenes y mándalo al prompt como si fuera un adjunto. Tiene una
+  capa de diagrama para dibujar workflows con nodos y conectores, una capa de interfaces para
+  maquetar wireframes (los widgets se anidan soltándolos sobre un contenedor), y exporta el
+  diagrama como Mermaid. Una sola barra: cada herramienta
+  abre su ventana de ajustes sobre el lienzo. Varias pizarras en pestañas: la
+  primera es la que ven los agentes. Se guardan y se cargan con nombre desde la tira de
+  pestañas (disquete y carpeta), en `.alfred/.pizarras/`.
+- **Visor Alfred 3D.** Abre ficheros `.blend` como pestaña de edición: órbita, objetos,
+  cámaras, luces, animaciones y render de un frame o de toda la tirada. Con Blender o sin él.
+- **Bases de datos (MariaDB).** Pestaña central con su botón en `Control`: conexiones con
+  contraseña en el almacén de VS Code, TLS y túnel SSH; explorador de bases y tablas; estructura
+  editable de columnas con confirmación; rejilla con paginación, buscador, edición y borrado por
+  lotes; consola SQL con confirmación para lo que escribe; y copia completa a `.sql` con
+  `mariadb-dump`, más exportación de tablas a CSV, JSON o SQL con líneas acotadas.
+
+Todo en español, en una sola extensión.
+
+## Qué toca y qué no
+
+Las bases de opencode se abren en **solo lectura**. Todo lo demás se escribe con el
+formato que el CLI espera, sin pisar comentarios ni claves que no gestiona la extensión.
+
+| Dónde | Qué hace |
+| --- | --- |
+| `~/.local/share/opencode/*.db` | Solo lectura: sesiones, mensajes y tokens |
+| `~/.cache/opencode/models.json` y el catálogo de models.dev | Solo lectura: límites de contexto y precios |
+| `~/.config/opencode/agent/*.md`, `<proyecto>/.opencode/agent/*.md` | Crea y edita agentes y subagentes |
+| `opencode.json` / `opencode.jsonc` | MCP, skills, plugins, permisos y políticas de conectores |
+| `AGENTS.md` global y de proyecto | Instrucciones |
+| `~/.claude/agents`, `.claude/agents`, `.claude/settings.local.json`, `.mcp.json` | Solo si usas Claude Code (experimental) |
+| `config.toml` de Codex | Solo si usas Codex (experimental) |
+| `%APPDATA%\voz\config.json` | Ajustes de voz para que el MCP los vea |
+| `<raíz>/.alfred/adjuntos` | Adjuntos del dictado; sin proyecto, en el almacenamiento global |
+| `<raíz>/.alfred/imagenes` | Imágenes generadas por el panel de imágenes; sin proyecto, en el almacenamiento global |
+| `<almacén global>/alfred3d/` y `<nombre>.glb` junto al `.blend` | Caché del visor 3D y sidecar que se lee cuando no hay Blender; el `.blend` nunca se guarda |
+| Servidores MariaDB que des de alta | Lee y escribe datos y estructura; la contraseña va a `secrets`; las copias `.sql` van a la carpeta que elijas |
+
+No escribe `~/.claude.json` (las conmutaciones de MCP pasan por el propio CLI) y nunca
+manda credenciales al webview: las claves viven en `secrets` de VS Code. Solo sale a la
+red si lo pides, al consultar límites de consumo, al generar imágenes o al elegir un motor
+de voz o dictado en la nube, o al conectar a una base MariaDB que hayas dado de alta.
+
+## Instalación
+
+Descarga el `.vsix` de [`Instalable/`](Instalable/) y sigue la
+[guía de instalación](Instalable/README.md). Tarda menos de un minuto y no necesita
+compilar nada.
+
+## Documentación
+
+| Documento | Qué cuenta |
+| --- | --- |
+| [`Documentacion/ESTADO.md`](Documentacion/ESTADO.md) | En qué punto está el proyecto y qué viene después |
+| [`Documentacion/DESARROLLO.md`](Documentacion/DESARROLLO.md) | Estructura de carpetas, compilar, depurar y empaquetar |
+| [`Codigo_Fuente/README.md`](Codigo_Fuente/README.md) | Guía completa: cada panel, cada ajuste, con detalle |
+| [`Documentacion/CHANGELOG.md`](Documentacion/CHANGELOG.md) | Qué trajo cada versión publicada |
+| [`Instalable/README.md`](Instalable/README.md) | Instalar el `.vsix` paso a paso |
+
+## Requisitos
+
+- VS Code 1.90 o superior.
+- [opencode](https://opencode.ai) instalado si quieres usar el centro de control de
+  agentes (la voz y el dictado funcionan sin él).
+- Windows para la voz y el dictado sin conexión (SAPI). En otros sistemas, los motores
+  en la nube y Whisper siguen disponibles.
+- [Blender](https://www.blender.org), **opcional**: es el motor de render del visor 3D y
+  el que exporta los `.blend`. Sin él abren las escenas ya exportadas y las que traigan su
+  `.glb` al lado; ver [requisitos de la guía](Codigo_Fuente/README.md#requisitos).
+
+## Invítame a un café
+
+Si esto te ahorra tiempo, puedes invitarme a un café por PayPal. Se agradece, y se
+invierte en seguir puliéndolo.
+
+**PayPal:** [paypal.me/sombrawandax](https://www.paypal.com/paypalme/sombrawandax)
+
+## Licencia
+
+MIT. Haz lo que quieras con ello; solo pido que conserves el aviso de copyright.
+Ver [LICENSE](LICENSE).

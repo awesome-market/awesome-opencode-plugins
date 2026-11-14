@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>y00njinuk/opencode-ms-teams · OpenCode Plugins</title>
+<meta name="description" content="OpenCode ↔ Microsoft Teams 양방향 플러그인. 세션 idle 시 응답을 Teams 채팅으로 전송하고 답신을 세션에 재주입.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-ms-teams, y00njinuk, y00njinuk/opencode-ms-teams, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, notifications, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/y00njinuk__opencode-ms-teams">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="y00njinuk/opencode-ms-teams · OpenCode Plugins">
+<meta property="og:description" content="OpenCode ↔ Microsoft Teams 양방향 플러그인. 세션 idle 시 응답을 Teams 채팅으로 전송하고 답신을 세션에 재주입.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/y00njinuk__opencode-ms-teams">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "y00njinuk/opencode-ms-teams", "codeRepository": "https://github.com/y00njinuk/opencode-ms-teams", "url": "https://opencode-plugins.zhuikan.com/repos/y00njinuk__opencode-ms-teams", "description": "OpenCode ↔ Microsoft Teams 양방향 플러그인. 세션 idle 시 응답을 Teams 채팅으로 전송하고 답신을 세션에 재주입.", "author": {"@type": "Organization", "name": "y00njinuk", "url": "https://github.com/y00njinuk"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-23", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,notifications,server"}</script>
+</head>
+<body data-repo="y00njinuk/opencode-ms-teams" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">y00njinuk/opencode-ms-teams</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="y00njinuk__opencode-ms-teams"><img class="rp-side-av" src="https://github.com/y00njinuk.png?s=300" width="300" height="300" alt="y00njinuk avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-ms-teams</div>
+      <a class="rp-side-owner" href="https://github.com/y00njinuk">y00njinuk</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/y00njinuk">y00njinuk</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-ms-teams</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode ↔ Microsoft Teams 양방향 플러그인. 세션 idle 시 응답을 Teams 채팅으로 전송하고 답신을 세션에 재주입.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/notifications">notifications</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-08-23</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="y00njinuk__makdoong2-team"><img class="rp-same-av" src="https://github.com/y00njinuk.png" alt="" loading="lazy">makdoong2-team</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/y00njinuk/opencode-ms-teams">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">1.4.1</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-ms-teams/v/1.4.1">1.4.1 ↓</a><span class="rp-dl-ver">1.4.1</span><span class="rp-dl-date">2026-10-16</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-ms-teams
+
+OpenCode 세션과 Microsoft Teams 채팅을 양방향으로 잇는 npm 플러그인.
+루트 세션이 idle 이 되면 마지막 assistant 응답을 Microsoft Teams 로 보내고, Microsoft Teams 답신을
+동일 세션에 프롬프트로 재주입해 연속 대화를 만든다.
+
+- 대상 환경: OpenCode v1.4.17+ (Rocky Linux 8.10 WSL2, glibc 2.28)
+- 런타임 의존성: 제로 — Bun 내장 fetch 와 node: 빌트인만 사용
+- 상세 설계: ARCHITECTURE.md
+
+ 경로 표기: 이 문서에서 $OPENCODE_CONFIG 는 OpenCode 설정 디렉토리를 나타낸다.
+ 결정 순서: OPENCODE_CONFIG_DIR 환경변수 → $XDG_CONFIG_HOME/opencode → ~/.config/opencode (기본값)
+
+ 사용 가이드
+
+ 1단계: 최초 연동 — 토큰 발급
+
+OpenCode 세션에서 /connect-teams 스킬을 호출한다.
+
+
+/connect-teams
+
+
+스킬을 처음 실행하면 assistant 응답 하단에 Azure device code 안내가 append 된다.
+
+
+ 🔐 Microsoft Teams 로그인 필요
+
+ 1. 브라우저에서 https://microsoft.com/devicelogin 를 여세요
+ 2. 코드 USERCODE1 를 입력
+ 3. 회사 계정으로 로그인 완료 시 다음 응답에 완료 알림이 표시됩니다
+
+
+브라우저에서 인증을 완료하면 다음 응답에 ✅ Microsoft Teams 로그인 완료 안내가 붙으며 토큰이 저장된다.
+이후 OpenCode 를 재시작해도 저장된 토큰으로 자동 로그인되므로 이 단계는 최초 1회만 수행한다.
+
+ 사전 조건: $OPENCODE_CONFIG/opencode-ms-teams/opencode-ms-teams.json 의
+ azure.tenantId / clientId / scopes 를 미리 채워야 한다 (설정 파일 섹션 참고).
+
+ 2단계: 채팅방 선택
+
+토큰 발급이 완료되면 같은 세션에서 다시 /connect-teams 를 호출하거나, 로그인이 이미 완료된 상태에서 첫 호출 시 채팅방 선택 안내가 바로 나타난다.
+
+
+ 🔗 Microsoft Teams 채팅방 선택 필요
+
+ 이 세션에서 사용할 채팅방의 chatId 를 다음 프롬프트에 입력해 주세요.
+
+ 1. Alice - 안녕 · 2026-08-01 10:23
+    19:xxxxxxxxxxxx@thread.v2
+
+ 2. Bob - 프로젝트 · 2026-07-20 05:00
+    19:yyyyyyyyyyyy@thread.v2
+
+
+목록에서 원하는 채팅방의 19:... 문자열을 복사해 다음 프롬프트에 그대로 붙여넣는다.
+채팅방 연동이 완료되면 우측 상단 toast(Microsoft Teams 채팅방 연동 완료: {이름})가 표시되고, 이후 idle 시점부터 해당 채팅방으로 응답이 발신된다.
+
+채팅 ID 는 세션 메모리에만 보관되므로 OpenCode 재시작 시 재선택이 필요하다.
+
+ 3단계: Teams 에서 OpenCode 에 질문하기 — 키워드 트리거
+
+채팅방이 연동된 이후, Teams 에서 보낸 메시지가 자동으로 OpenCode 세션에 주입되지는 않는다.
+메시지 선두에 지정 키워드를 붙인 경우에만 세션에 전달된다.
+
+ 4단계: Teams 답장으로 권한·질문에 대신 응답하기
+
+OpenCode 세션이 사용자 승인(permission) 또는 질문(question) 을 기다릴 때, Teams 채팅으로 발송되는 알림 메시지 하단에 답장 명령 예시가 포함된다. OpenCode TUI 로 돌아가지 않고 Teams 답장만으로 응답 가능.
+
+각 알림에는 짧은 코드 (p...... = permission, q...... = question) 가 부여되며, 답장 명령은 이 코드를 인용한다. 답장 verb 는 최상위 keyword (allow, allow-always, reject, answer, skip) 로 동작한다.
+
+| 명령 | 설명 |
+|---|---|
+| allow  | permission 을 이번 한 번만 승인 (once) |
+| allow-always  | permission 을 승인하고 이후 동일 패턴 요청도 자동 승인 (always, TUI 의 Allow always 와 동일) |
+| reject  | permission 거부 |
+| answer  [, ...] | 단일 질문에 label 응답 (multiple 은 comma 로 여러 label) |
+| answer -  | 여러 질문이 있는 경우 sub-code ({code}-1, {code}-2) 로 개별 응답 |
+| answer  text:  | question 에 자유 텍스트로 응답 (custom=true 인 질문만) |
+| skip  | question 전체 skip (reject) |
+
+ 시나리오별 예시
+
+ 시나리오 1: Bash 실행 permission 승인 (가장 흔한 케이스)
+
+Assistant 가 npm test 를 실행하려 함 → opencode core 가 permission 확인 → 세션이 blocking 됨.
+
+Teams 채팅에 도착하는 알림:
+
+[⚠️ Microsoft Teams: 권한 요청 · 3ab7f0e2] · pa7k9m
+Type: bash
+Title: npm test
+Workspace: /home/user/my-project
+
+Teams 답장으로도 응답 가능:
+• allow pa7k9m
+• allow-always pa7k9m
+• reject pa7k9m
+
+
+사용자 답장:
+
+allow pa7k9m
+
+
+결과: OpenCode 세션이 즉시 unblock → npm test 실행 → 결과가 Teams 로 다시 발신. Teams 에 확인 메시지 도착:
+
+✅ 반영됨 · pa7k9m allow
+
+
+ 시나리오 2: Workspace 외부 파일 접근 거부
+
+Assistant 가 /etc/passwd 를 read 하려 함.
+
+Teams 알림 (외부 경로 강조):
+
+[⚠️ Microsoft Teams: 권한</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/y00njinuk/opencode-ms-teams/releases"><b>1.4.1</b> <span class="rp-rel-tag">1.4.1</span> <span class="rp-item-extra">2026-10-16</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/y00njinuk__opencode-ms-teams.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>

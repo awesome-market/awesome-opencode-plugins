@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sunzho/wordformat · OpenCode Plugins</title>
+<meta name="description" content="中文公文与技术报告 Word 版式技能：让 AI 助手直接产出符合规范的 .docx（三节页码、方正字体、固定行距、表格属性、表图题注自动编号）">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="wordformat, sunzho, sunzho/wordformat, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/sunzho__wordformat">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="sunzho/wordformat · OpenCode Plugins">
+<meta property="og:description" content="中文公文与技术报告 Word 版式技能：让 AI 助手直接产出符合规范的 .docx（三节页码、方正字体、固定行距、表格属性、表图题注自动编号）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/sunzho__wordformat">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=d37809c8">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "sunzho/wordformat", "codeRepository": "https://github.com/SunZHo/wordformat", "url": "https://opencode-plugins.zhuikan.com/repos/sunzho__wordformat", "description": "中文公文与技术报告 Word 版式技能：让 AI 助手直接产出符合规范的 .docx（三节页码、方正字体、固定行距、表格属性、表图题注自动编号）", "author": {"@type": "Organization", "name": "sunzho", "url": "https://github.com/SunZHo"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-03", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools"}</script>
+</head>
+<body data-repo="sunzho/wordformat" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">sunzho/wordformat</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="sunzho__wordformat"><img class="rp-side-av" src="https://github.com/SunZHo.png?s=300" width="300" height="300" alt="sunzho avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">wordformat</div>
+      <a class="rp-side-owner" href="https://github.com/SunZHo">sunzho</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/SunZHo">sunzho</a>
+        <span class="rp-sep">/</span><span class="rp-name">wordformat</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">中文公文与技术报告 Word 版式技能：让 AI 助手直接产出符合规范的 .docx（三节页码、方正字体、固定行距、表格属性、表图题注自动编号）</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>1</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-skipped"><span class="i18n-zh">有高危信号没跑</span><span class="i18n-en">Skipped — high-risk signals</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-03</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/SunZHo/wordformat">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">Wordformat
+
+中文公文与技术报告版式技能 —— 让 AI 助手直接产出符合规范的 .docx，而不是把内容和格式一起糊出来。
+
+
+
+ 为什么需要它
+
+让 AI 写一份可研报告或需求分析报告，内容通常没问题，卡住的是版式：封面无页码、目录用罗马数字、正文从 1 重排；正文行距是固定 29 磅而不是 1.5 倍；首行缩进按字符算而不是磅；表格无文字环绕、表头跨页重复、合计行加粗；表题在上、图题在下，编号跟着章号走。这些在 Word 里手调要几十次点击，换一份新文档又得重来一遍。
+
+Wordformat 把这些规则固化成一份 Python 排版库：内容归内容，版式归版式。调用方只管往章节里填字，其余的页边距、页码、字体、行距、题注编号由代码保证。
+
+ 规范覆盖
+
+| 项目 | 落地值 |
+|---|---|
+| 页面 | A4，页边距上 35 / 下 32 / 左 28 / 右 26 mm |
+| 页码 | 封面单独成节、无页码；目录罗马数字 Ⅰ Ⅱ Ⅲ；正文阿拉伯数字从 1 起；均底部居中 |
+| 封面 | 首行标题方正小标宋一号、1.5 倍行距、居中，标题与页面顶部隔一个小四字号的 1.5 倍行距；下方空四行三号；项目名称 / 申报单位 / 编制单位方正仿宋三号、首行缩进 2 字符；日期汉字写法 |
+| 目录 | 标题宋体三号；条目宋体五号、固定 18 磅、段前段后 0；只到三级，缩进 2 / 3.5 / 5 字符，前两级加粗 |
+| 标题 | 三号；一级方正黑体、二级方正楷体、三级与四级方正仿宋；自动挂大纲级别 |
+| 正文 | 方正仿宋三号、首行缩进 2 字符（字符单位）、固定 29 磅、段前段后 0 |
+| 表格 | 宋体五号、无缩进、固定 18 磅；无文字环绕、允许跨页断行、表头跨页重复、单元格垂直居中、表头与合计加粗 |
+| 题注 | 表题在上、图题在下；编号「章号-序号」，编号与题名空一个字符；五号黑体、1.5 倍行距、居中；子项分层时编为 表3-1-1 |
+| 文件名 | 项目名称_文件名称.docx；封面标题按「单位前缀 + 文件类型」自动拼 |
+
+ 安装
+
+ 方式一：克隆到技能目录（推荐，便于 git pull 更新）
+
+bash
+ WorkBuddy / CodeBuddy
+git clone https://github.com/SunZHo/wordformat.git ~/.workbuddy/skills/wordformat
+
+ Claude Code
+git clone https://github.com/SunZHo/wordformat.git ~/.claude/skills/wordformat
+
+
+ 方式二：下载 ZIP
+
+不想装 git 的，直接下发布包：wordformat-1.0.0.zip，解压后把 wordformat/ 整个目录放进技能目录即可。
+
+也可以在仓库页点 Code → Download ZIP，效果相同。
+
+ 依赖
+
+bash
+pip install python-docx Pillow
+
+
+python-docx 用于写文档，Pillow 只在 demo.py 生成示例配图时用到。
+
+ 其他助手
+
+本仓库遵循通用的 SKILL.md 约定（YAML frontmatter + Markdown 说明 + 可执行脚本）。不支持技能目录的助手，可以把 SKILL.md 全文塞进系统提示，脚本路径按实际位置改一下即可。
+
+ 快速上手
+
+python
+import sys; sys.path.insert(0, &quot;scripts&quot;)
+import docformat as G
+
+ 文件名下划线之后那段即&quot;文件类型&quot;；封面标题 = 前缀 + 文件类型
+d = G.DocFormat(G.doc_filename(&quot;某某项目&quot;, &quot;需求分析报告&quot;),
+                project=&quot;某某项目建设&quot;,
+                applicant=&quot;××单位&quot;,
+                compiler=&quot;××单位&quot;,
+                date_cn=G.cn_date(2026, 11),
+                cover_org=&quot;某某项目建设&quot;)    封面首行标题前缀，可省
+
+d.cover()         封面（独立成节，无页码）
+d.toc()           目录页（罗马数字页码）
+d.start_body()    正文（阿拉伯数字从 1 起）
+
+d.h1(&quot;第一章 项目概述&quot;)
+d.p(&quot;本项目面向……&quot;)
+d.h2(&quot;1.1 建设背景&quot;)
+d.p(&quot;……&quot;)
+d.table(&quot;建设内容与规模一览表&quot;, [&quot;序号&quot;, &quot;建设内容&quot;, &quot;规模&quot;],
+        [[&quot;1&quot;, &quot;排版能力库&quot;, &quot;1 套&quot;], [&quot;合计&quot;, &quot;—&quot;, &quot;1 套&quot;]],
+        total=True, widths_cm=[2, 8, 3])
+d.figure(&quot;chart.png&quot;, &quot;总体架构图&quot;, width_cm=14)
+d.save()
+
+
+表题、图题、章节序号全部自动编号，不用手写 表3-1 这类前缀；h1 会解析标题里的「第X章」来决定章号，从中间章节起排也不会错号。
+
+ 重排已有文档
+
+bash
+ 纯文本重排（重建结构、重编号，图片不迁移）
+python scripts/reformat.py 源.docx 某某项目_需求分析报告.docx \
+  --project 某某项目建设 --applicant 申报单位 --compiler 编制单位 --date 二〇二六年十一月
+
+ 图文手册重排（保留截图，按版心宽重排后重新插图）
+python scripts/manual_reformat.py 源手册.docx 输出.docx \
+  --software &quot;某某平台V1.0&quot; --applicant 申报单位 --compiler 编制单位 --date 二〇二六年十一月
+
+
+manual_reformat.py 专为带截图的操作手册准备：自动识别封面、目录、正文起点，重建三节页码结构，把内嵌图片导出后按 15.6 cm 版心重新插入，图号沿用原稿，正文里「如图 3-2 所示」的交叉引用不会失效。
+
+ 核心 API
+
+| 调用 | 作用 |
+|---|---|
+| DocFormat(path, project, applicant, compiler, date_cn, cover_title=None, doc_name=None, cover_org=COVER_ORG) | 建文档并设 A4、页边距与正文样式；封面标题缺省时按「前缀 + 文件类型」拼，两者都拿不到会直接抛错而不是留空 |
+| .cover() | 封面：小标宋一号标题 + 四行三号空距 + 信息行 + 汉字日期 |
+| .toc() | 目录页：宋体三号标题、TOC1~3 样式、罗马页码 |
+| .start_body() | 开正文节：阿拉伯页码从 1 起</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-14T19:37:34Z · Data license Apache-2.0 ·
+<a href="../data/repos/sunzho__wordformat.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/purify.min.js?v=d37809c8"></script>
+<script src="../assets/vendor/qrcode.min.js?v=d37809c8"></script>
+<script src="../assets/common.js?v=d37809c8"></script>
+<script src="../assets/repo.js?v=d37809c8"></script>
+</body>
+</html>
