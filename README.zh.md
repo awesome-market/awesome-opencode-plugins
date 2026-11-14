@@ -22,25 +22,25 @@
 
 | 插件 | Stars | 简介 |
 | :--- | ---: | :--- |
-| [**@omniroute/opencode-plugin-v2**](https://github.com/diegosouzapw/OmniRoute) | 87,015 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
-| [**upstash/context7**](https://github.com/upstash/context7) | 64,729 | Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a… |
-| [**volcengine/openviking**](https://github.com/volcengine/OpenViking) | 42,167 | OpenViking integration for Magpie: memory recall/capture and model switching… |
-| [**othmanadi/planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 28,037 | Native OpenCode plugin for planning-with-files: per-turn plan injection, write… |
-| [**different-ai/openwork**](https://github.com/different-ai/openwork) | 24,503 | Use OpenWork Cloud in OpenCode: sign in once, and your organization's AI… |
+| [**@omniroute/opencode-plugin-v2**](https://github.com/diegosouzapw/OmniRoute) | 87,247 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
+| [**upstash/context7**](https://github.com/upstash/context7) | 64,773 | Official Context7 plugin for OpenCode — wires up the Context7 MCP server and a… |
+| [**volcengine/openviking**](https://github.com/volcengine/OpenViking) | 42,219 | OpenViking integration for Magpie: memory recall/capture and model switching… |
+| [**othmanadi/planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 28,049 | Native OpenCode plugin for planning-with-files: per-turn plan injection, write… |
+| [**different-ai/openwork**](https://github.com/different-ai/openwork) | 24,510 | Use OpenWork Cloud in OpenCode: sign in once, and your organization's AI… |
 | [**startrail-org/pixelrag**](https://github.com/StarTrail-org/PixelRAG) | 10,913 | Give opencode eyes — screenshot any URL or document with pixelshot and read it… |
 | [**npm/victrid-oh-my-opencode-slim**](https://github.com/alvinunreal/oh-my-opencode-slim) | 10,209 | Lightweight agent orchestration plugin for OpenCode - a slimmed-down fork of… |
 | [**weave-os/router**](https://github.com/weave-os/router) | 5,621 | One-command installer that points Claude Code, Codex, opencode, or pi at the… |
 | [**qingyuna/answer-me-with-html**](https://github.com/QingYunA/answer-me-with-html) | 5,246 | Answer me with HTML — an agent skill that answers hard questions with a… |
-| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,493 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
+| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,496 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
 | [**zju-real/easel**](https://github.com/ZJU-REAL/Easel) | 4,379 | An open-source AI agent for social media — discover trends, create content,… |
 | [**strukto-ai/mirage**](https://github.com/strukto-ai/mirage) | 3,782 | Native Mirage filesystem tools for OpenCode |
 | [**learnprompt/awesome-seedance**](https://github.com/LearnPrompt/awesome-seedance) | 2,414 | 🎬 Evidence-led Seedance 2.5 / 2.0 prompt library: 840+ cases traced to original… |
-| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,049 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
-| [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,541 | deja-vu memory for opencode: the session history of forty-two other coding… |
-| [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,456 | oh-my-agent hook bridge for OpenCode and Kilo Code |
+| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,056 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
+| [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,544 | deja-vu memory for opencode: the session history of forty-two other coding… |
+| [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,462 | oh-my-agent hook bridge for OpenCode and Kilo Code |
 | [**remorses/kimaki**](https://github.com/remorses/kimaki) | 1,450 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
 | [**20000419/fauxnix**](https://github.com/20000419/fauxnix) | 900 | Fauxnix — run Linux-style commands on Windows via deterministic PowerShell… |
-| [**keli-wen/agy-staff**](https://github.com/keli-wen/agy-staff) | 868 | Hire Google's Antigravity CLI (agy) as a fast Gemini staffer for Claude Code,… |
+| [**keli-wen/agy-staff**](https://github.com/keli-wen/agy-staff) | 869 | Hire Google's Antigravity CLI (agy) as a fast Gemini staffer for Claude Code,… |
 | [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 817 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
 <!-- /BOARD:TOP20 -->
 
