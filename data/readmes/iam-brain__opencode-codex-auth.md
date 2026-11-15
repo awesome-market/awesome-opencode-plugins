@@ -1,0 +1,79 @@
+# opencode-codex-auth
+
+[![CI](https://github.com/iam-brain/opencode-codex-auth/actions/workflows/ci.yml/badge.svg)](https://github.com/iam-brain/opencode-codex-auth/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/%40iam-brain%2Fopencode-codex-auth.svg)](https://www.npmjs.com/package/@iam-brain/opencode-codex-auth)
+
+OpenCode plugin for ChatGPT OAuth auth with multi-account management and Codex-compatible request behavior.
+
+## Highlights
+
+- ChatGPT OAuth flow for OpenCode OpenAI provider usage.
+- Multi-account storage, rotation, and account health controls.
+- Runtime modes for native-compatible or codex-style request identity.
+- Integrated auth UX via `opencode auth login` (switch, refresh, disable, remove, transfer).
+
+## Requirements
+
+- Node.js `>=22 <27`
+- npm `10.9.2` (via `packageManager` / Corepack)
+- OpenCode CLI available on your PATH
+
+## Install
+
+```bash
+npx -y @iam-brain/opencode-codex-auth@latest
+```
+
+Authenticate:
+
+```bash
+opencode auth login
+```
+
+Run with an OpenAI model:
+
+```bash
+opencode run "say hi" --model=openai/gpt-5
+```
+
+## Configuration
+
+Keep plugin install/enablement in `opencode.json`, and runtime behavior in `codex-config.jsonc`. The plugin still accepts commented legacy `codex-config.json` files for compatibility.
+
+- Config reference: [docs/configuration.md](docs/configuration.md)
+- Multi-account behavior: [docs/multi-account.md](docs/multi-account.md)
+- Troubleshooting: [docs/troubleshooting.md](docs/troubleshooting.md)
+
+## Documentation
+
+- Docs index: [docs/README.md](docs/README.md)
+- Getting started: [docs/getting-started.md](docs/getting-started.md)
+- Persona tooling: [docs/persona-tool.md](docs/persona-tool.md)
+- Releasing: [docs/releasing.md](docs/releasing.md)
+- Development docs: [docs/development/README.md](docs/development/README.md)
+
+## Development
+
+```bash
+npm install
+npm run hooks:install
+npm run verify
+```
+
+Helpful local commands:
+
+```bash
+npm run verify:local
+npm run prepush
+npm run lint
+npm run test:coverage
+npm run check:docs
+```
+
+Local git hooks now enforce `npm run verify` before both `git commit` and `git push`. The commit hook accepts staged-only commit-ready changes, and the push hook requires a clean tree so it verifies the exact commits being pushed. `npm run verify:local` runs the same enforcement manually, with a cache so unchanged trees do not rerun the full suite twice in a row.
+
+Pull request CI stays intentionally lean. After an exact-head review, maintainers dispatch `reviewed-pr.yml` from `main` with the PR number and reviewed head/base SHAs. The trusted workflow runs clean-room verify, tarball smoke, Windows smoke, and secret scanning against the immutable PR merge result, including fork PRs. See [manual validation](docs/development/TESTING.md#trusted-manual-validation). Dependency vulnerability auditing via `npm audit` runs on default-branch pushes instead of every PR.
+
+## Usage Note
+
+This plugin is intended for personal development usage with your own ChatGPT account. For production multi-user systems, use official OpenAI Platform API auth flows.

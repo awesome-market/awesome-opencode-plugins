@@ -1,0 +1,246 @@
+# opencode-nexos-models-config
+
+Simple CLI tool that generates opencode configuration for [Nexos AI](https://nexos.ai) models. It fetches available models from the Nexos AI API and creates an opencode configuration file with proper model limits, costs, and variants.
+
+## Requirements
+
+- Node.js 18+
+- [opencode](https://opencode.ai) installed globally (`npm install -g opencode`)
+- `NEXOS_API_KEY` environment variable set with your Nexos AI API key
+
+## Installation
+
+### Global installation (recommended)
+
+```bash
+npm install -g opencode-nexos-models-config
+```
+
+### Per-user installation (without root/sudo)
+
+#### Linux
+
+Add to `~/.npmrc`:
+
+```
+prefix=~/.npm-global
+```
+
+Add to `~/.bashrc`:
+
+```bash
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
+
+Then reload shell and install:
+
+```bash
+source ~/.bashrc
+npm install -g opencode-nexos-models-config
+```
+
+#### macOS
+
+Add to `~/.npmrc`:
+
+```
+prefix=~/.npm-global
+```
+
+Add to `~/.zshrc`:
+
+```bash
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
+
+Then reload shell and install:
+
+```bash
+source ~/.zshrc
+npm install -g opencode-nexos-models-config
+```
+
+### Updating
+
+```bash
+npm update -g opencode-nexos-models-config
+```
+
+Or to force the latest version:
+
+```bash
+npm install -g opencode-nexos-models-config@latest
+```
+
+## Usage
+
+After global installation:
+
+```bash
+opencode-nexos-models-config
+```
+
+Or without installation (using npx):
+
+```bash
+npx opencode-nexos-models-config
+```
+
+The tool will:
+
+1. Fetch the list of available models from the Nexos AI API
+2. Generate an opencode configuration with the [nexos-provider](https://github.com/crazy-goat/nexos-provider) plugin
+3. Write the config to `~/.config/opencode/opencode.json`
+
+### Supported models only
+
+By default, only models with predefined configuration (costs, limits, variants) are included. This is equivalent to running:
+
+```bash
+opencode-nexos-models-config
+# or
+opencode-nexos-models-config --supported-models
+# or
+opencode-nexos-models-config -m
+```
+
+To include **all** available models from the API (not just supported ones):
+
+```bash
+opencode-nexos-models-config --supported-models=false
+# or
+opencode-nexos-models-config -m false
+```
+
+This filters the list to only include models from the curated `SUPPORTED_MODELS` list (see below).
+
+### Agent model selection
+
+If you have agents defined in your `opencode.json` (e.g. `build`, `build-fast`, `build-heavy`, `plan`), you can interactively assign models to them:
+
+```bash
+opencode-nexos-models-config --select-agents
+```
+
+This opens an interactive prompt for each agent where you can search and select a model using arrow keys and type-to-filter.
+
+### Custom model costs
+
+To interactively set custom prices for models in your config:
+
+```bash
+opencode-nexos-models-config --custom-costs
+```
+
+Or use the short flag:
+
+```bash
+opencode-nexos-models-config -c
+```
+
+This allows you to:
+- Set custom input/output/cache prices per model
+- See current costs while selecting
+- Update prices for multiple models in one session
+- Leave fields blank to keep existing values
+
+When used with `--supported-models`, only supported models will be shown:
+
+```bash
+opencode-nexos-models-config -m -c
+```
+
+### Model pricing information
+
+The tool automatically includes pricing information for all models in the generated configuration. Pricing includes:
+
+- **Input cost**: Price per million input tokens
+- **Output cost**: Price per million output tokens
+- **Cache read**: Price per million cached tokens read (if supported)
+- **Cache write**: Price per million tokens written to cache (if supported)
+
+**Default pricing**:
+- Supported models have predefined costs (see table below)
+- Unknown models use fallback costs based on Claude Opus 4.6 pricing:
+  - Input: $5/M tokens
+  - Output: $25/M tokens
+  - Cache read: $0.5/M tokens
+  - Cache write: $6.25/M tokens
+
+**Custom pricing**:
+- Your existing custom costs are always preserved
+- Use `--custom-costs` flag to set new custom prices interactively
+- Custom costs take priority over default pricing
+
+**Note**: The app always overwrites the entire model list with fresh data from the API on each run.
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|---|---|---|
+| `NEXOS_API_KEY` | Your Nexos AI API key (required) | - |
+| `NEXOS_BASE_URL` | Custom API base URL | `https://api.nexos.ai/v1` |
+
+### CLI Flags
+
+| Flag | Description | Default |
+|---|---|---|
+| `--help`, `-h` | Show help message | - |
+| `--version`, `-v` | Show version number | - |
+| `--select-agents`, `-s` | Interactively select models for agents defined in config | `false` |
+| `--supported-models`, `-m` | Only include models with predefined configuration (`true`/`false`) | `true` |
+| `--custom-costs`, `-c` | Interactively set custom costs for models | `false` |
+| `--output`, `-o` | Write config to a custom file path instead of default |
+
+## Supported Models
+
+When using `--supported-models` flag, only these curated models are included:
+
+| Model | Provider | Context | Output | Variants |
+|---|---|---|---|---|
+| **Claude Opus 4.5** | Anthropic | 200k | 64k | low, high |
+| **Claude Opus 4.6** | Anthropic | 200k | 128k | low, high |
+| **Claude Sonnet 4.5** | Anthropic | 200k | 64k | low, high |
+| **GPT 5.4** | OpenAI | 1,050k | 128k | low, high |
+| **GPT 5.2** | OpenAI | 400k | 128k | low, high |
+| **GPT 5** | OpenAI | 400k | 128k | low, high |
+| **Gemini 2.5 Pro** | Google | 1M | 65k | low, high |
+| **Gemini 2.5 Flash** | Google | 1M | 65k | low, high |
+| **Kimi K2.5** | Moonshot AI | 256k | 64k | - |
+| **GLM 5** | Zhipu AI | 202k | 202k | - |
+
+All models come with pre-configured context limits, output limits, and pricing information.
+
+### Variants
+
+- **low**: Minimal thinking/reasoning (faster, cheaper)
+- **high**: Extended thinking/reasoning (more accurate for complex tasks)
+
+### Default mode
+
+By default, the tool only includes **supported models** from the curated list above. This ensures you work with models that have pre-configured costs, limits, and variants.
+
+To include **all** available models from the Nexos AI API (including unsupported ones):
+
+```bash
+opencode-nexos-models-config --supported-models=false
+```
+
+The entire model list is replaced on each run to ensure you have the latest models and pricing.
+
+**Important**: Your custom costs set via `--custom-costs` are preserved and take priority, but the model list itself is always refreshed from the API.
+
+## Model Configuration
+
+Model metadata is stored in `models.config.mjs` and includes:
+
+- **limits**: Context window and max output tokens
+- **cost**: Input/output pricing per 1M tokens, plus cache read/write if supported
+- **variants**: Model-specific thinking/reasoning variants (low, high)
+- **options**: Default model options (e.g., reasoningEffort)
+
+## License
+
+MIT

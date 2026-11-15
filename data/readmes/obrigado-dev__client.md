@@ -1,0 +1,63 @@
+# Obrigado client
+
+This repository contains the source for the developer-installed parts of
+[Obrigado.dev](https://obrigado.dev):
+
+- the `obrigado` CLI and status-line integrations;
+- the shared wire contract and rendering rules;
+- the OpenCode plugin;
+- the VS Code extension, which Cursor, Antigravity IDE and Kiro run unchanged;
+- the JetBrains IDEs plugin.
+- the WXT Chrome extension for Claude, ChatGPT, DeepSeek and Replit (coming soon).
+
+This is where that code is developed. The private
+[`obrigado-dev/platform`](https://github.com/obrigado-dev/platform) repository holds the
+services — auction, settlement, ledger, the website — and depends on this one, pinned to a
+commit. Changes here arrive there when that pin moves.
+
+It used to be the other way round: this repository was an export, rewritten wholesale on
+every commit to platform, which meant a merged pull request here was reverted by the next
+sync. That is gone. A change landed here stays landed, and releases are built from commits
+visible in this history.
+
+New coding agents and terminals appear constantly, and adding support for one is the most
+self-contained change this repository takes. [Adding a surface](./docs/ADDING-A-SURFACE.md)
+covers what counts as a surface, the one row that declares a host, and the per-host behaviour
+the compiler will ask you for.
+
+## Development
+
+Requires Bun 1.4 or newer.
+
+```sh
+bun install --frozen-lockfile
+bun run check
+bun run package:vscode
+bun run package:browser
+```
+
+The JetBrains plugin is Kotlin and builds with its own Gradle wrapper; it needs JDK 21. See
+[its README](./packages/jetbrains-plugin/README.md).
+
+The [Chrome extension](./packages/browser-extension/README.md) starts paused and needs no CLI.
+Its [design notes](./docs/BROWSER-EXTENSION.md) cover privacy, impression counting and the
+limitations of provider DOM adapters. `bun run --cwd packages/browser-extension test:browser`
+runs its Chromium fixtures after `bunx playwright install chromium` in that package.
+
+```sh
+cd packages/jetbrains-plugin
+./gradlew check buildPlugin
+```
+
+## Supply chain
+
+Bun refuses to resolve direct or transitive package versions published less than seven days
+ago. Known vulnerabilities fail the OSV-Scanner workflow, and the dependency audit also
+runs daily so newly published advisories are detected even when the source has not changed.
+The scanner downloads the public advisory database and matches `bun.lock` locally; it does
+not send the dependency inventory to OSV or npm.
+
+## License
+
+The exported client source is licensed under the
+[Apache License 2.0](./LICENSE).
