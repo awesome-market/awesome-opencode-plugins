@@ -1,0 +1,990 @@
+# ShipFrame — AI Coding Workflows for Teams
+
+<p align="center"><img src="https://shipframe.hackeruna.com/brand/shipframe-lockup.svg" alt="ShipFrame — AI coding workflows for teams" width="308"></p>
+
+<p align="center"><a href="https://shipframe.hackeruna.com/#install">Install with Homebrew</a> · <a href="https://shipframe.hackeruna.com/#demo">Watch the 30-second demo</a> · <a href="https://github.com/juanitourquiza/shipframe">Visit & star on GitHub</a> · <a href="LICENSE">MIT License</a> · <a href="https://github.com/juanitourquiza/shipframe/security">Security</a> · <a href="CONTRIBUTING.md">Contributing</a></p>
+<p align="center"><a href="https://github.com/juanitourquiza/shipframe/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/juanitourquiza/shipframe?style=social"></a></p>
+
+**ShipFrame** is a practical AI coding workflow toolkit for teams that plan, prove, and ship software changes with discipline.
+
+It provides reusable skills, agent workflows, templates, and project profiles for Claude Code, Codex CLI, and OpenCode. The optional `live-docs` workflow consults version-compatible external library documentation before API-dependent changes, without requiring a paid documentation service. The core workflow is generic enough for any software team, while project-specific behavior lives in opt-in profiles.
+
+> Tagline: **AI coding workflows for teams that plan, prove, and ship.**
+
+**Current stable release:** [v1.2.0](https://github.com/juanitourquiza/shipframe/releases/tag/v1.2.0), adding `shipframe star` and a one-time post-install star prompt. See the [changelog](CHANGELOG.md) for release details.
+
+**Website:** https://shipframe.hackeruna.com/  
+**Repository:** https://github.com/juanitourquiza/shipframe
+
+---
+
+## What ShipFrame does
+
+ShipFrame turns natural-language development requests into a repeatable delivery lifecycle:
+
+```text
+Refresh context → Discover requirements → Plan work → Implement → Verify → Review → Release evidence → PR/MR
+```
+
+It is designed for:
+
+- teams working from tickets, Git branches, and PRs/MRs;
+- developers who want agent help without “vibe coding”;
+- projects that need exact release evidence before declaring work complete;
+- multi-project teams that need generic workflows plus project-specific profiles.
+
+Visit the ShipFrame landing page for the public overview, product positioning,
+installation entry points, FAQ, and links to the GitHub repository:
+https://shipframe.hackeruna.com/
+
+---
+
+## What's inside
+
+### Core workflow skills
+
+For non-trivial code changes, run the QA agent after planning when the host supports it; otherwise use the `tdd` skill. QA does not require ClickUp: without tracker access, it returns a local test manifest.
+
+| Skill | What it does |
+|---|---|
+| `init-project` | Scans a repo, records detected stack context, and suggests matching optional technology packs. |
+| `project-memory-refresh` | Reads WIKI/AGENTS/git state before non-trivial work. |
+| `feature-discovery` | Gathers requirements through structured questioning. |
+| `plan-expert` | Breaks work into ordered, actionable subtasks. |
+| `planning-features` | Runs feature discovery and planning as one feature-planning pipeline. |
+| `implement-task` | Implements a scoped task, verifies it, commits, and prepares a PR/MR. |
+| `code-review` | Two-phase review: fast checks plus structural/SOLID audit. |
+| `create-task` | Converts raw input into ClickUp-ready task templates. |
+| `create-issue` | Triage flow for bugs/issues. |
+| `create-pr` | Opens a draft PR/MR with a populated template from git context. |
+| `generate-readme` | Generates a team-ready README by scanning the current codebase. |
+| `live-docs` | Consults version-compatible external library documentation before API-dependent changes. |
+| `security-review` | Reviews security risks using scoped scans and evidence-based triage. |
+| `security-hardening` | Applies preventive security controls to designs and implementation changes. |
+| `e2e-verify` | Defines and verifies end-to-end journeys with explicit test data and criteria. |
+| `dependency-upgrade` | Plans safe dependency updates with compatibility and rollback evidence. |
+| `api-contract-review` | Assesses API compatibility, validation, and consumer impact. |
+| `incident-response` | Starts with operational access checks, then coordinates evidence-led response. |
+| `memory-curator` | Curates verified, durable project memory while excluding sensitive data. |
+| `project-memory-init` | Opt-in setup for minimal Git-backed project memory with safe, reviewed GitHub publication. |
+
+### Optional technology packs
+
+Technology packs are starter guidance, not automatic configuration or bundled
+library documentation. `init-project` suggests matching packs from the detected
+stack; review their checks against the repository before adopting them. Use the
+shared `live-docs` workflow for version-matched external documentation.
+
+| Pack | Focus |
+|---|---|
+| `project-packs/angular/` | Angular architecture, CLI/build output, browser routes, and release checks. |
+| `project-packs/javascript/` | Browser vs Node.js runtime, modules, async behavior, and package scripts. |
+| `project-packs/typescript/` | Compiler configuration, module resolution, type checks, and declaration compatibility. |
+| `project-packs/php/` | PHP runtime, Composer, autoloading, static analysis, and test tooling. |
+| `project-packs/laravel/` | Laravel routes, middleware, Eloquent, migrations, queues, and endpoint smoke. |
+| `project-packs/nodejs/` | Node.js runtime/version, ESM/CommonJS, server lifecycle, and process/resource checks. |
+| `project-packs/react-vite/` | React UI behavior, Vite build/configuration, browser smoke, and exposed environment values. |
+| `project-packs/python/` | Python/runtime and dependency lock, packaging, typing, tests, and async/resource checks. |
+| `project-packs/rust/` | Rust toolchain/Cargo, formatting, Clippy, tests, features, ownership, and unsafe boundaries. |
+| `project-packs/nextjs/` | Next.js routing, server/client boundaries, caching, and runtime smoke. |
+| `project-packs/nestjs/` | NestJS transports, guards, validation, migrations, and health checks. |
+| `project-packs/fastapi/` | FastAPI/Pydantic contracts, async boundaries, lifespan, and ASGI smoke. |
+| `project-packs/go/` | Go toolchain, tests/race checks, context cancellation, and service smoke. |
+
+### Engineering discipline skills
+
+| Skill | What it does |
+|---|---|
+| `domain-modeling` | Builds glossary/ADRs and sharpens project language. |
+| `codebase-design` | Designs deeper modules and cleaner seams. |
+| `tdd` | Guides red/green/refactor through public seams. |
+| `bug-diagnosis` | Builds a tight repro loop before changing code. |
+| `research` | Researches against primary sources and captures findings. |
+| `handoff` | Creates a compact handoff for the next agent/session. |
+
+### Release and evidence skills
+
+| Skill | What it does |
+|---|---|
+| `project-profile` | Loads repo-specific workflow rules without hardcoding them into core. |
+| `project-release` | Generic release orchestrator with migration/deprecation and rollback guidance; performance checks are conditional. |
+| `release-checklist` | Produces project-aware release gates. |
+| `frontend-release` | Verifies frontend builds, routes, i18n, chunks, and smoke checks. |
+| `backend-release` | Verifies API/backend tests, migrations, queues, integrations, and endpoint smoke. |
+| `deploy-evidence` | Collects concrete proof before saying a deploy/release is done. |
+| `evidence-audit` | Audits reports, handoffs, and release notes for unsupported delivery claims. |
+| `proof-runner` | Optionally runs explicit `Verify:` commands from checklists before claiming steps are done. |
+
+### Integration and product skills
+
+| Skill | What it does |
+|---|---|
+| `mcp-debugging` | Diagnoses MCP connector failures with live tool evidence. |
+| `client-copy-review` | Reviews client-facing copy, bilingual consistency, and approval constraints. |
+| `a11y-auditor` | Audits accessibility against WCAG 2.2. |
+| `design-expert` | Documents design tokens and UI conventions. |
+| `design-system-docs` | Audits Markdown/Storybook design system documentation. |
+| `design-system-setup` | Runs the design documentation pipeline end-to-end. |
+
+### Wiki skills
+
+| Skill | What it does |
+|---|---|
+| `wiki-init` | Creates the project wiki vault. |
+| `wiki-query` | Answers from the wiki index and pages. |
+| `wiki-sync` | Updates wiki docs from repo diffs. |
+| `wiki-forge` | Ingests source material into a connected Markdown wiki. |
+
+---
+
+## Project profiles
+
+ShipFrame keeps project-specific behavior out of the generic core.
+
+A project can opt in with:
+
+```text
+shipframe.profile.md
+.shipframe/profile.md
+.shipframe/project-profile.md
+```
+
+Profiles can define:
+
+- repo topology;
+- release/deploy process;
+- smoke-test routes;
+- version/tag policy;
+- i18n rules;
+- client copy constraints;
+- integration-specific verification.
+
+Technology and project packs live in `project-packs/`:
+
+- `project-packs/live-docs/` — optional version-compatible documentation lookup with Neuledge or official sources.
+- Language/runtime packs: `javascript/`, `typescript/`, `php/`, `nodejs/`, `python/`, `rust/`, and `go/`.
+- Framework/build packs: `angular/`, `laravel/`, `react-vite/`, `nextjs/`, `nestjs/`, and `fastapi/`.
+- `project-packs/mcp/` — MCP integration guidance.
+- `project-packs/pulsai-profile/` — optional example profile, not generic ShipFrame behavior.
+
+`init-project` suggests relevant packs after detecting a project's stack; it does
+not copy a pack, install Context, download docs, or edit a host's MCP config.
+Context is the optional documentation provider used by `live-docs`, not a pack
+for any one framework. For API-dependent changes, resolve the dependency version
+from the lockfile and consult matching docs through Context when connected, or
+official versioned docs otherwise.
+
+The PULSAI profile is intentionally optional: it is useful for PULSAI-style projects but not hardcoded into the public ShipFrame workflow.
+
+---
+
+## Installation
+
+### One-line install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/juanitourquiza/shipframe/main/install.sh | bash
+```
+
+### macOS with Homebrew
+
+```bash
+brew tap juanitourquiza/shipframe
+brew install shipframe
+shipframe install --codex
+```
+
+If your Homebrew version requires tap trust, run the exact trust command it
+prints (for example, `brew trust --formula juanitourquiza/shipframe/shipframe`)
+and then re-run `brew install shipframe`.
+
+### Star ShipFrame
+
+If ShipFrame saves you time, a star helps other teams find it:
+
+```bash
+shipframe star          # when installed via Homebrew
+./install.sh --star     # local clone; uses your gh CLI login
+```
+
+The installer also asks once — interactive sessions only — after a successful
+install. Skip it forever with `--no-star-ask` or `SHIPFRAME_NO_STAR_ASK=1`.
+Non-interactive installs (such as `curl | bash`) print the link without
+prompting. `--uninstall --purge` removes the once-per-machine marker together
+with the rest of ShipFrame's state. ShipFrame never stars on your behalf
+without an explicit yes.
+
+### Hermes Agent
+
+ShipFrame ships as a native Hermes plugin: a `plugin.yaml` manifest plus a
+Python entrypoint that registers every skill in `skills/` as a namespaced,
+read-only Hermes skill (`shipframe:<skill>`), without copying files into
+`~/.hermes/skills`.
+
+Until the entry is listed in the Hermes plugin catalog, install it from this
+repository (in the Desktop app: Capabilities → Plugins → install from
+repository; or from the CLI):
+
+```bash
+hermes plugins install juanitourquiza/shipframe
+```
+
+Once the catalog entry is reviewed and merged, `hermes plugins install
+shipframe` installs the exact reviewed commit.
+
+### Optional: concise agent responses with Caveman
+
+ShipFrame keeps the base workflow focused on planning, verification, review, and
+release evidence. If you also want shorter internal agent responses, install the
+Caveman skill separately:
+
+```bash
+npx skills add JuliusBrussee/caveman
+```
+
+Caveman is opt-in and is not installed by the ShipFrame installer or Homebrew
+formula. Activate it with `/caveman` when you want concise responses, and switch
+back with `normal mode` for release evidence, customer copy, security work, or
+any step where fuller wording is safer.
+
+### Local clone
+
+```bash
+git clone https://github.com/juanitourquiza/shipframe ~/tools/shipframe
+cd ~/tools/shipframe
+./install.sh --codex
+./install.sh --claude
+./install.sh --opencode
+./install.sh --codex --codex-agents
+```
+
+### Targets
+
+```bash
+./install.sh --claude     # Claude Code plugin + plugin-managed hooks
+./install.sh --opencode   # OpenCode skills + converted agents
+./install.sh --codex      # Codex CLI skills + global workflow block
+./install.sh --codex --codex-agents  # additionally install native Codex roles (opt-in)
+./install.sh --all        # all supported tools
+```
+
+### Diagnostics, repair, and uninstall
+
+```bash
+./install.sh --doctor --repo-only        # CI-safe repo checks only
+./install.sh --doctor --all              # read-only local environment diagnostics
+./install.sh --repair --codex --yes      # repair ShipFrame-owned Codex artifacts
+./install.sh --uninstall --all --yes     # remove ShipFrame-owned installed artifacts
+./install.sh --uninstall --all --yes --purge  # also remove ShipFrame cache/state
+```
+
+`--doctor` is always read-only. `--repair` and `--uninstall` are dry-run by
+default and only apply changes with `--yes`. ShipFrame records install ownership
+in `${XDG_STATE_HOME:-~/.local/state}/shipframe/install-state.json` so repair and
+uninstall can distinguish ShipFrame-managed artifacts from user files.
+
+When installed with Homebrew, use the `shipframe` wrapper:
+
+```bash
+shipframe install --claude
+shipframe install --opencode
+shipframe install --codex
+shipframe install --all
+```
+
+| Tool | Skills | Orchestration |
+|---|---|---|
+| Claude Code | plugin marketplace / native skills | agents + hooks |
+| OpenWork | shared skills in `~/.claude/skills` | OpenWork Library; no extra CLI |
+| Codex CLI | Agent Skills via `/skills` | routing table in `~/.codex/AGENTS.md`; optional prompt fast-path hook in the curated plugin (user review/trust required) |
+| OpenCode v2 | native skill discovery | converted agents; optional prompt fast-path plugin |
+
+### Use ShipFrame from skills picker
+
+ShipFrame supports each tool's native discovery model: Claude Code plugin
+marketplaces, Codex Agent Skills via `/skills`, and OpenCode native skill
+discovery. Install locally, use directly, and keep model/config choices
+user-owned.
+
+#### Claude Code
+
+```text
+/plugin marketplace add juanitourquiza/shipframe
+/plugin install shipframe
+/reload-plugins
+/shipframe:code-review
+```
+
+`shipframe install --claude` links the full skill catalog into Claude Code's
+`~/.claude/skills/<name>` directory. The Claude plugin namespace remains
+available separately.
+
+Claude plugin skills are namespaced as `/shipframe:<skill>` to avoid collisions
+with personal or project skills. Use `/help` or the custom commands view to
+confirm a skill is listed after reload.
+
+#### Codex CLI
+
+```bash
+shipframe install --codex
+# or: ./install.sh --codex
+```
+
+Then open Codex and run:
+
+```text
+/skills
+$code-review
+$plan-expert
+```
+
+Codex uses the open Agent Skills layout at `~/.agents/skills/<name>/SKILL.md`.
+ShipFrame also writes compatibility symlinks to `~/.codex/skills` for existing
+setups, and keeps the workflow block in `~/.codex/AGENTS.md`. To use the
+fast path, install the curated ShipFrame plugin and review/trust its
+`UserPromptSubmit` hook in Codex. Until trusted, the workflow block remains the
+fallback.
+
+The QA `small` classification reduces test depth only: it excludes public API,
+authentication/secrets, migration, and CI changes, and never skips independent
+final review. See [QA fast path](docs/qa-fast-path.md) for the bilingual policy
+and contract-check commands.
+
+#### OpenWork
+
+```bash
+shipframe install --openwork
+```
+
+This installs managed physical skill folders in `~/.claude/skills/<name>` so
+OpenWork's Library can index them (symlinks are not discovered there). Skills
+are listed individually (for example, `code-review`), not as one item named
+`shipframe`. Restart or refresh OpenWork after installing to rescan its Library.
+No OpenWork CLI is required. Modified or unmanaged folders are preserved.
+
+
+#### Herdr local workflow plugin
+
+ShipFrame also includes an optional Herdr plugin in `herdr-plugin/`. It keeps
+Herdr as the workspace/pane surface and ShipFrame as the delivery process layer.
+The plugin adds a **Start ShipFrame workflow** action that detects the active
+repo, runs the read-only ShipFrame repo doctor when the active repo is this
+ShipFrame checkout, and opens a pane with ShipFrame prompts for Codex, Claude
+Code, or OpenCode. It never merges, deploys, or edits global configuration.
+
+Install the Herdr integration separately:
+
+```bash
+herdr plugin install juanitourquiza/shipframe/herdr-plugin --yes
+```
+
+For local development of the plugin, link the subdirectory from a checkout:
+
+```bash
+herdr plugin link ./herdr-plugin
+herdr plugin action list --plugin shipframe.workflow
+herdr plugin action invoke shipframe.workflow.start-workflow
+```
+
+Homebrew does not install the Herdr plugin. `brew install shipframe` installs
+the base ShipFrame toolkit and the `shipframe` wrapper; use the `herdr plugin install` command for the Herdr surface.
+
+#### ChatGPT/Codex curated plugin
+
+The repository builds a curated ChatGPT/Codex plugin bundle with 32 selected
+skills from the full toolkit. The source of truth remains `skills/`; the build
+script copies the curated subset into a temporary bundle with the Codex CLI
+prompt fast-path hook. It does not include MCP servers, apps, Claude hooks, or
+OpenCode/Claude agents. Codex runs its bundled hook only after the user reviews
+and trusts the hook definition. The live ChatGPT plugin is an independent
+publication surface: its existing listing still reflects the previously
+submitted 24-skill bundle until a separate plugin update is submitted.
+The shared local heuristic covers common English and Spanish prompts; its
+`bypass` / `suggest` / `route` result is a best-effort nudge, never enforcement.
+
+Open the public plugin here: https://chatgpt.com/plugins/plugins_6a88e6256bb48191a343d39dace5e05c
+
+The GitHub repo and Homebrew installer remain the complete distribution for all
+ShipFrame skills, project packs, templates, Claude Code hooks, and OpenCode
+agents.
+
+```bash
+python3 scripts/build-openai-plugin.py
+python3 ~/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py dist/openai-plugin/shipframe
+```
+
+The generated upload artifact is `dist/openai-plugin/shipframe-openai-plugin.zip`.
+Use `docs/openai-plugin-submission.md` for paste-ready listing copy, starter
+prompts, positive/negative reviewer test cases, re-upload notes, and the manual
+submission checklist.
+
+#### OpenCode
+
+```bash
+shipframe install --opencode
+# or: ./install.sh --opencode
+```
+
+OpenCode discovers ShipFrame from `~/.config/opencode/skills/<name>/SKILL.md`
+and loads skills on demand through its native `skill` tool. OpenCode can also
+see compatible skills in `~/.agents/skills` and `~/.claude/skills`; install the
+Codex target too when you want ShipFrame available through the shared
+`~/.agents/skills` location.
+
+Quick smoke checks:
+
+```bash
+./install.sh --doctor --all
+ls ~/.agents/skills/code-review/SKILL.md
+ls ~/.config/opencode/skills/code-review/SKILL.md
+```
+
+The installer links the optional OpenCode v2 prompt-router plugin at
+`~/.config/opencode/plugins/shipframe-prompt-router`. OpenCode v2 auto-discovers
+local plugins in this directory. ShipFrame does not edit your OpenCode config;
+the environment doctor reports missing, invalid, or explicitly disabled plugin
+states. To disable it, add a matching negative pattern to the `plugins` array
+in `opencode.json`/`opencode.jsonc`:
+
+```json
+{"$schema":"https://opencode.ai/config.json","plugins":["-shipframe.prompt-router"]}
+```
+
+Restart OpenCode after changing plugin directives. Skills and converted agents
+continue to work if the router is disabled. The plugin adds ephemeral system
+context; it does not rewrite or persist the user's prompt. See the official
+[OpenCode v2 plugin guide](https://opencode.ai/v2/docs/plugins) for discovery
+and enable/disable behavior. Before uninstalling ShipFrame, remove any explicit
+ShipFrame directive from your user-owned config; the installer does not edit it.
+
+### Stable versions
+
+Stable ShipFrame releases are tracked with git tags named `vX.Y.Z` (for example,
+`v0.2.0`). The Homebrew formula uses these tags as immutable release sources.
+
+### Installation scope
+
+ShipFrame installs globally for the current macOS/Linux user, not inside the
+project where you run the command:
+
+- Claude Code: installs the `shipframe` plugin. Hooks are plugin-managed via
+  `hooks/hooks.json`; legacy user-level ShipFrame hooks can be removed with
+  `./install.sh --repair --claude --yes`.
+- Codex CLI: links skills into `~/.agents/skills` for the current Agent
+  Skills layout, also links compatibility copies into `~/.codex/skills`, and
+  inserts the managed workflow block into `~/.codex/AGENTS.md`.
+- OpenCode: links skills into `~/.config/opencode/skills`, writes converted
+  agents into `~/.config/opencode/agents`, and links the optional v2 prompt
+  router plugin. OpenCode v2 auto-discovers local plugins in this directory;
+  user-owned `plugins` directives can explicitly disable it, and doctor reports
+  its install/validity/disable state. OpenCode also discovers compatible skills
+  from `~/.agents/skills` and `~/.claude/skills` if those locations are populated.
+  Converted agents inherit the user's OpenCode model by default;
+  pass `--opencode-model provider/model` only when an explicit override is
+  needed. Third-party MCP servers and their tools remain host configuration;
+  the converter does not install or translate Claude-specific MCP integrations.
+  The generated independent reviewer allows only file reads, search, globs, and
+  skill access; other tool permissions are denied. The orchestrator passes it the
+  scoped diff and prior check evidence. Runtime enforcement still depends on the host.
+
+Run `shipframe install ...` once per user/machine. Then add project-specific
+rules inside each repository with `shipframe.profile.md`,
+`.shipframe/profile.md`, or `.shipframe/project-profile.md` when a project needs
+custom release, smoke-test, or team conventions.
+
+### Optional persistent memory with Engram
+
+ShipFrame works without a memory system, but Engram is recommended when you want
+AI agents to remember prior decisions, bug fixes, conventions, and session
+summaries across Claude Code, Codex CLI, and OpenCode.
+
+ShipFrame only checks whether `engram` is available and prints setup guidance; it
+does not install or configure Engram automatically.
+
+```bash
+brew install gentleman-programming/tap/engram
+engram setup codex
+engram setup opencode
+claude plugin marketplace add Gentleman-Programming/engram && claude plugin install engram
+```
+
+Like ShipFrame, Engram is configured globally for the current user/agent. Project
+specific behavior should still live in each repo's ShipFrame profile.
+
+### Optional Git-backed project memory
+
+ShipFrame can optionally initialize a small, project-local Markdown memory at
+`.shipframe/memory/`. Use `project-memory-init` only when you choose to enable it.
+The installer merely suggests the skill; it never creates files, writes consent,
+or connects/publishes to GitHub. Setup consent is stored in the repository’s local
+`.git/config` (shared by linked worktrees). Local curation does not authorize publication. GitHub publication
+requires a separate review and confirmation and creates only a documentation-only
+Draft PR; no automatic merge or default-branch push. Missing `gh` or auth leaves
+the memory local and provides instructions. Public repositories receive an explicit
+visibility warning before publication.
+
+Engram remains independently recommended for cross-project/session memory, but is
+optional. It is never synchronized with repository memory. The Git-backed option
+works without Engram and does not change Claude Code, Codex CLI, or OpenCode’s
+existing workflows unless a user opts into it.
+
+---
+
+## AI PR/MR reviewer (opt-in)
+
+ShipFrame can install a provider-aware CI reviewer in a target Git repository.
+It detects GitHub Actions or GitLab CI from `origin`, reviews each pull/merge
+request with your AI provider, and keeps one comment updated on each new push —
+the CI counterpart to ShipFrame's local `code-review` skill. It is a major step
+from advice-only workflows to continuous, repository-native review, while
+remaining optional and under the project's control.
+
+### Quick setup
+
+1. Install ShipFrame for your coding agent from the root of the target repo;
+   for example:
+
+```bash
+brew tap juanitourquiza/shipframe
+brew install shipframe
+shipframe install --codex --pr-review nan-builders
+```
+
+2. The installer detects the repository host and writes its workflow, plus the
+   shared review script, into `--project-dir` (default: current directory):
+
+- GitHub: `.github/workflows/shipframe-review.yml`
+- GitLab: `.gitlab/ci/shipframe-review.yml` and an idempotent local include in
+  `.gitlab-ci.yml` (existing inline/block include lists are preserved where
+  supported; unsupported multiline flow forms fail safely before writing).
+- Both: `scripts/sf_pr_review.py`, a stdlib-only script with OpenAI-compatible
+  and Anthropic API adapters.
+
+3. Store `SF_REVIEW_API_KEY` as a secret in the host's CI settings. For GitLab,
+   also add `SF_REVIEW_GITLAB_TOKEN`: a project access token with the `api`
+   scope and Reporter role, saved as a masked CI/CD variable. Never put either
+   secret in YAML or commit it. Protect GitLab variables where your protected
+   source/target branch policy allows; MR CI configuration comes from the
+   source branch, so enable this only for contributors trusted to change CI.
+4. Open a same-repository PR/MR or push another commit. The reviewer posts one
+   comment and updates it on subsequent pushes. Fork requests are skipped; the
+   job cannot push source changes. Review files must first reach the target
+   branch before the GitLab template can pin and run the trusted review script.
+5. GitLab jobs run in the `test` stage. If your `.gitlab-ci.yml` overrides
+   `stages:`, make sure `test` is listed, or the MR review job fails with an
+   unknown-stage error. Repositories using GitLab's default stages need no
+   change. If you installed the GitLab review before v1.1.1, re-run the
+   installer to refresh `.gitlab/ci/shipframe-review.yml` (it is idempotent):
+   the previous template used the `.post` stage, which GitLab could reject at
+   pipeline creation, and the job image did not include git.
+
+Interactive setup asks whether to enable the reviewer, which AI API provider to
+use, and whether to override its suggested model. The target tool selection
+(Claude Code, Codex, OpenCode, etc.) is separate from the CI provider/model.
+For example, NaN Builders defaults to `glm5.3-flash`; premium users can select
+`glm5.3`. Override any model with `--pr-review-model <model-id>`. Supported API
+providers are `nan-builders`, `claude`, `openai`, and `custom`; custom also needs
+`SF_REVIEW_BASE_URL` and `SF_REVIEW_MODEL`. Override a self-hosted or ambiguous
+Git remote with `--pr-review-platform github|gitlab`.
+
+Non-interactive example with a model override:
+
+```bash
+shipframe install --codex --pr-review nan-builders --pr-review-model glm5.3
+```
+
+The generated review workflow only comments, never changes the PR/MR or pushes
+code, and the reviewer script never prints API keys. To remove generated
+artifacts and ShipFrame's marked GitLab include, run
+`./install.sh --uninstall --codex --project-dir "$PWD" --yes`.
+
+If `.shipframe/profile.md` or `shipframe.profile.md` exists, the reviewer
+enforces those conventions on top of the generic checklist. Remove everything
+with `./install.sh --uninstall --yes`.
+
+## Codex workflow
+
+Codex supports native subagents in compatible CLI/runtime configurations. ShipFrame installs a routing table into `~/.codex/AGENTS.md`; it does not modify user-owned `config.toml` or enable experimental settings. For substantive, separable work, the workflow asks the host to use native delegation when available and an independent read-only review after non-trivial implementation. Trivial tasks remain in the primary agent. If the host cannot actually delegate, it must say so and must not claim independent review.
+
+The Codex agent classifies each request and runs the matching skills in order:
+
+Codex documents custom native roles in [its subagents guide](https://developers.openai.com/codex/subagents). For compatible Codex versions, `--codex --codex-agents` also
+installs optional `shipframe_explorer` and `shipframe_reviewer` role files under
+`~/.codex/agents/`. The explorer is read-only; the reviewer is read-only and
+independent. These files are installed only by explicit choice, can be repaired
+with `--repair --codex --codex-agents`, and are removed by `--uninstall --codex --yes` only when marked ShipFrame-managed. Existing `config.toml` and unmanaged
+agent files are preserved. If native agents cannot actually run, report that
+instead of claiming delegated work.
+
+| Intent | Skill sequence |
+|---|---|
+| `new_feature` | `project-memory-refresh` → `feature-discovery` → `plan-expert` |
+| `quick_task` | `project-memory-refresh` → `plan-expert` → `quality-assurance-agent` or `tdd` (non-trivial code only) → `implement-task` → `code-review` → `create-pr` |
+| `implementation` | `project-memory-refresh` → `quality-assurance-agent` or `tdd` (non-trivial code only) → `implement-task` → `code-review` → `create-pr` |
+| `refactor` | `project-memory-refresh` → `codebase-design` → `plan-expert` → `quality-assurance-agent` or `tdd` (non-trivial code only) → `implement-task` → `code-review` → `create-pr` |
+| `bug` | `project-memory-refresh` → `bug-diagnosis` → `quality-assurance-agent` or `tdd` (non-trivial code only) → `implement-task` → `code-review` → `create-pr` |
+| `release` | `project-profile` → `project-release` → `deploy-evidence` |
+| `evidence_audit` | `project-memory-refresh` → `evidence-audit` |
+| `research` | `project-memory-refresh` → `research` |
+| `design_system` | `project-memory-refresh` → `design-system-setup` |
+| `accessibility_audit` | `project-memory-refresh` → `a11y-auditor` → `implement-task` if fixes are requested |
+| `copy_review` | `project-memory-refresh` → `client-copy-review` |
+| `mcp_debugging` | `project-memory-refresh` → `mcp-debugging` |
+| `security_review` | `project-memory-refresh` → `security-review` |
+| `security_hardening` | `project-memory-refresh` → `security-hardening` → `implement-task` if fixes are requested |
+| `e2e_test` | `project-memory-refresh` → `e2e-verify` |
+| `deps_upgrade` | `project-memory-refresh` → `dependency-upgrade` → `code-review` |
+| `api_change` | `project-memory-refresh` → `api-contract-review` |
+| `incident` | `project-memory-refresh` → `incident-response` |
+| `memory_setup` | `project-memory-init` |
+| `memory_curate` | `project-memory-refresh` → `memory-curator` |
+| `handoff` | `handoff` |
+| `code_review` | `code-review` |
+| `wiki_management` | `wiki-query` · `wiki-sync` · `wiki-init` |
+
+`routing.json` is the canonical routing contract. See [routing parity](docs/routing-parity.md) for aliases, host-specific agent variants, and validation.
+
+---
+
+## Repository structure
+
+```text
+shipframe/
+├── agents/                 # Claude-shaped agents and orchestrator docs
+├── codex/                  # Codex routing workflow and optional native agent roles
+├── skills/                 # Installable flat skill directories
+├── templates/              # PR, issue, ClickUp, and wiki templates
+├── project-packs/          # Optional project profile starters
+├── wiki/                   # Project wiki vault
+├── raw/                    # Wiki source staging
+├── scripts/                # Build helpers, including OpenAI plugin packaging
+├── .claude-plugin/         # Claude plugin metadata
+├── plugin.yaml             # Hermes Agent plugin manifest
+├── __init__.py             # Hermes plugin entrypoint (registers skills/)
+└── install.sh              # Multi-tool installer
+```
+
+Skills are intentionally kept flat under `skills/<name>/SKILL.md` because the installer symlinks each skill directory into the target tool.
+
+---
+
+## Recommended team workflow
+
+1. Add a project profile to the repo.
+2. Run `project-memory-refresh` before non-trivial work.
+3. Use `feature-discovery` for unclear features.
+4. Use `plan-expert` for ticket breakdown.
+5. Use `implement-task` only after scope is clear.
+6. Run `code-review` before commit/PR/MR.
+7. For releases, run `project-release` and require `deploy-evidence` before saying the release is complete.
+8. For high-risk changes, releases, or client work, optionally run `proof-runner` on checklists that include `Verify:` commands before saying individual steps are done.
+
+## Documentation maintenance
+
+ShipFrame treats documentation as part of the shipped change. When a change
+affects installer behavior, user-facing commands, workflow routing, public skill
+behavior, release process, or project conventions, update the README and any
+related repo documentation in the same commit/release.
+
+### Optional Live Docs with Context MCP
+
+The optional `live-docs` skill consults documentation compatible with dependency versions before changes that use external APIs. ShipFrame recommends Context MCP for local, versioned library docs, but ShipFrame works normally without it and never installs tools or changes MCP configuration automatically.
+
+Enable Context only when you want the extra Live Docs provider:
+
+```bash
+npm install -g @neuledge/context
+claude mcp add context -- context serve
+codex mcp add context -- context serve
+# OpenCode v2: add command ["context", "serve"] under mcp.servers.context in ~/.config/opencode/opencode.json
+```
+
+Validate the optional setup with:
+
+```bash
+./install.sh --doctor
+```
+
+Advanced legacy note: `./install.sh --sync-docs` still exists for older explicit manifests, but it is no longer the recommended setup path.
+
+## Español
+
+ShipFrame es un toolkit práctico de flujos de trabajo con IA para equipos que planifican, prueban y publican cambios de software con disciplina. Mantiene un núcleo genérico para cualquier equipo y deja las reglas específicas de cada proyecto en perfiles opcionales.
+
+**Landing:** https://shipframe.hackeruna.com/  
+**Repositorio:** https://github.com/juanitourquiza/shipframe
+
+La landing pública de ShipFrame contiene el resumen del producto, posicionamiento,
+opciones de instalación, FAQ y enlaces al repositorio de GitHub.
+
+### Instalación rápida
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/juanitourquiza/shipframe/main/install.sh | bash
+```
+
+En macOS también puedes instalar ShipFrame con Homebrew:
+
+```bash
+brew tap juanitourquiza/shipframe
+brew install shipframe
+shipframe install --codex
+```
+
+Si tu versión de Homebrew exige confianza para taps externos, ejecuta el comando
+exacto que Homebrew imprime (por ejemplo,
+`brew trust --formula juanitourquiza/shipframe/shipframe`) y vuelve a correr
+`brew install shipframe`.
+
+### Apoya el proyecto con una estrella
+
+Si ShipFrame te ahorra tiempo, una estrella ayuda a que otros equipos lo
+encuentren:
+
+```bash
+shipframe star          # si instalaste con Homebrew
+./install.sh --star     # clon local; usa tu login de gh
+```
+
+El instalador también pregunta una sola vez —solo en sesiones interactivas—
+después de una instalación exitosa. Puedes desactivarlo para siempre con
+`--no-star-ask` o `SHIPFRAME_NO_STAR_ASK=1`. Las instalaciones no interactivas
+(como `curl | bash`) solo muestran el enlace. `--uninstall --purge` elimina el
+marcador "una vez por máquina" junto con el resto del estado de ShipFrame.
+ShipFrame nunca agrega la estrella por ti sin un "sí" explícito.
+
+En Hermes Agent, ShipFrame se instala como plugin nativo y sus skills quedan
+disponibles con el espacio de nombres `shipframe:<skill>`:
+
+```bash
+hermes plugins install juanitourquiza/shipframe
+```
+
+Para instalar desde un clon local:
+
+```bash
+git clone https://github.com/juanitourquiza/shipframe ~/tools/shipframe
+cd ~/tools/shipframe
+./install.sh --codex
+./install.sh --claude
+./install.sh --opencode
+```
+
+### Live Docs opcional con Context MCP
+
+La skill `live-docs` consulta documentación compatible con la versión de las dependencias antes de cambios que utilicen APIs externas. ShipFrame recomienda Context MCP para docs locales y versionadas, pero ShipFrame funciona normalmente sin Context y nunca instala herramientas ni modifica configuración MCP automáticamente.
+
+Activa Context solo cuando quieras ese proveedor adicional de Live Docs:
+
+```bash
+npm install -g @neuledge/context
+claude mcp add context -- context serve
+codex mcp add context -- context serve
+# OpenCode v2: agrega command ["context", "serve"] bajo mcp.servers.context en ~/.config/opencode/opencode.json
+```
+
+Valida la configuración opcional con:
+
+```bash
+./install.sh --doctor
+```
+
+Nota legacy avanzada: `./install.sh --sync-docs` sigue existiendo para manifests explícitos antiguos, pero ya no es el camino recomendado.
+
+### Reviewer de PRs con IA (opt-in)
+
+ShipFrame puede instalar un revisor CI optativo que detecta GitHub Actions o
+GitLab CI desde `origin` y revisa cada PR/MR con tu propio proveedor de IA. Es
+la contraparte automatizada de `code-review`: conserva un comentario que se
+actualiza con cada push y no puede subir cambios al repositorio.
+
+```bash
+./install.sh --codex --pr-review nan-builders
+# proveedores: nan-builders | claude | openai | custom | off
+# personaliza el modelo sugerido si quieres:
+./install.sh --codex --pr-review nan-builders --pr-review-model glm5.3
+# custom requiere SF_REVIEW_BASE_URL y SF_REVIEW_MODEL
+# usa --pr-review-platform github|gitlab para remotos ambiguos o autohospedados
+```
+
+Durante la instalación interactiva puedes activarlo, elegir proveedor y
+personalizar el modelo sugerido; si no hay un `origin` compatible, se omite. El
+instalador añade el workflow específico de GitHub o GitLab y
+`scripts/sf_pr_review.py`. Configura `SF_REVIEW_API_KEY`; en GitLab añade además
+`SF_REVIEW_GITLAB_TOKEN` como variable enmascarada con permisos para crear notas
+de MR. Los requests de forks se omiten. Como GitLab ejecuta CI desde el branch
+fuente, habilita secretos solo para contribuidores de confianza. Para
+desinstalar, ejecuta `./install.sh --uninstall --codex --project-dir "$PWD"
+--yes`.
+
+En GitLab el job corre en el stage `test`. Si tu `.gitlab-ci.yml` define
+`stages:` propios, asegúrate de incluir `test` o el job fallará con un error de
+stage desconocido; los repos con los stages por defecto no necesitan cambios. Si
+instalaste la revisión de GitLab antes de v1.1.1, vuelve a ejecutar el
+instalador para refrescar `.gitlab/ci/shipframe-review.yml` (es idempotente): la
+plantilla anterior usaba el stage `.post`, que GitLab podía rechazar al crear el
+pipeline, y la imagen del job no incluía git.
+
+### Flujo recomendado
+
+1. Agrega un perfil de proyecto cuando el repo tenga reglas propias.
+2. Ejecuta `project-memory-refresh` antes de trabajo no trivial.
+3. Usa `feature-discovery` cuando el alcance no esté claro.
+4. Usa `plan-expert` para desglosar tickets o tareas.
+5. Usa `implement-task` solo cuando el alcance esté definido.
+6. Ejecuta `code-review` antes de commit y PR/MR.
+7. Para releases, ejecuta `project-release` y exige `deploy-evidence` antes de declarar que el deploy está completo.
+8. Para cambios de alto riesgo, releases o trabajo de cliente, usa opcionalmente `proof-runner` sobre checklists con comandos `Verify:` antes de decir que pasos individuales están listos.
+
+### Mantenimiento de documentación
+
+ShipFrame trata la documentación como parte del cambio publicado. Cuando un
+cambio afecta el instalador, comandos visibles, routing del workflow,
+comportamiento público de skills, proceso de release o convenciones del
+proyecto, actualiza el README y la documentación relacionada del repo en el
+mismo commit/release.
+
+### Alcance de instalación
+
+### Diagnóstico, reparación y desinstalación
+
+```bash
+./install.sh --doctor --repo-only
+./install.sh --doctor --all
+./install.sh --repair --codex --yes
+./install.sh --uninstall --all --yes
+```
+
+`--doctor` es solo lectura. `--repair` y `--uninstall` son dry-run por defecto y
+solo aplican cambios con `--yes`. En OpenCode los agentes convertidos heredan el
+modelo global del usuario salvo que pases `--opencode-model provider/model`.
+ShipFrame no modifica `~/.codex/config.toml` ni el modelo global de Codex.
+
+ShipFrame se instala globalmente para el usuario actual, no dentro del proyecto
+desde donde corres el comando:
+
+- Claude Code: instala el plugin `shipframe`; los hooks se gestionan desde
+  `hooks/hooks.json` del plugin.
+- Codex CLI: enlaza skills en `~/.agents/skills` como layout actual de Agent
+  Skills, conserva symlinks compatibles en `~/.codex/skills` e inyecta el
+  bloque administrado en `~/.codex/AGENTS.md`.
+- OpenCode: enlaza skills en `~/.config/opencode/skills` y escribe agentes
+  convertidos en `~/.config/opencode/agents`; también puede descubrir skills
+  compatibles desde `~/.agents/skills` y `~/.claude/skills`. Los servidores y
+  herramientas MCP de terceros se configuran en OpenCode; el conversor no los
+  instala ni traduce integraciones específicas de Claude.
+
+Ejecuta `shipframe install ...` una vez por usuario/máquina. Las reglas por
+proyecto van dentro de cada repo usando `shipframe.profile.md`,
+`.shipframe/profile.md` o `.shipframe/project-profile.md`.
+
+### Usar ShipFrame desde el skills picker
+
+ShipFrame usa el modelo nativo de discovery de cada herramienta: marketplaces
+de plugins en Claude Code, Agent Skills en Codex vía `/skills`, y discovery
+nativo de skills en OpenCode. Instálalo localmente, úsalo directo y mantén
+modelos/configuración bajo control del usuario.
+
+- Claude Code: agrega el marketplace con `/plugin marketplace add juanitourquiza/shipframe`, instala con `/plugin install shipframe`, recarga con `/reload-plugins` y usa `/shipframe:code-review`.
+- Codex CLI: instala con `shipframe install --codex`, abre Codex, ejecuta `/skills` y llama skills con `$code-review`, `$plan-expert`, etc.
+- ChatGPT/Codex plugin: abre el plugin público en https://chatgpt.com/plugins/plugins_6a88e6256bb48191a343d39dace5e05c o genera el bundle local curado de 32 skills con `python3 scripts/build-openai-plugin.py`; el plugin público de ChatGPT es una superficie independiente y conserva la publicación previa de 24 skills hasta que se envíe una actualización; el ZIP queda en `dist/openai-plugin/shipframe-openai-plugin.zip` y el packet de submission está en `docs/openai-plugin-submission.md`.
+- OpenCode: instala con `shipframe install --opencode`; OpenCode carga las skills con su herramienta nativa `skill` desde `~/.config/opencode/skills` y también puede ver `~/.agents/skills`/`~/.claude/skills`.
+
+
+#### Plugin local para Herdr
+
+ShipFrame también incluye un plugin Herdr opcional en `herdr-plugin/`. Herdr
+sigue siendo la superficie para workspaces/panes y ShipFrame aporta el proceso
+de entrega. La acción **Start ShipFrame workflow** detecta el repo activo, corre
+el doctor read-only cuando el repo activo es este checkout de ShipFrame y abre
+un pane con prompts ShipFrame para Codex, Claude Code u OpenCode. No hace
+merge, deploy ni cambios de configuración global.
+
+Instala la integración Herdr por separado:
+
+```bash
+herdr plugin install juanitourquiza/shipframe/herdr-plugin --yes
+```
+
+Para desarrollo local del plugin, enlaza el subdirectorio desde un checkout:
+
+```bash
+herdr plugin link ./herdr-plugin
+herdr plugin action list --plugin shipframe.workflow
+herdr plugin action invoke shipframe.workflow.start-workflow
+```
+
+Homebrew no instala el plugin Herdr. `brew install shipframe` instala el toolkit
+base de ShipFrame y el wrapper `shipframe`; usa el comando `herdr plugin install` para la
+superficie Herdr.
+
+### Memoria de proyecto opcional respaldada por Git
+
+ShipFrame puede inicializar una memoria Markdown pequeña en `.shipframe/memory/`
+cuando el usuario lo elige mediante `project-memory-init`. El instalador solo
+muestra la sugerencia: no crea archivos, no guarda consentimiento ni publica en
+GitHub. El consentimiento queda en el `.git/config` local del repo (compartido
+por sus worktrees vinculados). Mantener la memoria local no autoriza publicarla. GitHub requiere revisión y confirmación
+separadas y crea únicamente un Draft PR documental; nunca hace merge ni push a la
+rama principal. Sin `gh` o autenticación, conserva la memoria local y explica los
+pasos faltantes. En repositorios públicos avisa explícitamente antes de publicar.
+
+Engram sigue siendo recomendado, opcional e independiente para memoria entre
+proyectos y sesiones. No se sincroniza con esta memoria Git. Claude Code, Codex CLI
+y OpenCode conservan su flujo existente si no se activa esta opción.
+
+### Memoria persistente opcional con Engram
+
+ShipFrame funciona sin un sistema de memoria, pero Engram es recomendado cuando
+quieres que los agentes recuerden decisiones, bugs corregidos, convenciones y
+resúmenes entre sesiones de Claude Code, Codex CLI y OpenCode.
+
+ShipFrame solo revisa si `engram` está disponible y muestra instrucciones; no lo
+instala ni lo configura automáticamente.
+
+```bash
+brew install gentleman-programming/tap/engram
+engram setup codex
+engram setup opencode
+claude plugin marketplace add Gentleman-Programming/engram && claude plugin install engram
+```
+
+Igual que ShipFrame, Engram se configura globalmente para el usuario/agente
+actual. Las reglas específicas de cada proyecto siguen viviendo en el perfil de
+ShipFrame dentro de cada repo.
+
+### Compatibilidad GitHub/GitLab
+
+ShipFrame trabaja con repos Git y puede cerrar el ciclo con Draft Pull Requests en GitHub o Draft Merge Requests en GitLab:
+
+- GitHub usa la CLI `gh` y crea PRs con `gh pr create --draft`.
+- GitLab usa la CLI `glab` y crea MRs con `glab mr create --draft`.
+- El skill `create-pr` conserva su nombre por compatibilidad, pero soporta PR/MR mediante `--provider <auto|github|gitlab>`; `auto` detecta el proveedor desde `origin`.
+- Si falta autenticación, ShipFrame debe detenerse y mostrar el comando exacto: `gh auth login` para GitHub o `glab auth login` para GitLab.
+
+Para preparar GitLab localmente en macOS con Homebrew:
+
+```bash
+brew install glab
+glab auth login
+glab auth status
+```
+
+---
+
+## Attribution
+
+ShipFrame started from `Axis-Human/dev-workflow-plugin` and includes/adapts engineering workflow ideas and selected MIT-licensed skills from `mattpocock/skills`.
+
+- Axis Human Dev Workflow Plugin: https://github.com/Axis-Human/dev-workflow-plugin
+- Matt Pocock Skills: https://github.com/mattpocock/skills
+
+See `THIRD_PARTY_NOTICES.md` for upstream attribution and third-party license details.
+
+---
+
+## License
+
+ShipFrame is released under the MIT License. See [`LICENSE`](LICENSE).
+
+Third-party material remains subject to its original notices and terms; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
