@@ -35,13 +35,13 @@
 | [**zju-real/easel**](https://github.com/ZJU-REAL/Easel) | 4,379 | An open-source AI agent for social media — discover trends, create content,… |
 | [**strukto-ai/mirage**](https://github.com/strukto-ai/mirage) | 3,782 | Native Mirage filesystem tools for OpenCode |
 | [**learnprompt/awesome-seedance**](https://github.com/LearnPrompt/awesome-seedance) | 2,414 | 🎬 Evidence-led Seedance 2.5 / 2.0 prompt library: 840+ cases traced to original… |
-| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,062 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
+| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,065 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
 | [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,544 | deja-vu memory for opencode: the session history of forty-two other coding… |
 | [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,462 | oh-my-agent hook bridge for OpenCode and Kilo Code |
 | [**remorses/kimaki**](https://github.com/remorses/kimaki) | 1,450 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
 | **keli-wen/agy-staff** | 869 |  |
 | [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 817 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
-| [**with-pebbly/aseprite-ai-artist**](https://github.com/with-pebbly/aseprite-ai-artist) | 692 | Agent-native control layer for Aseprite. MCP server (2025-11-25 spec, designed… |
+| [**insane0777/awwwards-mcp**](https://github.com/INSANE0777/Awwwards-mcp) | 761 | Free, open-source MCP server that gives AI coding agents (Claude Code, Codex,… |
 <!-- /BOARD:TOP20 -->
 
 ## 榜单
