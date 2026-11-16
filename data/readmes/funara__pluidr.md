@@ -1,0 +1,437 @@
+# Pluidr
+
+[![npm version](https://img.shields.io/npm/v/pluidr)](https://www.npmjs.com/package/pluidr)
+[![npm downloads](https://img.shields.io/npm/dm/pluidr)](https://www.npmjs.com/package/pluidr)
+[![License](https://img.shields.io/npm/l/pluidr)](https://github.com/funara/pluidr/blob/main/LICENSE)
+
+<p align="center">
+  <img src="bin/pluidr.png" alt="Pluidr — Orchestrating SDD Agents, Fluidly" width="480" />
+</p>
+
+**Explore - Plan - Build - Review** -- opinionated engineering workflow installer for [OpenCode](https://opencode.ai).
+
+## TL;DR
+
+Pluidr installs an opinionated, strict AI-agent workflow (Compose, Debug, and Analyze) with 14 specialized subagents into **OpenCode**. It enforces structured phases (Explore -> Plan -> Build -> Review), text-based gate proposals with in-phase critical-gap escalation, and test verification without ad-hoc delegation.
+
+## Quick Start
+
+Get up and running in 3 simple steps:
+
+1. **Install globally:**
+```bash
+npm install -g pluidr
+```
+
+2. **Initialize and configure agents:**
+```bash
+pluidr init
+```
+*(Select LLM models for reasoning, precision, and fast tiers when prompted)*
+
+3. **Launch OpenCode with Pluidr:**
+```bash
+pluidr
+```
+
+---
+
+## What is Pluidr?
+
+Pluidr installs **3 primary agents + 14 subagents** into OpenCode -- each primary agent owns its exclusive subagents, scoped permissions, and enforced workflow rules. No shared subagents. No ad-hoc delegation.
+
+| Primary Agent | Purpose | Subagents |
+|---|---|---|
+| **Compose** | Feature work -- Explore -> Plan -> Build -> Review | Researcher, Plan-Writer, Plan-Checker, Coder, Tester, Reviewer, Compose-Reporter |
+| **Debug** | Bug investigation -- Investigate -> Fix -> Report | Inspector, Fixer, Debug-Reporter |
+| **Analyze** | Security audit -- Trace -> Patch -> Audit | Tracer, Patcher, Auditor, Analyze-Reporter |
+
+---
+
+### Parallel Subagent Swarming
+
+To optimize wall-clock execution time, Pluidr's primary agents are empowered to **swarm multiple subagents concurrently** (e.g. running multiple researchers, inspectors, tracers, coders, fixers, patchers, testers, or auditors in parallel) for independent directories, files, or API endpoints. This enables non-linear workflow execution and leverages OpenCode's concurrent process engine.
+
+---
+
+## Agent Workflows
+
+### Compose -- Feature Work
+
+Compose is the **single entry point for all feature work**. It runs 4 strict, one-directional phases (Explore, Plan, Build, Review). Phase direction is one-way -- no going back without explicit user instruction.
+
+```
+You describe a feature / idea
+        |
+        v
+  +-----------------------------------------+
+  |  EXPLORE PHASE  (mandatory start)       |
+  |                                         |
+  |  Delegate: Researcher                   |
+  |  -> deep codebase + web fact-finding    |
+  |  -> confirmed-inferred facts / risks    |
+  |                                         |
+  |  Compose internally assesses:           |
+  |  Is this feature simple or complex?     |
+  +----------+------------------------------+
+             |
+    +--------+------------------------------+
+    | Simple feature                        |  Complex feature
+    v                                       v
+GUARDRAIL GATE 1a                     GUARDRAIL GATE 1b
+"Ready to build directly."           "Ready to write the PRD."
+    |                                       |
+    | Yes                                   | Yes
+    |                                       v
+    |                         +------------------------------+
+    |                         |  PLAN PHASE                  |
+    |                         |                              |
+    |                         |  Plan-Writer -> docs/plans/  |
+    |                         |  Plan-Checker validates PRD  |
+    |                         |  PASS/FAIL + gap list only   |
+    |                         |                              |
+    |                         |  FAIL (critical gap) ->      |
+    |                         |  STOP, ask user via          |
+    |                         |  question tool               |
+    |                         |                              |
+    |                         |  FAIL (minor gap) ->         |
+    |                         |  re-delegate Plan-Writer     |
+    |                         |  (max 5 loops)               |
+    |                         |                              |
+    |                         |  PASS -> GUARDRAIL GATE 2    |
+    |                         |  (text proposal)             |
+    |                         |  "Ready to build from        |
+    |                         |   the PRD at <path>..."      |
+    |                         +-------------+----------------+
+    |                                       | Yes
+    +----------+----------------------------+
+               v
+  +--------------------------------------------+
+  |  BUILD PHASE                               |
+  |                                            |
+  |  Coder -> implements from PRD / request    |
+  |     |                                      |
+  |     v                                      |
+  |  Tester -> PASS/FAIL/BLOCKED               |
+  |     | FAIL (critical) -> STOP, ask user    |
+  |     | FAIL (minor) -> back to Coder        |
+  |     |              (max 5 loops)           |
+  |     | PASS v                               |
+  |     v                                      |
+  |  Reviewer -> PASS/FAIL + gap list          |
+  |     | FAIL (critical) -> STOP, ask user    |
+  |     | FAIL (minor) -> back to Coder        |
+  |     |              (max 5 loops)           |
+  |     | PASS v                               |
+  |     v                                      |
+  |  Compose-Reporter -> docs/reports/         |
+  +--------------------------------------------+
+               |
+               v
+         You review result
+               |
+  Compose resets -> text proposal: New feature? Debug? Iterate?
+```
+
+**Key rules:**
+- Compose has **no read/write/bash permissions** -- all work delegated to subagents
+- Phase transition only via guardrail gates -- no skipping
+- `Coder -> Coder` loops without Tester verification are forbidden
+- Critical gaps (tests contradict PRD, recycled tests, security regressions) -> STOP and ask you via question tool
+- 5 consecutive minor FAILs from Tester or Reviewer -> surfaces to you
+
+---
+
+### Debug -- Bug Investigation
+
+Debug is a **standalone primary agent** -- does not depend on Compose. Trigger it directly from the Debug tab whenever you find a bug.
+
+```
+You report a bug / defect
+        |
+        v
+GUARDRAIL GATE 1 (text proposal):
+"Ready to write the fix plan. Root cause is
+ <Symptom -> Source>. Reply 'go' to delegate
+ the remedy spec to the reporter..."
+        | Yes
+        v
+  +---------------------------------------------+
+  |  INVESTIGATE PHASE  (Inspector subagent)    |
+  |                                             |
+  |  Review mode (Debug selects):               |
+  |  - PR Review        -> classify R1-R6       |
+  |  - Architecture     -> dependency analysis  |
+  |  - Tech Debt        -> Pain x Spread score  |
+  |  - Test Quality     -> classify T1-T6       |
+  |                                             |
+  |  Output: Iron Law chain per finding         |
+  |  Symptom -> Source -> Consequence -> Remedy |
+  +----------+----------------------------------+
+             |
+    Root cause identified?
+    +--------+-----------------+
+    | Yes                      | No / unknowns remain
+    v                          | 
+GUARDRAIL GATE 2:              |
+"Ready to build the fix"       v
+    | Yes              Halt on critical gap
+    v
+  +-------------+
+  |  FIX PHASE  | (Fixer subagent)
+  +------+------+
+         |
+         v
+  +--------------------------------------+
+  |  REPORT PHASE                        |
+  |                                      |
+  |  Delegate: Debug-Reporter            |
+  |  -> Iron Law diagnosis report        |
+  |  -> saved to docs/reports/           |
+  +--------------------------------------+
+         |
+         v
+   You review the diagnosis + fix
+         |
+  Debug resets -> text proposal: Finished? Iterate?
+```
+
+**Key rules:**
+- Debug has **no read/write/bash permissions** -- all delegated to subagents
+- Executes only after Gate 1 (Investigation) and Gate 2 (Fix) user confirmations
+- Never delegates Fixer without Inspector confirming root cause first
+- Critical gaps (regression not eliminated, recycled tests, new regressions) -> STOP and ask you via question tool
+- If unknowns remain after investigation -> halts and asks via question tool, does not guess
+
+---
+
+### Analyze -- Security Audit
+
+Analyze is a **standalone primary agent** -- does not depend on Compose or Debug. Trigger it directly from the Analyze tab to audit any codebase for security vulnerabilities and quality decay.
+
+```
+You trigger a security audit
+        |
+        v
+GUARDRAIL GATE 1 (text proposal):
+"Ready to write the patch plan. Identified
+ <N> vulnerability pathway(s) in
+ <entry points>. Reply 'go' to delegate
+ the patch spec to the reporter..."
+        | Yes
+        v
+  +---------------------------------------------------+
+  |  TRACE PHASE  (Tracer subagent)                   |
+  |                                                   |
+  |  -> WSTG-guided breadth-first recon               |
+  |  -> trace data flows: input -> path -> sink       |
+  |                                                   |
+  |  Output:                                          |
+  |  - Confirmed Vulnerabilities  (OWASP category,    |
+  |    location, data flow)                           |
+  |  - Suspected Vulnerabilities  (manual verify)     |
+  |  - Quality & Decay Risks      (e.g. hardcoded     |
+  |    secrets, missing input validation)             |
+  +----------+----------------------------------------+
+             |
+             v
+      GUARDRAIL GATE 2 (text proposal):
+      "Audit findings ready. How to proceed?
+       Reply 'patch all', 'select findings',
+       'audit only', or 're-investigate'."
+      +-- "Patch all confirmed findings"    -> PATCH PHASE
+      +-- "Select specific findings"        -> PATCH PHASE (you pick)
+      +-- "Audit only -- no patches"        -> AUDIT PHASE (skip PATCH)
+      +-- "Re-investigate attack surface"   -> re-delegate Tracer
+             |
+             v
+  +--------------------------------------------------+
+  |  PATCH PHASE  (skipped if audit-only)            |
+  |                                                  |
+  |  Delegate: Patcher                               |
+  |  -> Ponytail mindset: smallest correct diff      |
+  |  -> prefer deleting the cause over wrapping it   |
+  |  -> escalates to you if patch > 10 lines         |
+  |  -> STOP and ask you via question tool on        |
+  |     critical gaps (vulnerability pathway         |
+  |     not closed, new attack surface)              |
+  +----------+---------------------------------------+
+             |
+             v
+  +--------------------------------------------------+
+  |  AUDIT PHASE  (max 5 loops)                      |
+  |                                                  |
+  |  Delegate: Auditor                               |
+  |  -> verify patch resolved vulnerabilities        |
+  |  -> security regression check                    |
+  |  |  (Auditor subagent)                           |
+  |                                                  |
+  |  PASS -> proceed to report                       |
+  |  FAIL -> re-delegate Patcher with Gap + BLOAT    |
+  |         lists verbatim (max 5 loops, then you)   |
+  |                                                  |
+  |  Delegate: Analyze-Reporter                      |
+  |  -> security audit report -> docs/reports/       |
+  +--------------------------------------------------+
+             |
+             v
+        You review the audit report
+             |
+  Analyze resets -> text proposal: Finished? Iterate?
+```
+
+**Key rules:**
+- Analyze has **no read/write/bash permissions** -- all delegated to subagents
+- Never starts scanning/tracing without Gate 1 user confirmation
+- Never patches without a GUARDRAIL GATE 2 user confirmation after TRACE
+- Critical gaps (vulnerability pathway not closed, new attack surface, recycled security tests) -> STOP and ask you via question tool
+- 5 consecutive minor AUDIT FAILs -> surfaces to you
+
+---
+
+## Subagent Reference
+
+Each subagent belongs to exactly one primary agent and cannot be invoked by anyone else:
+
+| Primary | Phase | Subagent | Model Tier | Role |
+|---------|-------|----------|------------|------|
+| Compose | EXPLORE | Researcher | Reasoning | Fact-finding: confirmed_facts / inferred_facts / unknowns / risks |
+| Compose | PLAN | Plan-Writer | Fast | **Formatter** -- writes PRD to `docs/plans/`, missing input = TBD |
+| Compose | PLAN | Plan-Checker | Reasoning | **Gate** -- PASS/FAIL + gap list only, no suggestions |
+| Compose | BUILD | Coder | Fast | Implements code from PRD |
+| Compose | BUILD | Tester | Precision | PASS/FAIL/BLOCKED + coverage gaps only |
+| Compose | BUILD | Reviewer | Precision | **Gate** -- PASS/FAIL + gap list only, no suggestions |
+| Compose | BUILD | Compose-Reporter | Fast | **Formatter** -- completion report to `docs/reports/` |
+| Debug | INVESTIGATE | Inspector | Reasoning | Brooks-Lint RCA (Iron Law + 6 decay risks + 4 review modes) |
+| Debug | FIX | Fixer | Fast | Minimal, root-cause-targeted fix |
+| Debug | REPORT | Debug-Reporter | Fast | **Formatter** -- Iron Law diagnosis report to `docs/reports/` |
+| Analyze | TRACE | Tracer | Precision | WSTG recon + vuln path tracing, no remedies |
+| Analyze | PATCH | Patcher | Fast | Minimal, security-targeted fix (Ponytail, max 10 lines) |
+| Analyze | AUDIT | Auditor | Precision | **Gate** -- PASS/FAIL + Gap List + BLOAT List only |
+| Analyze | AUDIT | Analyze-Reporter | Fast | **Formatter** -- security audit report to `docs/reports/` |
+
+---
+
+## Flow Rules
+
+| Rule | Behavior |
+|---|---|
+| **Mandatory starts** | Compose always starts in EXPLORE. Analyze always starts in TRACE. No skipping. |
+| **Phase Gate Protocol** | Gate transitions use **text-based proposals** (not the `question` tool). The agent prints a summary of the current phase and explicitly proposes the next step. The user replies with `go` / `adjust plan` / `stop` in natural language. |
+| **Guardrail gates** | Compose: Gate 1 (EXPLORE->PLAN/BUILD), Gate 2 (PLAN->BUILD). Debug: Gate 1 (EXPLORE->PLAN), Gate 2 (PLAN->BUILD). Analyze: Gate 1 (TRACE->PATCH), Gate 2 (PATCH->AUDIT). All require user confirmation. |
+| **In-phase critical gap escalation** | When the verifier flags **critical gaps** mid-phase (e.g., missing required sections, conflicts with stated requirements, security issues, recycled tests, blocking ambiguity, unapproved scope changes), the agent STOPS, summarizes the critical gaps in text, and uses the `question` tool to ask the user how to proceed. **No auto-retry** for critical gaps -- the user decides. |
+| **Minor-gap auto-loop** | For **minor gaps**, the agent auto-loops back to the responsible subagent (Plan-Writer, Coder, Fixer, Patcher, etc.) up to 5 times. After 5 consecutive minor FAILs, surfaces to you. |
+| **Build gate order** | Coder -> Tester -> Reviewer -> Compose-Reporter. No skipping. No Coder->Coder without verification. |
+| **Gate agents** | Plan-Checker, Reviewer, Auditor -- PASS/FAIL + gap list only. No suggestions, no decisions. |
+| **Formatter agents** | Plan-Writer, Compose-Reporter, Debug-Reporter, Analyze-Reporter -- stateless. Missing input = TBD/NA. Never invent content. |
+| **Fact-finding agents** | Researcher, Inspector, Tracer -- facts/inferences/risks only. No recommendations. |
+
+---
+
+## Brooks-Lint Methodology (Debug)
+
+The Debug pipeline uses the [Brooks-Lint](https://hyhmrright.github.io/brooks-lint/guide.html) framework:
+
+- **Iron Law** per finding: Symptom -> Source -> Consequence -> Remedy
+- **6 Decay Risks (R1-R6)**: Cognitive Overload, Change Propagation, Knowledge Duplication, Accidental Complexity, Dependency Disorder, Domain Model Distortion
+- **4 Review Modes**: PR Review (R1-R6), Architecture Audit, Tech Debt Assessment (Pain x Spread), Test Quality (T1-T6)
+- **T1-T6 Test Risks**: Test Obscurity, Brittleness, Duplication, Mock Abuse, Coverage Illusion, Architecture Mismatch
+
+## Principle Hierarchy
+
+All agents resolve conflicts using this priority order (defined in `hierarchy.txt`):
+
+1. **PRD / Spec** -- explicit requirement text
+2. **Verdict** -- Reviewer / Plan-Checker / Auditor PASS/FAIL
+3. **Engineering principles** -- Fail Fast, Single Responsibility
+4. **Heuristics** -- KISS, DRY, SOLID, Law of Demeter
+5. **Local optimization** -- style preference
+
+---
+
+## Install
+
+```sh
+npm install -g pluidr
+```
+
+## Usage
+
+### `pluidr`
+
+The everyday command. Runs three steps in sequence:
+
+1. **Update check** -- compares local version against npm registry; prompts to `npm install -g pluidr` if a new version is available
+2. **Doctor check** -- verifies installation health; prompts to repair with `pluidr init` if any checks fail
+3. **Launch** -- spawns `opencode`
+
+### `pluidr init`
+
+Prompts you to select models for three agent tiers (reasoning, precision, and fast), then:
+
+- Builds a complete `opencode.jsonc` config with the chosen models injected into the right agents
+- Backs up any existing config to `opencode.jsonc.bak.*`
+- Writes the new config to `~/.config/opencode/opencode.jsonc`
+- Copies all 8 agent prompt files into `~/.config/opencode/prompts/`
+- Copies `pluidr-flow` and `pluidr-squeeze` plugins into `~/.config/opencode/plugins/`
+- Writes a `package.json` declaring `@opencode-ai/plugin` as a dependency
+
+### `pluidr doctor`
+
+Checks installation health and reports pass/fail for each component:
+
+- `opencode.jsonc` exists
+- All 8 prompt files present
+- Both plugin files present
+- Theme configured
+- `package.json` with `@opencode-ai/plugin` dependency
+- Config is valid JSON
+
+Exits with code `0` if all pass, `1` if any fail.
+
+### `pluidr update`
+
+Checks the npm registry for a newer version of pluidr and prompts to automatically install the upgrade globally. If an update is successfully completed, the running CLI process exits to let you start fresh on the new version.
+
+### `pluidr uninstall`
+
+Restores your previous configuration:
+
+- Finds the latest timestamped backup and restores it to `opencode.jsonc`
+- Restores `tui.json` from the latest backup (returning the TUI theme to its pre-Pluidr state)
+- Removes `prompts/`, `plugins/`, `bin/`, `skills/`, `commands/` directories, `pluidr.json`, and the installed `pluidr` themes
+- Preserves `opencode.jsonc` and `package.json`
+
+### Logo Animation
+
+Both `pluidr` and `pluidr init` feature an animated ASCII banner. The animation style can be configured via CLI flag (e.g. `--animation <type>`), environment variable (`PLUIDR_ANIMATION`), or in `~/.config/opencode/pluidr.json` (as the `"animation"` key).
+
+
+Available animation styles:
+
+1. **float**: The entire logo moves left and right in unison. This keeps the letter shapes intact and is much cleaner/less awkward.
+2. **wave** (Default): The legacy rolling vertical sine wave (shears rows).
+3. **pulse**: Static position, but the logo color pulses/glows in unison.
+4. **none**: Static logo (no animation motion) with static gradient colors.
+
+---
+
+## Bundled Package
+
+### `pluidr-flow`
+
+Provides subagents with cross-session context access:
+
+- `parent_session_messages` -- read the parent session's transcript
+- `session_messages(sessionId)` -- read any session by ID
+- `session_messages_batch(sessionIds)` -- read multiple sessions in one call
+
+### `pluidr-squeeze`
+
+Monitors context fill limits and session health, calculates ResourceHealth and SessionEfficiency metrics, alerts on loop/retry patterns, and enables seamless session continuity/restores for same-project tasks.
+
+Both plugins and their dependency declaration are installed automatically by `pluidr init` -- no extra user action required. On OpenCode's first launch, the bundled Bun runtime installs `@opencode-ai/plugin` from the generated `package.json`.
+
+### Themes & Colors
+
+Pluidr comes with themes you can apply to your OpenCode terminal interface (dark, light, and colorful are pre-bundled).

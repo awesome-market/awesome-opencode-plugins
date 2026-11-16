@@ -1,0 +1,857 @@
+![Logo de OxideGate-Lens](image/logo-oxidegate-lens.png)
+
+# oxidegate-lens
+
+Muestra **cuántos bytes pesa cada servidor MCP en cada petición**. Lee esos datos de
+[OxideGate](https://github.com/pichu2707/OxideGate) (un proxy local en Rust);
+**nunca mide nada por su cuenta**. Tampoco concluye por qué falta un byte — sólo
+muestra los hechos que sí puede medir, por separado, sin mezclarlos.
+
+---
+
+## Instalación
+
+### Qué versión va con qué
+
+| `oxidegate-lens` | OpenCode | Instalación | Estado |
+| ---------------- | -------- | ----------- | ------ |
+| **`0.8.x`** (0.8.0, 0.8.1) | **2.x** y **1.x** | 2.x: `opencode plugin add oxidegate-lens` · 1.x: `opencode plugin oxidegate-lens` | Verificado en OpenCode **2.2.2**. El camino de 1.x no se ha vuelto a probar desde 0.8.0, pero su código se dejó intacto. |
+| **`<= 0.7.x`** | **solo 1.x** | `opencode plugin oxidegate-lens` | **No carga en 2.x**: OpenCode 2.x exige un export por defecto con `id` y `setup`. Verificado históricamente en OpenCode 1.18.4 y 1.18.5. |
+
+Desde la `0.8.0` un único export por defecto lleva las dos formas, así que **el
+mismo paquete sirve para 1.x y 2.x**. Si tienes OpenCode 2.x, necesitas `>= 0.8.0`.
+
+Lo que cambia en 2.x respecto a 1.x:
+
+- Conectar y desconectar un servidor MCP pasa a ser un **override de la
+  configuración más una recarga**.
+- Los avisos del lado servidor salen por el stderr del servicio de OpenCode; los
+  avisos en pantalla los muestra la entrada `./tui`.
+- El recuento de tools **no filtra por proveedor ni por modelo**.
+
+¿Ya tenías la `0.7.x`? Mira [Actualizar desde 0.7.x](#actualizar-desde-07x).
+Y ésta es solo la mitad de la compatibilidad: la de la lente con **el proxy
+OxideGate** está en [Requisitos](#compatibilidad-con-el-proxy-oxidegate).
+
+### Con Homebrew (solo la línea de comandos)
+
+```sh
+brew install pichu2707/tap/oxidegate-lens
+```
+
+Instala dos comandos: **`oxidegate-savings`** (bytes por servidor MCP en cada
+petición) y **`oxidegate-sessions`** (coste por sesión — ver más abajo). Cero
+dependencias: solo necesita Node.
+
+### Si usas OpenCode, instálalo por npm
+
+Homebrew sirve los binarios de línea de comandos, pero **no instala
+`node_modules`** — y el plugin de OpenCode necesita `@opencode-ai/plugin` en
+tiempo de ejecución para exponer sus tools. Instalado por brew, el plugin
+arranca pero sus tres tools manuales de la válvula no existen, y te lo dice:
+
+```
+[oxidegate-lens] manual MCP valve tools unavailable: @opencode-ai/plugin could not be loaded
+```
+
+Por npm sí llega completo, y en un solo comando — sin tocar ningún JSON:
+
+```sh
+opencode plugin add oxidegate-lens   # OpenCode 2.x
+opencode plugin oxidegate-lens       # OpenCode 1.x
+```
+
+`opencode plugin` es el instalador del propio OpenCode: descarga el paquete y
+**actualiza tu configuración él mismo**. OpenCode instala los plugins de npm en
+su propia caché (`~/.cache/opencode/`), no en el `node_modules` de tu proyecto.
+
+En **OpenCode 2.x** esa única entrada basta para las dos mitades: el plugin de
+servidor y la entrada `./tui`, que es la que muestra los avisos en pantalla.
+OpenCode carga la entrada `./tui` del mismo paquete por su cuenta; aparece en
+`/plugins` como `oxidegate-lens.tui`. **No añadas `oxidegate-lens/tui`** a
+`cli.json`: OpenCode no lo resuelve como subruta del paquete y lo marca como
+plugin fallido. (En 2.x la configuración del TUI vive en `cli.json`; un
+`tui.json` antiguo se migra ahí en el primer arranque y después se ignora.)
+
+Si prefieres hacerlo a mano, o quieres fijar la versión, también vale instalar
+el paquete y apuntar a la ruta:
+
+```sh
+npm install oxidegate-lens
+```
+
+En **OpenCode 2.x** la ruta tiene que ser el **directorio** del paquete, y
+**absoluta**:
+
+```json
+{
+  "plugin": ["/ruta/a/tu/proyecto/node_modules/oxidegate-lens"]
+}
+```
+
+Una ruta a un fichero `.ts` se rechaza (`configured plugin path must be a
+directory`), y una ruta relativa se resuelve contra el directorio del servicio
+de OpenCode (tu `$HOME`), no contra el del `opencode.json`, así que falla en
+cuanto abres el TUI aunque `opencode debug agents` la cargue.
+
+En **OpenCode 1.x**, la ruta al fichero:
+
+```json
+{
+  "plugin": ["./node_modules/oxidegate-lens/opencode/oxidegate-lens.ts"]
+}
+```
+
+Y necesita a [OxideGate](https://github.com/pichu2707/OxideGate) corriendo, que es
+quien mide:
+
+```sh
+brew install pichu2707/tap/oxidegate
+```
+
+### Actualizar desde 0.7.x
+
+Al subir de la `0.7.x` a la `0.8.x`, OpenCode puede seguir sirviendo la versión
+vieja desde su caché (`~/.cache/opencode/`). Si el plugin no cambia de versión
+tras actualizar, limpia esa caché y reinstálalo:
+
+```sh
+oxidegate-savings --clear-opencode-cache
+opencode plugin add oxidegate-lens    # OpenCode 2.x  (1.x: opencode plugin oxidegate-lens)
+```
+
+---
+
+## Empieza aquí
+
+Un solo camino, cuatro pasos:
+
+|       | Paso                                       | Comando / acción                                       |
+| ----- | ------------------------------------------ | ------------------------------------------------------ |
+| **1** | Enciende OxideGate                         | `OXIDEGATE_PORT=8899 oxidegate`                        |
+| **2** | Apunta tu agente al proxy                  | `export ANTHROPIC_BASE_URL=http://127.0.0.1:8899`      |
+| **3** | Úsalo un rato, y luego pide el reporte     | `oxidegate-savings`                                    |
+| **4** | Lee la tabla                               | ↓ es exactamente lo que vas a ver                      |
+
+> **`ANTHROPIC_BASE_URL` va SIN `/v1`.** El cliente añade la ruta él mismo. Si le
+> pones el `/v1`, la petición sale a `/v1/v1/messages` y el proxy responde **404**.
+
+> **Al reporte no hace falta decirle el puerto.** `oxidegate-savings` busca el
+> proxy solo: mira `OXIDEGATE_LENS_URL`, luego `OXIDEGATE_PORT`, luego lo que el
+> propio OxideGate declara en `~/.config/oxidegate/proxy.log`, y por último los
+> puertos habituales. En todos los casos **comprueba que quien contesta es
+> OxideGate de verdad antes de creerle** — que algo responda en un puerto no lo
+> convierte en el proxy.
+>
+> **A OxideGate sí tienes que decírselo** (paso 1), y conviene: el 8080 lo suelen
+> ocupar Apache, Tomcat o Jenkins. Si dejas un `OXIDEGATE_PORT` viejo apuntando a
+> otro servicio, la lente sigue buscando y te avisa de que lo ha ignorado, en vez
+> de escribirte un reporte a partir de las respuestas de un desconocido.
+
+> **El paso 3 no es opcional.** OxideGate solo puede medir lo que ha visto pasar.
+> Si pides el reporte sin haber hecho ninguna petición a través del proxy, la
+> tabla sale vacía — y eso no es un fallo, es que no hay nada que medir todavía.
+
+El reporte imprime **tres bloques independientes, nunca mezclados en un solo
+veredicto**, más un aviso:
+
+1. **La tabla** — bytes. Cada servidor `mcp` que aparece ahí ya está en el body:
+   sus bytes viajaron, punto. `sí, desconectándolo` sin excepción, sin importar
+   `deferred_tools` ni quién dice ser el cliente.
+2. **Disponibles vs. llegados** — una resta, sin causa. Cuántos servidores MCP
+   tienes disponibles (`claude mcp list`, en tu propia máquina) contra cuántos
+   llegaron al cable en esta petición. Si faltan, los nombra y ahí se detiene:
+   no elige entre "tu harness los retiene" y "todavía no conectaron" — las dos
+   son causas reales y una sola petición no alcanza para distinguirlas.
+3. **Tokens de contexto** — otra moneda, aparte. Si el esquema, además de viajar
+   en el body, también ocupa el contexto del modelo por adelantado
+   (`deferred_tools`). Nunca cambia un byte de la tabla.
+
+![Terminal ejecutando oxidegate-savings: tabla con bytes por servidor MCP (github, filesystem, context7, postgres) y el ahorro por petición de desconectarlos](https://raw.githubusercontent.com/pichu2707/oxidegate-lens/main/docs/media/savings.gif)
+
+*`oxidegate-savings` con datos de ejemplo: una fila por servidor MCP y el ahorro por petición.*
+
+Ejemplo real, Claude Code hablando con Anthropic a través de OxideGate, con los
+4 servidores MCP disponibles llegando los 4:
+
+```
+fuente: 2026-07-12T15:24:29.525525732+00:00  claude-opus-4-8-lens-case1  (anthropic)  cliente: claude-cli/2.1.207 (external, sdk-cli)
+
+SERVIDOR                      KIND     TOOLS       BYTES   % TOOLS  ¿SE PUEDE QUITAR?
+claude_ai_Google_Drive        mcp          1       161 B     25.2%  sí, desconectándolo
+(native)                      native       2       158 B     24.7%  no, sólo con --tools
+claude_ai_Google_Calendar     mcp          1       111 B     17.4%  sí, desconectándolo
+plugin_engram_engram          mcp          1       111 B     17.4%  sí, desconectándolo
+claude_ai_Gmail               mcp          1        91 B     14.2%  sí, desconectándolo
+overhead (corchetes/comas)    -            -         7 B         -
+
+ahorro por petición desconectando los 4 servidores MCP: 474 B (74.2% de los tools)
+
+Tienes 4 servidor(es) MCP disponibles. En esta petición llegaron los 4.
+
+tokens de contexto (otra moneda — NO bytes, no cambia nada de la tabla de arriba):
+  - claude_ai_Google_Drive: ocupa el contexto completo por adelantado (0 tools diferidas)
+  - claude_ai_Google_Calendar: ocupa el contexto completo por adelantado (0 tools diferidas)
+  - plugin_engram_engram: ocupa el contexto completo por adelantado (0 tools diferidas)
+  - claude_ai_Gmail: ocupa el contexto completo por adelantado (0 tools diferidas)
+
+aviso: algunos harnesses (p. ej. Claude Code) difieren esquemas MCP por defecto, pero ese
+diferido se cae a carga completa detrás de un ANTHROPIC_BASE_URL que no sea de Anthropic —
+y OxideGate es exactamente eso. Si tu harness es de ese tipo, una parte de los bytes de
+la tabla de arriba podría ser un artefacto de tener el proxy en el medio, no un costo que
+exista sin él. Esta ejecución no lo puede decidir por ti: para comprobarlo, repite la misma
+petición apuntando directo a Anthropic (sin pasar por OxideGate) y compara los bytes.
+Detalle medido: docs/optimizer-tool-search.md §3 en el repo de OxideGate.
+```
+
+Y este es el caso donde algunos de los servidores disponibles **no llegaron al cable**
+en esta petición puntual — el reporte lo dice como un hecho, sin adivinar la causa:
+
+```
+SERVIDOR                      KIND     TOOLS       BYTES   % TOOLS  ¿SE PUEDE QUITAR?
+(native)                      native       2       158 B     62.5%  no, sólo con --tools
+claude_ai_Gmail               mcp          1        91 B     36.0%  sí, desconectándolo
+overhead (corchetes/comas)    -            -         4 B         -
+
+ahorro por petición desconectando el servidor MCP: 91 B (36.0% de los tools)
+
+Tienes 4 servidores MCP disponibles. En esta petición llegaron 1.
+Los otros 3 (claude_ai_Google_Drive, claude_ai_Google_Calendar, plugin_engram_engram) no viajan ahora mismo.
+Puede ser que tu harness los esté reteniendo, o que todavía no hayan conectado —
+ninguna de las dos causas se puede confirmar desde esta sola petición (medido:
+docs/optimizer-tool-search.md §3.1.4 en OxideGate).
+```
+
+**`¿SE PUEDE QUITAR?` nunca lee `deferred_tools` ni el header `client`.** Un tool
+marcado con `defer_loading: true` sigue viajando ENTERO en el body — es un flag
+sobre una definición que Anthropic necesita completa para poder buscarla, no un
+recorte de esa definición. Diferido ahorra **contexto**, nunca **cable**
+(detalle: `docs/optimizer-tool-search.md` §2.2 en el repo de OxideGate). Por eso
+toda fila `mcp` en la tabla es siempre `sí, desconectándolo`, sin excepción: si
+tiene fila, llegó al cable completa. Lo que puede haber, además, son servidores
+disponibles que **no llegaron a tener fila** — eso es el bloque "disponibles vs.
+llegados" de abajo de la tabla, nunca la columna.
+
+Con un harness que carga los esquemas eager de verdad (OpenCode, por ejemplo), la misma
+tabla y el mismo resumen de ahorro son igual de directos, sin ningún bloque extra —
+ese dialecto no tiene primitivo de diferido, así que no hay nada que restar:
+
+```
+fuente: 2026-07-12T15:24:18.316600407+00:00  gpt-4o  (openai)  cliente: curl/8.21.0
+
+SERVIDOR                      KIND     TOOLS       BYTES   % TOOLS  ¿SE PUEDE QUITAR?
+claude_ai_Gmail               mcp          1       120 B     51.3%  sí, desconectándolo
+(native)                      native       1       111 B     47.4%  no, sólo con --tools
+overhead (corchetes/comas)    -            -         3 B         -
+
+ahorro por petición desconectando el servidor MCP: 120 B (51.3% de los tools)
+ya re-enviados en 1 petición observada: 120 B
+Este dialecto (openai) no tiene primitivo de diferido: no existe una versión
+donde estos bytes sean opcionales, para ningún harness. El costo de arriba es real,
+sin ambigüedad — nada que decidir aquí.
+```
+
+> **Si la tabla sale vacía**, es por una de tres razones, en este orden:
+> (1) OxideGate está apagado, (2) el puerto no es el que pusiste en `OXIDEGATE_PORT`,
+> o (3) todavía no pasó ninguna petición **con MCP** por el proxy. No hay una cuarta.
+
+Alternativa cómoda: ejecuta `npm link` una vez y después llama a `oxidegate-savings` desde
+cualquier lado (en vez de `node bin/oxidegate-savings.mjs`).
+
+### Qué significa cada columna
+
+| Columna             | Qué es                                                                       |
+| ------------------- | ----------------------------------------------------------------------------- |
+| `SERVIDOR`          | El servidor que aporta esas herramientas (`(native)` es el propio agente).    |
+| `KIND`              | `mcp` = servidor MCP conectado; `native` = superficie del agente.             |
+| `TOOLS`             | Cuántas herramientas declara ese servidor.                                    |
+| `BYTES`             | Cuánto pesan sus esquemas en el cuerpo de **cada** petición.                  |
+| `% TOOLS`           | Qué porción del total de herramientas representa.                            |
+| `¿SE PUEDE QUITAR?` | `mcp` → siempre `sí, desconectándolo`, sin excepción. `native` → siempre `no, sólo con --tools`. |
+
+### Por qué `¿SE PUEDE QUITAR?` nunca depende de `deferred_tools` ni del `client`
+
+Es tentador pensar que un servidor MCP con sus tools marcadas `defer_loading: true`
+"ya pesa poco" en el body. **No es así, y confundir esas dos cosas es el error que
+este reporte existe para no cometer.** `defer_loading` es un flag SOBRE una
+definición de tool que Anthropic sigue necesitando completa en el body — `tool_search`
+corre en el servidor de Anthropic y busca sobre las tools **declaradas en el
+request**; si no están ahí, no hay nada que buscar. Diferido ahorra **contexto**
+(lo que el modelo carga por adelantado), nunca **cable** (lo que viaja en cada
+petición). Detalle medido: `docs/optimizer-tool-search.md` §2.2 y §3.2 en el repo
+de OxideGate.
+
+Tampoco depende del header `User-Agent` (`client`): es contenido que manda el
+propio cliente, sin forma de verificarlo desde el servidor — cualquier proceso
+puede mandar `claude-cli/...` sin serlo. Una versión anterior de este reporte
+usaba ese header para decidir si hedgear una fila o una línea entera; siete
+rondas de revisión adversarial encontraron, cada una, un caso real donde esa
+inferencia se equivocaba. La corrección no fue una regla mejor: fue dejar de
+inferir. Hoy el header sólo se imprime, informativo, en la línea `fuente:` de
+arriba — nunca decide nada.
+
+### Qué significa el bloque "disponibles vs. llegados"
+
+Debajo de la tabla, cada ejecución de tráfico `anthropic` compara los servidores MCP
+que tienes **disponibles** (`claude mcp list`, vía `lib/mcp-config.mjs`, corrido en tu
+propia máquina) contra los que **llegaron** al cable (`tools_by_server`) para la
+petición de la tabla de arriba. Es una resta, no una conclusión:
+
+- **Coinciden** → lo dice y no agrega nada más.
+- **Faltan algunos** → los nombra y explica que la ausencia tiene más de una causa
+  posible (tu harness los está reteniendo, o todavía no terminaron de conectar) sin
+  elegir cuál aplica — una sola petición no alcanza para saberlo (medido:
+  `docs/optimizer-tool-search.md` §3.1.4, donde un conector remoto estuvo ausente en
+  la petición #1 y presente, sin marcar, en la #3 siete segundos después, sin que
+  nadie lo pidiera).
+- **No se pudo leer tu configuración disponible** (`claude` no está en el PATH, el
+  comando falló, se colgó, o su salida no tuvo el formato esperado) → lo dice
+  explícitamente. Esto NUNCA se muestra igual que "0 servidores disponibles": son
+  cosas distintas, y confundirlas fue exactamente el defecto que este reporte
+  existe para no repetir (ver FAILURE POLICY en `lib/mcp-config.mjs`).
+- **Dos nombres declarados colisionan al sanitizar** → `sanitizeServerName()`
+  (`[^A-Za-z0-9_] → _`) NO es inyectiva: `"foo bar"` y `"foo_bar"` sanitizan
+  ambos a `"foo_bar"`. Cuando eso pasa entre dos servidores **conectados**, no
+  hay forma de saber, desde `tools_by_server`, a cuál de los dos corresponde
+  una fila `foo_bar` que llegó — o si corresponde a ambos. El reporte nombra
+  la colisión y saca esos dos nombres del conteo de disponibles/llegados en
+  vez de adivinar o fusionarlos en silencio (medido: extrayendo la función
+  real con ese par de nombres se obtenía antes `{ available: 1, missing: [] }`
+  — un servidor entero desaparecía sin aviso).
+- **La petición trae una fila `(others)`** → OxideGate solo trackea hasta 32
+  servidores MCP distintos de forma individual por petición
+  (`MAX_TOOL_SERVERS` en `src/provider/mod.rs`, OxideGate); el resto se sigue
+  contando pero se funde en un único bucket sin nombre, `(others)`, en la
+  tabla de arriba. Si algún servidor disponible no tiene fila propia Y la
+  petición trae esa fila `(others)`, el reporte NO dice "no viajó": dice que
+  no se puede confirmar si está adentro del bucket o si de verdad faltó —
+  medido en vivo con 33 servidores donde el 33.º SÍ viajó (sus bytes están en
+  `(others)`) y una versión anterior de este reporte igual decía que "no
+  viaja ahora mismo".
+
+Para tráfico de dialectos sin primitivo de diferido (`upstream !== "anthropic"`) este
+bloque no aparece: no hay nada que restar, porque no existe una versión donde esos
+bytes fueran opcionales para ningún harness.
+
+### El aviso, y por qué no es una columna ni una línea de veredicto
+
+En tráfico `anthropic`, el reporte siempre imprime un aviso corto: algunos
+harnesses (Claude Code, documentado) difieren esquemas MCP por defecto, pero ese
+diferido se cae a carga completa detrás de un `ANTHROPIC_BASE_URL` que no sea de
+Anthropic — y OxideGate es exactamente eso. Puede que una parte de los bytes de
+la tabla sea un artefacto de tener el proxy en el medio. El reporte no lo decide
+por ti — te dice cómo comprobarlo (repetir la petición sin el proxy y comparar).
+No es una columna hedgeada ni depende de reconocer el cliente: se imprime igual
+para cualquier petición `anthropic`, precisamente porque el `client` no es
+verificable y no debe decidir nada.
+
+---
+
+## Cómo funciona en 30 segundos
+
+```
+OxideGate (proxy en Rust)            oxidegate-lens (este repo)
+  ve el tráfico real         GET      solo LEE y MUESTRA
+  entre cliente y proveedor  ───────▶   oxidegate-savings → la tabla de arriba
+  mide bytes por servidor  /stats
+                           /requests
+```
+
+OxideGate **mide**; este repo **muestra**. Son dos capas con visibilidad distinta:
+el proxy ve los bytes exactos en la red; un plugin dentro del agente solo vería la
+intención del agente, no el tráfico real. Por eso el lens nunca duplica la
+medición — la perdería sin ganar nada.
+
+---
+
+## Las advertencias que la salida repite
+
+Ignorarlas lleva a conclusiones falsas:
+
+- **Son bytes medidos en el cable, no tokens ni dólares.** Cada proveedor
+  tokeniza distinto, así que convertirlos exigiría una constante que no se tiene.
+  Un byte medido es un hecho; un token inferido, una conjetura.
+- **`defer_loading` no saca ni un byte del cable.** Es un flag sobre una
+  definición de tool que Anthropic sigue necesitando completa en el body para
+  poder buscarla (`tool_search` es server-side y busca sobre lo **declarado en
+  el request**). Diferido ahorra contexto del modelo, no tráfico de red — así
+  que `¿SE PUEDE QUITAR?` nunca lo consulta: una fila `mcp` con todas sus tools
+  diferidas pesa, en bytes, exactamente lo mismo que una sin diferir ninguna.
+  Lo que `deferred_tools` sí decide es el bloque `tokens de contexto` al final
+  del reporte — otra unidad, nunca la tabla de arriba. Detalle medido:
+  `docs/optimizer-tool-search.md` §2.2 y §3.2 en OxideGate.
+- **Las filas `native` no se quitan desconectando nada.** Son la superficie de
+  herramientas del propio agente. Sólo se reducen con `--tools <lista>`, que
+  cambia lo que el agente **puede hacer**, no sólo lo que carga. `--disallowedTools`
+  no sirve — es una puerta de permisos, no de carga; el esquema viaja igual.
+- **Ausente nunca es cero.** Ni en la configuración MCP disponible (si no se pudo
+  leer, el reporte lo dice — nunca lo muestra como "0 servidores"), ni en
+  `deferred_tools` (si el campo falta, es "desconocido", nunca "0 diferidas"), ni
+  en la causa de por qué falta un servidor en el cable (puede estar retenido o
+  puede estar todavía conectando — el reporte nombra ambas posibilidades y no
+  elige, porque una sola petición no permite elegir).
+
+---
+
+## `oxidegate-sessions` — coste por sesión, no bytes por servidor
+
+![Terminal ejecutando oxidegate-sessions: tabla de sesiones con turnos, coste, entrada, caché leída y salida](https://raw.githubusercontent.com/pichu2707/oxidegate-lens/main/docs/media/sessions.gif)
+
+*`oxidegate-sessions` con datos de ejemplo: coste atribuible a cada sesión.*
+
+`oxidegate-savings` responde *¿qué pesa esta petición?* Este segundo comando
+responde una pregunta distinta, en otra moneda: **¿cuánto costó ESTA sesión
+de trabajo?** Lee `GET /sessions` de OxideGate — una agregación por
+`(source, key)` — y nunca mezcla sus bloques en un solo veredicto.
+
+```sh
+oxidegate-sessions
+oxidegate-sessions --since 7d
+oxidegate-sessions --since 2026-01-01
+```
+
+Imprime **cuatro bloques independientes**:
+
+1. **SESIONES** — filas con `is_session: true`, ordenadas por coste
+   descendente. Es el sujeto real del informe.
+2. **NO ATRIBUIDO A UNA SESIÓN** — filas con `is_session: false`: cubos por
+   cliente/user-agent, no sesiones. **Nunca se rankean junto a las
+   sesiones.** Sus tokens son reales y se muestran; su coste se marca "no
+   atribuible" en la misma línea, nunca como un `0,00 $` desnudo — medido
+   contra un proxy real, la fila `unattributed` puede concentrar el 34% de
+   los tokens de entrada de la ventana con `cost_usd: 0`, y un reporte que
+   lo imprimiera como "gratis" estaría mintiendo.
+3. **EL PEAJE FIJO POR TURNO** — `fixed_toll.{hooks,instructions,skills}`:
+   un payload fijo (por ejemplo, el system-prompt de una skill) que vuelve a
+   viajar en cada turno donde estuvo presente. Es la razón de ser de este
+   comando: la tesis del N² **medida**, no argumentada — `6.839 B × 25
+   turnos ≈ 171 kB repetidos`. Un miembro `null` se imprime "no medido",
+   **jamás `0 B`**.
+4. **`saturated`** — si el registro del proxy se saturó, las filas de arriba
+   son una **cota inferior**: faltan claves que dejó de admitir. La marca va
+   pegada a los totales que invalida, no en una nota al pie.
+
+### La regla que rompe la intuición
+
+**`cost_usd === 0` NO implica `is_session === false`.** Un modelo sin precio
+da una sesión real con coste real `0` — y este comando la imprime como una
+sesión normal, con su `0,0000 $`, sin marcarla "no atribuible". La etiqueta
+de no-atribuible sale sólo de `is_session`/`source`, nunca de que el coste
+dé cero. Confundir las dos cosas fue, medido contra un proxy real, el error
+más caro que este informe podía cometer: la fila que más tokens consume
+puede ser exactamente la que parece "gratis" si sólo se mira el coste.
+
+### La puerta de capacidades
+
+Antes de pedir nada, este comando pregunta `GET /version` (issue #30) si el
+proxy publica `/sessions`. Es tri-estado, y el estado del medio importa:
+
+- **Sí lo publica** → adelante.
+- **Declaró su contrato SIN `/sessions`** → dice *"tu OxideGate no publica
+  /sessions, actualiza"* y **no imprime ninguna tabla**, ni vacía.
+- **No se pudo preguntar** (proxy sin `/version`, inalcanzable, timeout) →
+  esto **no es lo mismo** que "no lo publica": se intenta la petición real
+  igualmente, y sólo si el 404 la confirma se muestra el mismo aviso.
+
+### `--since`
+
+Mismo contrato que `/stats`: una fecha `YYYY-MM-DD` o un número de días
+(`7d`). Se manda tal cual al proxy, que lo valida — un valor que no entiende
+devuelve **400**, y este comando imprime el mensaje del propio proxy
+(ya viene en español) tal cual, y sale con código distinto de 0. Sin
+`--since`, la cabecera dice que la ventana es todo lo que el proxy retenga
+— este comando no sabe cuánto es eso, y no lo inventa.
+
+### Qué NO puede decir
+
+- **No mide el crecimiento turno a turno dentro de una sesión.** `/sessions`
+  devuelve un agregado por `(source, key)` — `requests` ahí es un contador,
+  no una serie. Esa curva se construye cruzando `/requests` por
+  `session.key`, que es otra fuente y otro modelo de confianza (issue #31).
+- **No decide qué proxy tienes.** Con persistencia activada en OxideGate
+  (`src/config.rs`), `/sessions` sí tiene ventana y sí sobrevive a un
+  reinicio; con la persistencia desactivada, la agregación es sólo desde que
+  arrancó el proceso. Este comando no puede saber cuál de las dos tienes —
+  sólo puede pedirte `--since` y mostrar lo que el proxy le devuelva.
+- **"no atribuible" no es un juicio de valor.** Sólo separa lo que el proxy
+  no pudo pinchar en una sesión concreta; no dice si ese gasto está bien o
+  mal gastado.
+
+---
+
+## Requisitos
+
+- **OxideGate en ejecución** y accesible por HTTP (puerto por defecto `8080`; en
+  desarrollo suele ser otro, ej. `8899`, vía la variable `OXIDEGATE_PORT`).
+- **Node 24 o superior** (usa `fetch` y `AbortSignal.timeout` globales, sin
+  dependencias externas).
+- **El comando `claude` en el PATH**, sólo si quieres el bloque "disponibles vs.
+  llegados" en tráfico `anthropic` (`lib/mcp-config.mjs` corre `claude mcp list`).
+  Sin él, el reporte sigue funcionando: ese bloque dice que no pudo leer tu
+  configuración y muestra sólo lo que ve directamente en el cable — nunca lo
+  esconde ni lo confunde con un cero.
+
+### Compatibilidad con el proxy OxideGate
+
+Esta tabla responde a **lente ↔ proxy OxideGate**. La de **lente ↔ OpenCode** está
+arriba, en [Qué versión va con qué](#qué-versión-va-con-qué).
+
+La lente no exige una versión mínima de OxideGate: **le pregunta al proxy qué
+publica** (`GET /version` declara sus endpoints y campos) y se adapta.
+
+| Si el proxy… | Qué hace la lente |
+|---|---|
+| publica el endpoint o campo (p. ej. `/sessions`, `deferred_tools`) | Lo usa y lo muestra. |
+| declara su contrato y **no** incluye ese endpoint o campo | Lo da por **DESCONOCIDO** y lo dice. **No se rompe.** |
+| es anterior a `/version` (responde 404) | Lo trata como «proxy previo al contrato», no como un error. |
+| no responde o contesta algo inesperado | Dice que no pudo preguntar. |
+
+Un dato ausente **NUNCA** se muestra como un cero. Esa degradación no es una
+promesa: está **cubierta por tests** (`test/oxidegate-savings.test.mjs`, defectos 5 y 6,
+y `test/proxy-version.test.mjs`). Si alguien la rompe, la suite se pone roja.
+
+---
+
+## Tests
+
+```
+npm test
+```
+
+Corre la suite completa (`node --test`, sin dependencias nuevas) en menos de
+dos segundos. Es **hermética**: levanta un servidor `node:http` propio en un
+puerto efímero para simular a OxideGate y un `claude` falso en un PATH propio
+para simular `claude mcp list` — nunca toca un proxy real ni el `claude` real
+de esta máquina. Ver `test/helpers/` para cómo.
+
+### Por qué existe esta suite
+
+Este reporte pasó por **nueve rondas de revisión adversarial. Se encontraron
+nueve defectos. Los nueve los encontró una persona o un agente leyendo y
+midiendo la salida a mano — ninguno lo encontró una máquina, porque hasta
+ahora no había ninguna.**
+
+Los invariantes que sobrevivieron están escritos en **comentarios de código**
+(ver el header de `bin/oxidegate-savings.mjs`). Un comentario no detiene a
+nadie. La próxima persona que toque ese archivo puede romper cualquiera de
+esos invariantes y nada se lo va a decir — salvo esta suite.
+
+`test/oxidegate-savings.test.mjs` convierte cada uno de los nueve defectos en
+un test que falla si vuelve a aparecer: no es cobertura por cobertura, es
+**protección de regresión para una lista específica, conocida y cara de
+bugs.** Si en algún momento piensas en borrar uno de esos tests porque "ya no
+hace falta" o "molesta" — no lo hace falta, y sí molesta: es la puerta que le
+costó una ronda de revisión completa cerrar. Borrarlo la vuelve a abrir sin
+que nadie se entere hasta la próxima revisión adversarial, si la hay.
+
+`test/mcp-config.test.mjs` cubre en unidad la FAILURE POLICY de
+`lib/mcp-config.mjs` (ausente ≠ cero) que sostiene los defectos #6 y #7.
+
+---
+
+## Superficies avanzadas (experimentales)
+
+El reporte de ahorro de arriba es el camino principal y está verificado. Esta
+otra superficie existe, pero es secundaria — instalarla y su paso a paso están
+en **[docs/GUIA-INSTALACION.md](docs/GUIA-INSTALACION.md)**.
+
+- **Plugin de OpenCode** (`opencode/oxidegate-lens.ts`): por sí solo no enruta
+  nada — sólo lee lo que OxideGate ya midió. Para que el tráfico pase por
+  OxideGate hace falta configurarlo aparte: con un bloque `provider` en
+  `opencode.json` (ver `examples/opencode.json`), o parcheando `fetch` desde
+  otro plugin. El bloque `provider` es una forma de enrutar, no la única.
+
+  **Qué está verificado y qué no**, con esa distinción a propósito:
+
+  - **Verificado** contra un OpenCode 1.18.4 real: `client.mcp.status`,
+    `client.mcp.connect` y `client.mcp.disconnect`. Un detalle que sólo
+    aparece ejecutándolo: tras un `disconnect` el SDK devuelve el estado
+    **`"disabled"`**, no `"disconnected"`. El plugin sobrevive a eso porque
+    pasa el estado del SDK **verbatim** y nunca lo compara contra una cadena
+    fija. No introduzcas una.
+  - **Verificado** también contra un OpenCode real: el aviso de arranque (con
+    un servidor protegido preservado y el resto desconectado), y el sondeo
+    sobre `session.idle` — se conectó un MCP a mano y el aviso de transición
+    salió en el siguiente reposo, sin que OpenCode emita ningún evento de MCP.
+  - **No verificado** contra un OpenCode real: el hook `tool.execute.after`.
+    Se ha ejercitado con un cliente falso, lo que prueba que el cableado corre,
+    no que OpenCode lo dispare cuando creemos.
+
+### Avisos de MCP y servidores protegidos
+
+### Configuración por proyecto
+
+Un proyecto puede declarar la suya en `.oxidegate-lens.json`, en su raíz:
+
+```json
+{
+  "disableByDefault": true,
+  "protectedMcpServers": ["engram"]
+}
+```
+
+**Reemplaza a la global en lo que declara** — no se fusiona. Un fichero, una
+respuesta. Callar sobre una clave no es declararla vacía: un proyecto que solo
+toca el interruptor no borra la lista de nadie.
+
+La precedencia completa, de más fuerte a más débil:
+
+```
+variables de entorno  >  proyecto (si está aprobado)  >  global  >  por defecto
+```
+
+#### Y no se aplica hasta que lo apruebes
+
+Un fichero de configuración dentro de un repo que clonaste **es código ajeno**.
+Puede desconectar servidores MCP que querías conservar, o —peor, porque es
+silencioso— marcar como protegido uno que querías apagar. Así que no se aplica
+solo:
+
+```
+oxidegate-mcp --approve
+```
+
+Te enseña el fichero **antes** de aprobarlo, porque aprobar a ciegas no es
+consentir.
+
+**La aprobación es del CONTENIDO, no de la ruta** — el modelo de `direnv`. Si
+el fichero cambia, por una edición tuya o por un `git pull`, vuelve a pedirse.
+Aprobar una ruta para siempre dejaría que el repositorio cambiara el fichero
+mañana y se aplicara sin que te enteres.
+
+Mientras esté pendiente no es silencioso: lo dicen el plugin al arrancar y
+`oxidegate-savings --doctor`, con el hash y qué hacer.
+
+### Comprobar que todo está conectado
+
+```
+oxidegate-savings --doctor
+```
+
+Recorre la cadena entera y dice **qué eslabón falla y qué hacer**. Cada
+comprobación que hace es un fallo que costó tiempo real de encontrar y que no
+era diagnosticable desde fuera:
+
+```
+  ✔ El proxy responde
+  ✔ Lo que responde ES OxideGate
+  ✔ /health responde 200
+  ✔ 41 peticiones observadas
+  ! Las tools llegan APLANADAS (tools_flattened)
+      → La mitad PRECIO sigue siendo válida; la mitad USO no puede funcionar
+        en esta ruta, y acumular más tráfico NO lo cambia.
+  ✔ Precio disponible para 2 servidor(es)
+  ✔ Desconectar al arrancar: ACTIVADO (1 protegido/s)
+
+  DEGRADED — Funciona, pero hay algo que limita lo que se puede reportar.
+```
+
+Una comprobación que **no se pudo hacer** sale como `?`, nunca como `✔`, y el
+veredicto no puede ser `OK` mientras quede alguna sin saber. Decir «todo bien»
+sobre algo que no se miró cierra la investigación que habría encontrado el
+problema.
+
+Y si algo está roto, **diagnostica igual**: apuntar a un puerto ocupado por
+otro servicio, o a un proxy caído, produce el informe completo en vez de un
+`fetch failed` a secas.
+
+### Elegirlo sin editar JSON
+
+![Selector interactivo oxidegate-mcp: se enciende la válvula con d, se marcan servidores con espacio y se sale con q sin guardar](https://raw.githubusercontent.com/pichu2707/oxidegate-lens/main/docs/media/mcp.gif)
+
+*`oxidegate-mcp`: `d` enciende la válvula, `espacio` marca qué servidores se quedan y `q` sale **sin guardar** (sólo `enter` escribe).*
+
+```
+oxidegate-mcp
+```
+
+Abre un selector con tus servidores MCP, **su precio medido al lado**, y
+marcas cuáles se preservan:
+
+```
+  Servidores MCP — elige cuáles se preservan al arrancar
+
+  > ● engram        17.2 kB   se preserva
+    ○ context7       4.6 kB   se desconecta al arrancar
+
+  Desconectar al arrancar: ACTIVADO
+
+  ↑↓ mover · espacio preservar/desconectar · d interruptor · enter guardar · q salir
+```
+
+Funciona **sin OpenCode**, y a propósito: la configuración es tuya, no del
+harness, así que sirve igual con OpenCode, con `pi` o con lo que venga. Por
+una tubería o sin terminal imprime el estado y sale, en vez de intentar abrir
+una pantalla imposible.
+
+Lo único que **no** puede hacer es conectar o desconectar una sesión **en
+marcha** — eso necesita el SDK del harness y vive en el plugin
+(`oxidegate_lens_mcp_connect` / `_disconnect`). Aquí decides qué pasará la
+próxima vez que arranques.
+
+### O editando el fichero a mano
+
+Todo vive en un solo sitio, `~/.config/oxidegate-lens/config.json`:
+
+```json
+{
+  "disableByDefault": true,
+  "protectedMcpServers": ["engram", "context7"]
+}
+```
+
+Con eso, al abrir OpenCode el plugin desconecta los MCP que no hayas
+protegido y **te lo dice con las cifras delante**:
+
+```
+empiezas con 1 MCP sin conectar: context7 (4.6 kB). Siguen activos: engram (17.2 kB).
+Para volver a abrir alguno: oxidegate_lens_mcp_connect. Detalle completo: oxidegate_lens_mcp_valve.
+```
+
+Ver el estado, medir el coste y saber cómo revertirlo, sin ejecutar ningún
+comando. Después avisa cuando alguno se conecta.
+
+Desconectar al arrancar es gratis: todavía no hay nada en caché. Cambiar el
+conjunto de MCP **a mitad de sesión** (conectar o desconectar) altera la lista
+de herramientas y puede invalidar la caché de prompt de la conversación, de
+modo que la siguiente petición reenvíe el historial sin caché. Por eso las
+descripciones de `oxidegate_lens_mcp_connect`, `oxidegate_lens_mcp_disconnect`
+y `oxidegate_lens_mcp_valve` le dicen al modelo que conecte lo que necesite,
+una sola vez y lo antes posible, y que no desconecte en caliente salvo que lo
+pidas.
+
+**Por qué el interruptor está en el fichero y no en una variable de entorno.**
+Estuvo en `OXIDEGATE_MCP_DISABLE_BY_DEFAULT` y falló una prueba real: el propio
+autor abrió OpenCode sin exportarla —con las instrucciones delante— y la
+función simplemente no corrió, sin ninguna pista de que estaba apagada. Un
+interruptor que hay que recordar exportar antes de arrancar un proceso está
+apagado la mayor parte del tiempo. Además dejaba la configuración incoherente:
+la lista en un fichero y el interruptor en el entorno, dos mecanismos para una
+sola función.
+
+Las dos variables (`OXIDEGATE_MCP_DISABLE_BY_DEFAULT` y
+`OXIDEGATE_MCP_ALLOWLIST`) **siguen funcionando y ganan** cuando están
+definidas, así que nada de lo que ya tengas configurado se rompe. El override
+va en las dos direcciones: `OXIDEGATE_MCP_DISABLE_BY_DEFAULT=0` apaga la
+función aunque el fichero la encienda. Y el allowlist definido y vacío
+significa "esta vez no protejas nada", que es como se ignora el fichero desde
+la línea de comandos sin editarlo.
+
+Dos comportamientos que conviene conocer antes de que te sorprendan:
+
+- **Si el fichero de config no se puede leer, no se desconecta NADA**, y se
+  avisa con la razón. Aquí una lista vacía no es un dato, es una orden: un
+  lector que degradara un JSON roto a `[]` desconectaría exactamente los
+  servidores que ese fichero existía para proteger. Ante la duda, no se toca.
+- **El aviso de conexión llega en el siguiente momento de reposo, no al
+  instante.** OpenCode no emite ningún evento de MCP — su unión `Event` tiene
+  32 miembros y ninguno lo es — así que no hay nada a lo que suscribirse y la
+  única forma de enterarse es leer el estado dos veces y comparar. El sondeo
+  cuelga de `session.idle`.
+
+---
+
+## En qué harnesses sirve
+
+Medir el costo de MCP no aplica igual en todos los asistentes de código. Algunos
+ya difieren los esquemas (Claude Code), otros llaman desde su nube y no se pueden
+medir en local (Warp), y solo uno expone un slot de UI para un panel propio
+(OpenCode). El mapa completo — con la trampa de que «acepta base_url» no significa
+«medible» — está en **[docs/COMPATIBILIDAD-HARNESSES.md](docs/COMPATIBILIDAD-HARNESSES.md)**.
+`oxidegate-savings` **no lee ese archivo**: la lógica vive escrita a mano en
+`bin/oxidegate-savings.mjs` y `lib/mcp-config.mjs`. La matriz es la explicación para
+humanos de por qué existe el bloque "disponibles vs. llegados"; mantener el código
+y el doc en sync es trabajo de quien los edita, no algo automático.
+
+---
+
+## Regenerar las capturas animadas
+
+Los GIF de este README se graban con [vhs](https://github.com/charmbracelet/vhs)
+a partir de los guiones de `docs/media/tapes/`. Usan **datos de ejemplo
+inventados** (`docs/media/demo-proxy.mjs`) y un `HOME` desechable, así que no leen
+ni escriben nada tuyo. Desde la raíz del repo:
+
+```sh
+vhs docs/media/tapes/savings.tape
+vhs docs/media/tapes/sessions.tape
+vhs docs/media/tapes/mcp.tape
+```
+
+---
+
+## Por qué es un repo aparte
+
+`oxidegate-lens` vive separado de OxideGate a propósito:
+
+- OxideGate es la fuente de verdad: un proxy en Rust con su propio ciclo de vida,
+  pruebas y versionado.
+- Esta capa de presentación cambia por otras razones (scripts, plugins de
+  editores) y depende de otras cosas (Node). Mezclarlas acoplaría el versionado
+  de un medidor con el de scripts de visualización, sin necesidad real.
+
+---
+
+## Qué está verificado y qué no
+
+**Verificado** (contra fuentes vivas):
+
+- La forma de `GET /stats` y `GET /requests` de OxideGate, probada en vivo contra
+  una instancia en el puerto 8899 — incluidos los cuatro casos que el reporte
+  distingue (todos los disponibles llegaron, algunos faltan, configuración
+  ilegible, dialecto sin primitivo de diferido), generados con peticiones reales
+  vía `curl` contra `/v1/messages` y `/v1/chat/completions`.
+- El formato de línea de `claude mcp list` (`lib/mcp-config.mjs`), probado en vivo
+  contra Claude Code `2.1.207` — incluidos nombres con espacios (`claude.ai Gmail`) y con
+  `:` (`plugin:engram:engram`), y la transformación a `mcp__<server>__<tool>` que hace el
+  propio Claude Code al armar el nombre de la tool en el body saliente.
+- El fallback de Claude Code a carga completa detrás de un `ANTHROPIC_BASE_URL`
+  no-first-party — documentado por Anthropic, y confirmado en OxideGate con un A/B con
+  grupo de control y servidor sonda (`docs/optimizer-tool-search.md` §3.1 en OxideGate).
+- La colisión de `sanitizeServerName()`, probada extrayendo la función real con
+  `"foo bar"`/`"foo_bar"`; el desborde a `(others)` con 33 servidores MCP distintos
+  contra una instancia real en el puerto 8903 (uno de ellos un nombre declarado
+  real, para confirmar que sus bytes SÍ estaban en `(others)`); un nombre de
+  servidor con `': '` adentro (`"evil: server - trap"`, vía un `.mcp.json` de
+  proyecto escrito a mano) contra `claude mcp list` real; y la nota de `native`
+  ausente cuando la tabla no trae ninguna fila `native`.
+
+**No verificado**:
+
+- La API de hooks de plugins de OpenCode (`opencode/oxidegate-lens.ts`), tomada de
+  documentación pública sin probar contra una instancia real.
+- El formato de línea de `claude mcp list` no es un contrato documentado por
+  Anthropic — es salida de CLI para humanos, verificada contra una única versión
+  (`2.1.207`). Un cambio de formato en otra versión haría que `lib/mcp-config.mjs` lo
+  reporte como "no se pudo leer" (nunca como cero) — ver FAILURE POLICY en ese
+  archivo — pero sí puede dejar de funcionar hasta que se actualice el parser.
+
+**Límite conocido, no un bug**:
+
+- La comparación "disponibles vs. llegados" asume que la configuración MCP no
+  cambió entre el momento en que se generó la petición que estás viendo y el
+  momento en que corriste el reporte — `claude mcp list` lee el estado de AHORA,
+  no el de esa petición. Para la petición más reciente esto casi nunca importa.
+- Absencia de un servidor en el cable tiene más de una causa posible (retención
+  del harness, o conexión todavía en curso — medido en
+  `docs/optimizer-tool-search.md` §3.1.4 en OxideGate) y este reporte no elige
+  entre ellas a propósito: una sola petición no trae evidencia suficiente para
+  hacerlo con honestidad.
+- `sanitizeServerName()` es NECESARIAMENTE lossy, no un bug a arreglar: Claude
+  Code colapsa cualquier carácter fuera de `[A-Za-z0-9_]` a `_` al construir
+  el nombre de servidor que viaja en el body, así que `oxidegate-lens` no
+  puede reconstruir el nombre original a partir del nombre en el cable — solo
+  puede detectar cuándo dos nombres declarados distintos colisionaron y
+  decirlo, nunca adivinar cuál llegó.
+- OxideGate trackea como máximo 32 servidores MCP distintos de forma
+  individual por petición (`MAX_TOOL_SERVERS`, `src/provider/mod.rs` en
+  OxideGate); el servidor 33.º en adelante se sigue contando en bytes, pero
+  se funde en la fila `(others)` sin nombre. Mientras esa fila exista en la
+  tabla, el bloque "disponibles vs. llegados" no puede afirmar que un
+  servidor sin fila propia no llegó — solo que no tiene fila propia.
+
+---
+
+## Enlace a OxideGate
+
+https://github.com/pichu2707/OxideGate
