@@ -32,7 +32,6 @@
 | **strukto-ai/mirage** | 3,789 |  |
 | [**learnprompt/awesome-seedance**](https://github.com/LearnPrompt/awesome-seedance) | 2,609 | 🎬 Evidence-led Seedance 2.5 / 2.0 prompt library: 840+ cases traced to original… |
 | [**devswha/ovis**](https://github.com/devswha/ovis) | 2,155 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
-| [**vshulcz/deja-vu**](https://github.com/vshulcz/deja-vu) | 1,544 | deja-vu memory for opencode: the session history of forty-two other coding… |
 | [**@kimaki/plugin-fallback**](https://github.com/remorses/kimaki) | 1,452 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
 | [**remorses/kimaki**](https://github.com/remorses/kimaki) | 1,452 | OpenCode plugin that gates tool execution with a two-stage LLM classifier, like… |
 | [**@th3akii/opencode-quota**](https://github.com/slkiser/opencode-quota) | 1,154 | OpenCode quota & tokens usage with zero context window pollution. Supports… |
@@ -42,6 +41,7 @@
 | [**with-pebbly/aseprite-ai-artist**](https://github.com/with-pebbly/aseprite-ai-artist) | 707 | Agent-native control layer for Aseprite. MCP server (2025-11-25 spec, designed… |
 | [**jazzenchen/agent-hud-open**](https://github.com/jazzenchen/agent-hud-open) | 668 | A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas,… |
 | **coldteadotai/abide** | 625 |  |
+| [**@aerovato/operator-opencode-v2**](https://github.com/aerovato/operator-memory) | 519 | Operator Memory adapter for OpenCode V2. |
 <!-- /BOARD:TOP20 -->
 
 ## 榜单
