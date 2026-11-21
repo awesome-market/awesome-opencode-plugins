@@ -1,0 +1,490 @@
+# Hetzer 🛡️
+
+<p align="center">
+  <img src="assets/hetzer-banner.jpg" alt="Hetzer credential-safety tooling" width="100%" />
+</p>
+
+<p align="center">
+  <strong>Local Credential Vault and Leak-Reduction Tools for AI Agents</strong><br>
+  <em>Regex & entropy scanner • AES-256-GCM Grimoire Vault • Dual Git commit & message guards • Canary tripwires • Agent integration skills.</em>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/hetzer"><img src="https://img.shields.io/npm/v/hetzer?style=flat-square&logo=npm" alt="npm version" /></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D22.13.0-brightgreen.svg?style=flat-square" alt="Node.js version" /></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/dependencies-0%20(pure%20Node%20stdlib)-success.svg?style=flat-square" alt="Zero External Dependencies" /></a>
+  <a href="SECURITY.md"><img src="https://img.shields.io/badge/security-AES--256--GCM%20Vault-orange.svg?style=flat-square" alt="AES-256-GCM Vault" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square" alt="License" /></a>
+</p>
+
+---
+
+## ⚡ Quickstart (Zero-Install via `npx`)
+
+Hetzer runs instantly on any machine with Node.js installed without requiring global installation:
+
+Run these in your project folder:
+
+```bash
+# 1. Create the encrypted vault. The master key goes to ~/.hetzer/keys/, outside the project,
+#    and .env, the vault and .hetzer/ are added to .gitignore.
+npx hetzer init
+
+# 2. Add agent guidance to this project, install the Git hooks, and move plaintext keys
+#    from .env into the vault (.env keeps secretRef:<id> references).
+npx hetzer protect
+
+# 3. Store another credential at a masked prompt.
+npx hetzer creds set openai-api-key
+```
+
+`protect` changes only files in the project. To also add Hetzer to agent apps installed on your machine (Claude Desktop, Cline, Hermes, Antigravity), run `npx hetzer skill install`. To install only the Git hooks, run `npx hetzer hook install`.
+
+### Permanent Installation Options:
+
+- **Via npm (recommended)**:
+  ```bash
+  npm install -g hetzer
+  ```
+- **One-Line Script (Linux & macOS)**:
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/agunggnn/hetzer/main/install.sh | bash
+  ```
+- **One-Line Script (Windows PowerShell)**:
+  ```powershell
+  irm https://raw.githubusercontent.com/agunggnn/hetzer/main/install.ps1 | iex
+  ```
+- **Via GitHub Packages (mirror, scoped name)**: needs an npm login to GitHub Packages with a token that has `read:packages`:
+  ```bash
+  npm install -g @agunggnn/hetzer --registry=https://npm.pkg.github.com
+  ```
+- **Via GitHub Repository (Latest Source)**:
+  ```bash
+  npm install -g git+https://github.com/agunggnn/hetzer.git
+  ```
+
+> [!TIP]
+> **Upgrade**: Hetzer is upgraded through npm. `hetzer upgrade` and `hetzer check-update` only print this command:
+> ```bash
+> npm install -g hetzer@latest
+> ```
+> npmjs releases come from the release workflow through npm trusted publishing (no npm token is stored in this repository), become public only after a maintainer approves them with 2FA, and carry npm provenance that links each version to the commit and workflow run that built it. To check installed versions, run `npm audit signatures` in a project that depends on `hetzer`. Provenance shows where a package was built; it is not a review of its code.
+> Coming from 0.5.x? Read [docs/upgrade-0.6.md](docs/upgrade-0.6.md) first: 0.6.0 migrates the vault file and removes commands.
+
+---
+
+## 📑 Modular Documentation
+
+For structured navigation and deep architectural insights, explore the dedicated documentation guides:
+
+| Guide | Summary & Topics |
+|---|---|
+| ⚡ **[Practical Credential-Safety Guide (`docs/vibe-coders.md`)](docs/vibe-coders.md)** | One-command setup and the boundaries developers and agent users need to understand. |
+| 🚀 **[Installation Guide (`docs/installation.md`)](docs/installation.md)** | Multi-OS setup (Ubuntu, Debian, CentOS, Windows WSL2, macOS, VPS), Docker requirements, and troubleshooting. |
+| 🏛️ **[System Architecture (`docs/architecture.md`)](docs/architecture.md)** | Grimoire Vault (AES-256-GCM), 7-layer defense shield, execution sandbox, HTTP broker, and network boundaries. |
+| 🔬 **[System Logic & Progress Tracker (`docs/system-logic-and-progress.md`)](docs/system-logic-and-progress.md)** | Deep subsystem implementation specs, execution flows, test coverage status, and upcoming roadmap. |
+| 📊 **[Measurement & Evaluation Guide (`docs/value-benchmark.md`)](docs/value-benchmark.md)** | Reproducible local measurements, comparison rules, and limits on compliance/TCO claims. |
+| 🏦 **[Enterprise & Banking Readiness (`docs/enterprise-readiness.md`)](docs/enterprise-readiness.md)** | Regulatory compliance evaluation (PCI-DSS 4.0, SOC 2, ISO 27001, OJK, Bank Indonesia), threat models, and financial hardening guide. |
+| 🔐 **[Hardware Root of Trust Roadmap (`docs/hardware-root-of-trust-roadmap.md`)](docs/hardware-root-of-trust-roadmap.md)** | Architectural evolution for Linux Kernel Keyring, TPM 2.0 platform sealing, TEE enclaves, and Codex implementation directives. |
+| 🌐 **[Model Context Protocol Guide (`docs/mcp-guide.md`)](docs/mcp-guide.md)** | Connect Hetzer to Claude Desktop, Cursor, Cline, OpenCode, FastMCP security tools, and CLI testing. |
+| 🔄 **[HTTP Credential Broker (`docs/http-credential-broker.md`)](docs/http-credential-broker.md)** | Loopback proxy injecting upstream credentials via short-lived capabilities without exposing long-lived secrets to child environments. |
+| 🛡️ **[Security Boundary & Isolation Roadmap (`docs/hetzer-vs-strongdm-analysis.md`)](docs/hetzer-vs-strongdm-analysis.md)** | Engineering analysis of implemented controls, architectural boundaries, and isolation roadmap. |
+| ☣️ **[Agent Threat Model & Sandbox Case Study (`docs/agent-sandbox-threat-model.md`)](docs/agent-sandbox-threat-model.md)** | Incident analysis of un-sandboxed agent session hijacking (*Pass-the-Cookie*), why antivirus fails, and the Sandbox-Credential Paradox. |
+
+## 📦 Node.js SDK (apiVersion 1)
+
+Hetzer now exposes a metadata-first SDK for local Node.js applications and trusted deployment tooling:
+
+```js
+import { createHetzer } from "hetzer/sdk";
+
+const hetzer = createHetzer({ root: process.cwd() });
+const credentials = hetzer.credentials.list();
+const authorization = hetzer.credentials.validate(
+  "secretRef:service-api-key",
+  { targetId: "my-service", action: "health.check" },
+);
+const result = await hetzer.execution.run({
+  command: "node",
+  args: ["worker.mjs"],
+  allow: ["secretRef:service-api-key"],
+});
+hetzer.close();
+```
+
+The SDK currently exposes credential metadata, metadata-only authorization checks, and strict scoped execution. It does not return decrypted values, replace application authentication, or provide a browser-side vault. Applications should keep references such as `secretRef:service-api-key` in configuration and run from a trusted local/CI process with an explicit allowlist.
+
+`apiVersion` is the number `1` (earlier builds reported the string `experimental-1`). Version 1 is the member list in [`docs/sdk-contract.md`](docs/sdk-contract.md), which a test keeps fixed; it has no way to resolve, reveal or lease a credential value, and lease interfaces are not part of it. The package exports only `hetzer/sdk` (`@agunggnn/hetzer/sdk` when installed from GitHub Packages), but code running as the same user can still import the vault module or read the vault file directly, so the SDK is not a boundary against untrusted code in the same process; run untrusted agents out of process in the sandbox. The CLI remains the supported human interface.
+
+---
+
+## ⚡ What is Hetzer?
+
+**Hetzer** is a local-first credential vault and command-line defense layer. It reduces accidental credential exposure in supported workflows; it is not a complete security boundary for an OS user or an AI agent with unrestricted file and process access.
+
+With Hetzer, you get:
+1. **Secret scanner**: Scans explicitly supplied text for supported provider tokens, credentialed database URLs, bounded private-key blocks, and high-entropy candidates.
+2. **Grimoire Vault (AES-256-GCM)**: SQLite-backed encrypted credential storage. Configuration can use `secretRef:<id>` in place of plaintext values.
+3. **Agent integrations & MCP Virtual Proxy**: Installs guidance and MCP configuration for Hermes Agent, Google Antigravity, OpenCode, CommandCode, Cursor, Claude, Cline, Codex, and Gemini. Virtual proxy resolves `secretRef:<id>` in tool arguments and sanitizes outgoing responses.
+4. **Dual Git Guards (`pre-commit` & `commit-msg`)**: Inspects staged filenames, diff additions before commit, and validates commit messages against raw credentials.
+5. **Canary Honey-Tokens & Active Stream Tripwires**: Deploys decoy canary tokens (`HETZER_CANARY_TOKEN`, `canary-*`). Guarded resolution aborts with exit code 43. Guarded subprocesses (`hetzer exec --canary`) terminate child processes if canary tokens leak into stdout/stderr. `hetzer canary plant` plants a decoy issued by an outside alerting service (for example canarytokens.org), so a scraper that never asks Hetzer still sets off an alert when it uses what it took.
+6. **HTTP Credential Broker**: Loopback proxy (`127.0.0.1`) injecting upstream credentials via ephemeral capabilities without exposing raw secrets to child environments.
+7. **Sandbox (`hetzer exec --sandbox`, `hetzer agent`)**: Runs a command, or a whole coding agent, with only the project visible. Engines: Docker or Podman containers (`--cap-drop=ALL`, `--pids-limit=100`, project-only mount with Hetzer-owned paths hidden), or `srt` ([Anthropic sandbox-runtime](https://github.com/anthropic-experimental/sandbox-runtime), installed separately) with no container: the home directory and Hetzer files unreadable, writes only in the project, network only to hosts you list. See [docs/agent-sandbox.md](docs/agent-sandbox.md).
+
+All built with **0 external npm dependencies** (100% Node.js standard library: `node:crypto`, `node:sqlite`, `node:fs`, `node:perf_hooks`).
+
+---
+
+## Security boundary
+
+| Control | Covered | Boundary |
+|---|---|---|
+| Vault at rest | AES-256-GCM encryption with a unique random IV and authenticated metadata; `hetzer init` keeps the master key outside the workspace (`~/.hetzer/keys/`) | A process running as the same OS user can read both the database and the key file and decrypt entries; the sandbox hides both |
+| Sandbox | Project-only view: containers mount only the project; `srt` denies reads of the home directory and Hetzer files, writes outside the project, and network except listed hosts | Not a VM: kernel or engine vulnerabilities, and anything you re-open with `--sandbox-allow-*`, are outside it; container engines allow outbound network unless `--sandbox-network none` |
+| `hetzer exec` | Mediates selected HTTP credentials through reviewed broker policies; raw injection requires an explicit audited opt-out | Raw-opted-out values exist in child memory; transformed output, direct device/file/network writes, and unrelated processes remain outside this path |
+| Scanner | Supported patterns, database URLs, private-key blocks up to 16 KiB, and high-entropy candidates | Pattern matching can produce false positives and false negatives |
+| Git hooks | Staged `.env` filenames, diff additions (`pre-commit`), and commit message text (`commit-msg`) | Hooks can be bypassed via `--no-verify` and do not scan past repository history |
+| Canary tripwires | Guarded resolution, reveal, and subprocess stream outputs (`hetzer exec --canary`); external decoys (`hetzer canary plant`) alert through the service that issued them when used | Local tripwires do not detect out-of-band disk reads; an external decoy alerts only when it is used, not when it is read, and only through that service |
+| MCP proxy | Resolves `secretRef:<id>` in tool payloads, enforces canary checks, and sanitizes tool outputs | Covers integrated FastMCP requests; does not intercept external or unmanaged tool calls |
+| Agent skills | Instructions and MCP metadata-only vault tools | Instructions do not enforce access control against the local OS user |
+
+---
+
+## 🏛️ System Topology
+
+```mermaid
+flowchart TB
+    subgraph Clients["AI Clients & Developer Interfaces"]
+        CLI["Hetzer CLI\n(hetzer exec / creds / mcp)"]
+        Claude["Claude Desktop / Code"]
+        Cursor["Cursor IDE"]
+        Hermes["Hermes Agent"]
+        AGY["Google Antigravity (AGY)"]
+        OpenCode["OpenCode / CommandCode"]
+        GitCommit["Git Commit Guard Hook\n(.git/hooks/pre-commit)"]
+    end
+
+    subgraph HostPlane["Hetzer Command Plane (Host Process)"]
+        SecretSniffer["Secret Scanner\n(Regex Rules + Entropy Detector)"]
+        GrimoireVault[("Grimoire Vault\nSQLite WAL + AES-256-GCM\ndata/hetzer-vault.db")]
+        MCPBridge["Universal MCP Bridge\n(stdio & JSON-RPC Protocol)"]
+        HTTPBroker["HTTP Credential Broker\n(127.0.0.1 Loopback Proxy)"]
+        CanaryEngine["Canary Tripwire Engine\n(Exit Code 43 on Stream Leak)"]
+    end
+
+    subgraph ExecutionPlane["Guarded Execution Environments"]
+        SubprocessHost["Guarded Host Process\n(Stream Redactor + Strict Scoping)"]
+        ContainerSandbox["Ephemeral Container Sandbox\n(Docker / Podman: --cap-drop=ALL,\nno host AppData mount)"]
+    end
+
+    CLI --> GrimoireVault
+    CLI --> HTTPBroker
+    CLI --> MCPBridge
+    GitCommit --> SecretSniffer
+    Claude -.->|"stdio MCP"| MCPBridge
+    Cursor -.->|"stdio MCP"| MCPBridge
+    Hermes -.->|"stdio MCP"| MCPBridge
+    AGY -.->|"Native Skill"| GrimoireVault
+    OpenCode -.->|"Native Skill"| GrimoireVault
+
+    CLI -->|"hetzer exec"| SubprocessHost
+    CLI -->|"hetzer exec --sandbox"| ContainerSandbox
+    SubprocessHost -.->|"Ephemeral Tokens"| HTTPBroker
+    ContainerSandbox -.->|"Loopback Bridge"| HTTPBroker
+```
+
+---
+
+## Credential defense layers
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     HETZER SEVEN-LAYER DEFENSE MATRIX                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 1: Explicit Secret Scanner                                            │
+│  ► Scans input passed to CLI/MCP scanner, staged Git diffs & commit messages. │
+│  ► Redaction reports whether each detected value was successfully vaulted.  │
+│  ► Agent prompts outside integrated paths are not intercepted.               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 2: Real-Time Stream Sanitizer & Ephemeral Scoping (hetzer exec)      │
+│  ► Intercepts child process stdout/stderr in memory before terminal emit.   │
+│  ► Known injected values are redacted even when split across output chunks. │
+│  ► Terminal controls and supported long structured values are filtered.     │
+│  ► --strict starts minimal; broker policies replace refs with capabilities. │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 3: Anti-Reflection Execution Guard                                   │
+│  ► Blocks reflection commands ('printenv', 'env', 'export', 'docker inspect'│
+│    and inline 'os.environ' scripts) before process spawning.                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 4: TTY and Process Ancestry Safeguards                               │
+│  ► Validates process.stdin.isTTY and sniffs autonomous agent env flags.     │
+│  ► Traverses 5 generations of parent processes (PPID) to block autonomous   │
+│    recognized agent processes before allowing 'hetzer creds reveal'.         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 5: Native OS Confirmation                                              │
+│  ► Launches native OS modal dialogs (Windows Forms / AppleScript / Zenity). │
+│  ► Every plaintext reveal requires a native modal confirmation.              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 6: Dynamic Canary Honey-Tokens & Active Stream Tripwires             │
+│  ► Deploys enticing decoy canary tokens ('HETZER_CANARY_TOKEN') into .env.  │
+│  ► Guarded resolution/reveal attempts abort with exit code 43 and log alert.│
+│  ► 'hetzer exec --canary' monitors child streams; any detected canary leak   │
+│    instantly terminates child process tree (taskkill / SIGKILL) & aborts.   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Layer 7: Master Key Workspace Isolation (~/.hetzer/grimoire.key)           │
+│  ► 'hetzer creds isolate-key' relocates master key out of project directory │
+│    with 0600 POSIX permissions. Same-user processes may still read it.       │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Performance measurement
+
+Scanner latency varies with input length, candidate count, CPU, Node version, and cold-start effects. The Git hook also starts Git subprocesses, so scanner microbenchmarks must not be presented as end-to-end hook latency. Run `node benchmarks/vault-bench.mjs` and measure `hetzer hook check` on the target repository before setting a performance objective.
+
+---
+
+## 🏦 Using Hetzer in a Regulated Environment
+
+Hetzer can contribute technical evidence to a broader security program, but this repository has not been independently audited or certified against the frameworks below.
+
+### 🎯 Strategic Enterprise Role: The "Agent Sidecar Armor"
+Banks deploying AI coding agents (Claude Code, Cursor, Copilot, Antigravity) face an acute compliance threat: **engineers accidentally leaking core-banking API keys, staging database URLs, or customer PII into third-party LLM context windows**.
+
+Hetzer acts as a client-side **Defense-in-Depth Armor**:
+- **0 runtime npm dependencies** reduces one source of dependency risk. Node.js, Hetzer itself, container images, and installers remain in the supply chain.
+- **Explicit scanning and guarded execution** reduce exposure in the paths that invoke them.
+- **Git Pre-Commit Guard** blocks supported patterns and `.env` filenames when the hook runs.
+- **AES-256-GCM encryption** protects vault values at rest while the master key remains separate and protected.
+
+### 📋 Compliance Quick Reference
+
+| Framework / Regulation | Control Scope | Hetzer Capability & Verdict |
+|---|---|:---:|
+| **PCI DSS v4.x** | Vault encryption and development leak detection may support selected controls | Requires a scoped assessment; the Git hook does not establish payment-page script control 6.4.3 |
+| **SOC 2** | Audit records and credential handling may support control evidence | Compliance applies to an audited organization and system, not this component alone |
+| **ISO/IEC 27001:2022** | Cryptography and secure-development features may support selected controls | Certification requires an assessed information-security management system |
+| **OJK / Bank Indonesia** | Local storage and leak-reduction controls may form part of an implementation | Applicability and sufficiency require qualified legal and regulatory review |
+
+> 📖 **Read the Complete Technical Whitepaper**: For full regulatory analysis, threat vector models, and enterprise deployment blueprints, see **[Enterprise & Banking Readiness Guide (`docs/enterprise-readiness.md`)](docs/enterprise-readiness.md)**.
+
+---
+
+## Universal AI Agent Skills (no Docker required)
+
+Install credential-handling guidance across the supported AI coding agents. The installed files consume disk space and the CLI uses memory when invoked.
+
+```bash
+# Install into this project and into the agent apps installed on your system:
+hetzer skill install
+
+# Or run instantly via npx:
+npx hetzer skill install
+```
+
+Files outside the project (Hermes, Antigravity's global skill, Claude Desktop and Cline settings) are written only when that app's directory already exists. `hetzer protect` installs the project files only.
+
+### Supported Platforms:
+- **Hermes Agent**: Installed to `~/.hermes/skills/hetzer/SKILL.md` (`globalOnly: true`) and hooked into `~/.hermes/config.yaml`.
+- **Google Antigravity (AGY)**: Installed to `.agents/skills/hetzer/SKILL.md` (workspace), `~/.gemini/config/skills/` (global), and `AGENTS.md`.
+- **OpenCode & CommandCode**: Installed to `.opencode/skills/hetzer/` and `.commandcode/skills/hetzer/` with `AGENTS.md` entry pointers.
+- **Cursor IDE**: Installed to `.cursor/rules/hetzer.mdc`, `.cursor/skills/hetzer/`, and `.cursorrules`.
+- **Claude Desktop & Code**: Configured in `claude_desktop_config.json` via native stdio MCP and `.claude/skills/`.
+- **Cline / Roo Code**: Configured in `cline_mcp_settings.json` and `.clinerules`.
+
+Check the installation status of all agents on your machine:
+```bash
+hetzer skill status
+```
+
+### 🔌 MCP Virtual Credential Proxy
+Hetzer includes a built-in FastMCP protocol server (`cli/mcp/protocol.mjs`) compatible with modern (`2026-07-28`) and legacy (`2025-11-25`) MCP specifications:
+- **Zero-Plaintext Tool Payloads**: AI agents pass abstract references (e.g. `secretRef:openai-api-key`) in tool call arguments. The proxy resolves secrets just-in-time in memory before upstream execution.
+- **Canary Tripwire Guard**: Tool calls containing decoy canary references immediately trigger security alerts and abort with exit code 43.
+- **Response Sanitization**: All tool outputs are recursively sanitized through Hetzer's stream redactor before returning to the LLM agent, blocking credential leakage in tool responses.
+
+---
+
+## 🛡️ Dual Git Guard Hooks (Pre-Commit & Commit-Msg)
+
+Prevent accidental credential leaks before they ever reach GitHub:
+
+```bash
+# Install both hooks to .git/hooks/ (pre-commit and commit-msg)
+hetzer hook install
+
+# Check staged diff manually
+hetzer hook check
+
+# Validate a commit message manually
+hetzer hook check-msg .git/COMMIT_EDITMSG
+
+# Uninstall both hooks if no longer needed
+hetzer hook uninstall
+```
+
+When installed, Hetzer provides dual-phase protection:
+1. **Pre-Commit Guard**: Inspects staged files and diff additions for supported credential patterns and `.env` files. Test fixtures (`*.test.*`, `test/`, `fixtures/`) and agent call IDs are safely exempted.
+2. **Commit-Msg Guard**: Verifies commit message text (`COMMIT_EDITMSG`), blocking commits that accidentally embed tokens, passwords, or API keys in the commit summary or description.
+
+Example of a blocked commit:
+```text
+================================================================================
+  🛑 HETZER ARMOR: GIT COMMIT BLOCKED (TOKEN LEAK DETECTED!)
+================================================================================
+  Scan Latency : 183.00 ms
+  Violations   : Detected 1 raw credential in staged changes:
+
+  * src/config.js:14 -> [OPENAI_API_KEY] OpenAI secret key
+
+  HOW TO FIX:
+  1. Save credential to Vault : hetzer creds set openai-api-key
+  2. Replace in your code with: secretRef:openai-api-key
+================================================================================
+```
+
+---
+
+## 🪤 Canary Honey-Tokens & Active Stream Tripwires
+
+Detect unauthorized credential harvesting and prompt injection attempts targeting AI agents:
+
+```bash
+# Deploy decoy canary honey-token into .env
+hetzer canary setup
+
+# Execute child process with active stream canary monitoring
+hetzer exec --canary -- npm test
+```
+
+### Tripwire Mechanisms:
+- **Decoy Honey-Tokens**: `hetzer canary setup` binds `HETZER_CANARY_TOKEN=secretRef:canary-token` in `.env`. Attempting to resolve, inspect, or reveal canary credentials (`canary-token`, `canary-*`, `decoy-*`) triggers `ERR_CANARY_TRIPWIRE_TRIGGERED` (`exitCode 43`) and records an incident to `data/hetzer-incidents.log`.
+- **Subprocess Stream Kill**: When running commands with `hetzer exec --canary`, dynamic decoy tokens (`canary_trap_<hex>`) are injected into the child environment. Hetzer continuously buffers and scans stdout and stderr streams; if the decoy token leaks into output, Hetzer **instantly terminates the entire child process tree** (`taskkill /PID /T /F` on Windows, `SIGKILL`/`SIGTERM` on POSIX), halts output forwarding, and aborts with exit code 43.
+
+---
+
+## 🛠️ CLI Command Cheat Sheet
+
+All Hetzer commands are executed via the `hetzer` CLI:
+
+| Command | Description |
+|---|---|
+| `hetzer doctor [--fix]` | Validates system prerequisites, Node.js version, and container engine compatibility |
+| `hetzer init [dir]` | Initializes a new Hetzer instance, creates Grimoire Vault, and secures `.env` |
+| `hetzer creds [list|request|approve|status|reveal|set]` | Lists, requests, approves, checks, reveals, or saves Grimoire Vault credentials |
+| `hetzer creds reveal <id>` | Decrypts and prints plaintext after TTY, process-tree, and required native-modal checks |
+| `hetzer creds set <id>` | Encrypts and saves a credential via AES-256-GCM using a masked prompt; requires a direct human TTY |
+| `hetzer creds request <id>` | Creates a short-lived metadata-only request an agent can hand off to a human |
+| `hetzer creds approve <request-id>` | Human-only masked approval that stores the requested credential without returning its value |
+| `hetzer creds status <request-id>` | Reports only `pending`, `approved`, or `expired` |
+| `hetzer creds isolate-key` | Moves a master key from the workspace `.env` (builds before 0.7.0) to `~/.hetzer/keys/<instance-id>.key` (mode 0600) |
+| `hetzer canary [setup]` | Deploys decoy canary honey-tokens to catch prompt injection & scraping |
+| `hetzer canary plant <file> --var NAME` | Plants a decoy from an outside alerting service in an untracked bait file; `canary list` and `canary remove <id>` manage them |
+| `hetzer audit [verify [--require-mac]\|tail [n]\|rotate --yes]` | Verifies the SHA-256 hash-chain (and MACs), inspects the tamper-evident audit ledger, or archives it and starts a new one |
+| `hetzer exec [--allow <ids>] [--policy <file>] [--sandbox [image]] [--sandbox-mount <dir>] [--host] [--strict] [--canary] [--timeout <t>] -- <c>` | Runs with broker-mediated credentials, transient container sandbox, stream redaction, and canary tripwire |
+| `hetzer exec --sandbox-engine srt [--sandbox-allow-host <host>] -- <c>` | Runs the command under `srt` with no container: home unreadable, writes only in the project, network only to listed hosts |
+| `hetzer agent [--sandbox-allow-host <host>] [--sandbox-allow-read <dir>] [--sandbox-allow-write <dir>] -- <agent>` | Runs a whole coding agent inside the sandbox (`srt` by default) with no credentials unless `--allow` names them |
+| `hetzer broker --policy <file> -- <c>` | Runs an HTTP client using short-lived capability instead of real credentials |
+| `hetzer protect` | Arms workspace with credential-safety guidance, Git pre-commit hook, and .env protection |
+| `hetzer sniffer [scan\|redact]` | Scans or redacts supported credential candidates from input text |
+| `hetzer skill [install\|status]`| Deploys Universal AI Agent Skills to Hermes, AGY, OpenCode, Cursor, Claude |
+| `hetzer hook [install\|uninstall\|check\|check-msg]` | Installs or tests Dual Git Guards (`pre-commit` staged diff & `commit-msg` text) |
+| `hetzer mcp ping [service]` | Diagnoses JSON-RPC handshake and latency for MCP endpoints |
+| `hetzer mcp tools [service]` | Lists MCP tools and their execution classification |
+| `hetzer mcp call <srv> <tool>` | Invokes an MCP tool directly from the terminal without an AI client |
+| `hetzer version` | Displays the installed Hetzer version |
+| `hetzer check-update` | Deprecated and removed: prints the npm command that upgrades Hetzer and exits with code 1 |
+| `hetzer upgrade` | Deprecated and removed: prints the npm command that upgrades Hetzer and exits with code 1 |
+| `hetzer publish` | Deprecated and removed: prints a pointer to the release workflow and exits with code 1 |
+| `hetzer up [srv\|all] [--wait]` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer down [-v]` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer status` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer logs [service]` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer tui` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer update [module]` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer modules` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer install <module>` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer remove <module>` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer module create <id>` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+| `hetzer validate [module]` | Deprecated and removed in 0.6.0: prints a removal notice and exits with code 1 |
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+### 1. Can I reveal and inspect credentials stored in the Vault?
+**Yes, absolutely.** As the machine owner and terminal administrator, you have full authority to inspect and decrypt your secrets anytime:
+```bash
+# List all stored credential IDs and status
+hetzer creds list
+
+# Decrypt and reveal the actual secret value (AES-256-GCM)
+hetzer creds reveal npm-token
+```
+
+### 2. Can AI Agents (Claude, Cursor, Cline, GPT) see these credentials?
+Hetzer keeps plaintext out of MCP vault-list and vault-existence responses, resolves references just-in-time via its MCP virtual proxy, and mediates selected `hetzer exec` credentials through reviewed HTTP broker policies. This reduces leakage while maintaining operational reality:
+- The MCP tools exposed to AI (`hetzer_vault_has` and `hetzer_vault_list`) **only return metadata** and abstract reference strings (`secretRef:<id>`).
+- **No `reveal` tool is exposed by Hetzer's MCP server**.
+- **MCP Virtual Credential Proxy**: When an agent invokes an MCP tool, it passes references like `secretRef:<id>`. Hetzer resolves this just-in-time for upstream execution, checks for honeytokens, and recursively sanitizes outgoing tool responses before context delivery.
+- **Canary Tripwires**: Any attempt by an autonomous agent or injected prompt to access canary credentials (`canary-token`, `canary-*`, `decoy-*`) triggers a critical security incident and aborts with `exitCode 43`.
+- Credentials explicitly permitted with `--allow-raw-unmediated` exist in child environment and memory. The opt-out is audited and must also be permitted by a declarative execution policy when one is active. These are application safeguards rather than full OS sandboxing.
+- Agent instructions do not intercept arbitrary prompts, files, debuggers, alternate processes, or tools. Use OS account separation and a centrally managed secret system for hostile-code boundaries.
+
+### 3. What credential scenarios does Hetzer support?
+Grimoire Vault can store arbitrary values up to its configured size limit. Automatic scanning recognizes a narrower set:
+- **Provider tokens**: OpenAI, Anthropic, Google Gemini, npm, GitHub, Slack, AWS access-key IDs, and JWT-shaped strings.
+- **Service & Database Passwords**: 9Router admin passwords, PostgreSQL, Redis, MySQL credentials.
+- **Private keys**: PKCS#8 and algorithm-prefixed PEM private-key blocks up to 16 KiB.
+- **Database Connection URIs**: `postgresql://user:pass@host:5432/db`, `mongodb+srv://...`, `redis://...`.
+- **High-entropy candidates**: 24–512 character candidate strings above the entropy threshold. Review false positives and false negatives.
+
+### 4. Who does Hetzer protect you from?
+- **Third-party AI vendors**: References reduce exposure when users and agents follow the installed guidance and use the integrated scanner paths.
+- **Accidental Git exposure**: Dual Git guards catch supported candidates and staged `.env` filenames (`pre-commit`), and block secrets in commit messages (`commit-msg`) unless hooks are bypassed.
+- **Other OS accounts**: POSIX mode `0600` restricts ordinary cross-account access. Administrators, the same account, backups, and platform-specific ACL behavior remain in scope.
+
+### 5. How do I achieve maximum security on production servers?
+`hetzer init` writes the master key to `~/.hetzer/keys/<instance-id>.key`, outside the workspace. If you prefer not to store `HETZER_GRIMOIRE_KEY` on disk at all, provide it strictly via the in-memory terminal environment:
+```bash
+export HETZER_GRIMOIRE_KEY="your-private-master-key"
+```
+Under this model, zero decryption keys exist on disk. Anyone copying the database cannot decrypt its contents without your in-memory master key.
+
+---
+
+## 🗑️ Complete Uninstallation & Teardown
+
+To cleanly remove Hetzer from your machine:
+
+```bash
+# 1. Uninstall global CLI binary
+npm uninstall -g hetzer
+
+# 2. Clean up project files
+cd .. && rm -rf hetzer
+```
+
+## 🙏 Acknowledgements & Inspirations
+
+Hetzer stands on the shoulders of giants. We express our deepest gratitude and respect to the pioneering tools, architectures, and open-source communities that inspired Hetzer's design:
+
+- 🏛️ **[HashiCorp Vault](https://github.com/hashicorp/vault)** (*HashiCorp / Mitchell Hashimoto*): The gold standard in secret management, transit encryption, and decoupled credential architecture that inspired the Grimoire Vault and `secretRef:` design.
+- ⚡ **[1Password CLI (`op run`)](https://developer.1password.com/docs/cli/)** & **[Doppler](https://github.com/DopplerHQ/cli)**: Pioneers of out-of-band ephemeral secret injection into child processes without ever storing secrets in plaintext files.
+- 🔍 **[TruffleHog](https://github.com/trufflesecurity/trufflehog)** (*Truffle Security*) & **[Gitleaks](https://github.com/gitleaks/gitleaks)** (*Zachary Rice*): High-speed regex and Shannon entropy scanners that defined modern Git credential leakage prevention.
+- 🌐 **[Model Context Protocol (MCP)](https://github.com/modelcontextprotocol)** (*Anthropic*): The open standard that enables autonomous AI clients to seamlessly and safely consume local tools and defense boundaries.
+- 🚦 **[9Router](https://github.com/decolua/9router)** (*Decolua*): High-performance multi-provider local AI model router, fallback balancer, and reverse proxy.
+- 🧠 **[Cognee](https://github.com/topoteretes/cognee)** (*Topoteretes*): Advanced tri-layer relational, vector, and knowledge graph persistent memory engine for autonomous agents.
+- 🛡️ **[LLM-Guard](https://github.com/protectai/llm-guard)** (*Protect AI*): Pioneered real-time LLM input/output scanning and token redaction before context transmission.
+- 🤖 **Autonomous AI Agent Ecosystems**:
+  - **[Hermes Agent](https://github.com/NousResearch/Hermes-Function-Calling)** (*NousResearch*)
+  - **[Google Antigravity (AGY)](https://github.com/google)**
+  - **[Cursor IDE](https://cursor.com)**
+  - **[Cline](https://github.com/cline/cline)** (*Roo Code*)
+  - **OpenCode & CommandCode**  
+  Their work on agentic developer workflows highlighted the need for practical client-side credential safeguards.
+
+---
+
+## 📄 License
+
+Distributed under the **Apache-2.0** License. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for complete legal details.

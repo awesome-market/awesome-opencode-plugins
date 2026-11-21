@@ -1,0 +1,341 @@
+# agency-rules
+
+**Write rules once. Run them everywhere.**
+
+[![Documentation](https://img.shields.io/badge/docs-online-4f46e5)](https://deuriib.github.io/agency-rules/)
+
+`agency-rules` compiles a single set of generic Markdown rules into the
+native formats expected by **Google Antigravity**, **pi-agent**,
+**oh-my-pi (omp)**, **OpenCode** (via the [opencode-rules](https://github.com/frap129/opencode-rules) plugin),
+**Cursor**, **Claude Code**, and **GitHub Copilot**.
+
+The whole pipeline — toolchain, environment, and tasks — is managed by
+[mise](https://mise.jdx.dev), so every collaborator and CI runner uses the
+exact same Node version and the exact same commands.
+
+---
+
+## Why
+
+Every coding agent has its own rule format:
+
+| Harness (`--harness` id) | Format | Location |
+| --- | --- | --- |
+| `antigravity` — Google Antigravity | YAML frontmatter with `trigger` | `.agents/rules/*.md` |
+| `piAgent` — pi-agent | Per-rule directory with `RULES.md` | `.pi/agent/rules/<slug>/RULES.md` |
+| `ohMyPi` — oh-my-pi (omp) | Markdown with frontmatter | `.omp/rules/*.{md,mdc}` |
+| `opencode` — OpenCode | Markdown via [opencode-rules](https://github.com/frap129/opencode-rules) plugin | `.opencode/rules/*.md` |
+| `cursor` — Cursor | Markdown with `description` / `globs` / `alwaysApply` | `.cursor/rules/*.mdc` |
+| `claudeCode` — Claude Code | Markdown with `paths` for conditional loading | `.claude/rules/*.md` |
+| `copilot` — GitHub Copilot | Markdown with `applyTo` globs (comma-separated) | `.github/instructions/*.instructions.md` |
+
+**pi-agent needs a loader.** Pi does not read `<agent-dir>/rules` on its own, so
+`piAgent` output is only live when a rules extension is installed — the
+reference one reads each `RULES.md`, puts its `name` and `description` in the
+system prompt, and exposes the body through a `read_rule` tool. That loader
+resolves rules from `<agent-dir>/rules`, which is why the project destination
+mirrors it as `.pi/agent/rules` rather than `.pi/rules`: a path the compiler
+writes and the loader never reads installs cleanly and reaches no prompt.
+Every other harness here is read natively by its agent.
+
+Writing the same rule seven times is a maintenance nightmare. `agency-rules`
+lets you write it **once** in a neutral format and compile it to all seven
+with a single command, driven by a declarative contract (`tools.json`).
+
+---
+
+## Global CLI Usage
+
+You can also use `agency-rules` directly via `npx` without cloning the repository:
+
+```bash
+# Scaffold a new rule skeleton
+npx agency-rules new api-review --description "Use when reviewing REST endpoints, to catch missing validation."
+
+# Validate rules
+npx agency-rules validate
+
+# Score textual overlap between rules (fails above the gate)
+npx agency-rules eval
+
+# See which rules are installed, and whether they still match the compiled output
+npx agency-rules list --harness antigravity
+
+# Compile rules
+npx agency-rules convert
+
+# Install rules interactively
+npx agency-rules install
+```
+
+`new` refuses a slug that already exists, a slug that is not kebab-case, and a
+missing `--description` — the description is the only field a harness can match
+on, so it cannot be generated as a placeholder.
+
+### Catching duplication
+
+The most common defect in a growing rule set is a rule that restates one that
+already exists, which produces two sources of truth that drift apart. `eval`
+measures it instead of trusting review:
+
+```bash
+npx agency-rules eval                  # gate at 10% of a rule's units restated
+npx agency-rules eval --json           # machine-readable
+npx agency-rules eval --rule devops    # evidence for one rule
+```
+
+Every mode gates on the same thing, so `--json` and `--rule` cannot report a
+defect and still exit 0: a contradiction fails `eval` whichever flag you ran it
+with, and `--rule` gates on that rule's own overlap share and contradictions.
+
+It splits each body into units (a bullet or a sentence), compares them on
+word-pair overlap, and reports the **share of a rule that already exists
+elsewhere**, per rule and per pair. The gate requires both a percentage and a
+minimum unit count, so one shared sentence in a small rule cannot fail a build.
+
+The same command also checks for **numeric contradictions** — two rules stating
+the same obligation with a different number, which is worse than duplication
+because a reader trusts whichever they saw first:
+
+```text
+❌ 1 numeric contradiction(s) — same subject, different number
+   87.5%  contracts [60|day] vs post-sale [90|day]
+          **No auto-renewal without review**, and the review runs in two ordered windows
+          **Auto-renewals are reviewed 90 days before expiry** — the commercial conversation
+```
+
+The subject of a claim is taken as the words around the number, not the whole
+sentence: two rules can state one obligation with completely different surrounding
+clauses. Output reports **how many claims were compared** alongside the result,
+because "no contradictions" means little without the denominator — the check is
+deliberately conservative and a contradiction phrased in unrelated vocabulary
+around the number will not be caught.
+
+---
+
+## Quick Start
+
+**Prerequisite:** [mise](https://mise.jdx.dev/getting-started.html) —
+`curl https://mise.run | sh` or `brew install mise`. It is the only thing you
+install by hand; it pins everything below.
+
+The only supported path from a fresh clone to an install you can verify. Six
+steps, one owner each — the same six the DX runbook gates on
+([`docs/dx/`](docs/dx/SCORECARD.md)).
+
+| # | Step | Command | Owner |
+| --- | --- | --- | --- |
+| 1 | **Clone** | `git clone https://github.com/deuriib/agency-rules.git` | DX Engineer |
+| 2 | **Bootstrap** | `mise install` — pins Node 22, uv, and Biome, then `npm ci` runs from the `postinstall` hook | Platform Engineer |
+| 3 | **Run** | `mise run convert` — compiles `rules/` → `integrations/<harness>/` | Platform Engineer |
+| 4 | **Test** | `mise run ci` — validate → eval → lint → convert → test → docs | Developer Tooling Engineer |
+| 5 | **Deploy** | `mise run install --all --scope project` | DevOps Automator |
+| 6 | **Observe** | `mise run list --harness copilot` — every row reads `✅ synced` | SRE |
+
+```bash
+git clone https://github.com/deuriib/agency-rules.git
+cd agency-rules
+mise install
+mise run convert
+mise run ci
+mise run install --all --scope project
+mise run list --harness copilot
+```
+
+**Stuck?** See [Troubleshooting](docs/TROUBLESHOOTING.md) — every stall on the path above, in the order you hit it, with the exact output and the one command that clears it.
+
+**Why `--all` and not detection.** Step 5 has no harness to detect on a fresh
+clone: detection reads the directories on your machine, and none exist yet, so
+plain `mise run install --scope project` warns and installs nothing — a zero
+exit that leaves you with no rules and no error to explain it. `--all` writes
+to every destination `tools.json` declares instead:
+`.agents/rules/`, `.pi/agent/rules/`, `.omp/rules/`, `.opencode/rules/`,
+`.cursor/rules/`, `.claude/rules/`, `.github/instructions/`.
+
+Those seven directories are build output of `rules/` and are gitignored. The one
+file `install` may create outside them is an OpenCode config for the
+`opencode-rules` plugin; if a config already registers plugins, it says so and
+writes nothing rather than creating a second file that would shadow it.
+
+---
+
+## Repository layout
+
+```
+agency-rules/
+├── rules/                  ← source of truth (Markdown + YAML frontmatter)
+├── integrations/           ← compiled output (generated, gitignored)
+├── bin/                    ← the CLI entry point
+├── scripts/                ← convert, install, validate, docs generator + renderers
+├── tests/                  ← node:test suites: renderers, CLI contract, docs, documented path
+├── docs/                   ← product docs + the MkDocs site source
+├── hooks/                  ← MkDocs build hook (edit links on generated pages)
+├── mkdocs.yml              ← site config (Material theme)
+├── requirements-docs.txt   ← pinned MkDocs toolchain (uv)
+├── tools.json              ← the conversion contract
+└── mise.toml               ← toolchain + tasks
+```
+
+---
+
+1. **Validate**: `mise run validate`.
+2. **Convert**: `mise run convert` and inspect `integrations/`.
+3. **Test**: `mise run test`.
+
+## Commands
+
+All commands go through mise:
+
+| Command | What it does |
+| --- | --- |
+| `mise run setup` | Install Node dependencies (`npm ci`) |
+| `mise run create-rule -- <slug> --description "…"` | Scaffold a new rule skeleton |
+| `mise run validate` | Validate every rule's frontmatter against `rules/_schema.json` |
+| `mise run eval` | Score textual overlap between rules (fails above the gate) |
+| `mise run check` | Format + lint + organize imports with Biome (write mode) |
+| `mise run check:ci` | Verify formatting and linting without writing |
+| `mise run convert` | Compile `rules/` → `integrations/<harness>/` |
+| `mise run convert:dry-run` | Preview which files `convert` would write (no writes) |
+| `mise run install` | Sync compiled output into harness directories |
+| `mise run install:dry-run` | Preview which files `install` would copy (no writes) |
+| `mise run test` | Run the Node test suite |
+| `mise run docs:build` | Generate the rule library, then build the docs site into `site/` |
+| `mise run docs:serve` | Serve the docs site locally with live reload |
+| `mise run ci` | Full pipeline (`validate` → `eval` → `check:ci` → `convert` → `test` → `docs:build`), read-only |
+
+See `mise tasks` for the up-to-date list.
+
+### Dry-run workflow
+
+The typical inner loop uses dry-runs first to inspect what will change
+before anything hits disk:
+
+```bash
+mise run convert:dry-run            # see generated file paths + sizes
+mise run convert                    # actually write to integrations/
+mise run install:dry-run -- --all   # see copy destinations
+mise run install -- --all           # actually copy into harness dirs
+```
+
+### Interactive installer
+
+Run `mise run install` (or `npx agency-rules install`) with no arguments and it
+asks three questions instead of guessing:
+
+```text
+🎯 Select harnesses to install into:
+  1) antigravity (Google Antigravity)
+  2) piAgent (Pi Coding Agent)
+  ...
+  5) cursor (Cursor)
+  6) claudeCode (Claude Code)
+  7) Detect automatically
+  8) All harnesses
+
+🌍 Select installation scope:
+  1) project (local to this repo)
+  2) user (global for your user)
+
+📚 Select rules to install:
+  1) agentmemory
+  2) architecture
+  ...
+  all) All
+```
+
+- **Harnesses** accepts a comma-separated list (`1,5`), `detect` to use the
+  directories already on your machine, or `all` to ignore detection.
+- **Scope** decides which destination column in `tools.json` is used.
+- **Rules** reads its list from the compiled manifests of the harnesses you
+  picked, so you can never select a rule that was not built for them. Enter
+  selects everything.
+
+Every prompt is skipped when the equivalent flag is supplied, so scripted runs
+never block:
+
+```bash
+npx agency-rules install --harness cursor --scope project --rules typescript,go
+```
+
+`install` is also a **sync**, not a blind copy: each rule is classified as
+`🆕 added`, `🔄 updated`, or `⏭️ unchanged (skipped)`, and only the first two are
+written. An unchanged file keeps its mtime, which matters because a harness
+watching its rules directory treats a timestamp bump as a reload.
+
+Two cases that used to look like success now fail loudly: a `--rules` list that
+matches nothing in the compiled output, and an explicitly requested `--harness`
+whose `integrations/` does not exist. Both exit 1 instead of printing
+`🎉 Installed 0 file(s)`, and both are decided **before** anything is copied, so
+a failing run leaves your harness config untouched. `install` with **nothing
+auto-detected** is still a zero exit — that is a legitimate no-op — so read the
+output rather than trusting the status code alone.
+
+To see where you stand at any time:
+
+```bash
+npx agency-rules list --harness cursor
+# ✅ synced   installed and matches the compiled output
+# 🔄 modified installed, but your local copy differs (edited, or not re-installed)
+# ⬜ missing  compiled, never installed
+# ❓ unbuilt  in rules/, never compiled
+```
+
+---
+
+## Adding a rule
+
+1. Create `rules/<category>/<slug>.md` following
+   [`docs/RULE-SPEC.md`](docs/RULE-SPEC.md).
+2. Run `mise run validate` — it must pass.
+3. Run `mise run convert` — inspect `integrations/` to sanity-check output.
+4. Open a PR.
+
+---
+
+## Adding a harness
+
+See [`docs/ADDING-A-HARNESS.md`](docs/ADDING-A-HARNESS.md). It's roughly:
+
+1. Add an entry in `tools.json`.
+2. Add a renderer in `scripts/lib/renderers/`.
+3. Register the renderer in `scripts/lib/renderers/index.mjs`.
+4. Add tests in `tests/convert.test.mjs`.
+
+The conversion engine itself never changes.
+
+---
+
+## Documentation
+
+The full documentation is published at
+**<https://deuriib.github.io/agency-rules/>** — built with MkDocs Material from
+the pages in `docs/`, and deployed by `.github/workflows/docs.yml`.
+
+- [Installation and first run](docs/getting-started.md) — prerequisites, compile, install, verify.
+- [CLI reference](docs/cli.md) — every command, flag, environment variable, and exit code.
+- [Rule library](https://deuriib.github.io/agency-rules/rules/) — the generated catalog of every rule in `rules/`, built by `mise run docs:build`.
+- [Harness reference](https://deuriib.github.io/agency-rules/reference/harnesses/) — generated from `tools.json`, with every format and destination.
+- [Architecture](docs/ARCHITECTURE.md) — data flow, contracts, caching.
+- [Rule spec](docs/RULE-SPEC.md) — the neutral frontmatter format.
+- [Adding a harness](docs/ADDING-A-HARNESS.md) — extension guide.
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — the path's stalls and their fixes.
+- [Releasing](docs/RELEASING.md) — how to verify a release actually reached npm.
+- [DX baseline](docs/dx/BASELINE.md) — the measured before-state of the path above.
+- [DX decisions](docs/dx/DECISIONS.md) — why Copilot support works the way it does, and what the golden path mandates.
+- [DX scorecard](docs/dx/SCORECARD.md) — what changed, what is still unmeasured, who owns it.
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Pull requests welcome.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for responsible disclosure.
+
+![Repobeats analytics](https://repobeats.com/deuriib/agency-rules?theme=light&size=medium&period=30)
+
+## License
+
+MIT — see [LICENSE](LICENSE).

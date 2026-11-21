@@ -1,0 +1,777 @@
+# Claude Memory MCP
+
+**Your AI coding agent forgets everything between sessions. This gives it a
+brain, a backlog, and a team — in Claude Code, ZCode, Codex and OpenCode alike.**
+
+[![CI](https://github.com/navid-kianfar/claude-memory-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/navid-kianfar/claude-memory-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Docker Hub](https://img.shields.io/badge/docker%20hub-kianfar%2Fclaude--memory--mcp-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/kianfar/claude-memory-mcp)
+
+One local daemon, three things:
+
+| | |
+|---|---|
+| 🧠 **Memory** | Decisions, rules and architecture notes per project — searched by meaning, reloaded every session, re-injected every turn. |
+| ✅ **Task management** | A real backlog with states, sub-tasks, comments and a stopwatch — parked mid-session, mirrored to a live board. |
+| 👥 **AI team management** | Specialised agents on one shared contract, so the lead session delegates instead of doing everything itself. |
+
+Everything is local: your own DuckDB files, your own embedding model, nothing
+leaving the machine.
+
+### Works with Claude Code — and ZCode, Codex and OpenCode
+
+The daemon speaks MCP over HTTP, so any MCP client can use it. What differs per
+harness is only the *wiring* — where its MCP server list lives, which lifecycle
+hooks it offers, where agent definitions go — and `memory-mcp-setup` configures
+**every harness it detects on the machine**, in one run:
+
+| Harness | MCP config | Lifecycle hooks | Agent team |
+|---|---|---|---|
+| **Claude Code** | `~/.claude.json` | full (per-turn rules, session start/end, edit gate) | `~/.claude/agents/` |
+| **ZCode** | `~/.zcode/cli/config.json` → `mcp.servers` | full (same events; no `SubagentStop`) | `~/.zcode/agents/` |
+| **Codex** | `~/.codex/config.toml` → `[mcp_servers.memory]` | `notify` at turn end (export + update) | not supported by Codex |
+| **OpenCode** | `opencode.jsonc` → `mcp` (comments preserved) | a small plugin (session start/end) | not verified; briefs ride MCP |
+
+The core — memory, tasks, the asoode board mirror, the digest — is identical for
+every harness, because it lives in the daemon, not in the client. A task created
+from ZCode mirrors to the board exactly like one created from Claude. What a
+harness cannot carry (OpenCode has no per-turn hook; Codex has no subagents) is
+declared by its adapter and degrades by design; nothing pretends.
+
+![Claude Memory MCP management UI](screenshots/memory-browser.png)
+
+---
+
+## Quick start
+
+**1. Run the daemon.** Pick one:
+
+<details open>
+<summary><b>Docker</b> (recommended)</summary>
+
+```bash
+docker run -d --name memory-mcp \
+  -p 8765:8765 \
+  -v memory-mcp-data:/data \
+  kianfar/claude-memory-mcp:latest
+```
+
+Or `docker compose up -d`.
+</details>
+
+<details>
+<summary><b>Homebrew</b></summary>
+
+```bash
+brew tap navid-kianfar/tap
+brew install claude-memory-mcp
+brew services start claude-memory-mcp
+```
+
+See [packaging/homebrew/](packaging/homebrew/) for tap setup details.
+</details>
+
+<details>
+<summary><b>From source</b> — the full install, including the agent team</summary>
+
+Requires [`uv`](https://docs.astral.sh/uv/) and (for the UI) Node 20+.
+
+```bash
+git clone https://github.com/navid-kianfar/claude-memory-mcp.git
+cd claude-memory-mcp
+./install.sh
+```
+
+`install.sh` installs dependencies, builds the UI, downloads the embedding
+model, installs a launchd agent so the daemon auto-starts, and wires every AI
+harness it detects (Claude Code, ZCode, Codex, OpenCode) to the daemon
+the daemon, installs the rule-enforcement hooks, and installs the sixteen agents.
+It prints a one-time `sudo` command to add a `claude-memory-mcp` entry to
+`/etc/hosts` so the UI resolves at <http://claude-memory-mcp:8765/>.
+</details>
+
+**2. Connect your harnesses** — automatic for every detected one during setup.
+To add one later (or point a single client manually):
+
+```bash
+claude mcp add --transport http memory http://localhost:8765/mcp   # Claude Code
+# ZCode: 'memory' under mcp.servers in ~/.zcode/cli/config.json
+# Codex: 'memory' under [mcp_servers] in ~/.codex/config.toml
+# OpenCode: 'memory' under mcp in ~/.config/opencode/opencode.jsonc
+```
+
+**3. Open the UI** at <http://localhost:8765/> and create a project — or do it
+from Claude:
+
+```text
+memory_init_project("my-app", "My App")   # create a project
+memory_session_start(cwd=".")             # loads rules, tasks, last summary —
+                                          # the project is read from .agent-memory/
+```
+
+**4. Use it.** From here Claude stores decisions and rules as they are made, and
+recalls them by meaning:
+
+```text
+"Always use pnpm, never npm"              -> memory_add_rule(...)  a mandatory rule
+"We're going with Postgres because ..."   -> memory_store(...)     a decision
+"What database did we pick?"              -> memory_search(...)    finds it next month
+"Add a task to rewrite the CSV exporter"  -> memory_task_add(...)  queued, not started
+```
+
+Every later session starts by loading that project's rules, open tasks, last
+summary and recent decisions — from whichever harness you opened the folder in,
+identified by the committed `.agent-memory/manifest.json` rather than by the
+folder name. Nothing to re-explain, nothing to ask the user for.
+
+### How it fits together
+
+```mermaid
+flowchart LR
+  subgraph clients[Your harnesses]
+    CLI[Claude Code]
+    ZC[ZCode]
+    CX[Codex]
+    OC[OpenCode]
+  end
+  UI[Management UI<br/>React + command palette]
+  subgraph daemon[memory-mcp daemon · port 8765]
+    MCP[/MCP endpoint  /mcp/]
+    API[/JSON API  /api/]
+    EMB[Embedding model<br/>loaded once]
+  end
+  DB[(Per-project<br/>DuckDB + vector index)]
+
+  CLI -->|HTTP| MCP
+  APP -->|HTTP| MCP
+  UI -->|HTTP| API
+  MCP --> DB
+  API --> DB
+  MCP --- EMB
+```
+
+All harnesses and the UI talk to the **same daemon**, which is the sole owner
+of the DuckDB files — the embedding model loads once, there are no database
+lock conflicts between clients, and the MCP transport is stateless, so a daemon
+restart never drops a client session.
+
+---
+
+# 🧠 Memory for Claude
+
+Each project gets an isolated DuckDB database with an HNSW cosine vector index.
+Memory never leaks between projects, and searching is semantic: ask *"what
+database did we pick?"* and it finds the Postgres decision even if you never
+typed "Postgres".
+
+Memories are categorised — `decision`, `architecture`, `devops`, `feedback`,
+`sprint`, `reference`, `developer_docs`, `project_plan` — and every one carries
+provenance and edit history.
+
+## Rules that actually stick
+
+Rules you set (`mandatory_rules` / `forbidden_rules`) are enforced three ways,
+because one is not enough:
+
+1. **Hook injection** — a `UserPromptSubmit` hook injects the actual rule text
+   into context *every turn*, so rules survive context compaction.
+2. **Server instructions** — the MCP server tells Claude to load and honor rules.
+3. **Tool responses** — search/store responses carry a compact rules reminder.
+
+Those three all do the same thing: they *tell* Claude. That is enough for a rule
+that shapes judgement, and demonstrably not enough for one that must happen every
+single time — a rule saying "put the work on the board before doing it" held about
+70% of the time. So there is a fourth, different in kind:
+
+4. **A `PreToolUse` gate that can REFUSE.** On `Edit`, `Write` and `NotebookEdit`
+   it asks the daemon whether a task is in progress, and blocks the tool call when
+   an asoode-bound project has none — replying with the exact calls to make
+   (`memory_task_plan`, or `memory_task_add` + `memory_task_start`). It is the only
+   hook here whose exit status decides whether the tool runs.
+
+   **It fails open on every path**: not a memory project, not bound to a board,
+   daemon unreachable, timeout, unreadable answer, or any unexpected error. A gate
+   that stopped you editing a file because a board was down would be worse than the
+   problem it fixes.
+
+   **To switch it off**, set `MEMORY_MCP_NO_GATE=1`. Reads are never gated, so
+   exploring, searching and diagnosing are untouched either way.
+
+Hooks stay silent in directories that are not registered memory projects, so
+they can be installed globally without noise.
+
+## Templates and seeding a new project
+
+Define a baseline rule set once, then start every new project from it — picking
+exactly which rules with checkboxes — instead of retyping them.
+
+![Templates view](screenshots/templates.png)
+
+A new project can also import selected rules from any *existing* project:
+
+![Importing rules into a new project](screenshots/new-project-seed.png)
+
+### Imported rules arrive pending, on purpose
+
+Rules written for one project carry that project's specifics — its component
+names, its paths, its stack. Copied verbatim into another project they read as
+authoritative and quietly steer the agent wrong. So `memory_import_rules` (and
+the UI's Import dialog) brings them in as **pending**:
+
+- stored and visible in the **Pending** tab, but **not in force** — kept out of
+  the injected rule block, out of search, out of session context, and out of the
+  git snapshot;
+- surfaced at the next `memory_session_start` with a brief telling the agent to
+  rewrite each one for *this* codebase, and to **ask you** rather than guess when
+  a rule cannot be translated without knowing something only you know;
+- activated by `memory_adapt_pending(memory_id, title, content)` — which clears
+  the flag, puts the rule in force from that moment on, and lets it sync — or
+  dropped with `memory_discard_pending(memory_id, reason)`.
+
+Pass `pending=False` to import text you already know is project-neutral.
+
+## Digest: review the memory itself
+
+A corpus written to for months drifts. Two rules end up saying the same thing in
+different words and **both are in force**, so whichever the agent reads last
+effectively wins. A rule names a file that was deleted. A standing instruction
+sits in a `decision` memory where nothing enforces it. A note nobody has recalled
+in a year costs tokens in every session that touches its topic.
+
+`memory_digest` is the pass that fixes that, on any project this server holds:
+
+```text
+memory_digest()                       # analyse — read-only, changes nothing
+memory_digest_propose(operations)     # validate + diff, still changes nothing
+memory_digest_apply(digest_id, approve=[...])   # only what you approved
+memory_digest_revert(digest_id)       # exact undo
+```
+
+The three stages exist because of who is good at what. The **store** measures
+what it can measure exactly: embedding distance between every pair, paths that no
+longer exist on disk, expired TTLs, rules written as records and records written
+as rules, notes never once recalled. The **agent** does the judgment — which
+overlapping rules are really one rule, whether a missing path moved or died — and
+it is told to verify anything the signals claim about the code before trusting
+it. **You** decide what actually gets written.
+
+Operations: `keep`, `rewrite`, `merge`, `split`, `recategorize`, `retag`,
+`reprioritize`, `archive`. `merge` is the one that earns the feature — several
+memories unified into one, the sources archived and stamped with where they went.
+`recategorize` is how a rule filed as a decision starts being enforced, and how a
+one-off record filed as a rule stops costing rule-block tokens.
+
+### The two guarantees
+
+**A digest never hard-deletes.** Its strongest operation is `archive`: the row
+stays, its provenance stays, `memory_digest_revert` brings it back. Every write
+saves the row it overwrote first, so the undo restores the old text exactly
+rather than re-deriving it.
+
+**No clause disappears quietly.** "Unify these and write them better" is where a
+business rule actually gets lost — and mostly not by deletion. So every
+`rewrite`, `merge` and `split` is checked clause by clause against its sources,
+for the four different ways a rule goes missing:
+
+| | what it catches |
+|---|---|
+| `unmatched` | a clause the replacement does not account for at all |
+| `altered` | a clause still there, but no longer making the same *kind* of statement — a threshold, a deadline, a quantifier, `must` downgraded to `should` |
+| `polarity_changed` | a clause that came back inverted, in either direction |
+| `added` | an obligation in the replacement that no source memory contains — a rule the digest wrote rather than you |
+
+Each comes back with the offending text verbatim. `approve_all` refuses all four;
+they need approving by op id.
+
+The `altered` check is the one that earns its keep, and it exists because a
+threshold cannot be caught by a similarity score. *"must come back in under 200ms
+at the 99th percentile, measured at the load balancer"* is sixteen significant
+words, so changing 200ms to 500ms still scores 75% word overlap. The number is one
+token however long the sentence is, so the words a rule turns on — figures,
+modals, `only`, `every`, deadlines — are checked one by one instead of averaged.
+They are compared as *classes*, not as exact words, so a merge may rewrite
+*always run the tests* as *run the tests before every commit* without being
+flagged, while `must` becoming `should` is.
+
+Polarity is watched separately because similarity is blind to it: *always deploy
+on Friday* and *never deploy on Friday* sit **0.05 apart** in embedding space,
+closer than two honest paraphrases of the same rule. A pair of memories that
+contradict each other is therefore never offered as a duplicate — the agent is
+told to show you both and ask which one is current.
+
+Nothing is applied without a per-operation decision, the whole apply is one
+transaction, and each write records provenance naming the digest that made it.
+`memory_digest_list` shows past digests and any proposal still waiting on you.
+
+## Import an existing CLAUDE.md
+
+```text
+memory_import_claude_md("/path/to/project")                     # import into memory
+memory_import_claude_md("/path/to/project", stub_rewrite=True)  # + slim the file
+```
+
+Headings map to categories (rules, architecture, decisions, devops, docs); rule
+sections are split per bullet. With `stub_rewrite`, `CLAUDE.md` is replaced by a
+short pointer at memory MCP, and the original is backed up.
+
+## Team and multi-device memory (git sync)
+
+Bind a project to its source folder and its memory travels with the code —
+across your devices and your teammates:
+
+```text
+memory_link_folder("/path/to/project")
+```
+
+You can also set the folder when creating a project: the New Project dialog has
+a **Project folder** field, and `memory_load_from_folder` binds it automatically.
+
+Once bound, the project's rules and decisions mirror to a committable
+**`.agent-memory/`** snapshot in the project folder — a **`memory.duckdb`**
+carrying the memories, both rule kinds and the audit trail, alongside a small
+`manifest.json`. A `git push` carries the latest memory; a teammate's `git pull`
+plus their next session imports it back. Export runs at the end of each turn and
+import at session start (both via hooks); the central database stays the daemon's
+fast working copy.
+
+It used to be one JSON file per category. Those grew without bound — one project
+here reached **1.1MB**, rewritten in full on every export, so every session added
+another large blob to git history. **A migration is automatic**: the first import
+in a project that still has JSON reads it, writes the database, verifies the rows
+came back, and only then deletes the JSON.
+
+`manifest.json` deliberately stays JSON. `context` reads it on *every* project
+detection, walking up from the working directory, and putting a DuckDB open and
+its file lock on that path would be a real regression. It is ~300 bytes and does
+not grow.
+
+> **On size**: the win arrives with scale, not immediately. On this repo, 8 JSON
+> files were 131KB raw / 39KB compressed and the database is 291KB / **48KB** —
+> slightly worse. At roughly eight times the data it is 1.08MB / 223KB versus
+> 668KB / **96KB**. The consistent win is in *git history*, where a small binary
+> delta replaces a full rewrite of several large text files every session.
+
+Import is **safe by design**: absence is never deletion. It adds new entries and
+applies edits that are strictly newer, and it never reverts a more recent local
+change. The one exception is an explicit **tombstone** — the record of somebody
+running a hard delete — which is a different thing from a row simply being
+missing, and without which a delete could never reach another machine. Even then
+a local edit newer than the tombstone wins. Each project's memory is separate, so
+sharing one never exposes the others.
+
+**A DuckDB file is a binary blob to git**, so `memory-mcp-setup` registers a **git
+merge driver** and a `.gitattributes` entry for it. When two machines both add a
+rule, the driver merges them with SQL — union what each side added, last write
+wins on a genuine conflict, union the audit trail — instead of git's default of
+taking one side and silently discarding the other's memories. **Install
+`memory-mcp-setup` on every machine that clones the repo**: without the driver
+registered locally, git falls back to that default.
+
+The snapshot's `manifest.json` carries a **`project_id`**, the project's stable
+identity. Because it is committed with the code, moving or renaming the project
+folder re-binds the existing project instead of registering a duplicate, and a
+teammate's clone resolves to the same project on their machine.
+
+> **If memory is not reaching the snapshot**, look at
+> `~/.claude-memory-mcp/sync.log`. The hooks discard the sync command's stderr so
+> it can never disturb a Claude turn, so every failure writes a dated traceback
+> there instead. Export also warns when `.agent-memory/` is gitignored, since an
+> ignored snapshot never reaches your teammates.
+
+---
+
+# ✅ Task management
+
+A task is a **queued requirement, not an instruction**. That is the whole point:
+you can record something mid-session without derailing the work in progress.
+
+```text
+memory_task_add("Rewrite the CSV exporter")   # queued; Claude keeps doing what it was doing
+memory_task_list()                            # what is waiting, open work first
+memory_task_start(task_id)                    # claims it, clocks on, moves it to in_progress
+memory_task_update(task_id, state="blocked")  # stops the clock and says why
+memory_task_done(task_id, note="shipped")     # closes it and stops the clock
+```
+
+`memory_session_start` returns the open tasks with a brief telling Claude to
+**report them and start none of them** unless you ask. Work Claude notices but
+is not doing goes in with `source="claude"`.
+
+Tasks have states, priorities, labels, due dates, sub-tasks, comments,
+attachments and a stopwatch, and they live in their own DuckDB tables — never in
+the committed memory snapshot, however long the list grows.
+
+**The clock is symmetric.** `memory_task_start` opens a time entry stamped with
+the session that started it; every path that ends the work closes it — done, an
+update to any state other than in_progress, stop, release, archive, and
+`memory_session_end`, which reports any clock it had to stop for a session that
+forgot. A lease a session never refreshed for an hour is swept at the next
+session start, so a crashed session cannot leave a task clocking.
+
+When several Claude sessions share one project, a task is taken by claiming it:
+`memory_task_claim_next(session_id)` — which a session calls only when it has
+finished what it was doing, never mid-task. The claim is a conditional UPDATE
+whose rowcount decides the winner, held on a 30-minute lease that renews as the
+task is worked on, and released by `memory_session_end`.
+
+## Multi-part requests become tasks before they are worked
+
+`memory_task_plan(request, tasks)` records a request with several separable
+deliverables as an ordered set of tasks — your wording kept verbatim on each one
+— which are then worked top-down. If the session ends after the first, the rest
+are still in the queue rather than only in the transcript.
+
+The boundary is one task per **deliverable**, not per step: a question, or a
+single change described in several clauses, is not a plan. Fewer than 2 tasks is
+rejected (that is `memory_task_add`), more than 20 is over the cap, and a task
+with no description is refused — over-decomposition buries a board in rows
+nobody would plan around.
+
+## Evidence on a task
+
+`memory_task_attach(task_id, path)` copies a file into the task store and mirrors
+it to the remote task — a screenshot proving a fix, a failing log, a generated
+report. Content-addressed, so the same file on two tasks is one blob; sent once,
+because no platform gives an attachment an idempotency key. Attaching bytes a
+task already holds returns the existing attachment instead of uploading it
+twice, and `memory_task_detach(attachment_id)` removes one — locally and from
+the remote card.
+
+**Files pasted into the Claude compose box.** The client keeps a pasted image
+only as base64 inside the session transcript — there is no file path. The hooks
+hand the transcript to the daemon, which copies each image you pasted into the
+store and **parks** it; images the model produced itself (screenshots, rendered
+PDF pages) are never taken. Nothing is attached without asking: the session is
+told which task is in progress and asks you, and on a yes calls
+`memory_task_attach(task_id, pending_id=...)`.
+
+## Mirror the list to a real board (asoode)
+
+Mirror a project's task list onto an [asoode](https://app.asoode.com) board so
+the work is visible outside the terminal. The endpoints default to the hosted
+service, so on-premise is the only case that needs configuring.
+
+The access token is stored **once per machine**, not per project — every project
+that talks to the same asoode reuses it:
+
+```bash
+memory-mcp asoode set-pat                     # prompts; the input is not echoed
+memory-mcp asoode check                       # prove it reaches the server
+memory-mcp asoode boards                      # list boards you can attach to
+memory-mcp asoode attach <slug> --ref <ref>   # link an EXISTING board
+memory-mcp asoode link <slug>                 # CREATE a project + board
+memory-mcp asoode import <slug>               # pull board tasks into the local list
+memory-mcp asoode push <slug>                 # full reconciliation (rarely needed)
+memory-mcp asoode open <slug>                 # open that board already signed in
+```
+
+Use `attach` when the boards already exist, which is the normal case — `link`
+*creates* one, so running it on a set-up workspace adds a duplicate beside the
+real boards.
+
+These commands ask the **running daemon** to do the work rather than opening the
+project database themselves. DuckDB allows one writer per file across processes
+and the daemon holds that lock, so doing it in-process used to fail — and fail
+*late*, after the remote calls had already gone out, leaving tasks on the board
+the local store had no record of. With no daemon running they fall back to direct
+access, and any other path that hits the lock says so and offers both ways out
+instead of raising a DuckDB `IOException`.
+
+The token lives in the local registry (`~/.claude-memory-mcp/registry.db`), never
+in the committed `.agent-memory/` snapshot, and is never printed back — `status`
+shows only a `prefix…last4` fingerprint. Pass `--api-url` to store one for a
+second server.
+
+`open` uses asoode's `/auth/token` deep link, which carries the token in the URL
+**fragment** — never sent to the server, never in an access log, never leaked
+through a `Referer`, and stripped from the address bar on arrival. The link goes
+straight to the browser and is printed redacted; no HTTP route returns or
+redirects to it, which would put the token in a response body or a `Location`
+header.
+
+### One project, many boards
+
+**A project links to work packages, never to an asoode project.** asoode has no
+route attaching a task to a project — `project → work package → list → task` is
+the only path — so a monorepo links to *one board per app*:
+
+```bash
+memory-mcp asoode attach myrepo --ref myrepo:backend                 # the default
+memory-mcp asoode attach myrepo --ref myrepo:frontend --not-default
+```
+
+`memory_task_add(title=..., target="myrepo:frontend")` names the board a task
+belongs to; a task with no `target` routes to the **default** link. A wrong name
+fails the create rather than landing on the wrong board.
+
+### What crosses, and in which direction
+
+**Out — everything, the moment it changes.** State (including
+`memory_task_start` moving a card to In Progress), title, description, priority,
+assignee (matched to a member by email, username or full name), labels, dates,
+estimate, comments with their kind and author, attachments and their removal,
+sub-task parents, archive, delete (the card is archived — asoode has no delete —
+and a local tombstone stops it re-importing) and every closed time entry.
+
+Each mutation queues to an outbox and flushes **off-thread**, so a local write
+never waits on the network. A card the flusher creates gets every field the task
+already has. An unreachable asoode is a delay, not a lost edit: an outage never
+counts against a row, only a rejected call does, and a row is abandoned after
+five of those so a poison row cannot loop forever repeating a side effect. A
+nudge landing mid-flush makes it go round again; the daemon sweeps every linked
+outbox on start and once a minute; a short-lived process waits for its own
+mirrors before exiting.
+
+**In — creates only.** The daemon holds a Socket.IO subscription, so a task added
+on the board reaches the session within seconds. That is an optimisation, not a
+correctness requirement: `reconcile` also runs after every mirror, so a dropped
+socket degrades to polling. asoode replays nothing, so every connect (the first
+one included — the daemon was deaf before it started) drains each linked outbox
+and reconciles each linked project once, floored at five minutes so a flapping
+socket cannot spend its life sweeping; the catch-up asks the change feed which
+boards moved and advances its watermark only after every reconcile it covers
+succeeded. `GET /api/asoode/socket` reports connection, events, reconciles,
+catch-ups and suppressed echoes.
+
+**A task that exists on both sides is left alone**, because resolving a two-sided
+edit needs a conflict policy that has not been decided.
+`memory_asoode_import` is the explicit path that *does* overwrite local title and
+state. Say what each direction carries rather than calling the two sides "in
+sync".
+
+<details>
+<summary>Two details worth knowing</summary>
+
+**The socket needs a ticket, not the PAT.** asoode's gateway keeps no database
+and verifies signed JWTs only, so the PAT is exchanged at
+`POST /account/socket-token` on each connect. A raw PAT is accepted and then
+dropped with `transport error`.
+
+**Our own writes are not reacted to.** asoode broadcasts every change to every
+member, deliberately does not exclude the actor, and drops the actor id before
+the client sees it — so the payload cannot be used to tell. The writer records
+what it wrote and the listener consults it: a push of 29 tasks now produces 29
+suppressed echoes and **zero** board reads, where it used to cost seven.
+</details>
+
+### Binding a project makes its board the work queue
+
+A bound project's `memory_session_start` returns the board's open tasks and a
+brief telling the agent to **work** them one at a time — start (which claims,
+clocks on and moves the card), comment as it goes, mark done or pause with the
+reason (both stop the clock), next. An unbound project keeps the opposite
+contract: its queued tasks are surfaced and never started, so parking a
+requirement mid-session cannot derail the session. The loop binds the lead
+session; a dispatched agent works the task it was briefed on.
+
+The binding is the whole opt-in — nothing is configured per project. If the board
+cannot be reached, the session still starts and is told to work the local list,
+which is the same queue mirrored.
+
+### On-premise
+
+```bash
+memory-mcp asoode set-url --api https://api.asoode.internal
+```
+
+The sibling `app.`/`socket.` URLs are derived when the host looks like
+`api.<domain>`; otherwise pass `--app` and `--socket` too. `reset-url` returns to
+the hosted defaults.
+
+`link` and `push` are idempotent: the board carries the project's stable uid as
+its `externalRef` and each task carries its local id, so asoode returns the
+existing row instead of creating a duplicate. Re-running pushes changes.
+
+### Other platforms
+
+The bridge is provider-agnostic: `TaskProvider` (a Protocol), a registry that
+resolves a link's `provider` column, per-(provider, account) credentials, and a
+conformance suite any implementation must pass. asoode is the only provider
+shipped, because an integration written from published docs and tested against a
+fake written in this repo is not a verified integration.
+
+---
+
+# 👥 AI team management
+
+`memory-mcp-setup` installs the specialised agents from [`agents/`](agents/)
+into every harness that can carry them — `~/.claude/agents/` and
+`~/.zcode/agents/` today; Codex has no subagent system and OpenCode's agent
+format is not verified, so those two get the briefs through MCP instead. The
+roster: eight roles and nine stack experts that extend a role:
+
+| Roles | Stack experts |
+|---|---|
+| `pm` · technical lead, breaks work down and integrates it | `dotnet` — solution layout, DI, services |
+| `backend` · APIs, services, data models, migrations | `nodejs` — NestJS, Next.js for SSR, pnpm |
+| `frontend` · UI to the designer's spec, verified in a browser | `python` — FastAPI + Pydantic v2, uv, ruff, mypy strict |
+| `designer` · tokens, component specs, flows, visual review | `go` — stdlib `net/http`, `cmd/`+`internal/`, sqlc over an ORM |
+| `test` · verifies work on the running product | `rust` — tokio + axum, thiserror/anyhow, sqlx checked queries |
+| `reviewer` · independent review, reports and never fixes | `kotlin` — **server-side**: Ktor, coroutines, Flyway |
+| `devops` · CI, builds, deploys, monitoring | `react` — pnpm + Vite + Tailwind + shadcn, each wrapped once |
+| `docs` · READMEs, API docs, changelogs, guides | `app` — **mobile**: Kotlin Multiplatform, Android and iOS identical |
+
+The first six experts extend `backend`, the last two extend `frontend`. An expert
+is **consulted before** its role to decide the layout, and **dispatched instead of**
+it when the work is that stack through and through.
+
+> `kotlin` and `app` are not interchangeable — `app` owns Kotlin Multiplatform for
+> phones, `kotlin` owns Kotlin on a server. Both say so in their own definition,
+> because a brief sent to the wrong one wastes a whole dispatch.
+
+Every definition carries three sections, and a test asserts all sixteen do:
+**Non-negotiables** (the opinions it will not re-litigate per task, each with its
+reason), **Currency without hallucination** (read the target's own versions, name
+the release a feature arrived in, mark *unverified* what cannot be confirmed), and
+**What you produce** (exactly what the hand-off contains, so the next agent does
+not need a second dispatch).
+
+**The session talking to you is the lead.** It orchestrates directly and
+dispatches specialists; it never dispatches a `pm` to do that, because a
+subagent's output is never shown to you and cannot be redirected once running.
+
+Every definition `extends:` the shared base [`agents/_base.md`](agents/_base.md),
+composed at install time, so the contract that makes the three modules complete
+each other is stated once:
+
+- **brain** — session start, the binding rules, search before deciding, store
+  what outlives the task, `project=` on every write;
+- **tasks** — start claims and clocks on, comment as you go, stop the clock on
+  every finish, session end last, each with the agent's *own* `session_id`
+  (subagents share the lead's MCP connection, so a borrowed id displaces it);
+- **team** — cross-boundary changes are reported to the lead, not made; `test`
+  verifies a change on the running product before it is committed.
+
+A dispatch costs roughly 60k tokens at the floor, so the lead does one-file work
+itself and delegates genuine specialisms or genuinely parallel work (`frontend`
+and `backend` can run at once; they share the one checkout unless the user turns
+on worktree isolation in the Claude interface, so each gets a disjoint file set).
+
+See [`agents/README.md`](agents/README.md) for the composition rules and
+[`docs/bridge/06-agent-team.md`](docs/bridge/06-agent-team.md) for the design and
+what was verified by dispatch.
+
+---
+
+---
+
+# 🖥️ The management UI
+
+A React single-page app served by the daemon at `/`:
+
+- Browse, search, create, edit and archive memories in every category
+- Manage mandatory/forbidden rules, templates, and pending imported rules
+- Work the task list: grouped by state, drag to reorder, inline add per group,
+  and a task dialog with sub-tasks, comments, an activity trail and a stopwatch
+- Inspect sessions and per-memory provenance/history
+- Switch between projects (view state only — the daemon holds no "active project": every operation names its project explicitly)
+- `Cmd+K` command palette for fast navigation and actions
+
+---
+
+# Reference
+
+## MCP tools
+
+All 74 tools:
+
+| Area | Tools |
+|------|-------|
+| Projects | `memory_init_project`, `memory_load_from_folder`, `memory_link_folder`, `memory_list_projects`, `memory_project_info`, `memory_rename_project` |
+| Memories | `memory_store`, `memory_search`, `memory_recall`, `memory_update`, `memory_delete`, `memory_list` |
+| Rules | `memory_get_rules`, `memory_add_rule`, `memory_add_rule_bulk`, `memory_update_rule`, `memory_delete_rule` |
+| Governance (server mode) | `memory_approve_rule`, `memory_revoke_rule` |
+| Templates | `memory_list_templates`, `memory_create_template`, `memory_add_template_rule`, `memory_apply_template`, `memory_import_rules` |
+| Imported rules | `memory_pending_list`, `memory_adapt_pending`, `memory_discard_pending` |
+| Digest | `memory_digest`, `memory_digest_propose`, `memory_digest_apply`, `memory_digest_revert`, `memory_digest_reject`, `memory_digest_list`, `memory_digest_get` |
+| Tasks | `memory_task_add`, `memory_task_list`, `memory_task_get`, `memory_task_update`, `memory_task_comment`, `memory_task_start`, `memory_task_stop`, `memory_task_done`, `memory_task_archive`, `memory_task_convert`, `memory_task_delete` |
+| Task claims (multi-session) | `memory_task_claim_next`, `memory_task_release` |
+| Planning | `memory_task_plan` |
+| Sessions | `memory_session_start` (pass `cwd=` — the project is read from that folder's committed `.agent-memory/manifest.json`, never from the user), `memory_session_end` |
+| Portability | `memory_attach_project`, `memory_make_portable`, `memory_sync` |
+| Import/Export | `memory_export`, `memory_import`, `memory_import_claude_md` |
+| Model | `memory_model_info`, `memory_set_model`, `memory_reembed` |
+| asoode bridge | `memory_asoode_status`, `memory_asoode_boards`, `memory_asoode_attach`, `memory_asoode_link`, `memory_asoode_import`, `memory_asoode_reconcile`, `memory_asoode_push`, `memory_asoode_links` |
+| Attachments | `memory_task_attach`, `memory_task_attachments`, `memory_task_detach` |
+| Misc | `memory_provenance`, `memory_version`, `memory_check_update` |
+
+## Command line
+
+```bash
+memory-mcp serve            # run the shared HTTP daemon (MCP + UI)
+memory-mcp stdio            # run the MCP server over stdio (legacy / fallback)
+memory-mcp setup            # interactive setup (hooks, agents, launchd, MCP)
+memory-mcp update           # rebuild the runtime from source and reload the daemon
+memory-mcp rules            # print the current project's rules (used by hooks)
+memory-mcp sync ...         # export/import the memory snapshot (used by hooks)
+memory-mcp asoode ...       # board endpoints and the machine-wide PAT
+memory-mcp provider ...     # task platforms and their credentials
+memory-mcp bind ...         # route a project to a local or remote backend
+memory-mcp user ...         # server-mode users: create, list, rotate tokens
+```
+
+## Configuration
+
+Environment variables (prefix `MEMORY_MCP_`):
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `MEMORY_MCP_DATA_DIR` | `~/.claude-memory-mcp` | Where databases are stored |
+| `MEMORY_MCP_EMBEDDING_BACKEND` | `onnx` | `onnx` (fastembed — torch never loads) or `sentence-transformers` |
+| `MEMORY_MCP_DAEMON_HOST` | `127.0.0.1` | Daemon bind address (`0.0.0.0` in Docker) |
+| `MEMORY_MCP_DAEMON_PORT` | `8765` | Daemon port |
+| `MEMORY_MCP_DAEMON_HOSTNAME` | `claude-memory-mcp` | Hostname used in the UI URL |
+| `MEMORY_MCP_ASOODE_API_URL` | `https://api.asoode.com` | asoode REST base (on-premise override) |
+| `MEMORY_MCP_ASOODE_APP_URL` | `https://app.asoode.com` | asoode web app, for links |
+| `MEMORY_MCP_ASOODE_SOCKET_URL` | `https://socket.asoode.com` | asoode realtime origin |
+
+## Architecture
+
+- **Python + FastMCP** — the MCP server and HTTP daemon (Starlette + uvicorn)
+- **DuckDB + VSS** — per-project memory storage with an HNSW cosine vector index
+- **SQLite** — the local registry (project list + app settings); stdlib, no extra dependency
+- **sentence-transformers** — local embeddings (`all-MiniLM-L6-v2`, 384-dim;
+  a 50+ language multilingual preset is also available)
+- **Layered design** — repositories → services → container → tool/HTTP layer
+- **React + Vite + Tailwind** — the management UI, with hand-built
+  shadcn-style components
+
+Tasks live in their own DuckDB tables (`tasks`, `task_comments`,
+`task_time_entries`) rather than as a memory category — which is what keeps them
+out of the git-committed `.agent-memory/` snapshot however long the list grows.
+
+Existing databases are migrated automatically on open, so older project
+databases keep working after upgrades.
+
+## Development
+
+```bash
+uv sync --all-extras
+uv run pytest -v          # backend tests
+
+cd frontend
+npm install
+npm run dev               # UI dev server (proxies the API to the daemon)
+npm run build             # production build into frontend/dist
+```
+
+Run the daemon directly with `uv run memory-mcp serve`.
+
+## Releasing
+
+The Docker image is published only for **tagged releases** — never on ordinary
+commits. Cut a release with the helper script:
+
+```bash
+./scripts/release.sh           # patch bump (0.7.0 -> 0.7.1)
+./scripts/release.sh minor     # 0.7.0 -> 0.8.0
+./scripts/release.sh 1.2.3     # explicit version
+```
+
+It runs the tests, bumps the version in `pyproject.toml` and the package,
+commits, creates a `vX.Y.Z` tag, and pushes. The tag push triggers the workflow
+that builds and publishes the multi-arch image to Docker Hub.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

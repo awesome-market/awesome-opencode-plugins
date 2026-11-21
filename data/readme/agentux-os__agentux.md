@@ -1,0 +1,167 @@
+<p align="center">
+  <a href="https://agentuxos.org">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="brand/svg/lockup-dark.svg">
+      <img alt="AgentUX" src="brand/svg/lockup-light.svg" width="360">
+    </picture>
+  </a>
+</p>
+
+<h3 align="center">The Linux distribution where every coding agent works as one team.</h3>
+
+<p align="center">
+  <a href="https://github.com/agentux-os/agentux-os/actions/workflows/build.yml"><img alt="Image build" src="https://img.shields.io/github/actions/workflow/status/agentux-os/agentux-os/build.yml?branch=main&label=image%20build&logo=github&labelColor=0b0d10"></a>
+  <a href="https://github.com/agentux-os/agentux-core/releases"><img alt="agentux-core release" src="https://img.shields.io/github/v/release/agentux-os/agentux-core?include_prereleases&label=agentux-core&labelColor=0b0d10&color=4f7d0b"></a>
+  <a href="https://github.com/agentux-os/agentux-desktop/releases"><img alt="agentux-desktop release" src="https://img.shields.io/github/v/release/agentux-os/agentux-desktop?include_prereleases&label=agentux-desktop&labelColor=0b0d10&color=4f7d0b"></a>
+  <a href="docs/adr/0001-linux-distribution-on-fedora-atomic.md"><img alt="Base: Fedora Kinoite 44" src="https://img.shields.io/badge/base-Fedora%20Kinoite%2044%20%C2%B7%20bootc-4f7d0b?logo=fedora&logoColor=white&labelColor=0b0d10"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/agentux-os/agentux?labelColor=0b0d10&color=4f7d0b"></a>
+  <a href="https://agentuxos.org"><img alt="Website" src="https://img.shields.io/badge/website-agentuxos.org-c6f36b?labelColor=0b0d10"></a>
+  <a href="https://agentuxos.org/download/"><img alt="Download" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdownload.agentuxos.org%2Flatest.json&query=%24.version&label=download&labelColor=0b0d10&color=c6f36b&cacheSeconds=3600"></a>
+</p>
+
+<p align="center">
+  <a href="https://agentuxos.org"><b>Website</b></a> ·
+  <a href="https://download.agentuxos.org"><b>Download</b></a> ·
+  <a href="docs/"><b>Docs</b></a> ·
+  <a href="docs/getting-started.md"><b>Getting started</b></a> ·
+  <a href="https://github.com/agentux-os/agentux-os/releases"><b>Releases</b></a>
+</p>
+
+AgentUX is a Linux distribution for developers who use coding agents from several vendors. It ships the providers' own CLI harnesses — Claude Code, Codex, OpenCode, Antigravity CLI — already installed and wired together: one interface on top of all of them, an agent bus so they can talk to each other, and an orchestrator that takes work from issue to reviewed pull request.
+
+> **Status:** pre-release. The current component versions, image release, RPMs and ISOs are published by their own release pipelines and linked dynamically above and below. A bootable, signed image exists for x86_64 and aarch64, in two released desktops, KDE Plasma and COSMIC, with `agentuxd`, `aux`, the cockpit and every vendor CLI installed. Runs go from prompt to pull request through real harness sessions over ACP, agents talk over the agent bus, any session opens in its vendor's TUI, and gate checks can run in rootless Podman.
+>
+> Verified in CI: both variants build and pass a first-login smoke test on amd64 and arm64; the Plasma image boots nightly under QEMU/KVM on x86_64 and takes a fake-agent run to a pull request; image signatures are checked against the policy installed systems enforce.
+>
+> Not verified yet: full cross-vendor runs with real Claude Code, Codex and Antigravity sessions (OpenCode has been tried); booting the arm64 image on real hardware or a VM. Decisions are recorded in [`docs/adr/`](docs/adr/).
+
+| KDE Plasma | COSMIC |
+|---|---|
+| [![The AgentUX cockpit on the Plasma live ISO: two demo runs, one waiting for plan approval](https://download.agentuxos.org/screenshots/stable/plasma-board.webp)](https://download.agentuxos.org/screenshots/stable/plasma-board.webp) | [![The AgentUX cockpit on the COSMIC live ISO, above the COSMIC dock](https://download.agentuxos.org/screenshots/stable/cosmic-board.webp)](https://download.agentuxos.org/screenshots/stable/cosmic-board.webp) |
+
+| Boot | Installer | First boot |
+|---|---|---|
+| [![The penguin swimming in the boot splash](docs/screenshots/boot-animation.gif)](docs/screenshots/boot-animation.gif) | [![The AgentUX installer on the live ISO](docs/screenshots/installer.png)](docs/screenshots/installer.png) | [![First-boot setup over the AgentUX wallpaper](docs/screenshots/first-boot.png)](docs/screenshots/first-boot.png) |
+
+The screenshots are captured by CI: the live ISO and installer tests boot the real images in QEMU (demo runs use fake agents), and every release with ISOs publishes its cockpit shots to `download.agentuxos.org/screenshots/stable/`, so the two above follow the latest one. The boot animation is rendered from the Plymouth theme; the login splash plays the same scene.
+
+## Start here
+
+This repository is the project's front door: the specification, the roadmap, the design decisions and the brand. Where to go next:
+
+| I want to… | Go to |
+|---|---|
+| See what AgentUX is | [agentuxos.org](https://agentuxos.org), then [Why](#why) and [How it works](#how-it-works) below |
+| Try it without installing | The live ISO: [KDE Plasma](https://download.agentuxos.org/iso/stable/agentux-plasma-live-x86_64.iso) or [COSMIC](https://download.agentuxos.org/iso/stable/agentux-cosmic-live-x86_64.iso) ([how](https://github.com/agentux-os/agentux-os#try-it-live)) |
+| Install it | [Try it](#try-it) below, or [Install](https://github.com/agentux-os/agentux-os#install) in agentux-os; every download is on [download.agentuxos.org](https://download.agentuxos.org) |
+| Get going after the first login | [Getting started](docs/getting-started.md) |
+| Run agents from the terminal | [`aux` and `agentuxd`](https://github.com/agentux-os/agentux-core#at-a-glance) in agentux-core |
+| Work on the cockpit or the desktop | [agentux-desktop](https://github.com/agentux-os/agentux-desktop#at-a-glance) |
+| Understand a design decision | [Architecture decision records](docs/adr/) |
+| Use the logo or colours | [Brand](brand/) |
+| See what is done and what is next | [Roadmap](#roadmap) |
+
+**Contents:** [Try it](#try-it) · [Why](#why) · [How it works](#how-it-works) · [Architecture](#architecture) · [Repositories](#repositories) · [Roadmap](#roadmap) · [License](#license)
+
+## Try it
+
+There are two images, built from the same `Containerfile` ([ADR 0010](docs/adr/0010-image-variants-and-system-identity.md)):
+
+| Image | Desktop |
+|---|---|
+| `ghcr.io/agentux-os/agentux` | KDE Plasma with the AgentUX defaults (the default) |
+| `ghcr.io/agentux-os/agentux-cosmic` | The COSMIC desktop on Fedora COSMIC Atomic, lighter and with tiling built in |
+
+Each release ships both, each as a live ISO and an offline installer ISO: `agentux-<desktop>-<live|installer>-<version>-<arch>.iso`.
+
+To look around without installing, boot the **live ISO**: the real desktop with a demo of fake agents, and an *Install AgentUX* launcher that installs the signed image from the registry ([Try it live](https://github.com/agentux-os/agentux-os#try-it-live)).
+
+Install from the ISO, or switch an existing Fedora Atomic / bootc system to either image:
+
+```sh
+sudo bootc switch ghcr.io/agentux-os/agentux:latest            # Plasma
+sudo bootc switch ghcr.io/agentux-os/agentux-cosmic:latest     # COSMIC (nightly)
+systemctl reboot
+```
+
+Both images are multi-arch: the same command works on x86_64 and on 64-bit ARM UEFI machines (SystemReady hardware, VMs on Apple silicon or Ampere hosts), and the ISO comes as `x86_64` and `aarch64`. The arm64 image is built and smoke-tested but has not been booted yet; boards that need their own firmware or kernel are not covered.
+
+Every published image is signed with cosign (keyless and with the AgentUX key), and installed systems refuse unsigned updates; to check a signature yourself, see [Verifying the image](https://github.com/agentux-os/agentux-os#verifying-the-image).
+
+Details, the ISO download and rollback are in the [agentux-os README](https://github.com/agentux-os/agentux-os#install). After the first login, follow [Getting started](docs/getting-started.md): choose a variant, log in to the vendor CLIs, take the cockpit tour and start a first run.
+
+## Why
+
+Running several agents in parallel worktrees is already solved by many tools. What is missing:
+
+- **One interface for every vendor.** Sessions, diffs and permission requests from any harness look the same and land in one approval inbox. The original TUI is always one click away.
+- **Agents that talk to each other.** An implementer can ask a reviewer from another vendor to check its diff, hand off a task, or escalate a decision to you — all through a mediated, auditable bus.
+- **Workflows as code.** The pipeline (plan → implement → test → review → PR) is declared in the repository and versioned with it.
+- **A system agents cannot break.** Immutable, image-based OS with one-step rollback; every task runs in its own git worktree.
+
+## How it works
+
+1. You hand AgentUX an issue (or a prompt) from the cockpit or the `aux` CLI.
+2. It creates a git worktree and branch for the task.
+3. An implementer harness works in that worktree; its session streams to the cockpit.
+4. Tests and linters gate the result; failures loop back to the implementer, up to a limit.
+5. A reviewer harness from a different vendor reviews the diff, talking to the implementer over the agent bus when needed.
+6. AgentUX opens the pull request and asks you only for the decisions that are yours.
+
+Inference stays with the providers, using your own logins and API keys. No GPU required.
+
+## Architecture
+
+| Layer | What it is |
+|---|---|
+| OS | Fedora Atomic (Kinoite) built with bootc, x86_64 and aarch64; KDE Plasma (Wayland) or COSMIC, one image each; immutable with atomic rollback, signed images |
+| Harnesses | Each provider's CLI, driven through the Agent Client Protocol (ACP) or its headless mode |
+| `agentuxd` | Daemon: runs, worktrees, sessions, workflow state (SQLite), agent bus (MCP) |
+| Cockpit / `aux` | Unified desktop interface and its terminal twin |
+| OS profiles | Role selection at install time: workstation, node, Command server, executive Office or complete |
+| Toolchain | `git`, `gh`, `mise`, `uv`, `bun`, `ripgrep`, `fd`, `ast-grep`, `delta`, `lazygit`, `just`, Podman |
+
+## Repositories
+
+| Repo | Contents |
+|---|---|
+| [agentux](https://github.com/agentux-os/agentux) | Specification, roadmap, ADRs |
+| [agentux-core](https://github.com/agentux-os/agentux-core) | `agentuxd`, `aux` CLI, workflow engine, harness adapters, agent bus |
+| [agentux-desktop](https://github.com/agentux-os/agentux-desktop) | Cockpit app and desktop configuration |
+| [agentux-os](https://github.com/agentux-os/agentux-os) | `Containerfile` for both image variants, image CI, signing, boot splash and ISO builds |
+| [agentux-command](https://github.com/agentux-os/agentux-command) | Remote control plane for organizations running AgentUX nodes |
+| [agentux-protocol](https://github.com/agentux-os/agentux-protocol) | Versioned Command-to-node protocol |
+| [agentux-apps](https://github.com/agentux-os/agentux-apps) | Command and Office web experiences |
+
+## Roadmap
+
+Done:
+
+- [x] **Core MVP:** `aux run` drives a planner, an implementer and a cross-vendor reviewer through gates to an open PR, as a persisted state machine in its own worktree ([agentux-core](https://github.com/agentux-os/agentux-core)).
+- [x] **Agent bus:** agents message each other, request reviews, hand off and escalate to you; you can post on the bus and talk to a live session.
+- [x] **Cockpit:** run board, unified session view, approvals inbox, agent bus feed and spend, on the real daemon ([agentux-desktop](https://github.com/agentux-os/agentux-desktop)).
+- [x] **First image:** bootable AgentUX image and ISO with harnesses, toolchain, daemon, cockpit and Plasma defaults; pinned component releases, nightly image and boot test ([agentux-os](https://github.com/agentux-os/agentux-os), [ADR 0008](docs/adr/0008-releases-and-image-pinning.md)).
+- [x] **Terminal mode:** any session opens in its vendor's TUI on the same conversation, from the cockpit or `aux attach` ([ADR 0007](docs/adr/0007-terminal-mode-is-a-session-handoff.md)).
+- [x] **Container-isolated checks:** gate checks run in rootless Podman, opt-in per project, with per-check timeouts ([ADR 0009](docs/adr/0009-container-isolation-for-checks.md), [agentux-core#13](https://github.com/agentux-os/agentux-core/pull/13)).
+- [x] **Signed images:** keyless and key-based cosign signatures on every published image, enforced by the container policy on installed systems ([agentux-os#9](https://github.com/agentux-os/agentux-os/pull/9)).
+- [x] **`aarch64`:** RPMs for both components, a multi-arch image and an aarch64 ISO ([agentux-os#12](https://github.com/agentux-os/agentux-os/pull/12)).
+- [x] **System identity:** the system calls itself AgentUX (os-release, KDE About) and boots with an AgentUX Plymouth splash ([ADR 0010](docs/adr/0010-image-variants-and-system-identity.md)).
+- [x] **Profiles and the welcome wizard:** the machine's role first (Workstation, Agent Node, Command Server, Executive, Complete), then agents, tools and Git; the cockpit opens once it is finished ([ADR 0013](docs/adr/0013-first-run-wizard.md), [ADR 0014](docs/adr/0014-installation-profiles-and-platform-services.md)).
+- [x] **Usage limits and stalled agents:** runs move to another agent or wait at a limit's reset; agents that stop responding are given up on.
+- [x] **AgentUX Command, nodes:** nodes enroll with tokens pinned to one Command server, report their agents, limits, runs and approvals, and take commands behind their own policy; the registry survives restarts ([agentux-command](https://github.com/agentux-os/agentux-command), [AUXP](https://github.com/agentux-os/agentux-protocol)).
+- [x] **AgentUX Command, operators:** capabilities per organization, service tokens, OIDC sign-in with groups mapped to capabilities; fails closed.
+- [x] **Fleets of VMs:** `aux provision` sets a machine up from a file on first boot; Command hands one out with each token.
+- [x] **Updates without reinstalling:** images staged in the background and never rebooted into by themselves; the cockpit says when one is ready ([ADR 0019](docs/adr/0019-updates-without-reinstalling.md)).
+- [x] **Organization contract accepted:** [ADR 0015](docs/adr/0015-organization-command-office-contract.md) and the [definition v1 contract](docs/contracts/organization-definition-v1.md); the Office projection and approval resolution are implemented.
+
+Next:
+
+- [ ] End-to-end validation with real harnesses: Claude Code, Codex and Antigravity sessions driven through a full run (OpenCode has been tried).
+- [ ] Organization definitions in Command: drafts, validation, publishing and immutable versions ([agentux-command#5](https://github.com/agentux-os/agentux-command/issues/5)), then missions run as workflows ([#9](https://github.com/agentux-os/agentux-command/issues/9), [ADR 0020](docs/adr/0020-command-workflows-without-temporal.md)).
+- [ ] Isolating agents' own tool calls, not only gate checks (needs its own ADR: the harness runs tools in a container while its login stays outside).
+- [ ] Signed RPMs (the images are signed; the component RPMs they install are not).
+- [ ] Boot test on arm64: the arm64 image has never been booted, since CI's arm64 runners lack KVM.
+
+## License
+
+[Apache 2.0](LICENSE)

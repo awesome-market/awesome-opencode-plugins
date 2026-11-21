@@ -1,0 +1,692 @@
+# coding-agents-tmux
+
+`tmux` integration for terminal coding agent sessions.
+
+![coding-agents-tmux demo](docs/assets/coding-agents-tmux-demo.gif)
+
+It helps you:
+
+- open a chooser of active coding agent panes
+- jump straight to panes waiting on your answer
+- show the current pane state plus a background session summary in the status line
+- use local plugin and hook state instead of relying only on sqlite or pane heuristics
+
+This project was originally designed for `opencode` but has been extended to support `codex`, `pi`, `claude`, `kiro`, and `copilot` panes for discovery, switching, popup navigation, and status summaries.
+
+Considering a dedicated agent multiplexer instead? See [how this plugin compares to Herdr](#how-this-compares-to-herdr).
+
+## Install
+
+Add the plugin to `~/.tmux.conf`:
+
+```tmux
+set -g @plugin 'corwinm/coding-agents-tmux'
+```
+
+Recommended settings:
+
+```tmux
+set -g @coding-agents-tmux-provider 'plugin'
+set -g @coding-agents-tmux-auto-install 'opencode,pi,codex,claude,copilot'
+set -g @coding-agents-tmux-menu-key 'O'
+set -g @coding-agents-tmux-popup-key 'P'
+set -g @coding-agents-tmux-waiting-menu-key 'W'
+set -g @coding-agents-tmux-waiting-popup-key 'C-w'
+set -g @coding-agents-tmux-cycle-key 'C-n'
+set -g @coding-agents-tmux-status 'on'
+set -g @coding-agents-tmux-status-style 'tmux'
+set -g @coding-agents-tmux-status-position 'right'
+set -g @coding-agents-tmux-status-interval '0'
+```
+
+Those settings favor the bundled plugin provider, explicitly enable tmux-managed installs for the bundled OpenCode plugin plus the Pi extension and Codex/Claude hooks, and use event-driven status redraws so tmux stops polling Node in the background.
+
+To match your tmux theme, you can also override the status colors:
+
+```tmux
+set -g @coding-agents-tmux-status-color-neutral 'default'
+set -g @coding-agents-tmux-status-color-idle 'colour244'
+set -g @coding-agents-tmux-status-color-unseen 'colour39'
+set -g @coding-agents-tmux-status-color-busy 'colour81'
+set -g @coding-agents-tmux-status-color-waiting 'colour214'
+set -g @coding-agents-tmux-status-color-unknown 'colour240'
+```
+
+Using `default` is a good way to let the segment inherit your existing tmux theme colors. The `unseen` color marks idle panes that have finished but that you have not looked at yet; such panes also use a distinct filled-circle glyph (versus the hollow idle circle) so they stand out even in the uncolored menu and popup. Once you focus the pane it reverts to the `idle` color and glyph.
+
+Then install or reload TPM:
+
+```tmux
+prefix + I
+```
+
+Requirements:
+
+- Node 24+ must be installed
+- npm 10+ must be installed
+- TPM will install CLI dependencies automatically on first load with `npm ci --omit=dev`
+- OpenCode V2 is the primary supported integration; OpenCode V1 1.18.29+ is supported as a temporary compatibility bridge
+- OpenCode versions older than V1 1.18.29 are not supported
+- `opencode` clients must be restarted after first install so the generation-appropriate bundled plugin is loaded
+- `codex` sessions must be restarted after first install so newly installed hooks are loaded
+- `pi` sessions must be restarted after first install so the bundled extension is loaded
+- `claude` sessions must be restarted after Claude hook installation so new hooks are loaded
+
+## What TPM sets up
+
+With the recommended settings above, the tmux plugin manages the bundled `opencode` plugin, the Pi extension, and the Codex and Claude hook installs for you.
+
+It detects the installed OpenCode version and installs the matching bundled plugin layout:
+
+```text
+OpenCode V2: ~/.config/opencode/plugins/coding-agents-tmux/index.ts
+             ~/.config/opencode/plugins/coding-agents-tmux/tui.ts
+OpenCode V1: ~/.config/opencode/plugins/coding-agents-tmux.ts
+```
+
+The V2 directory or V1 file is symlinked to the TPM-installed plugin. If `XDG_CONFIG_HOME` is set, replace `~/.config` with that directory. The installer removes the managed layout for the other generation when upgrading or rolling back. It also removes an old `plugins/opencode-tmux.ts` symlink when its target is a verified managed plugin (including the original `plugin/opencode-tmux.ts` source in a previous checkout); unrelated links and user-managed files are preserved.
+
+TPM runs the generation-aware installer automatically. To run it manually after changing OpenCode versions:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux install-opencode
+```
+
+After a V2 install or update, restart each full OpenCode TUI client so its pane-local TUI plugin loads. After a V1 install or update, restart each OpenCode V1 session/server process so the server plugin reloads.
+
+That plugin publishes normalized session state files under:
+
+```text
+~/.local/state/coding-agents-tmux/plugin-state
+```
+
+`XDG_STATE_HOME` changes the `~/.local/state` root. `CODING_AGENTS_TMUX_STATE_DIR` overrides the complete plugin-state path for both OpenCode generations.
+
+On first install, the tmux plugin also bootstraps the CLI runtime dependencies inside:
+
+```text
+~/.tmux/plugins/coding-agents-tmux/node_modules
+```
+
+It also installs or updates the bundled Pi extension under:
+
+```text
+~/.pi/agent/extensions/coding-agents-tmux/index.ts
+```
+
+That extension publishes normalized Pi state files under:
+
+```text
+~/.local/state/coding-agents-tmux/pi-state
+```
+
+It also installs or updates Codex hook integration under:
+
+```text
+~/.codex/config.toml
+~/.codex/hooks.json
+```
+
+With the recommended `@coding-agents-tmux-auto-install 'opencode,pi,codex,claude,copilot'` setting, it also installs or updates Claude Code hook integration under:
+
+```text
+~/.claude/settings.json
+```
+
+You can disable the automatic symlink step with:
+
+```tmux
+set -g @coding-agents-tmux-install-opencode-plugin 'off'
+```
+
+You can disable the automatic Pi extension setup with:
+
+```tmux
+set -g @coding-agents-tmux-install-pi-extension 'off'
+```
+
+You can disable the automatic Codex hook setup with:
+
+```tmux
+set -g @coding-agents-tmux-install-codex-hooks 'off'
+```
+
+You can disable the automatic Claude Code hook setup with:
+
+```tmux
+set -g @coding-agents-tmux-install-claude-hooks 'off'
+```
+
+You can also control all tmux-managed installs together:
+
+```tmux
+set -g @coding-agents-tmux-auto-install 'auto'
+set -g @coding-agents-tmux-auto-install 'off'
+set -g @coding-agents-tmux-auto-install 'opencode,pi,codex,claude,copilot'
+```
+
+The explicit `opencode,pi,codex,claude,copilot` list is the recommended README setting because it makes the intended managed installs obvious in your tmux config. When `@coding-agents-tmux-auto-install` is set, it takes precedence over the individual install toggles. Kiro CLI has no hook/extension installer; it uses pane and preview detection without an install step.
+
+## Usage
+
+Default key bindings:
+
+- `prefix + O` opens the main menu chooser
+- `prefix + P` opens the main popup chooser
+- `prefix + W` jumps to the only waiting session, or opens a waiting-only menu if there are multiple
+- `prefix + C-w` opens the waiting-only popup chooser
+- `prefix + C-n` cycles to the next agent pane that needs attention (see [Smart cycling](#smart-cycling))
+
+Launcher behavior:
+
+- `menu` uses a tmux menu and is the most reliable option
+- `popup` opens a popup chooser if you prefer a larger interactive view
+
+Inside the popup you can do more than pick a row number:
+
+- type to filter the list by target, session, title, state, or path
+- use the up and down arrows or `Ctrl-J` / `Ctrl-K` to move through the matching panes
+- use `Ctrl-G` then `1` through `9` to immediately open the matching visible row
+- press `Enter` to switch to the selected pane
+- press `Esc` to close the popup or `Ctrl-R` to refresh the live pane list
+
+You can configure each binding independently:
+
+```tmux
+set -g @coding-agents-tmux-menu-key 'O'
+set -g @coding-agents-tmux-popup-key 'P'
+set -g @coding-agents-tmux-waiting-menu-key 'W'
+set -g @coding-agents-tmux-waiting-popup-key 'C-w'
+set -g @coding-agents-tmux-cycle-key 'C-n'
+```
+
+Set any of them to `off` to disable that binding.
+
+## Smart cycling
+
+`prefix + C-n` jumps straight to the agent pane that most needs your attention,
+so you do not have to open a chooser and scan the list yourself. Press it
+repeatedly to walk through every agent pane in priority order.
+
+Panes are ranked by attention tier, highest first:
+
+| Tier | Pane state                                | Why                            |
+| ---- | ----------------------------------------- | ------------------------------ |
+| 1    | waiting for a question or free-form input | blocked on you right now       |
+| 2    | idle                                      | finished; may need review      |
+| 3    | new                                       | just started, nothing yet      |
+| 4    | running                                   | working; nothing for you to do |
+| 5    | unknown                                   | no reliable signal             |
+
+Within a tier, the pane that has been in its state **longest** comes first
+(true FIFO), so a session that has been waiting a while is never starved by
+newer arrivals.
+
+### Seen vs. unseen
+
+Cycling tracks which panes you have already looked at. A pane counts as **seen**
+once it has been the active pane at any point since it entered its current
+state — so ordinary tmux navigation acknowledges panes too, not just cycling. A
+pane becomes **unseen** again when its state changes (for example, a running
+session goes idle, or an idle session starts waiting on a prompt).
+
+Acknowledgements and status ages belong to a pane ID within one tmux server
+lifetime. Detaching and reattaching preserves them, as does restoring sessions
+while the same server and panes survive. A full server restart starts a fresh
+attention sweep: new or restored panes are unseen until focused or cycled to.
+Independent tmux servers never share this history.
+
+Unseen panes are offered before seen ones. Cycling first sweeps every pane you
+have not looked at — highest priority first, across tiers — so an unseen running
+pane comes before a seen idle one. Waiting panes lead this sweep while unseen;
+once visited, they give way to the remaining unseen panes even if their prompts
+are unanswered. When no other unseen pane remains, cycling traverses the full
+ranked list, with waiting panes first, so every pane stays reachable. Cycling
+never dead-ends: as long as there is more than one agent pane, `C-n` always moves.
+
+Unseen idle panes are also marked in the [status line](#status-line) and in the
+menu and popup choosers with a distinct filled circle (and a blue color where
+colors are available), so you can tell at a glance which finished sessions you
+have not yet reviewed.
+
+### Example
+
+Three agents: **A** waiting on a prompt, **B** just finished (idle), **C** still
+running — none looked at yet.
+
+- Press `C-n` → jumps to **A** (waiting outranks everything).
+- Press `C-n` → jumps to **B** (idle outranks running).
+- Press `C-n` → jumps to **C** (running is last).
+- Press `C-n` → all three are now seen, so cycling falls back to the full ranked
+  list and wraps back to **A**: still waiting, so still first in line.
+
+Looking at **A** does not answer its prompt, but lets the unseen sweep continue
+to **B** and **C**. If **A** is still waiting when the sweep finishes, it remains
+first in the full ranked list. Answering the prompt moves it out of the waiting
+tier.
+
+If **C** later goes idle, it becomes unseen again — so the next `C-n` jumps
+straight to it ahead of every seen pane, not just those in its own tier.
+
+The cycle key is configurable like the other bindings, and can be disabled with
+`off`:
+
+```tmux
+set -g @coding-agents-tmux-cycle-key 'C-n'
+```
+
+Cycling records what it has observed under:
+
+```text
+~/.local/state/coding-agents-tmux/cycle-state
+```
+
+This holds one small file per pane (the pane's last observed state, when it
+entered that state, and whether it has been seen). It is derived data and safe
+to delete — cycling simply starts from a clean slate, treating every pane as
+unseen again.
+
+## Status line
+
+When enabled, the status line shows two views at once:
+
+- the current pane state
+- a compact summary of the remaining detected coding-agent panes
+
+Example output, rendered as an image so the Nerd Font icons show on GitHub:
+
+![coding-agents-tmux status line examples](docs/assets/status-line-examples.png)
+
+The default prefix is the Nerd Font robot glyph shown in the rendered examples above. You can also replace it with your own label:
+
+```tmux
+set -g @coding-agents-tmux-status-prefix 'agents'
+```
+
+This means:
+
+- The first row means the focused pane is idle and the background panes are waiting, busy, and idle in target order.
+- The second row means the focused pane is busy and more than eight background panes are shown in compact symbol mode.
+- The third row means the focused pane is newly started and there are no other detected coding-agent panes.
+
+If your active pane is not a detected coding-agent pane, the status line uses the strongest detected coding-agent pane in the current tmux window. Other panes are counted as background work.
+
+Background pane symbols are shown in a stable target order:
+
+- <img src="docs/assets/icons/status-waiting.png" width="14" alt="waiting icon"> waiting
+- <img src="docs/assets/icons/status-busy.png" width="14" alt="busy icon"> busy
+- <img src="docs/assets/icons/status-idle.png" width="14" alt="idle icon"> idle (hollow circle; shown once you have focused the pane)
+- unseen idle (filled circle, blue): finished but not yet looked at — changes to the hollow idle circle after you focus it
+- <img src="docs/assets/icons/status-new.png" width="14" alt="new icon"> new
+- <img src="docs/assets/icons/status-unknown.png" width="14" alt="unknown icon"> unknown
+
+The unseen-idle marker is a distinct glyph as well as a distinct color, so it is still distinguishable in the uncolored menu and popup choosers. It reflects the same seen/unseen tracking that drives [smart cycling](#smart-cycling).
+
+By default the status line adds spaces between background pane symbols for readability. If there are more than eight background panes, it automatically switches to a compact no-space form.
+
+Enable or tune the status line with:
+
+```tmux
+set -g @coding-agents-tmux-status 'on'
+set -g @coding-agents-tmux-status-style 'tmux'
+set -g @coding-agents-tmux-status-position 'right'
+set -g @coding-agents-tmux-status-interval '0'
+```
+
+By default the plugin uses manual mode so your theme can place the segment itself.
+
+With the bundled plugin provider, `0` makes the status line event-driven: session events and tmux navigation hooks trigger redraws instead of polling on a timer. If you switch to the `sqlite` or `server` provider, set a positive interval if you still want periodic background refreshes.
+
+For Catppuccin, use the renamed module export:
+
+```tmux
+set -g @coding-agents-tmux-status 'on'
+set -g @coding-agents-tmux-status-mode 'manual'
+
+set -g status-right "#{E:@catppuccin_status_session}"
+set -ag status-right "#{E:@catppuccin_status_directory}"
+set -ag status-right "#{E:@catppuccin_status_agents}"
+```
+
+For other themes, use the tone-aware inline export:
+
+```tmux
+set -g @coding-agents-tmux-status 'on'
+set -g @coding-agents-tmux-status-mode 'manual'
+
+set -ag status-right " #{@coding-agents-tmux-status-inline-format}"
+```
+
+If you want to fully control the wrapper yourself, use the plain text export instead:
+
+```tmux
+set -ag status-right " #[fg=colour81]agents #[default]#{@coding-agents-tmux-status-text}"
+```
+
+`manual` mode is the default. `#{E:@catppuccin_status_agents}` gives Catppuccin users a native-looking module, `#{@coding-agents-tmux-status-inline-format}` gives other themes a tone-aware inline segment, and `#{@coding-agents-tmux-status-text}` gives a plain live summary text export for fully custom wrappers. `append` mode restores the old behavior and appends automatically.
+
+## External integrations
+
+The CLI exposes the same state used by the tmux segment as a stable machine-readable summary:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux status --summary --json
+```
+
+The JSON includes totals by state, the aggregate tone, and the rendered summary. External status bars and widgets can query it without duplicating agent detection.
+
+Set a generic notification command to update an external integration whenever agent state or the tmux pane layout changes:
+
+```tmux
+set -g @coding-agents-tmux-notify-command 'sketchybar --trigger coding_agents_changed'
+```
+
+The command is optional, runs after state changes, and is ignored when unset. It remains active when the tmux status segment is disabled.
+
+Bundled examples:
+
+- [`integrations/sketchybar`](integrations/sketchybar) renders the global agent summary in SketchyBar without polling
+- [`integrations/external`](integrations/external) focuses a configured terminal and launches the full popup or compact menu from AeroSpace, Raycast, Hammerspoon, or another external launcher
+
+When TPM installs the plugin in its default directory, launch either chooser with the bundled external script:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/integrations/external/focus-and-popup.sh
+~/.tmux/plugins/coding-agents-tmux/integrations/external/focus-and-popup.sh --waiting
+~/.tmux/plugins/coding-agents-tmux/integrations/external/focus-and-popup.sh --menu
+```
+
+The script selects the most recently active attached tmux client by default. Set `CODING_AGENTS_TMUX_CLIENT` to target one explicitly. Terminal placement and native focus remain the responsibility of the external window manager or launcher.
+
+## Configuration
+
+Available tmux options:
+
+- `@coding-agents-tmux-menu-key` main menu chooser key, default `O`
+- `@coding-agents-tmux-popup-key` main popup chooser key, default `P`
+- `@coding-agents-tmux-waiting-menu-key` waiting-only menu chooser key, default `W`
+- `@coding-agents-tmux-waiting-popup-key` waiting-only popup chooser key, default `C-w`
+- `@coding-agents-tmux-cycle-key` next-attention cycle key, default `C-n`
+- `@coding-agents-tmux-install-opencode-plugin` `on` or `off`, default `on`
+- `@coding-agents-tmux-install-pi-extension` `on` or `off`, default `on`
+- `@coding-agents-tmux-install-codex-hooks` `on` or `off`, default `on`
+- `@coding-agents-tmux-install-claude-hooks` `on` or `off`, default `off`
+- `@coding-agents-tmux-auto-install` `auto`, `off`, or a comma-separated list like `opencode,pi,codex,claude`; when set, it overrides the individual install toggles
+- `@coding-agents-tmux-provider` `auto`, `plugin`, `sqlite`, or `server`, default `plugin`
+- `@coding-agents-tmux-server-map` JSON object or JSON file path for explicit server endpoints
+- `@coding-agents-tmux-popup-filter` one of `all`, `busy`, `waiting`, `running`, `active`
+- `@coding-agents-tmux-popup-width` popup width, default `100%`
+- `@coding-agents-tmux-popup-height` popup height, default `100%`
+- `@coding-agents-tmux-popup-title` popup title, default `Coding Agent Sessions`
+- `@coding-agents-tmux-status` `on` or `off`, default `on`
+- `@coding-agents-tmux-status-style` `plain` or `tmux`, default `tmux`
+- `@coding-agents-tmux-status-mode` `append` or `manual`, default `manual`
+- `@coding-agents-tmux-status-position` `right` or `left`, default `right`
+- `@coding-agents-tmux-status-interval` tmux `status-interval`, default `0`
+- `@coding-agents-tmux-status-prefix` label shown before the status summary, default Nerd Font robot glyph
+- `@coding-agents-tmux-status-color-neutral` tmux color for the prefix and separators, default `colour252`
+- `@coding-agents-tmux-status-color-idle` tmux color for idle state, default `colour70`
+- `@coding-agents-tmux-status-color-unseen` tmux color for idle panes that finished but have not been looked at, default `colour39`
+- `@coding-agents-tmux-status-color-busy` tmux color for busy state, default `colour220`
+- `@coding-agents-tmux-status-color-waiting` tmux color for waiting state, default `colour196`
+- `@coding-agents-tmux-status-color-unknown` tmux color for unknown/none state, default `colour244`
+- `@coding-agents-tmux-notify-command` optional shell command invoked after agent or tmux layout state changes
+
+## Providers
+
+Recommended provider:
+
+- `plugin` for the best waiting/running/idle detection in normal local OpenCode sessions, and the default tmux integration provider
+
+Provider modes:
+
+- `auto` uses plugin state when available, then a configured generation-aware server adapter, then the safe V1 SQLite fallback
+- `plugin` uses only plugin state files; pane-local TUI state is the preferred V2 source of truth
+- `sqlite` provides exact status only for the supported V1 bridge; it resolves `OPENCODE_DB`, then `opencode debug paths db`, then the legacy V1 path, and explicitly refuses V2 or unknown schemas
+- `server` uses a legacy V1 pane-to-endpoint map or a typed V2 shared-server map from `@coding-agents-tmux-server-map`
+
+Example:
+
+```tmux
+set -g @coding-agents-tmux-provider 'plugin'
+```
+
+### OpenCode V2 architecture
+
+OpenCode V2 normally uses one shared background service for multiple terminal clients. The bundled TUI plugin runs inside each full TUI client, where `TMUX_PANE` is trustworthy, and publishes that pane's selected root session plus its child-session family. Child activity and blockers affect the pane state without replacing the root session identity.
+
+The background service is shared state, not pane ownership. A server endpoint alone cannot identify which session belongs to a pane, so the V2 server provider also requires an explicit pane-to-root-session mapping. Generate a starting template with:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux server-map-template
+```
+
+The V2 shape is:
+
+```json
+{
+  "generation": "v2",
+  "endpoint": "http://127.0.0.1:4096",
+  "panes": {
+    "work:1.2": { "sessionId": "root-session-id" }
+  }
+}
+```
+
+Set it directly with `@coding-agents-tmux-server-map`, point that option at a JSON file, or use `CODING_AGENTS_TMUX_SERVER_MAP`. The adapter verifies `/api/info`, then uses the V2 `/api/session/active`, `/api/session/{id}`, permission, and form endpoints. Legacy V1 maps retain the flat `{"target":"endpoint"}` shape and use the V1 API only.
+
+OpenCode `mini` V2.0.9 does not load the TUI plugin. In mini, pane-local plugin state may therefore be unavailable; `auto` must rely on other configured or fallback signals, which have reduced state and pane/session fidelity. Do not expect mini to match the full TUI's exact waiting and root-family tracking.
+
+## Pi
+
+`pi` panes are detected from the live tmux pane command and common title patterns, so they show up in `list`, `switch`, `popup`, and `status` alongside `opencode`, `codex`, `claude`, and `kiro` panes.
+
+Use `--agent opencode`, `--agent codex`, `--agent pi`, `--agent claude`, `--agent kiro`, or `--agent all` on `list`, `switch`, `popup`, `popup-ui`, and `status` when you want to narrow mixed tmux environments.
+
+For the best Pi runtime fidelity, let the tmux plugin install the bundled Pi extension automatically. It is linked into:
+
+```text
+~/.pi/agent/extensions/coding-agents-tmux/index.ts
+```
+
+That extension publishes pane-aware Pi state under:
+
+```text
+~/.local/state/coding-agents-tmux/pi-state
+```
+
+Pi runtime support is intentionally minimal and extensible:
+
+- with the bundled Pi extension loaded, Pi panes can report `new`, `running`, `idle`, `waiting-question`, and `waiting-input`
+- blocking Pi extension UI prompts, including `ask_user_question`, are reported as waiting until the prompt closes
+- without the extension, `coding-agents-tmux` falls back to pane preview heuristics when possible
+- if preview is inconclusive, Pi falls back to a coarse `running` state when a `pi` process is still detected in the tmux pane
+- Pi has no built-in permission or plan mode integration here yet, so those states are not modeled specially
+
+The installer removes the old `~/.pi/agent/extensions/opencode-tmux/index.ts` entry only when it is a symlink to this checkout's bundled Pi extension or the exact `plugin/pi-tmux.ts` path in a verified previous `opencode-tmux` or `coding-agents-tmux` checkout. It removes the old directory only if empty; custom files, unrelated links, and symlinked directories are preserved.
+
+After first install or update, restart Pi sessions in tmux so they load the bundled extension and unload any previously loaded duplicate.
+
+## Codex
+
+`codex` panes are detected from the live tmux pane command, so they show up in `list`, `switch`, `popup`, and `status` alongside `opencode`, `pi`, `claude`, and `kiro` panes.
+
+Use `--agent opencode`, `--agent codex`, `--agent pi`, `--agent claude`, `--agent kiro`, or `--agent all` on `list`, `switch`, `popup`, `popup-ui`, and `status` when you want to narrow mixed tmux environments.
+
+Default Codex runtime support is intentionally coarse:
+
+- if a tmux pane is running a `codex` process, it is classified as `running`
+- waiting, question, and idle distinctions are still `opencode`-specific until a stronger Codex-local state source is added
+
+To enable higher-fidelity Codex state with Codex hooks:
+
+1. Let the tmux plugin install the global Codex config automatically, or run it manually:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux install-codex
+```
+
+2. Optionally generate an additional repo-local hooks file:
+
+```bash
+mkdir -p .codex
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux codex-hooks-template > .codex/hooks.json
+```
+
+3. Restart `codex` sessions in tmux so they begin publishing hook-backed state.
+
+With hooks enabled, `coding-agents-tmux` can mark Codex panes as `idle` or `waiting-input` between turns instead of showing every Codex pane as continuously `running`.
+
+## Claude Code
+
+`claude` panes are detected from the live tmux pane command and common title patterns, so they show up in `list`, `switch`, `popup`, and `status` alongside `opencode`, `codex`, `pi`, and `kiro` panes.
+
+Default Claude Code runtime support is intentionally coarse:
+
+- if a tmux pane is running a `claude` process, it is classified as `running`
+- waiting, question, and idle distinctions become higher fidelity when Claude hooks are installed
+
+To enable higher-fidelity Claude Code state with hooks:
+
+1. Install or update the global Claude hook config manually:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux install-claude
+```
+
+2. Or let the tmux plugin manage it by setting either:
+
+```tmux
+set -g @coding-agents-tmux-install-claude-hooks 'on'
+```
+
+or the shared selector:
+
+```tmux
+set -g @coding-agents-tmux-auto-install 'opencode,pi,codex,claude,copilot'
+```
+
+3. Optionally inspect the managed hook template before merging it into project or user Claude settings:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux claude-hooks-template
+```
+
+4. Restart `claude` sessions in tmux so they begin publishing hook-backed state.
+
+With hooks enabled, `coding-agents-tmux` can mark Claude panes as `idle`, `waiting-question`, or `waiting-input` between turns instead of showing every Claude pane as continuously `running`.
+
+## Kiro CLI
+
+`kiro` panes are detected from live tmux pane commands such as `kiro-cli`, `kiro-cli-chat`, `kiro-cli-term`, and `kiro`, plus common title patterns. They show up in `list`, `switch`, `popup`, and `status` alongside the other supported coding agents.
+
+Kiro runtime support is intentionally simple and does not require any Kiro agent configuration:
+
+- if a tmux pane is running a Kiro CLI process, it is classified as `idle` unless preview text shows an obvious waiting prompt
+- pane preview heuristics can detect obvious question or approval prompts as waiting states
+- no Kiro hooks are installed or required; Kiro support is based on tmux process/title detection and preview fallback only
+- the session column uses a lightweight pane-derived label, usually the current directory basename
+
+This means any `kiro-cli` pane can be discovered and switched to without naming or modifying a Kiro custom agent.
+
+## GitHub Copilot CLI
+
+An interactive `copilot` process (or `copilot.exe` on Windows) in a tmux pane is discovered in `list`, the chooser/popup, and `status`. The `gh copilot` launcher is also discovered when its foreground process group contains a direct Copilot CLI child (or a known npm Node wrapper with a Copilot child); GitHub CLI's downloaded copy does not need a separate standalone installation. Use `--agent copilot` to filter navigation. No hooks are required: without them, activity and status remain `unknown` rather than guessing a wait. Title text, unrelated `gh` commands, and arbitrary `copilot-*` commands are not detected. The npm-installed CLI's Node wrapper is recognized by its executable path; generic wrapper support is tracked separately in #19.
+
+For optional, **local Copilot CLI only** turn and prompt state, add `copilot` to `@coding-agents-tmux-auto-install` (or use `auto`) to install/update the user-level hooks whenever the tmux plugin loads. You can preview the configuration with `coding-agents-tmux copilot-hooks-template` or install it directly with `coding-agents-tmux install-copilot`. This creates only `${COPILOT_HOME:-~/.copilot}/hooks/coding-agents-tmux.json`; other user hooks are untouched. Restart existing Copilot CLI sessions so hooks load. Do not put these hooks in `.github/hooks/` (repository hooks also execute in Copilot cloud agent). Leaving `copilot` out of the selector does not install hooks.
+
+The adapter correlates `TMUX_PANE`, the hook process's Copilot parent PID, and the Copilot `sessionId`, including concurrent sessions in one directory and `/clear` (which ends the old session and starts another). An exited or backgrounded Copilot process invalidates its hook state even if another CLI starts in the same pane. `userPromptSubmitted` means running; `agentStop` means idle. Only `notification` types `permission_prompt` and `elicitation_dialog` assert waiting-question and waiting-input respectively; automatic permission checks and `preToolUse` never assert a wait. An elicitation notification does not reveal whether its form contains multiple choices, so it is conservatively labeled input. Resolved prompts clear at the next turn boundary (`agentStop`); hooks do not expose an immediate resolution event, so the state can briefly lag after an answer. Hook state expires after 60 seconds without a subsequent event (including an unanswered prompt). After expiry, a recognizable live Copilot input prompt reports heuristic `idle` without trusting the old hook session identity; unreadable or unrecognized screens remain `unknown`. The same preview can identify a fresh CLI prompt before its first hook event. `inspect` reports hook source, age and expiry, preview, or command-only fallback. If hooks are disabled, folder trust blocks them, tmux pane identity is missing, or a hook is missed, no directory-only match is made. `COPILOT_HOME` selects the hook directory; `CODING_AGENTS_TMUX_COPILOT_STATE_DIR` overrides the local state directory. The integration neither grants permissions nor injects context.
+
+## How this compares to Herdr
+
+[coding-agents-tmux](https://github.com/corwinm/coding-agents-tmux) adds coding-agent awareness to an existing tmux setup. [Herdr](https://github.com/herdrdev/herdr) is a separate terminal multiplexer built around coding agents. They solve a similar navigation problem, but at different layers.
+
+|                            | coding-agents-tmux                                                                                                              | Herdr                                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Multiplexer                | Uses your existing tmux server, config, plugins, sessions, and key bindings                                                     | Replaces tmux for the sessions it manages with its own panes, tabs, workspaces, and client                             |
+| Best fit                   | You already use tmux and want agent state, waiting-session shortcuts, and status-line integration without changing multiplexers | You want an agent-focused terminal runtime and are comfortable adopting a separate multiplexer                         |
+| Agent state                | Combines tmux pane metadata and captures with optional agent hooks, plugins, state files, and OpenCode providers                | Reads its own terminal buffers and foreground processes, with optional agent integrations reporting over its local API |
+| State detail               | Distinguishes running, idle, new, free-form input, multiple-choice questions, and unknown state                                 | Uses working, blocked, idle, and unknown pane states, with done derived for unseen completed work                      |
+| Agent coverage             | Focused support for OpenCode, Codex, Pi, Claude Code, Kiro CLI, and Copilot CLI                                                 | Broader built-in detection across many agent CLIs                                                                      |
+| Navigation and UI          | tmux menus, popups, key bindings, status formats, and existing tmux themes                                                      | A dedicated agent sidebar and UI, plus its own CLI and socket API                                                      |
+| Persistence and remote use | Uses tmux persistence and whatever SSH, mosh, or tmux workflow you already have                                                 | Owns persistent terminal sessions and provides its own attach and remote workflow                                      |
+| Extensibility              | TypeScript providers and agent-specific hooks or plugins                                                                        | Declarative screen-detection manifests plus agent integrations and an API                                              |
+
+Choose this plugin when tmux is already the center of your terminal workflow. It keeps your current sessions and configuration intact, and adds a quick way to find the agent that needs attention.
+
+Choose Herdr when you want the multiplexer itself to understand agents and expose that state through a dedicated UI and API. Owning the terminal gives Herdr broader process and screen visibility, but using it means managing those panes in Herdr rather than tmux.
+
+The two projects can be installed on the same machine for separate workflows, but they do not share pane state. This plugin discovers tmux panes; it cannot inspect individual panes nested inside a Herdr session.
+
+State accuracy in either project depends on the agent. Native hooks and plugins provide stronger lifecycle signals, while screen-based detection can need updates when an agent changes its terminal UI.
+
+## Troubleshooting
+
+- `prefix + O` or `prefix + P` does nothing: make sure `node` and `npm` are installed and reload tmux
+- first TPM load feels slow: the plugin may be running `npm ci --omit=dev` to bootstrap dependencies
+- OpenCode V1 reports an unsupported version: upgrade to V1 1.18.29+ or, preferably, V2, then rerun `coding-agents-tmux install-opencode`; older V1 loaders are not supported
+- OpenCode V2 shows no plugin state: run `coding-agents-tmux install-opencode`, confirm the `coding-agents-tmux/` plugin directory is under `${XDG_CONFIG_HOME:-$HOME/.config}/opencode/plugins`, restart every full TUI client, and use `inspect <target> --debug` to check generation, plugin candidates, and the selected root family
+- OpenCode still loads an old V1 plugin or the wrong layout: rerun `coding-agents-tmux install-opencode`; it removes managed stale V1/V2 symlinks. If it refuses an unmanaged path, move that path aside and retry rather than deleting it blindly
+- OpenCode state follows the wrong pane after a layout change: restart the affected client to republish `TMUX_PANE` and its target, remove only stale files in `${CODING_AGENTS_TMUX_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/coding-agents-tmux/plugin-state}`, then inspect the pane with `--debug`
+- `sqlite` reports a V2 or unknown schema: switch to `plugin` or a typed V2 `server` map. The SQLite adapter intentionally supports only V1 `session`/`part` tables; use `inspect <target> --debug` to see the resolved database path and schema
+- `server` reports an API mismatch: use a typed V2 shared map for a V2 `/api/info` endpoint, or a flat legacy map only for V1. Regenerate with `server-map-template` and verify the mapped root session ID
+- OpenCode mini has no exact state: V2.0.9 mini does not load the TUI plugin; use a typed V2 server map if possible, otherwise expect reduced-fidelity fallback state
+- Pi still looks busy or unknown: confirm the bundled extension exists at `~/.pi/agent/extensions/coding-agents-tmux/index.ts` and restart the Pi session so it loads the extension
+- Codex still always looks busy: confirm `~/.codex/config.toml` has `hooks = true` under `[features]`, `~/.codex/hooks.json` exists, and restart the Codex session
+- Claude still always looks busy: confirm `~/.claude/settings.json` contains the managed `claude-hook-state` hook command and restart the Claude Code session
+- status looks stale with `sqlite` or `server`: set `@coding-agents-tmux-status-interval` to a positive value because event-driven refreshes are centered on the bundled plugin provider
+- TPM install changed but tmux still looks old: run `prefix + I` or `tmux source-file ~/.tmux.conf`
+
+## Local development sync
+
+If you edit this repo outside `~/.tmux/plugins/coding-agents-tmux`, tmux will still be using the TPM-installed copy until you sync it.
+
+Local development requires ShellCheck. On macOS, install it with Homebrew:
+
+```bash
+brew install shellcheck
+```
+
+Useful commands:
+
+```bash
+npm run sync-tmux
+npm run sync-tmux -- --reload
+npm run sync-tmux -- --bootstrap --reload
+npm run restore-tmux
+```
+
+- `sync-tmux` copies this checkout into `~/.tmux/plugins/coding-agents-tmux`
+- `--reload` runs `tmux source-file ~/.tmux.conf` after syncing
+- `--bootstrap` reinstalls production dependencies in the synced plugin copy when `package.json` changed
+- `restore-tmux` removes the synced development files, preserves `node_modules`, and returns the TPM checkout to a clean state so `prefix + U` can update it normally
+
+Run `npm run restore-tmux` when you finish local development or before asking TPM to update all plugins.
+
+## CLI
+
+The repository also includes a CLI for debugging and manual inspection.
+
+Useful commands:
+
+```bash
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --provider plugin
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --agent codex
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --agent pi
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --agent claude
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --agent kiro
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --agent copilot
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux list --provider plugin --waiting
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux inspect <target> --provider plugin
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux status --provider plugin --style tmux
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux status --summary --json
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux popup --client auto
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux menu --client auto
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux install-opencode
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux server-map-template
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux cycle --provider plugin
+~/.tmux/plugins/coding-agents-tmux/bin/coding-agents-tmux tmux-config --provider plugin
+```
+
+`cycle` is normally driven by the `prefix + C-n` key binding (see
+[Smart cycling](#smart-cycling)); the CLI form is mainly useful for debugging.

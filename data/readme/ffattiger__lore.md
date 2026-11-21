@@ -1,0 +1,347 @@
+<p align="center">
+  <img src="docs/assets/lore-logo.svg" alt="Lore logo" width="96">
+</p>
+
+# Lore
+
+<p align="center">
+  <strong>One long-term memory system across your AI agents.</strong>
+</p>
+
+<p align="center">
+  Boot a stable baseline every session, recall the right nodes before each reply,<br>
+  and keep a durable memory graph that survives tools, restarts, and runtimes.
+</p>
+
+<p align="center">
+  <a href="https://loremem.com"><img src="https://img.shields.io/badge/website-loremem.com-0f766e?style=flat-square" alt="Website"></a>
+  <a href="https://github.com/FFatTiger/lore/releases/latest"><img src="https://img.shields.io/github/v/release/FFatTiger/lore?style=flat-square&label=release" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/FFatTiger/lore?style=flat-square" alt="MIT license"></a>
+  <a href="https://hub.docker.com/r/fffattiger/lore"><img src="https://img.shields.io/badge/docker-fffattiger%2Flore-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker image"></a>
+</p>
+
+<p align="center">
+  <a href="https://loremem.com"><strong>Website</strong></a> ·
+  <a href="https://app.loremem.com"><strong>SaaS</strong></a> ·
+  <a href="./README.zh-CN.md">中文</a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#supported-runtimes">Runtimes</a> ·
+  <a href="#manual-setup">Manual Setup</a> ·
+  <a href="#development">Development</a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/recall-analytics.jpg" alt="Lore recall analytics dashboard" width="820">
+</p>
+
+| Recall Workbench | Memory Browser | Dream Diary |
+|:-:|:-:|:-:|
+| ![Recall Workbench](docs/screenshots/recall-workbench.jpg) | ![Memory Browser](docs/screenshots/memory-browser.jpg) | ![Dream Diary](docs/screenshots/dream-diary.jpg) |
+
+## What Lore is
+
+Lore is a self-hosted memory and Skill service for coding agents and other LLM runtimes. It gives agents a durable graph of memories, a fixed startup baseline, per-prompt recall, guarded write tools, and versioned Skills that sync into each agent's own skills directory at session start; server-managed package files are read-only while the skill directory itself stays writable, so local outputs, caches, and artifacts live directly inside the copy.
+
+Most memory layers stop at retrieval. Lore covers the full lifecycle:
+
+- **Boot** — load stable identity, workflow, user, and runtime memories at session start
+- **Recall** — inject a small `<recall>` candidate set before the agent answers
+- **Read before trust** — open a node before relying on a recalled candidate
+- **URI-first graph** — durable addresses such as `core://agent`, `preferences://user`, `project://my_project`
+- **Disclosure** — each memory states when it should surface
+- **Dream** — scheduled maintenance with quality checks and rollback history
+- **Skills** — on servers that advertise Skills, Loremem is the source of truth: at session start each agent's plugin syncs the skills that agent can see into the host's own skills directory, so the host's native skill system discovers and loads them (`/lore:<name>` in Claude Code, `$name` or `/skills` in Codex, `/skill:<name>` in Pi, `/<name>` in OpenClaw and Hermes). Server-managed files are read-only and the skill directory stays writable for local outputs
+
+## Quick Start
+
+Prefer managed hosting? Use [Loremem SaaS](https://app.loremem.com) and connect agents with a token — no local Docker required. Self-host below if you want everything on your machine.
+
+### 1. Install
+
+Requires Node.js 20+.
+
+```bash
+npx @loremem/cli
+```
+
+Chinese installer output:
+
+```bash
+npx @loremem/cli --lang zh
+```
+
+One command:
+
+- connects to an existing Lore server, or deploys one locally with Docker Compose (`postgres` + `redis` + `web`) when you choose to
+- connects the agent runtimes detected on this machine
+- writes `~/.lore/config.json`
+
+On a TTY, `npx @loremem/cli` always opens the interactive installer; any flags you pass are preselected and can still be changed. Add `-y` to run straight from flags: unset options use defaults (channels default to detected runtimes), and the server must come from `--base-url`, `--docker`, or a saved config. Re-run anytime to update.
+
+Common flags:
+
+| Flag | Description |
+| --- | --- |
+| `--pre` | Pre-release channel (`pre-latest` image) |
+| `--dev` | Dev channel (`dev-latest` image) |
+| `--channels CH,...` | Install only some runtimes: `claudecode`, `codex`, `pi`, `openclaw`, `hermes`, `opencode`, `zcode`, `dsh` |
+| `--base-url URL` | Use an existing Lore server and skip local Docker |
+| `--docker` | Deploy the Lore server on this machine with Docker |
+| `--api-token TOKEN` | API token for the server |
+| `-y`, `--yes` | Non-interactive: run straight from flags |
+| `--allow-insecure-http` | Explicitly allow a token over non-loopback HTTP for this run only |
+| `--skip-docker` | Configure agents only |
+| `--force` | Reinstall even when the version is unchanged |
+| `--lang en\|zh` | Installer language |
+
+Examples:
+
+```bash
+# Pre-release
+npx @loremem/cli install --pre
+
+# External server
+# Warning: plain HTTP can expose or alter the API token in transit. Prefer HTTPS.
+# This explicit approval applies only to this run and is never saved.
+npx @loremem/cli install \
+  --base-url http://192.168.1.100:18901 --api-token my-token \
+  --allow-insecure-http
+
+# Claude Code + Pi only
+npx @loremem/cli install --channels claudecode,pi
+
+# Update later
+npx @loremem/cli update
+npx @loremem/cli status
+```
+
+### 2. Finish first-run setup
+
+Open:
+
+```text
+http://127.0.0.1:18901/setup
+```
+
+Complete:
+
+1. **Embedding** — OpenAI-compatible endpoint used for semantic recall
+2. **View LLM** — model used for view refinement and Dream
+3. **Global boot memories** — `core://agent`, `core://soul`, `preferences://user`
+4. **Channel agent memories** — runtime-specific nodes under `core://agent/*`
+
+`Skip` saves the default value for an empty boot node and continues.
+
+### 3. Success signal
+
+You are ready when:
+
+1. `http://127.0.0.1:18901/setup` completes
+2. the Web UI opens at `http://127.0.0.1:18901`
+3. restarting a connected agent injects Lore boot context and later shows `<recall>` candidates
+
+Then open `/settings` only if you want to tune recall weights, Dream schedule, backups, or write policy.
+
+## Supported runtimes
+
+| Runtime | Integration | What you get |
+| --- | --- | --- |
+| **Pi** | `pi-extension/` | Extension tools, startup boot, per-prompt recall, and Skill sync into Pi's own skill system (managed files read-only, dir writable). |
+| **Claude Code** | `claudecode-plugin/` | Marketplace plugin, remote Memory MCP, SessionStart boot and recall hooks, and Skill sync into the plugin's `skills/` directory |
+| **Codex** | `codex-plugin/` | Local marketplace plugin, remote Memory MCP, boot/recall hooks, and Skill sync into the plugin's `skills/` directory |
+| **OpenClaw** | `openclaw-plugin/` | Runtime plugin with boot, recall, Lore tools, and Skill sync into the plugin's `skills/` directory |
+| **Hermes** | `hermes-plugin/` | MemoryProvider plugin with Lore tools, recall, and Python-native Skill sync into `~/.lore/skills/<project-id>/` |
+| **OpenCode** | `opencode-plugin/` | Native plugin with exact `lore_*` tools and recall, plus session-start Skill sync into `~/.config/opencode/skills/` (Lore-marked entries only) |
+| **ZCode** | `zcode-plugin/` | Native marketplace plugin with SessionStart boot and UserPromptSubmit recall hooks (no MCP) |
+| **DeepSeek Harness** | `dsh-plugin/` | Native lifecycle plugin with per-session boot, pre-step recall, and an MCP bridge (`mcp__lore__*` tools) |
+| **Generic MCP** | `/api/mcp` | Streamable HTTP endpoint for clients that can attach remote tools |
+
+After install, restart each runtime. Useful notes:
+
+- **Claude Code** keeps its own auto-memory. To make Lore the only memory system, set `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` or `"autoMemoryEnabled": false` in `~/.claude/settings.json`.
+- **Codex** may ask you to trust Lore hooks under `/hooks`. If `/plugins` still shows Lore as installable, install it there; the script has already configured MCP and user-level hooks.
+- **OpenCode** reads `~/.lore/config.json`. The installer skips OpenCode cleanly when the `opencode` CLI is absent. See [OpenCode notes](#opencode-notes) for compatibility details.
+- **ZCode** uses native process hooks only. From a source checkout: `zcode plugins marketplace add /path/to/lore/zcode-plugin && zcode plugins install lore@lore && zcode plugins enable lore@lore`. Create `core://agent/zcode` in Lore setup if that node is still empty.
+- **DeepSeek Harness (dsh)** is wired through the home-level `~/.dsh/cordis.patch.yml`, so every profile gets the lifecycle plugin and the `mcp__lore__*` tools. Restart dsh after the install. Create `core://agent/dsh` in Lore setup if that node is still empty.
+
+Generic MCP URL shape:
+
+```text
+http://your-host:18901/api/mcp?client_type=mcp
+```
+
+## Daily use
+
+Once connected, the Memory flow is:
+
+1. load boot memories at session start
+2. receive `<recall>` candidates before prompts
+3. open relevant nodes with `lore_get_node`
+4. create or update durable memories when something should survive the session
+5. use the Web UI for graph editing, recall inspection, Dream, backup, and settings
+
+The Skill flow is separate and only exists on servers that advertise Skills (`capabilities.skills=true`). The open-source server has none, so plugins expose no Skills tools or context there.
+
+1. at session start, each plugin syncs the skills that agent can see into the host's own skills directory: the plugin's `skills/` directory for Claude Code, Codex, OpenClaw, and ZCode; `~/.lore/skills/<project-id>/` for Pi, Hermes (listed under `skills.external_dirs` in `~/.hermes/config.yaml`), and DeepSeek Harness; `~/.config/opencode/skills/` for OpenCode. Hook hosts hand the sync to a background process and exit, and every run records its outcome in `.lore-sync-status.json` in that directory. `lore install` and `lore update` run the same sync once for every channel they installed
+2. the host invokes skills through its own skill mechanism, so changes appear from the next session on — or sooner after `/reload` in Pi, `/reload-skills` in Hermes, a **Settings → Skills** refresh in ZCode; OpenClaw watches the directory and hot-loads changes
+3. every synced directory carries a `.lore-skill-marker.json` file, which is how Lore knows the directory is its own: unmarked directories are never touched, and skills in other directories are never read, uploaded, or deleted
+4. server-managed package files and the marker are read-only (0444 on POSIX) and the skill directory itself stays writable (0755) so agents can create local outputs, caches, and artifacts in the same copy; those artifacts are never checked or uploaded and they survive updates, and archiving or disabling a skill removes only its managed files
+5. `disable-model-invocation` skills stay out of model-initiated use on hosts that support the flag (Codex gets a generated `agents/openai.yaml` policy, DeepSeek Harness maps it to its invocation flags); each host's own trigger is listed in [Skills](https://loremem.com/documents/skills)
+
+Useful pages:
+
+| Path | Purpose |
+| --- | --- |
+| `/memory` | Browse and edit the memory graph |
+| `/recall` | Inspect retrieval stages and scoring |
+| `/dream` | Run structural maintenance |
+| `/settings` | Configure runtime behavior |
+
+## Manual setup
+
+Use this path when you want to run the server yourself.
+
+### Docker Compose
+
+```yaml
+services:
+  postgres:
+    image: fffattiger/pgvector-zhparser:pg16
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      POSTGRES_DB: ${POSTGRES_DB:-lore}
+      POSTGRES_USER: ${POSTGRES_USER:-lore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "${POSTGRES_PORT:-55439}:5432"
+    volumes:
+      - ${POSTGRES_DATA_DIR:-./data/postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lore} -d ${POSTGRES_DB:-lore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ${REDIS_DATA_DIR:-./data/redis}:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: fffattiger/lore:latest
+    restart: unless-stopped
+    pull_policy: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-lore}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-lore}
+      REDIS_URL: redis://redis:6379/0
+      API_TOKEN: ${API_TOKEN:-}
+    ports:
+      - "${WEB_PORT:-18901}:18901"
+    volumes:
+      - ${SNAPSHOT_DATA_DIR:-./data/snapshots}:/app/snapshots
+```
+
+```bash
+docker compose up -d
+curl http://127.0.0.1:18901/api/health
+```
+
+Then point agents at the server:
+
+```bash
+npx @loremem/cli install \
+  --base-url http://127.0.0.1:18901 --skip-docker
+```
+
+### Source build
+
+```bash
+git clone https://github.com/FFatTiger/lore.git
+cd lore
+docker compose up -d --build
+```
+
+## Development
+
+App code and `package.json` live under `web/`.
+
+```bash
+cd web
+cp .env.local.example .env.local
+npm install
+npm run dev
+```
+
+Requirements:
+
+- Node.js 20+
+- PostgreSQL with the `vector` extension
+- optional Redis; if Redis is unset or unreachable, Lore falls back to a local LRU cache
+
+Useful commands from `web/`:
+
+```bash
+npm run typecheck
+npm test
+```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for package layout and contribution flow.
+
+## Uninstall
+
+```bash
+npx @loremem/cli uninstall
+```
+
+```bash
+# Specific runtimes
+npx @loremem/cli uninstall --channels claudecode,pi
+
+# Remove config and Docker data too
+npx @loremem/cli uninstall --purge -y
+```
+
+<details>
+<summary>Legacy shell installers</summary>
+
+`scripts/install.sh`, `scripts/install.zh.sh`, and `scripts/uninstall.sh` remain for compatibility but are **frozen** and no longer receive new features. Prefer `npx @loremem/cli`.
+
+```bash
+# legacy only
+curl -fsSL https://raw.githubusercontent.com/FFatTiger/lore/main/scripts/install.sh | bash
+```
+
+</details>
+
+## OpenCode notes
+
+<details>
+<summary>Native plugin path, compatibility overrides, and MCP escape hatch</summary>
+
+The installer places `lore-memory.js` at `~/.config/opencode/plugins/lore-memory.js` and reads the server URL/token from `~/.lore/config.json`.
+
+Boot is injected through `experimental.chat.system.transform`. Prompt recall is injected as a current-turn part through `chat.message`. If the experimental system hook or Lore is unavailable, the adapter fails open instead of blocking the conversation.
+
+The standard install does not configure OpenCode MCP. The native plugin removes duplicate Lore MCP entries at runtime. When an existing user-level `oh-my-openagent.json[c]` or legacy `oh-my-opencode.json[c]` is safely parseable, the installer also sets `claude_code.plugins_override["lore@lore"] = false` to stop duplicate Claude Lore lifecycle hooks. It does not modify Claude Code files, warns and skips unsafe compatibility config, and restores the previous value on uninstall.
+
+Generic `/api/mcp` remains a manual fallback. Set `LORE_OPENCODE_ALLOW_MCP=1` only when you intentionally want that path.
+
+</details>
+
+## License
+
+[MIT](./LICENSE)

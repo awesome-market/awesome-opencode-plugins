@@ -1,0 +1,74 @@
+<p align="center">
+  <img alt="CodeParse" src="static/logo.svg" width="560">
+</p>
+
+<p align="center">
+  <img alt="Lines of Code" src="https://aschey.tech/tokei/github/cmgoffena13/codeparse?category=code">
+  <a href="https://github.com/cmgoffena13/selene-ai/actions"><img alt="Build Status" src="https://github.com/cmgoffena13/codeparse/actions/workflows/build-release.yml/badge.svg"></a>
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-informational?style=flat">
+</p>
+
+CodeParse is a codebase indexer that gives agents fast, accurate, and compact context on your Python codebases while reducing token usage. It parses your codebase and stores the relationships of your code in a local SQLite database.
+
+<div align="center">
+  <img alt="Benchmark" src="static/benchmark.png">
+  <br>
+  <small>See the <a href="#benchmark-evaluation">Benchmark Evaluation</a> section for more details.</small>
+</div>
+
+## Install MCP Server and Skill
+
+1. Put the `codeparse` binary on your PATH (release asset or `make compile` → `dist/codeparse`).
+2. `codeparse install`
+
+## Tools
+
+| Tool | Description |
+| --- | --- |
+| `get_entry_points` | Return the project entry points. |
+| `get_directory_tree` | Return the directory tree. |
+| `get_file_symbol_tree` | Return the symbol tree of one file. |
+| `get_symbol` | Return one symbol's definition with dependent and dependency counts. |
+| `get_symbol_at_lines` | Return the symbol that covers a line range in a file. |
+| `get_symbol_relations` | Return dependents or dependencies for one symbol. |
+| `get_import_relations` | Return dependents or dependencies for one module. |
+| `search_symbols` | Full Text Search symbol names. |
+| `list_subclasses` | Return the classes that directly inherit from a class. |
+
+## Resources
+
+| Resource | Description |
+| --- | --- |
+| `skill://codeparse/SKILL.md` | Guided exploration skill for navigating Python codebases. |
+| `stats://codeparse/sessions` | Per-session markdown table of files with tool calls and a tokens-saved range. |
+
+## Commands
+
+| Command | Description |
+| --- | --- |
+| `install` | Register the MCP server in installed clients and write the skill. |
+| `uninstall` | Remove the codeparse MCP server, skill, and indexes. |
+| `update` | Replace the binary with the latest release (`--version` optional) and update the skill. |
+| `mcp` | Start the MCP server. |
+| `reload` | Drop the index and reprocess the workspace ad-hoc |
+
+## Benchmark Evaluation
+
+In-Progress
+
+Ten questions found in `eval/tasks.json` are evaluated against the [SQLMesh](https://github.com/TobikoData/sqlmesh) repo using a baseline agent and an agent with the CodeParse MCP server and skill.
+
+| Model | Baseline Avg Tokens | CodeParse Avg Tokens | Token Reduction |
+| --- | --- | --- | --- |
+| Grok 4.7 High Fast | 185,371 | 119,572 | -35% |
+| Opus 5.5 Medium | ... | ... | ... |
+
+
+## Running the Evaluation
+
+Cursor Default Model: `grok 4.7`  
+Claude Defualt Model: `opus 5.5 medium`
+
+ - `make eval-smoke cursor` will run all 10 questions and evaluate.
+ - `make eval cursor` will run all 10 questions on repeat (10 times) and evaluate. 
+

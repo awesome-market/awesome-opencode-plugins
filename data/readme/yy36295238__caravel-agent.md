@@ -1,0 +1,108 @@
+<div align="center">
+
+[English](README.en.md) · **简体中文**
+
+
+# Caravel
+
+### 你掌舵，Agent 并行。
+
+本地优先的多 AI 编码 Agent 工作台，把项目、任务、会话和代码验收放在一起。
+
+**Claude Code · Codex · OpenCode · Pi · Grok · TRAE · Antigravity**
+
+<p>
+  <a href="https://www.caravelai.top/"><strong>访问官网 ↗</strong></a>
+  &nbsp; · &nbsp;
+  <a href="https://www.caravelai.top/demo/?lang=zh-CN"><strong>在线体验</strong></a>
+  &nbsp; · &nbsp;
+  <a href="https://www.caravelai.top/zh-CN/docs/"><strong>产品手册</strong></a>
+  &nbsp; · &nbsp;
+  <a href="https://www.caravelai.top/#film"><strong>观看短片</strong></a>
+  &nbsp; · &nbsp;
+  <a href="https://github.com/yy36295238/caravel-agent/releases/latest"><strong>下载 Caravel</strong></a>
+</p>
+
+[![Latest Release](https://img.shields.io/github/v/release/yy36295238/caravel-agent?display_name=tag&style=flat-square&label=release&color=416fae)](https://github.com/yy36295238/caravel-agent/releases/latest)
+
+macOS（Apple Silicon / Intel）、Windows x64 与 Linux x64 · 使用你自己的 Agent 和模型账号<br>TRAE 需要 CLI 2.0 与企业版旗舰版账号。
+
+[![Caravel 工作台（素白主题）：项目任务列表、Agent 会话与代码验收](docs/assets/workbench-plain-zh-CN.png)](https://www.caravelai.top/)
+
+**点击截图，访问官网并体验完整工作台。**<br>
+<sub>演示使用产品原版界面与示例数据，无需安装。</sub>
+
+</div>
+
+## 从目标，到交付
+
+- **并行派发**：给不同项目创建任务，选择 Agent，让多项工作同时推进。
+- **集中跟进**：查看执行状态，接续会话，在需要时确认权限或调整方向。
+- **审查交付**：查看代码 Diff，继续修改，或在验收后合并、推送独立分支。
+
+我的应用、定时器、工作流和更多功能，前往 [官网查看](https://www.caravelai.top/#possibilities) 或 [在线操作体验](https://www.caravelai.top/demo/?lang=zh-CN)。
+
+## 工作方式的变化
+
+过去每个 Agent CLI 各开一个终端，授权、进度和 Diff 都要逐个窗口去找；在 Caravel 里，任务在一个工作台并行推进，需要你处理的事集中出现。
+
+![过去与现在：多个终端分别运行 Agent CLI，对比 Caravel 一个工作台并行推进任务并集中处理授权与验收](docs/diagrams/caravel-workflow-zh-CN.svg)
+
+## 产品功能架构
+
+从触达层、应用层、Agent 层到基础层，一张图了解 Caravel 的功能分布，以及贯穿各层的安全与管控。
+
+[![Caravel 产品功能架构图：用户入口、任务指挥中心、自动化编排、开发工具、个人效率、Agent 接入与基础支撑](docs/diagrams/caravel-product-map-zh-CN.png)](docs/diagrams/caravel-product-map-zh-CN.png)
+
+点击图片查看高清原图。图中功能数量为制图时快照，当前能力以[完整功能说明](docs/product-overview.md)为准。
+
+## 技术架构
+
+下图逐步演示一次任务如何从界面进入 Rust 任务核心，经 ACP、Codex App Server 或 CLI/JSONL 驱动本机 Agent，再统一落库并推送回界面；也展示了日程、飞书和手机端等其他入口。
+
+![Caravel 技术架构动态图：入口经 Tauri 命令层进入任务核心，AgentDriver 通过三类通路驱动 Agent，事件经 RunSink 落库并推送界面](docs/diagrams/caravel-architecture-zh-CN.svg)
+
+## 开始使用
+
+1. [下载安装包](https://github.com/yy36295238/caravel-agent/releases/latest)：macOS 打开 `.dmg`，将 **Caravel** 拖入「应用程序」；Windows x64 下载并运行 `Caravel_*_x64-setup.exe`；Linux x64 选择 AppImage 或 deb。
+2. 准备 Git 和至少一个已安装、完成登录或配置的受支持 Agent CLI。
+3. 添加本地项目，创建任务，选择 Agent 并开始运行。
+
+macOS、Windows 与 Linux 均提供包含全部功能模块的 Caravel 通用版。macOS 与 Windows x64 支持应用内签名更新；旧 Windows 客户端需先手动安装支持自动更新的版本。Windows 安装前准备 Git for Windows、Node.js 和 Agent CLI，Linux 用系统包管理器安装 Git、Node.js 和 Agent CLI。Windows 安装包尚未使用 Authenticode 签名，如遇 SmartScreen 提示，确认来自本仓库 Releases 后，点击「更多信息 → 仍要运行」。下载页注明各平台安装包的实际版本，Linux 通过下载新包手动更新。任务与会话保存在本机；Agent 调用在线模型或使用外部集成时仍会联网。
+
+正式版会向 Caravel 自有服务器发送随机安装及事件标识、版本、系统/架构和启动、更新事件时间，用于安装与活跃统计；不包含会话、代码、路径、账号或硬件标识。统计独立于自动更新开关，开发版不上报；数据按安装数据目录去重，不代表准确人数或设备数。
+
+<details>
+<summary><strong>首次打开被 macOS 阻止？查看「仍要打开」和终端放行命令</strong></summary>
+
+当前公开版本尚未使用 Apple Developer ID 签名和公证。确认安装包来自本仓库 Releases，并将 Caravel 放入「应用程序」后，可选择以下任一方式打开。
+
+**方式一：在系统设置中允许打开**
+
+1. 先尝试打开一次 Caravel，让 macOS 显示阻止提示。
+2. 打开「系统设置 → 隐私与安全性」，向下找到 Caravel 被阻止的说明，点击「仍要打开」。
+3. 按提示输入 Mac 登录密码或使用 Touch ID，再点击「打开」。部分系统版本的按钮文案为「仍然打开」。
+
+**方式二：终端放行命令**
+
+打开 Mac 的「终端」，执行以下命令，再重新打开 Caravel：
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Caravel.app
+```
+
+此命令仅移除 Caravel 的下载隔离属性。其他安装问题见 [官网安装帮助](https://www.caravelai.top/#install-help)。
+
+</details>
+
+## 免费使用与许可证
+
+Caravel 安装包以 [Apache License 2.0](LICENSE) 授权，个人和商业用途均可免费使用，也可按许可证条款修改和再分发；再分发时须保留所需许可证与归属声明，分发修改后的文件时须注明修改。
+
+应用源码保持私有，不对外提供，因此不将 Caravel 描述为开源软件。第三方组件遵循各自许可证；Agent 订阅、模型 API 及其他外部服务可能另行收费。
+
+---
+
+本仓库提供 **macOS / Windows / Linux 安装包与版本记录**。产品介绍、交互演示与常见问题请以 [官网](https://www.caravelai.top/) 为主。
+
+[版本记录](https://github.com/yy36295238/caravel-agent/releases) · [完整功能说明](docs/product-overview.md) · [常见问题](https://www.caravelai.top/#faq)

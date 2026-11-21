@@ -1,0 +1,1347 @@
+# Agentic Coding Lab
+
+A lightweight research framework for systematically comparing agentic coding setups — models, agent architectures, and prompt strategies — using reproducible benchmarks.
+
+**Browse the results:** [marcoemrich.github.io/agentic_coding_lab](https://marcoemrich.github.io/agentic_coding_lab/) — one page per research question, with consistently formatted result tables. How the site is built: [Results site](#results-site).
+
+## Motivation
+
+When working with agentic coding, many practical questions arise: Does a setup with dedicated sub-agents for testing produce cleaner code than a single agent doing everything? Does Sonnet deliver better code quality than Opus on a refactoring task? How do different prompt styles affect the outcome? This framework was built to answer such questions with data instead of gut feeling.
+
+## What This Framework Does
+
+The framework runs controlled experiments across four dimensions:
+
+- **Workflow variants** — from simple one-shot generation ("vibe coding") to structured TDD with specialized agents per phase
+- **Model configurations** — Opus 4.7, Sonnet 4.6, Haiku 4.5, with and without extended thinking
+- **Coding katas** — standardized tasks, known (game-of-life, mars-rover) and novel (claim-office, claim-office-lite); see [Katas](#katas)
+- **Prompt styles** — prose, example-mapping, user-story
+
+Each experiment produces measurable metrics: token usage, code complexity, code smells, test coverage, TDD cycle discipline, and more.
+
+Aggregation is **research-question-driven**: A research question (RQ) defines a selector query (factors × controls × outcomes) over `experiments/runs/`, and tooling generates `runs.csv` + `summary.md` on demand. Batch plans are pure data-collection helpers that fill missing replicates.
+
+## Core Concept: Research-Question-Driven Aggregation
+
+Earlier iterations of this lab were **batch-driven**: each batch produced its own results folder, and a finding was tied to "the batch it came from". That coupling made it hard to evolve hypotheses (every new analysis required a new batch) and hard to combine evidence across batches.
+
+The current model decouples three concerns:
+
+1. **A research question (RQ)** declaratively describes what is being studied — its factors, controls, outcomes, and required replicates.
+2. **Runs** are produced once and live in a single flat pool (`experiments/runs/`), independent of any RQ or batch.
+3. **Aggregations** are derived on demand by selecting all runs matching an RQ's frontmatter — across *all* batches that ever produced matching cells.
+
+```
+                                +-----------------------------+
+                                |  research/{questions-*,       |
+                                |    workflow-dev}/<chapter>-*/ |
+                                |  README.md (frontmatter)      |
+                                +---------+-------------------+
+                                          |
+                                          | factors × controls
+                                          v
+            +----------------+    +----------------+    +----------------+
+            | aggregate-by-  |    | batch-plan-    |    |   findings.md  |
+            | query.py       |    | from-rq.py     |    |  (curated)     |
+            +-------+--------+    +--------+-------+    +----------------+
+                    |                      |
+                    | matches              | missing cells
+                    v                      v
+            +-----------------+    +------------------------+
+            | experiments/    |    | experiments/           |
+            | runs/  (pool)   |<---| batch-plans/<rq>-fill  |
+            +-----------------+    +------------------------+
+                       executed by docker/batch.sh
+```
+
+### What an RQ contains
+
+RQ directories live in six subtrees: `research/questions-claude/` (Claude Code RQs),
+`research/questions-opencode/` (OpenCode RQs), `research/questions-pi/` (pi RQs),
+`research/questions-cursor-cli/` (cursor-cli RQs), `research/questions-cross/`
+(cross-harness RQs), and `research/workflow-dev/` (workflow-evolution chain).
+**Adding a new subtree requires registering it in `RQ_TREES` in
+`experiments/generate-snapshot-skeleton.py`** — the script has no auto-discovery and
+silently omits unregistered subtrees from snapshots. Each dir carries a `<chapter>-slug`
+name (e.g. `2.6-lean-validation`) where the chapter number is an **ordering label, not an id** —
+like a document section heading, freely renumber-able by `git mv`. The stable identity is the
+frontmatter `id:`; tooling resolves an RQ by that id across all subtrees, never by directory name.
+
+Each `README.md` starts with YAML frontmatter that acts as a **selector query** over the run pool:
+
+```yaml
+---
+id: RQ-prompt-correctness
+question: "Does workflow choice affect code quality, correctness, TDD discipline?"
+factors:                          # what varies
+  workflow_x_prompt:
+    - {workflow: baseline-oneshot-v1-cc,         prompt: prose}
+    - {workflow: exact-subagents-v1-cc, prompt: example-mapping}
+controls:                         # what is held constant
+  kata_base: game-of-life
+  model: opus-4-7-no-thinking
+outcomes: [tests_passing, code_mass, smell_total, longest_function, ...]
+min_replicates: 3
+---
+```
+
+The cartesian product of `factors × controls` produces **cells** — each cell is one `(kata, workflow, model)` combination that needs `min_replicates` runs.
+
+**Terminology**:
+
+- **Factor** — a variable that is *deliberately varied* across runs. The effect of a factor is what the RQ measures.
+- **Control** — a variable that is *held constant* so it cannot confound the factor effect. A finding under `model: opus-4-7-no-thinking` is a finding *for that model*; transfer to other models is an open question, not an established result.
+- **Outcome** — a metric that is *observed* per run.
+
+Mixing values into a control (e.g. running additional `opus-4-6` replicates into an RQ controlled on `opus-4-7`) collapses the control into an uncontrolled factor and invalidates the comparison. To study a different model variant, open a new RQ — either with `model` as a factor (model-comparison RQ) or with the new value pinned as the control (separate finding, scoped to that model).
+
+### Two tools, one frontmatter
+
+- **`aggregate-by-query.py`** reads the frontmatter, selects every matching run from `experiments/runs/`, and writes `runs.csv` (raw data) + `summary.md` (pivots per outcome) + `summary.json` into the RQ directory. Re-runs the moment new replicates land — no plan editing required. A file is rewritten only when its content changed (ignoring `summary.md`'s `Generated:` line), rows are sorted by `run_id`, and runs without an `exit_reason` are skipped and reported. It refuses to run while a `batch`/`batch-retry` container is running or Docker is unreachable.
+- **`batch-plan-from-rq.py`** reads the same frontmatter, counts existing matches per cell, and emits `experiments/batch-plans/<rq>-fill.json` containing exactly the missing `(kata, workflow, model)` triples needed to reach `min_replicates`. Idempotent: if everything is already covered, the plan is empty.
+
+Together: declare the question once → fill the gaps → re-aggregate.
+
+### Frontmatter schema
+
+```yaml
+---
+id: RQ-<slug>                       # stable identity, e.g. RQ-prompt-correctness
+question: "Full text of the research question"
+factors:                          # what varies
+  <factor-name>: [<value>, ...]
+  # OR for paired factors:
+  workflow_x_prompt:
+    - {workflow: baseline-oneshot-v1-cc, prompt: prose}
+    - ...
+controls:                         # what is held constant
+  kata_base: game-of-life         # kata base name without prompt suffix
+  workflow: exact-subagents-v1-cc    # only if no workflow_x_prompt factor
+  prompt: example-mapping         # only if no prompt factor / pairing
+  model: <lab-variant-id>         # e.g. opus-4-7-no-thinking (see model alias table)
+  harness_version: "2.1.267"      # optional; omit unless a CLI bump is a factor
+outcomes: [<metric>, ...]         # which metrics are measured
+min_replicates: N                 # per cell
+closed: "<reason>"                # optional — only for an RQ that ends without full data
+---
+```
+
+**No status field.** Whether an RQ still needs work is read off the data, not declared. `experiments/rq-status.py` prints per RQ: cells at `min_replicates` / cells declared, matched runs, findings in `findings.md`, and runs newer than the last change to `findings.md` (rules: `experiments/rq_facts.py`). An RQ needs attention when a cell is short (timeouts count toward it), there is no finding, or runs arrived after the findings — the last case happens silently when a sister RQ fills a cell with the same workflow × model × kata. `--open` lists only those. The one hand-set field is `closed: "<reason>"`, for an RQ that ends on purpose without full data (abandoned, deprecated, accepted replicate gap), because that is a decision the data cannot show.
+
+**Selector resolution**: The selector query forms the effective kata ID as `<kata_base>-<prompt>`. `prompt` comes from `controls.prompt`, the `workflow_x_prompt` pairing, or `factors.prompt`.
+
+**OR-match on `controls.model`**: A control normally pins one exact value. `controls.model` is the one exception that accepts an explicit OR-match:
+
+```yaml
+controls:
+  model:
+    any:                            # OR-match across providers/routings
+      - opus-4-7-portkey-no-thinking
+      - opus-4-7-no-thinking
+```
+
+All listed values count toward the same cell during aggregation, and the first entry is the canonical value used for new fill-runs (`batch-plan-from-rq.py`) and cell labelling in `summary.md`. The real per-run model stays in `runs.csv` under the `model` column for debugging; the cell-grouping value is the new `cell_model` column.
+
+Intended use: combine routing variants of the same underlying model (e.g. Portkey-routed and Direct-API runs of `opus-4-7-no-thinking`) when routing is assumed not to affect the outcome under study. **Not** for combining different *models* — use `factors.model` instead, otherwise you collapse a real factor into a hidden uncontrolled variable.
+
+`controls.workflow` accepts the same three forms, for an outcome-neutral workflow bugfix whose old and new runs must land in one cell.
+
+### Selecting on the CLI version
+
+`harness_version` is an optional fourth selector axis, usable as a control or a factor. **Omit it in normal RQs** — a cell then spans whatever CLI versions produced its runs, which is the right default and the behaviour every RQ written before 2026-09 relies on.
+
+Declare it when a harness bump is a live factor, i.e. when runs from before and after the bump would otherwise be compared as if the CLI were constant:
+
+```yaml
+controls:
+  harness_version: "2.1.267"        # only runs on this CLI count
+```
+
+```yaml
+factors:
+  harness_version: ["2.1.267", unrecorded]   # period control: bump as the factor
+```
+
+Values are bare version tokens; `metrics.json` stores `"2.1.267 (Claude Code)"` and the match is on the leading token, so the frontmatter stays readable. The sentinel **`unrecorded`** selects runs from before `run-batch.sh` began capturing the field (2026-09). It means *not recorded*, **not** "some particular older version" — for those runs the run date is the only evidence of which CLI produced them, so a period control built on `unrecorded` is only as sound as that dating.
+
+A cell pinned to `unrecorded` is structurally unfillable: a fresh run always stamps the current CLI. `batch-plan-from-rq.py` reports the shortfall on stderr instead of emitting runs that could never satisfy it.
+
+When any cell declares the axis, `summary.md` gains a `harness` column in the coverage table and a `cell_harness` level in every pivot; RQs that ignore the axis keep their existing table shape byte-for-byte.
+
+### Outcome conventions
+
+`outcomes` in the frontmatter are CSV column names from `runs.csv` (see `CSV_COLUMNS` in `experiments/aggregate-by-query.py`). `aggregate-by-query.py` picks the pivot type automatically:
+
+| Value type / naming        | Pivot form                                                     |
+|----------------------------|----------------------------------------------------------------|
+| Boolean                    | rate_% (share of `true`)                                       |
+| Numeric                    | mean / min / max / std over the cell                           |
+| Suffix `<X>_correct_rate`  | **pooled** rate from `<X>_correct` and `<X>_total`: Σ/Σ × 100  |
+
+**Pooled rate**: Used for success rates with numerator/denominator per run, e.g. `predictions_correct_rate` → Σ`predictions_correct` / Σ`predictions_total`. Preferred over the mean of per-run rates because runs with small denominators would otherwise be over-weighted.
+
+### Methodology constraints
+
+These rules apply lab-wide and are respected by every RQ.
+
+#### Workflow → permitted prompt styles
+
+For methodological symmetry:
+
+| Workflow | Permitted prompt styles | Rationale |
+|---|---|---|
+| baseline-oneshot-v1-cc, baseline-iterative-v1-cc | only **prose** | Concrete examples in the prompt nudge the agent toward starting with tests, which contaminates the non-TDD condition — the whole point of v1/v2 is to observe what happens when the agent is *not* steered into test-first. |
+| baseline-inline-tdd-v1-cc, exact-subagents-v1-cc, exact-single-context-v1-cc | **prose, example-mapping, user-story** | Examples serve as natural test cases — for TDD workflows this is the ideal task shape. |
+
+Consequences for RQ design:
+
+- **Workflow as factor**: Factor is named `workflow_x_prompt` and is a paired list of `{workflow, prompt}` tuples. Default pairing: v1/v2 → prose, v3/v4/v5 → example-mapping (the so-called "fair" comparison).
+- **Workflow as control**: `controls.workflow` and `controls.prompt` are set together, respecting the constraint.
+
+#### Code-quality signal limited to game-of-life and mars-rover
+
+From the re-evaluation of an earlier 235-run study, three constraints are stable:
+
+1. **Classic katas live in training data** (string-calculator, pixel-art-scaler, etc.). Models solve them too trivially — `smell_total = 0` consistently.
+2. **Pixel-art-scaler is not usable as a novel-kata sanity check** (no workflow or model differentiation).
+3. **Code-quality signal is only visible on game-of-life and mars-rover.** Statements about `smell_total`, `longest_function`, etc. must be based on these katas — cross-kata averages over trivial katas dilute the signal.
+
+**Consequence for RQs**: All current RQs use `kata_base: game-of-life` as the default. mars-rover stays available for cross-kata validation once enough replicates exist. Generalizability claims about arbitrary katas are 🚫 not testable with the current design.
+
+**New novel kata**: `claim-office` was added as a fresh, non-classic kata with enough complexity to differentiate workflows and models. It is not in training data and ships with an external acceptance suite (see [CLI katas](#cli-katas-with-external-acceptance-suite)), so correctness is measured from the outside via `verification_pct`. Once enough replicates land, it becomes the second carrier of the code-quality signal alongside game-of-life.
+
+**Reduced variant `claim-office-lite`**: a derived kata with the same `quote` rules but `claim` stripped of cap-tracking and multi-claim chains (10 scenarios instead of 15, all 6 ambiguities preserved). Discriminability test 2026-05-21 (7 workflows × 2 replicates × example-mapping × opus-4-7-portkey-no-thinking) showed it differentiates workflows on **code-quality metrics** (`cognitive_max` 3–21, `mccabe_max` 4–15) and **wallclock** (3 min to 88 min) — usable as a faster code-quality kata alongside game-of-life. Not usable for correctness research: with example-mapping `verification_pct` saturates at 9–10/10 for all workflows; with prose it collapses to 2–4/10 without workflow separation. For correctness use the full `claim-office`.
+
+#### Goodhart's Law: metrics named in workflow prompts stop being independent outcomes
+
+> *"When a measure becomes a target, it ceases to be a good measure."* — Goodhart's Law
+
+The moment a workflow or agent prompt explicitly names a metric (e.g. "reduce cognitive complexity", "keep functions short"), runs of that workflow no longer produce **independent observations** of that metric — they produce **compliance signals**. A finding like "v6.6 improves `cognitive_max` over v6.5" then partly measures how diligently the agent follows its own instructions, not how good the resulting code is.
+
+This is not an absolute disqualifier — naming `code_mass` ideas (APP) in refactor prompts is already standard practice in the v5/v6 line, and `code_mass` is still measured. But the contamination must be tracked explicitly:
+
+- **Metrics named in the prompt** of a workflow under test are **compliance metrics** for that workflow. Cross-workflow comparisons on those metrics are valid only if *both* workflows name them (or *neither* does).
+- **Hidden metrics** — never named in any prompt — stay independent. `mutation_score` is the strongest example: it measures test-suite quality from the outside and is hard to game without also producing better tests.
+- **No numeric thresholds in workflow/agent prompts** (e.g. `cognitive_max < 15`, `LoC < 50`). Katas and scenarios are too volatile for any single threshold to be meaningful — qualitative language only ("reduce", "extract when …"). Mirrored in `CLAUDE.md` under "Editing workflows".
+- When introducing a new metric into an agent's vocabulary, **open a new workflow variant** (e.g. v6.6) rather than mutating an existing one, so prior findings on that metric remain interpretable.
+
+When in doubt, list the named metrics in the workflow's `README.md` / header so future RQs know which outcomes are compliance signals for it.
+
+#### Cycle discipline is measured from the transcript, not from markers
+
+> **Superseded in 2026-10 by the [phase chain](#phase-chain-metrics).** The
+> transcript route below replaced markers for cycle discipline and was itself
+> retired: it read 0 for any model that writes files through the shell. Its
+> fields survive only under the `legacy_` prefix in each run's `metrics.json`. The argument against markers
+> still holds and is why the phase chain reads test-runner events instead.
+
+A verbatim `Red Phase Complete` block is **not a neutral probe**. An output
+obligation once per RED phase creates exactly the structural break that separates
+one cycle from the next — so measuring cycle discipline through markers partly
+manufactures the discipline it reports. This is the marker equivalent of the
+Goodhart problem above: the instrument is part of the workflow.
+
+**Default until 2026-10:** cycle discipline came from `experiments/measure-tdd-rigour.py`,
+which reads only the tool sequence (test-file edits, `src/` edits, test-runner
+invocations) and needs no markers at all:
+
+| Outcome | Meaning |
+|---|---|
+| `test_blocks` | test-write blocks — **1 = big bang**, >1 = incremental |
+| `test_cases_total / test_blocks` | how coarse the steps are (test cases per block) |
+| `test_cases_first_block` | test cases in the very first block — was the entry already coarse? |
+| `red_verified` / `red_unverified` | was there a test run between writing a test and writing impl? |
+
+A *block* is an uninterrupted run of test-file writes; a test run or an edit under
+`src/` closes it.
+
+**Evidence that the two agree on our own workflows** (`claim-office-example-mapping`,
+`opus-5-no-thinking`):
+
+| Workflow | marker `cycle_count` | transcript `test_blocks` |
+|---|---:|---:|
+| exact-hybrid-v2.4-lab-split-cc | 50 | 50 |
+
+The marker is emitted per cycle by our own commands, so the two coincide. On a
+**vendored** skill with a lab-inserted RED block they diverge — the inserted
+marker does not fire on every block. Marker-derived `cycle_count` is therefore
+reliable for workflows we author and unreliable for external ones.
+
+**Consequences:**
+
+- **Do not add a RED marker block to vendored external skills.** They stay
+  unmodified; only the DONE marker remains (without it the container hits its
+  timeout). See `experiments/workflows/MARKERS.md`.
+- **Markers still own what the transcript cannot see:** `refactorings_applied`,
+  `predictions_correct` / `predictions_total` (predictions are plain assistant
+  text — invisible without the gate string), and per-phase tokens/duration. This
+  rule replaces the marker only for cycle discipline, not wholesale.
+- RQs comparing an external workflow against an internal one should report
+  `test_blocks` alongside `cycle_count` where both exist, and prefer
+  `test_blocks` when they disagree.
+
+#### Reasoning state is a model property, not a controllable factor (pi harness)
+
+Under the pi harness with Requesty routing, whether a model reasons is **not** something the experiment sets. Measured 2026-07-24 per model with a reasoning-demanding prompt, once with `--thinking off` and once with `--thinking high`, counting thinking blocks in the pi event stream:
+
+| Model | `off` | `high` | Controllable? |
+|---|---|---|---|
+| `opus-4-8` | 0 | 91 | **yes** |
+| `sonnet-5` | 0 | 0 (also at `max`) | no — never reasons |
+| `deepseek-v4-pro` | 0 | 0 | no — never reasons |
+| `qwen3-235b` | 0 | 0 | no — never reasons |
+| `glm-5-2` | reasons | 299 | no — always reasons |
+| `kimi-k2-7` | 217 | 137 | no — always reasons |
+| `minimax-m3` | 615 | 396 | no — always reasons |
+| `gpt-5-6-sol`, `gpt-5-6-terra` | 0 | 0 | no — forced off |
+
+`opus-4-8` is the only model where the switch takes effect. For every other model `--thinking <level>`, the `:<level>` suffix on the model string, and `models.json "reasoning": false` are all inert: Requesty-routed OpenAI-compatible models return reasoning through the `reasoning_content` channel, and suppressing it needs a provider-specific body parameter that pi neither sends nor allows injecting (model entries accept only `contextWindow, id, input, maxTokens, name, reasoning`; there is no `--extra-body`). `gpt-5.6-*` is a separate case: with reasoning enabled the Azure endpoint returns `400: Function tools with reasoning_effort are not supported … use /v1/responses instead`, and no `openai-responses/gpt-5.6-*` exists in the Requesty catalog (only 5.4 and 5.5), so both run with `"reasoning": false`.
+
+**Consequences for RQ design:**
+
+- **Encode reasoning in the model ID, not as a separate factor.** `<id>` (native default) and `<id>-no-thinking` (`--thinking off`) are two distinct lab-variants sharing one routing path — the same convention as `opus-4-7-no-thinking` on the Claude-native side. This keeps cell resolution unchanged; a separate `factors.reasoning` entry would imply the level is freely settable, which it is not.
+- **The table above is a single-prompt probe** (no tool calls, no long context). It is evidence about the switch, not proof that it behaves identically under a full kata run. Declaring both arms for a model the probe called "never"/"always" is legitimate as a **test of controllability**: if the pair shows no difference, merge the cells in findings as "switch inert, empirically checked" — never report it as a reasoning effect. Only where the switch provably cannot exist (`gpt-5-6-*` forced off; `glm-5-2` reasoning through `--thinking off`) should a model carry a single arm.
+- **Reasoning is confounded with the model.** In any pi model comparison the reasoning state rides along with the model identity. Document it per model in the RQ README and read model differences with it in view — "always reasons" (`glm-5-2`, `kimi-k2-7`, `minimax-m3`) vs. "never reasons" (`sonnet-5`, `deepseek-v4-pro`, `qwen3-235b`, `gpt-5-6-*`).
+- **Verify, do not assume.** `"reasoning": true` in `models.json` advertises a capability; it does not mean the state is settable, and it does not even mean the model reasons. Check the run itself:
+  ```bash
+  grep -c '"thinking":"' run.log                                 # thinking blocks
+  grep -oE '"reasoning":[0-9]+' run.log | grep -v ':0' | wc -l   # nonzero reasoning events
+  ```
+- A trivial prompt makes every model look non-reasoning. Probe with a task that actually demands reasoning, otherwise the measurement is an artifact.
+
+### Timeouts and aborted runs
+
+Each run has a hard wallclock budget (default 90 min, set via `CLAUDE_TIMEOUT_SECONDS=5400` in `run-batch.sh`). Only runs that ended `ok` count toward `min_replicates` (`is_replicate()` in `experiments/rq_facts.py`). A timeout, an infrastructure abort (`setup-error`, `rate-limited`, `transient-api-error`, `quota-exhausted`, `pi-retries-exhausted`), a `provider-refusal` or an unrecognised `error-N` is not a replicate: the next fill run plans a replacement. Nothing refills automatically and there is no cap — when a cell keeps timing out, whether to fill it again, raise the budget or set `closed:` is the user's call. A timeout is not retried inside the batch.
+
+A cell that systematically hits the budget still says something about the variant: refilling keeps only the runs that finished, so the timeout share per cell has to be reported next to its means.
+
+Consequences for analysis and data collection:
+
+- **Timeout runs are not deleted.** Their `metrics.json` is preserved with `run_status.exit_reason = "timeout"`. `tests_passing`, `verification_pct`, `code_mass`, etc. are `null`.
+- **Exhausted retry budgets** (`exit_reason = "rate-limited"` or `"transient-api-error"`) are treated the same way: the run is not a replicate. Configurable via `BATCH_RATELIMIT_RETRIES` (default 5).
+- **They do not count toward `min_replicates`.** `batch-plan-from-rq.py` plans a replacement for every run that did not end `ok` and reports how many it found.
+- **`n_ok` column** in the cell coverage table of `summary.md` counts the runs that ended `ok`; `n` counts every run, so the gap between them is the cell's timeout and abort count.
+
+### Findings status legend
+
+- `✅ stabil` — data robustly supports the finding (n≥3, clear signal)
+- `⚠️ bedingt` — only holds under a qualifying condition (named in the finding)
+- `❌ widerlegt` — data clearly contradicts the finding
+- `🚫 offen` — data basis missing; status open
+
+### Key files and their meaning
+
+| File | Owner | Lifespan | Purpose |
+|------|-------|----------|---------|
+| `research/<tree>/<chapter>-*/README.md` | human-curated | persistent | The question, its frontmatter selector, hypotheses, design rationale |
+| `research/<tree>/<chapter>-*/findings.md` | human-curated | persistent, **growing** | Numbered findings. Survives data refreshes |
+| `research/<tree>/<chapter>-*/runs.csv` | generated by `aggregate-by-query.py` | regenerated on demand | Flat table of all runs matching the selector |
+| `research/<tree>/<chapter>-*/summary.md` | generated by `aggregate-by-query.py` | regenerated on demand | Pivot tables per outcome × cell (only `ok` runs; nulls left out of `n` and counted) |
+| `research/<tree>/<chapter>-*/summary.json` | generated by `aggregate-by-query.py` | regenerated on demand | The same per-cell statistics as `summary.md`, plus run counters and run list; read by `export-site-data.py` |
+| `experiments/runs/<id>/metrics.json` | produced per run | immutable artefact | The atomic data point — every aggregation traces back here |
+| `experiments/batch-plans/<rq>-fill.json` | generated by `batch-plan-from-rq.py` | regenerated, throwaway | Missing-cell list for the next batch run |
+| `research/reports/` | human-curated snapshot | frozen | Published point-in-time reports (experiment-overview snapshots). Markdown only — PDFs are gitignored and built on demand via `/build-overview` |
+
+## Results site
+
+The results site publishes every main research question (`research/questions-*/`) as a static page: the question, its factors and controls, when the runs happened, and one result table per kata with `mean ± sd`, gaps, trophies and comparability warnings. A start page lists all RQs, grouped by harness. The tables are computed from the committed runs; nothing in the build path uses an LLM, so the formatting is the same for every RQ.
+
+It is built locally and published to GitHub Pages — there is no CI, because a build needs the run pool and the pandas aggregation path. `/publish-site` drives build and deploy end to end, including the precondition checks below; the commands are here for doing it by hand.
+
+**First-time setup on a machine.** Neither dependency tree is in the repo, and both failures are late and misleading:
+
+```bash
+curl -LsSf https://astral.sh/uv/0.12.17/install.sh | sh   # same pin as the Dockerfile
+cd experiments && uv sync                                 # creates the gitignored .venv
+cd ../site && pnpm install --frozen-lockfile              # creates site/node_modules
+```
+
+Both `pnpm build:site` and `pnpm deploy:site` are `uv run --project ../experiments python ...`, so without `uv` neither runs at all; the system Python is PEP 668 managed and has no `ensurepip`, so pip is not a way round it. Without `site/node_modules` the build dies as `astro: not found` — after it has already re-aggregated every RQ. The host's own pnpm version does not matter: corepack honours the `packageManager` pin in `site/package.json`.
+
+```bash
+cd site
+pnpm build:site     # aggregate every RQ, export the site data, build site/dist/
+pnpm preview        # serve site/dist/ locally
+```
+
+`pnpm build:site` runs `experiments/build-site.py`, which
+
+1. re-aggregates every RQ with `aggregate-by-query.py` (refused while a batch runs),
+2. turns `summary.json`, the RQ frontmatter, the workflow descriptions in `LINEAGE.yaml` and the metric registry (`experiments/metrics-registry.yaml`) into JSON under `site/src/data/` with `export-site-data.py` — it stops when an outcome has no registry entry or a workflow no description,
+3. builds the Astro site into `site/dist/` (both gitignored),
+
+and closes with `git diff --stat` over `research/`. A build without new runs leaves no diff. Statistics are computed once, in Python; the site's TypeScript only presents them. Every page is served beneath `/agentic_coding_lab/`, the local preview included, and its stamp names the commit it was built from.
+
+To publish, commit and push `main`, then:
+
+```bash
+pnpm deploy:site    # build, then push site/dist/ to the gh-pages branch
+```
+
+`experiments/deploy-site.py` refuses off `main`, with uncommitted changes under `research/` or `site/`, or while `main` is not pushed; it publishes nothing if its own build changes `research/`. So the published site always matches a pushed commit.
+
+That last guard is the one that bites, because a build **does** leave a diff whenever a committed aggregation was stale — a metric computed by `compute-cost.py` or `compute-mutation-score.py` and never aggregated, or a run re-measured whose cell another RQ shares. Commit that diff and deploy again; do not revert it, since the committed values are the stale ones. A diff that reappears on every build instead means the pandas/numpy pins in `experiments/pyproject.toml` have drifted from the host's system Python, which rewrites the last digits of every mean (see CLAUDE.md, "Host dependencies").
+
+Design decisions, architecture and the story log: [`site/docs/`](site/docs/README.md).
+
+## Repository Structure
+
+```
+.
+├── .claude/
+│   └── skills/                   # Claude Code skills for repo workflows
+│       ├── run-rq/               #   /run-rq RQ-N — drive an RQ end-to-end
+│       ├── build-overview/       #   /build-overview — generate cross-RQ snapshot
+│       └── publish-site/         #   /publish-site — build and deploy to gh-pages
+├── experiments/
+│   ├── katas/                            # Coding exercises (problem definitions)
+│   ├── workflows/                        # Workflow variants (v1–v5 + pi variants)
+│   ├── runs/                             # Recorded experiment results (flat pool)
+│   ├── batch-plans/                      # JSON batch specs (auto-generated per RQ)
+│   ├── docker/                           # Containerized batch execution
+│   ├── record-run.sh                     # Run a single experiment interactively
+│   ├── analyze-run.sh                    # Generate analysis-report.md + metrics.json for a run
+│   ├── reanalyze-all-runs.sh             # Backfill metrics across every existing run
+│   ├── aggregate-by-query.py             # RQ frontmatter → runs.csv + summary.md + summary.json
+│   ├── batch-plan-from-rq.py             # RQ frontmatter → batch plan filling missing cells
+│   ├── rq-status.py                      # Per RQ: cell coverage, findings, runs newer than findings
+│   ├── rq_facts.py                       # Rules behind rq-status.py; finding-header regex shared with the snapshot
+│   ├── analyze_transcript.py             # Parse CC/OC transcript.jsonl for TDD-cycle metrics
+│   ├── parse_pi_transcript.py            # Parse pi transcript-pi.jsonl (text-marker-based cycle counting)
+│   ├── parse_opencode_transcript.py      # Parse OpenCode session exports
+│   └── generate-snapshot-skeleton.py     # Cross-RQ snapshot skeleton (used by /build-overview)
+├── site/                         # Results site (Astro + React): src/, docs/, prototype/
+├── research/
+│   ├── RQ-prompt-correctness-workflow-effect/     # Per-RQ:
+│   │   ├── README.md             #   frontmatter selector + question + hypotheses
+│   │   ├── findings.md           #   curated, growing list of numbered findings
+│   │   ├── runs.csv              #   generated: raw data of all matching runs
+│   │   └── summary.md            #   generated: pivot tables per outcome × cell
+│   ├── RQ-prompt-known-kata-prompt-style/
+│   ├── ...                       # one directory per active RQ
+│   └── reports/                  # published experiment-overview snapshots (md; pdf built on demand)
+├── HUMAN-IN-THE-LOOP.md          # Optional HITL checkpoint guide
+└── todos_and_ideas.txt           # Future research directions
+```
+
+## Workflow Variants
+
+| Variant | Approach | Description |
+|---------|----------|-------------|
+| **baseline-oneshot-v1-cc** | No TDD | Direct implementation in one shot ("vibe coding" baseline) |
+| **baseline-iterative-v1-cc** | No TDD | Iterative prompting with plan/checklist |
+| **baseline-inline-tdd-v1-cc** | Minimal TDD | Just "use TDD" — no detailed rules |
+| **exact-subagents-v1-cc** | Structured TDD | Each TDD phase (red/green/refactor) runs in a separate, isolated agent |
+| **exact-single-context-v1-cc** | Structured TDD | All TDD phases run in one continuous context using inline skills |
+
+### baseline-oneshot-v1-cc (No TDD baseline)
+
+Single agent reads requirements, writes code, then adds tests after the fact. Baseline that measures the value of TDD itself. Tests are added based on the Example Mapping for fair comparison.
+
+```
+baseline-oneshot-v1-cc/.claude/
+└── rules/
+    └── experiment-mode.md     # Non-TDD approach + output format
+```
+
+### baseline-iterative-v1-cc (No TDD, iterative)
+
+Single agent builds an explicit checklist, implements step by step, then adds tests after. Measures whether structured iteration alone (without TDD) improves over one-shot.
+
+```
+baseline-iterative-v1-cc/.claude/
+└── rules/
+    └── experiment-mode.md     # Iterative approach + output format
+```
+
+### baseline-inline-tdd-v1-cc (TDD control)
+
+Single agent with minimal TDD rules — no phase-specific guidance, no agent spawning. Claude decides how to structure its TDD process. Lowest TDD overhead, maximum flexibility.
+
+```
+baseline-inline-tdd-v1-cc/.claude/
+└── rules/
+    └── experiment-mode.md     # Minimal TDD guidance + output format
+```
+
+### exact-subagents-v1-cc
+
+Each TDD phase runs as a specialized subagent with isolated context, invoked via the `Task` tool with `subagent_type` parameter.
+
+```
+Main Agent
+    ├── Task(test-list) → Creates test list      [isolated context]
+    ├── Task(red)       → Activates test         [isolated context]
+    ├── Task(green)     → Minimal implementation [isolated context]
+    └── Task(refactor)  → Improves code          [isolated context]
+```
+
+Hypothesis: isolated contexts enforce discipline but may lose state between phases. Fresh context per phase avoids accumulated noise; comes with agent-spawning overhead.
+
+```
+exact-subagents-v1-cc/.claude/
+├── agents/                    # Subagent definitions
+│   ├── test-list.md
+│   ├── red.md
+│   ├── green.md
+│   └── refactor.md
+└── rules/
+    ├── tdd.md                 # Main TDD rules (uses Task tool)
+    ├── tdd_with_ts_and_vitest.md
+    └── tdd-experiment-mode.md # Autonomous mode for experiments
+```
+
+### exact-single-context-v1-cc
+
+All TDD phases run in one continuous context using inline skills via the `Skill` tool.
+
+```
+Single Agent
+    ├── Skill(/test-list) → Creates test list      [same context]
+    ├── Skill(/red)       → Activates test         [same context]
+    ├── Skill(/green)     → Minimal implementation [same context]
+    └── Skill(/refactor)  → Improves code          [same context]
+```
+
+Hypothesis: shared context maintains state but may lead to less discipline. No agent-spawning overhead; risk of context pollution / over-implementation.
+
+```
+exact-single-context-v1-cc/.claude/
+├── commands/                  # Skill definitions (inline execution)
+│   ├── test-list.md
+│   ├── red.md
+│   ├── green.md
+│   └── refactor.md
+└── rules/
+    ├── tdd.md                 # Main TDD rules (uses Skill tool)
+    ├── tdd_with_ts_and_vitest.md
+    └── tdd-experiment-mode.md # Autonomous mode for experiments
+```
+
+### Key differences
+
+| Aspect | baseline-oneshot-v1-cc | baseline-iterative-v1-cc | baseline-inline-tdd-v1-cc | exact-subagents-v1-cc | exact-single-context-v1-cc |
+|--------|------------|--------------|--------------|--------------------|-------------------------|
+| **TDD** | ❌ No | ❌ No | ✅ Yes (minimal) | ✅ Yes (strict) | ✅ Yes (strict) |
+| **Mechanism** | Direct code | Checklist | None | `Task(subagent_type: "red")` | `Skill(skill: "red")` |
+| **Context** | Single | Single | Single | Isolated per phase | Shared across phases |
+| **Guidance** | None | Plan/checklist | Minimal TDD | Specialized agents | Inline skills |
+| **Definitions** | None | None | None | `agents/*.md` | `commands/*.md` |
+| **Overhead** | None | None | None | Agent spawning | None |
+
+### Multi-harness support
+
+The same workflow design can be deployed on different coding-agent harnesses (Claude Code, OpenCode, pi, cursor-cli). The TDD-cycle measurement pipeline adapts per harness:
+
+| Harness | Cycle-counting mechanism | Transcript parser |
+|---------|------------------------|------------------|
+| Claude Code | `Skill` tool calls with `skill: "red"` | `analyze_transcript.py` |
+| OpenCode | Same Skill-based logic | `parse_opencode_transcript.py` |
+| pi | Text markers (`## Red` headers) in assistant output | `parse_pi_transcript.py` |
+| cursor-cli | Text markers in the `stream-json` event stream | `parse_cursor_transcript.py` |
+
+**Why pi needs text markers:** pi skills are auto-loaded documents, not tool calls. The model reads each `SKILL.md` once and follows its instructions directly ("freihand"), producing `## Red` headings per cycle instead of `Skill({skill: "red"})` tool invocations. The refactor subagent still uses the `subagent` tool (counted the same way across all harnesses). See [`experiments/workflows/MARKERS.md`](experiments/workflows/MARKERS.md) for the full marker specification.
+
+Workflow directories follow a naming convention: `<variant-name>` (Claude Code), `<variant-name>-oc` (OpenCode), `<variant-name>-pi` (pi), `<variant-name>-cursor` (cursor-cli). Each stores harness-specific configuration (`.claude/` for CC, `.opencode/` for OC, `.pi/` for pi, `.cursor/` for cursor-cli).
+
+## Model Configurations
+
+The runner pins the full Claude API model ID per config. The short aliases `opus` / `sonnet` are intentionally avoided because they currently resolve to legacy versions (e.g. `opus` → `claude-opus-4-6`, not Opus 4.7). Bump these entries when new model versions ship.
+
+In RQ frontmatter, **lab-variant IDs** are pinned — not the Claude API IDs (`claude-opus-4-7`), not the short aliases (`opus`). A lab-variant ID uniquely combines model and thinking mode:
+
+| Lab-variant ID | API model ID | Thinking | Mechanism |
+|---|---|---|---|
+| `opus-4-7`               | `claude-opus-4-7`           | Adaptive | Default behavior |
+| `opus-4-7-no-thinking`   | `claude-opus-4-7`           | Off      | `MAX_THINKING_TOKENS=0` |
+| `sonnet-4-6`             | `claude-sonnet-4-6`         | Extended | Default behavior |
+| `sonnet-4-6-no-thinking` | `claude-sonnet-4-6`         | Off      | `MAX_THINKING_TOKENS=0` |
+| `haiku-4-5`              | `claude-haiku-4-5-20251001` | Extended | Default behavior |
+| `haiku-4-5-no-thinking`  | `claude-haiku-4-5-20251001` | Off      | `MAX_THINKING_TOKENS=0` |
+
+The ID exactly matches the `model` field in `metrics.json` and the suffix in the run directory name. Source: `MODEL_CONFIGS` in `experiments/record-run.sh` and `experiments/docker/run-batch.sh`.
+
+The `-no-thinking` suffix convention carries over to the pi harness (`run-batch.sh` strips it and passes `--thinking off`), but the *effect* does not: for Requesty-routed models the reasoning state is largely a property of the model rather than of the invocation, and `opus-4-8` is the only one measured to respond to the switch. The suffix is therefore still the right way to label the arm — just do not assume the two arms differ. Before treating reasoning as settable in a pi RQ, read [Reasoning state is a model property](#reasoning-state-is-a-model-property-not-a-controllable-factor-pi-harness).
+
+## Katas
+
+Katas live under `experiments/katas/<basename>-<prompt-style>/prompt.md`. The directory name typically ends with one of `-prose`, `-user-story`, or `-example-mapping` (the prompt style); the part before is the **basename**.
+
+Currently maintained kata families, grouped by training-data exposure:
+
+**Known katas** (classic exercises that the model has likely seen during training, but complex enough to still produce code-quality signal):
+- **game-of-life** — primary code-quality kata, all three prompt styles
+- **mars-rover** — secondary code-quality kata, all three prompt styles (mostly prose runs so far)
+
+**Novel katas** (custom-built for this lab, not in training data; ship with external acceptance suite, see [CLI katas](#cli-katas-with-external-acceptance-suite)):
+- **claim-office** — full version with `quote` + `claim` (incl. cap-tracking and multi-claim chains), 15 verification scenarios. Primary correctness kata via `verification_pct`.
+- **claim-office-lite** — reduced derivative: `quote` rules unchanged, `claim` without cap/multi-claim, 10 scenarios. All 6 ambiguities preserved. Use for **code-quality** research (~3× faster than full claim-office); **not** for correctness (saturates on example-mapping, collapses on prose). See [Methodology constraints](#code-quality-signal-limited-to-game-of-life-and-mars-rover) for details.
+
+Older classic katas (string-calculator, pixel-art-scaler, diamond) were dropped because training-data contamination collapses the code-quality signal — see [Methodology constraints](#code-quality-signal-limited-to-game-of-life-and-mars-rover).
+
+For deeper guidance on building good katas (ambiguity construction, ruling strategies, test-suite distribution, anti-patterns), see [`kata-construction.md`](https://github.com/marcoemrich/kata-builder/blob/main/kata-construction.md) in the sister repo [kata-builder](https://github.com/marcoemrich/kata-builder).
+
+### CLI katas with external acceptance suite
+
+For katas where correctness should be measured against a fixed acceptance suite that the implementer does not see (e.g. `claim-office`), add a sibling directory `katas/<basename>-verification/` with:
+
+- `runner.json` — `{"command": "...", "timeout_seconds": 30}`. For TypeScript CLIs: `pnpm exec tsx src/cli.ts` (assumes `tsx` is in the run's devDependencies; the standard pnpm template includes it).
+- `scenarios/NN-name.input.json` — JSON document piped as stdin.
+- `scenarios/NN-name.expected.json` — expected JSON on stdout (compared canonically via `jq -S .`).
+- Optional `scenarios/NN-name.story.md` for narrative scenarios used in workshop reuse.
+
+Conventions:
+
+- The implementation's CLI entry point must be at `src/cli.ts`.
+- The prompt must specify "CLI executable that reads JSON from stdin and writes JSON to stdout".
+- The kata's prompt does **not** include the verification scenarios — they are private acceptance tests measured by `analyze-run.sh` after the run completes.
+
+After each run, `analyze-run.sh` automatically detects the `<basename>-verification/` directory, pipes each scenario input into the CLI (in the run directory), and compares canonical JSON output against the expected JSON. Per-scenario results land in `verification.log`; counts go into `metrics.json` as `final_metrics.verification_total`, `verification_passed`, and `verification_pct` (a fraction 0.0–1.0). For non-CLI katas without a verification directory, these fields are 0/null.
+
+## Quick Start
+
+### Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI installed
+- Anthropic API key (or compatible provider)
+
+### Run a single experiment locally
+
+```bash
+cd experiments
+./record-run.sh
+```
+
+This interactively prompts you to select a kata, workflow, and model, then launches Claude Code to execute the task. Results are saved to `experiments/runs/<timestamp>_<kata>_<workflow>_<model>/`.
+
+### Run a batch via Docker
+
+```bash
+cd experiments/docker
+cp .env.example .env          # add your API key
+docker compose build
+```
+
+Then either run an existing batch plan or generate one for a research question:
+
+```bash
+# Generate a fill plan for an RQ (only missing replicates)
+./experiments/batch-plan-from-rq.py research/questions-claude/2.1-model-effect-code-quality/
+
+# Execute the batch
+./experiments/docker/batch.sh experiments/batch-plans/rq-3-fill.json
+```
+
+### Aggregate results for a research question
+
+```bash
+./experiments/aggregate-by-query.py research/questions-claude/2.1-model-effect-code-quality/
+```
+
+This reads the RQ frontmatter, selects all matching runs from `experiments/runs/`, and writes `runs.csv` + `summary.md` into the RQ directory. Findings are then curated by hand into `findings.md` with status flags (`✅ stabil`, `⚠️ bedingt`, `❌ widerlegt`, `🚫 offen`).
+
+### End-to-end loop
+
+```bash
+# 1. Plan: generate the missing cells for an RQ
+./experiments/batch-plan-from-rq.py research/questions-claude/2.1-model-effect-code-quality/
+
+# 2. Execute: run the batch in Docker
+./experiments/docker/batch.sh experiments/batch-plans/rq-3-fill.json
+
+# 2b. Optional: compute mutation_score for green runs (Stryker on TS, PIT on Java)
+#     (idempotent; only does anything if outcomes: [..., mutation_score])
+./experiments/compute-mutation-score.py research/questions-claude/2.1-model-effect-code-quality/
+
+# 3. Aggregate: re-derive runs.csv + summary.md
+./experiments/aggregate-by-query.py research/questions-claude/2.1-model-effect-code-quality/
+
+# 4. Curate: update findings.md with new evidence and status flags
+```
+
+## Skills
+
+Two Claude Code skills automate the repetitive parts of the loop above. They live in `.claude/skills/` and are invoked as slash commands inside Claude Code.
+
+| Skill | Invocation | Purpose |
+|-------|------------|---------|
+| [`run-rq`](.claude/skills/run-rq/SKILL.md) | `/run-rq RQ-N` | Drives a single RQ end-to-end: validates the README, generates a fill batch-plan, starts the Docker batch in the background, monitors progress, runs aggregation, proposes findings updates. Pure orchestration — every step calls existing repo scripts. |
+| [`build-overview`](.claude/skills/build-overview/SKILL.md) | `/build-overview` | Generates a cross-RQ snapshot under `research/reports/experiment-overview-YYYY-MM-DD.md`. Step 1 runs `experiments/generate-snapshot-skeleton.py` (data sections, finding lists, caveats). Step 2 fills synthesis sections (RQ paragraphs, cross-RQ synthesis, limitations) from the current `findings.md`. Reproducible because numbers come from the skeleton, not from model memory. |
+
+| [`publish-site`](.claude/skills/publish-site/SKILL.md) | `/publish-site` | Builds the results site and publishes it to `gh-pages`. Checks the preconditions `deploy-site.py` enforces before a build is spent on them, sorts the `research/` diff a build produces into substantive changes and one-time float churn, and deploys only when asked — the push is public. Distinct from `/build-overview`, which writes a frozen Markdown snapshot instead of the live site. |
+
+The skills replace the manual end-to-end loop in routine usage:
+
+```
+   manual                   ⇒    skill
+   ------------------------       ----------------
+   batch-plan-from-rq.py
+   batch.sh                  ⇒    /run-rq RQ-N
+   watch-batch.sh
+   aggregate-by-query.py
+
+   read all findings.md
+   write overview.md         ⇒    /build-overview
+
+   pnpm install
+   pnpm build:site           ⇒    /publish-site
+   commit the research/ diff
+   pnpm deploy:site
+```
+
+### Snapshot lifecycle
+
+`findings.md` is **alive** — findings grow, status tags get updated, individual findings can be revised or discarded. For publishable point-in-time reports (table-heavy, cross-RQ synthesis) there are **snapshots** under `research/reports/experiment-overview-YYYY-MM-DD.md`.
+
+1. `experiments/generate-snapshot-skeleton.py` builds a skeleton with all data sections (data-base figures, coverage, raw finding lists per RQ, caveats section over all ⚠️/❌/🚫 findings).
+2. The `/build-overview` skill fills the synthesis sections (RQ paragraphs, cross-RQ synthesis, conclusions) from `findings.md` and writes to `research/reports/`.
+
+`findings.md` stays the single source of truth, and the snapshot is **reproducible** rather than written from model memory.
+
+## Script Reference
+
+All scripts are designed to be run from the repo root unless noted otherwise. `.py` scripts use Python 3 with PyYAML + pandas; `.sh` scripts are bash.
+
+### Run lifecycle (top-level `experiments/`)
+
+| Script | Purpose |
+|--------|---------|
+| `experiments/record-run.sh` | Interactive: pick kata + workflow + model, launch Claude Code locally, record everything into `experiments/runs/<id>/`. Used for ad-hoc single runs outside Docker. |
+| `experiments/analyze-run.sh` | Post-process one run directory: install pnpm deps, run vitest + ESLint+SonarJS, call `analyze_transcript.py`, emit `analysis-report.md` and `metrics.json`. Idempotent — safe to re-run after pipeline fixes. |
+| `experiments/reanalyze-all-runs.sh` | Backfill metrics for every existing run after `analyze-run.sh` is extended (e.g. new fields like `mccabe_*` / `cognitive_*`). Iterates over every `runs/<run>/`, runs `pnpm install` against the shared `runs/.pnpm-store` for any run missing `node_modules/`, and re-invokes `analyze-run.sh`. Output to `experiments/reanalyze.log` (gitignored). |
+| `experiments/analyze_transcript.py` | Parse `transcript.jsonl` (+ `transcript-subagents/`) for TDD-cycle metrics: phase inference, prediction accuracy, refactorings applied, token totals, context-window utilization. Writes `transcript-metrics.json`. Used for **Claude Code** runs. |
+| `experiments/parse_pi_transcript.py` | Parse `transcript-pi.jsonl` for the same TDD-cycle metrics. Used for **pi** runs, where skills are auto-loaded documents (not tool calls) and cycle counting relies on text markers (`## Red` headers) in assistant output instead of `Skill` tool invocations. Writes `transcript-metrics.json`. |
+| `experiments/parse_opencode_transcript.py` | Parse OpenCode session exports into `transcript-metrics.json`. Used for **OpenCode** runs. |
+| `experiments/parse_cursor_transcript.py` | Parse `transcript-cursor.jsonl` (the `stream-json` NDJSON event stream that `run-batch.sh` extracts from `run.log`) into `transcript-metrics.json`. Used for **cursor-cli** runs. Same output schema as the pi and OpenCode parsers. |
+| `experiments/tdd-report.py` | Derive the TDD phase chain and its metrics from the stack reporter's `tdd-events.jsonl` — reads no marker, no tool call and no commit, so it reads the same on every workflow and harness. Default output is the readable markdown report (`analyze-run.sh` writes it to `tdd-report.md` in the run dir); `--chain` prints the one-line chain, `--json` the metrics object that gets folded into `metrics.json`. Empty object for runs predating the reporter. See "Phase chain metrics". |
+| `experiments/migrate-legacy-discipline.py` | One-shot: renames the 17 superseded TDD-discipline metrics to `legacy_*` in every run's `metrics.json`, so a legacy number can never be read as a current one. `--dry-run` reports without writing. Already applied to the corpus (1843 runs, 2026-10). |
+| `experiments/measure-suite-transitions.py` | **Legacy tool, not in the pipeline.** Derives the red/green sequence from the transcript instead of the reporter. Kept because it is the only route that runs on pre-reporter runs, and because it was the independent cross-check that validated the reporter (82/82 on a real run). `--run <dir>` emits one JSON object; batch mode takes the same filters as `measure-tdd-rigour.py` plus `--compare`. |
+| `experiments/measure-tdd-rigour.py` | **Legacy tool, not in the pipeline.** Classify TDD rigour from the tool sequence alone — no phase markers required, so it works on vendored external skills that must stay unmodified. `--run <dir>` emits one JSON object (this is how `analyze-run.sh` folded `test_blocks`, `test_cases_*` and `red_verified/unverified` into `metrics.json` until 2026-10; those columns now carry the `legacy_` prefix); without it, batch mode scans `runs/` and takes `--pattern`, `--workflow` and `--kata-suffix` filters. Handles Claude Code and pi transcripts; OpenCode/cursor formats are skipped and counted. |
+
+### Aggregation
+
+| Script | Purpose |
+|--------|---------|
+| `experiments/aggregate-by-query.py` | Reads an RQ frontmatter, selects matching runs from the pool, writes `runs.csv`, `summary.md` and `summary.json` into the RQ directory, each only when its content changed (`summary.md`'s `Generated:` line aside), rows sorted by `run_id`. Skips and reports runs without an `exit_reason`. Refuses (exit 1, nothing written) while a `batch` or `batch-retry` container runs or when Docker is unreachable. The canonical aggregator. |
+| `experiments/build-site.py` | Builds the results site: re-aggregates every RQ, runs `export-site-data.py` and the Astro build, prints each step's duration and a final `git diff --stat` over `research/`. Stops at the first failing step; refuses while a batch runs. Run as `pnpm build:site` from `site/`. |
+| `experiments/deploy-site.py` | Publishes the results site: refuses off `main`, with uncommitted changes under `research/` or `site/`, or while HEAD is not on `origin/main`; runs `build-site.py`, publishes nothing if that build changed `research/`, else commits `site/dist/` plus `.nojekyll` onto `gh-pages` as `Deploy <sha>: <subject>` and pushes. Run as `pnpm deploy:site` from `site/`. |
+| `experiments/export-site-data.py` | Turns every main RQ's `summary.json`, frontmatter, `LINEAGE.yaml` descriptions and the metric registry into the results site's JSON under `site/src/data/` (gitignored). Stops with exit 1, writing nothing, when an outcome has no registry entry or a workflow no description. |
+| `experiments/rq-status.py` | Prints per RQ: cells at `min_replicates` / declared, matched runs, findings, runs newer than `findings.md` (rules in `rq_facts.py`), plus the reason for any `closed:` RQ. Read-only; `--open` restricts to RQs with a short cell, no findings, or newer runs. |
+| `experiments/clean-broken-runs.py` | Deletes every broken run from the pool — any `exit_reason` other than `ok`, and stubs without one — plus leftover run directories git tracks nothing in. Re-aggregates the RQs that selected a deleted run (skipping, with a note, one that names an archived workflow) and commits the deleted runs and re-aggregated RQ files in one commit, nothing else; no push. `_`/`.`-prefixed directories stay untouched. Same batch lock as the aggregator. Runs on the user's call only; the next fill run refills the deleted runs. |
+| `experiments/batch-plan-from-rq.py` | Reads an RQ frontmatter, computes missing cells against `min_replicates`, writes `experiments/batch-plans/<rq-id>-fill.json`. Idempotent — empty plan if everything is covered. |
+| `experiments/compute-mutation-score.py` | RQ-driven mutation testing. If the RQ lists `mutation_score` in `outcomes`, runs Stryker (TypeScript) or PIT (Java, selected by the run's `pom.xml`) against every matching green run (`tests_passing = true`) and writes `final_metrics.mutation_score` back into `metrics.json`. Idempotent (skip when already set) and bounded by `--timeout-seconds`. No-op when the RQ does not request the outcome. Run between batch execution and aggregation. |
+| `experiments/generate-snapshot-skeleton.py` | Reads all `README.md` + `findings.md` under the subtrees listed in its `RQ_TREES` constant (currently `research/questions-{claude,opencode,pi,cursor-cli,cross}/` and `research/workflow-dev/`), emits a Markdown skeleton to `/tmp/snapshot-skeleton-YYYY-MM-DD.md` with data sections (run counts, coverage per RQ, finding lists, cross-RQ caveats) pre-filled and synthesis sections marked with `<!-- TODO Claude -->`. Consumed by the `/build-overview` skill. **`RQ_TREES` is hardcoded** — a new subtree that is not registered there is silently omitted from every snapshot. |
+
+### Docker batch execution (`experiments/docker/`)
+
+| Script | Purpose |
+|--------|---------|
+| `docker/batch.sh` | Convenience wrapper around `docker compose --profile batch run --rm batch`. Accepts a plan name or path: `./batch.sh rq-3-fill` or `./batch.sh /abs/path/plan.json`. Tees output to `batch.<plan>.log`. Supports `--shards N` for parallel runs (round-robin split, default 5; 5–10 are routine — memory is not the constraint, a container uses ~170 MiB against the 4 GB compose cap, and API rate limits are already retried) and `--detach` for background execution. |
+| `docker/run-batch.sh` | The *inside-container* entrypoint invoked by `batch.sh`. Reads the plan, executes each `(kata, workflow, model)` triple via Claude Code, calls `analyze-run.sh`, copies transcripts. Not normally invoked directly. |
+| `docker/list-plans.sh` | Print every `experiments/batch-plans/*.json` with name, description, and run count. Useful before kicking off a batch. |
+| `docker/resume-plan.sh` | Compute remaining work for a plan: subtract triples already present in `experiments/runs/` from the original plan, write `/tmp/<plan>-resume.json`. Useful after a crashed/cancelled batch. |
+| `docker/watch-batch.sh` | Status snapshot of running or recently finished batches. Auto-detects all `docker-batch-run-*` containers; falls back to the last entry in `batch.log` if none running. Reports per-cell progress, ETAs, and tail of `run.log`. Pass a plan name to scope to one batch. |
+
+### Typical sequences
+
+**Fill a research question:**
+
+```bash
+./experiments/batch-plan-from-rq.py research/questions-claude/2.1-model-effect-code-quality/
+./experiments/docker/list-plans.sh                          # verify
+./experiments/docker/batch.sh rq-3-fill                     # run
+./experiments/docker/watch-batch.sh                         # monitor in another shell
+./experiments/aggregate-by-query.py research/questions-claude/2.1-model-effect-code-quality/
+```
+
+**Recover from an interrupted batch:**
+
+```bash
+./experiments/docker/resume-plan.sh rq-3-fill               # writes /tmp/rq-3-fill-resume.json
+./experiments/docker/batch.sh /tmp/rq-3-fill-resume.json
+```
+
+**Re-derive metrics for a single run after a pipeline fix:**
+
+```bash
+./experiments/analyze-run.sh experiments/runs/2026-05-04_*_exact-subagents-v1-cc_opus-4-7
+```
+
+## Docker Setup
+
+Run experiments in isolated, reproducible Docker containers.
+
+### Setup
+
+```bash
+cd experiments/docker
+
+# Copy and edit environment file
+cp .env.example .env
+
+# Set your user/group IDs (fixes volume permissions)
+echo "USER_ID=$(id -u)" >> .env
+echo "GROUP_ID=$(id -g)" >> .env
+
+# Edit .env with your API credentials (direct or Portkey)
+
+# Build
+docker compose build
+```
+
+### Running
+
+```bash
+# List all available plans with description and run count
+./list-plans.sh
+
+# Run a plan (extension and full path optional)
+./batch.sh smoke-test
+./batch.sh /abs/path/to/plan.json
+```
+
+Plan files live in `experiments/batch-plans/*.json` and list explicit `{kata, workflow, model}` triples. They are validated fail-fast against available katas, workflows, and the hard-coded `MODEL_CONFIGS` list — typos abort before any Claude call.
+
+Plan file schema:
+
+```json
+{
+  "name": "Optional plan name",
+  "description": "Optional description",
+  "runs": [
+    { "kata": "game-of-life-prose", "workflow": "baseline-inline-tdd-v1-cc", "model": "sonnet-4-6" }
+  ]
+}
+```
+
+`model` is the lab-variant ID from `MODEL_CONFIGS` in `run-batch.sh` (e.g. `sonnet-4-6`, `opus-4-7-no-thinking`, `haiku-4-5`), not the full API ID.
+
+### Per-run hardening
+
+Each run is wrapped with a 90-minute timeout (override via `CLAUDE_TIMEOUT_SECONDS=...`). Stdout/stderr is captured to `runs/<run>/run.log`. Transient API errors (rate limits, 429, overloaded, API 500, dropped connections) are retried with backoff up to 5 times; if they persist, the run is recorded with `exit_reason = "rate-limited"` or `"transient-api-error"` and the batch continues. A provider refusal (safeguard flag) is retried twice without backoff, then recorded as `"provider-refusal"`. A setup error (model not found or inaccessible, CLI too old for the model) is not retried: the run is recorded as `"setup-error"` and the shard stops. Each `metrics.json` gets a `run_status` block with `exit_code`, `exit_reason`, and `rate_limited`.
+
+### Container details
+
+- **Base image**: `node:22-slim`
+- **Tools**: Node.js 22, pnpm, TypeScript, Vitest, Claude Code CLI, jq, git
+- **Resource limits**: 2 CPUs, 4 GB memory (override in `docker-compose.yml` if needed)
+- **Security**: non-root user (`experimenter`), read-only mounts for katas/workflows, API key mounted securely
+
+### Volume mounts
+
+| Host path | Container path | Mode |
+|-----------|----------------|------|
+| `../katas` | `/home/experimenter/experiments/katas` | ro |
+| `../workflows` | `/home/experimenter/experiments/workflows` | ro |
+| `../runs` | `/home/experimenter/experiments/runs` | rw |
+| `~/.anthropic/api_key` | `/home/experimenter/.anthropic/api_key` | ro |
+| `~/.claude` | `/home/experimenter/.claude` | rw |
+
+### Environment variables
+
+**Direct Anthropic API**
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ANTHROPIC_API_KEY` | API key for Claude | (required) |
+| `ANTHROPIC_API_KEY_FILE` | Path to file with API key | `~/.anthropic/api_key` |
+| `CLAUDE_CONFIG_DIR` | Claude config directory | `~/.claude` |
+| `CLAUDE_TIMEOUT_SECONDS` | Per-run wallclock budget | `5400` (90 min) |
+
+**Portkey gateway (or other proxy)**
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `ANTHROPIC_BASE_URL` | Proxy URL | `https://api.portkey.ai` |
+| `ANTHROPIC_AUTH_TOKEN` | Auth token (can be dummy for Portkey) | `dummy` |
+| `ANTHROPIC_CUSTOM_HEADERS` | Custom headers for proxy | `x-portkey-api-key: your-key` |
+
+**Container user (volume permissions)**
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `USER_ID` | Container user UID (run `id -u`) | `1000` |
+| `GROUP_ID` | Container user GID (run `id -g`) | `1000` |
+
+### Troubleshooting
+
+**API key issues**
+
+```bash
+docker compose run --rm experiment cat /home/experimenter/.anthropic/api_key
+```
+
+**Permission errors**
+
+The container user must match your host user. Ensure `USER_ID` and `GROUP_ID` in `.env` match your system:
+
+```bash
+id -u  # USER_ID
+id -g  # GROUP_ID
+docker compose build --no-cache
+# Or fix existing runs directory:
+sudo chown -R $(id -u):$(id -g) ../runs
+```
+
+## Metrics
+
+Each run is evaluated on metrics extracted from two sources: direct code analysis of generated files, and the AI-generated `experiment-summary.md`. All metrics live in `metrics.json` per run; the analysis pipeline runs inside the Docker batch container and picks its tools from the run's stack: ESLint + SonarJS on `typescript-vitest`, PMD on `java-junit-maven`, ruff + complexipy on `python-pytest`, clippy + rust-code-analysis on `rust-cargo`. **The four tool families produce different finding populations, so quality numbers are comparable within a stack and never across one.**
+
+The **Term (binding)** column gives the canonical name to use in `findings.md`, `summary.md`, and snapshots. These terms are binding — alternatives like "code volume", "total code size", or "LoC size" for `code_mass` are forbidden because they are ambiguous or collide with established definitions from the software-craftsmanship literature. When in doubt, cite the metric ID in backticks.
+
+These terms were German until 2026-07 (`Korrektheit (innen/außen)`, `Code-Mass (APP)`, `Smell-Summe`, `Produktiv-LoC`, `Test-LoC`, `Mutation-Score`). They are now English, and the retired German forms count as forbidden synonyms. Snapshots archived before that date still use them.
+
+**"Complexity Peak" is retired as a term and is forbidden**, along with its German predecessor `Spitzen-Komplexität`. It was in use for three different metrics at once — `longest_function` in some RQs, `cognitive_max` in others, and `cognitive_max`/`mccabe_max` jointly in a third group — so a reader could not tell from the word which quantity a table row held. The three complexity metrics carry no prose name: write `longest_function`, `cognitive_max` or `mccabe_max` in backticks. Snapshots archived before 2026-09-30 still contain the term.
+
+### Run outcomes
+
+| Metric | Term (binding) | Source | Description |
+|--------|----------------|--------|-------------|
+| `duration_seconds` | — | metrics.json | Wall-clock time for the complete task |
+| `tests_passing` | **Correctness (internal)** | test runner | Whether the implementer's own tests pass — Vitest, Maven Surefire, pytest or `cargo test`, depending on the stack. The "inside view" of correctness |
+| `verification_pct` | **Correctness (external)** | external acceptance suite | For CLI katas with a sibling `<basename>-verification/` directory: fraction of acceptance scenarios passed (0.0–1.0). The "outside view" of correctness — measured against scenarios the implementer did not see during the run. `null` for katas without a verification suite. |
+
+### Code-quality metrics
+
+| Metric | Term (binding) | Source | Description |
+|--------|----------------|--------|-------------|
+| `code_mass` | **Code Mass (APP)** | [`analyze-run.sh`](experiments/analyze-run.sh) | Weighted sum of code constructs (constants, invocations, conditionals, loops, assignments — heavier weights for higher-complexity constructs) following the *Absolute Priority Premise* by Micah Martin. Aims to compare implementations objectively beyond raw LoC. Lower = simpler. See [Code Cop blog](http://blog.code-cop.org/2016/08/absolute-priority-premise-example.html); original talk: [Micah Martin — *Absolute Priority Premise* (8LU, Vimeo)](https://vimeo.com/57851350). |
+| `mutation_score` | **Mutation Score** | TS: [Stryker](https://stryker-mutator.io/) + `@stryker-mutator/vitest-runner` · Java: [PIT](https://pitest.org/) + `pitest-junit5-plugin` · Python: [mutmut](https://mutmut.readthedocs.io/) + pytest · Rust: [cargo-mutants](https://mutants.rs/) | Fraction of mutants killed by the implementer's own tests (0.0–1.0, formula `(Killed + Timeout) / (Killed + Survived + Timeout + NoCoverage)`; the PIT statuses `NON_VIABLE` and `RUN_ERROR` are excluded like Stryker's `CompileError`). Higher = the test suite genuinely exercises behavior, not just coverage. Computed **only** when an RQ lists `mutation_score` in `outcomes` and `tests_passing = true`; otherwise `null`. Driven by `experiments/compute-mutation-score.py` (separate from `analyze-run.sh`), which picks the engine per run from `metrics.json.stack`. **Not comparable across stacks** — PIT's default mutators are narrower than Stryker's (no block removal, no string- or object-literal mutation), so Java scores sit higher and compress. TS and Python exclude the CLI adapter (`src/cli.ts`, `src/cli.py`) from mutation because only the external acceptance suite exercises it — measured on a Python sample run, including it put 26 of 28 survivors in the adapter and moved the score from 0.92 to 0.46. Java deliberately mutates its CLI class, because Java runs often nest the whole domain inside it and excluding the file would make the score depend on how the agent split its classes. Rust excludes `src/main.rs` like TS and Python, unless it is the only production code; cargo-mutants' `unviable` mutants (do not compile) are excluded, and it has no coverage notion, so `mutants_no_coverage` is `null` on Rust. |
+| `mutants_total` | **Mutant Population** | same as `mutation_score` | Number of scoreable mutants the engine generated for that run — the denominator of `mutation_score`. It scales with the amount of production code, so two arms that differ in code size are not compared on the score alone. |
+| `mutants_survived` | **Unnoticed Changes** | same as `mutation_score` | Mutants the suite did not catch: survived plus never-executed. The absolute size of the test gap — how many single behaviour changes go unnoticed per run. Lower = better. Quote this alongside the score whenever the arms produce different amounts of code: the ratio can improve purely because the denominator grew (RQ-exact-coding-java F-1.8.10 has a cell where it does). |
+| `production_loc` | **Production LoC** | [`analyze-run.sh`](experiments/analyze-run.sh) | Production LoC only, from the clean-code reporter (no tests) |
+| `test_lines` | **Test LoC** | [`analyze-run.sh`](experiments/analyze-run.sh) | Test code: `*.spec.ts`, `src/test/java/**`, `tests/test_*.py`, or on Rust every `#[cfg(test)]`/`#[test]` item plus `tests/` (split out of the source files by `experiments/rust_tdd.py`) |
+| `smell_total` | **Smell Total** | TS: [ESLint](https://eslint.org/) + [`eslint-plugin-sonarjs`](https://github.com/SonarSource/eslint-plugin-sonarjs) · Java: [PMD](https://pmd.github.io/) · Python: [ruff](https://docs.astral.sh/ruff/) · Rust: [clippy](https://doc.rust-lang.org/clippy/) (no magic-number lint, so `smell_magic_numbers` is 0 as on Java) | Aggregated code-smell count. The same four sub-counters on every stack — `smell_complexity`, `smell_duplication`, `smell_magic_numbers`, `smell_code_quality` — filled from that stack's rule IDs. Findings that carry a numeric score (SonarJS `cognitive-complexity`, PMD `CognitiveComplexity`/`CyclomaticComplexity`/`NcssCount`, ruff `C901`) are measurements, not smells, and are excluded from the total. **Java contributes no `smell_magic_numbers`** — PMD has no equivalent rule — so its total is a three-term sum where TS and Python use four. |
+| `longest_function` | — | [`analyze-run.sh`](experiments/analyze-run.sh) | Longest function in lines. Detected from the language's function syntax — brace matching on TS, indentation on Python, rust-code-analysis function spans on Rust (closures excluded). **Java has no value here**; use `unit_size_max` instead. |
+| `avg_loc_per_function` | — | [`analyze-run.sh`](experiments/analyze-run.sh) | Mean function length in lines |
+| `median_loc_per_function` | — | [`analyze-run.sh`](experiments/analyze-run.sh) | Median function length in lines (robust against single long outliers) |
+| `mccabe_max`, `mccabe_avg`, `mccabe_high_count` | — | TS: ESLint [`complexity`](https://eslint.org/docs/latest/rules/complexity) rule · Java: PMD `CyclomaticComplexity` · Python: ruff `C901` · Rust: [rust-code-analysis](https://github.com/mozilla/rust-code-analysis) `cyclomatic` | McCabe cyclomatic complexity per function — max, mean, and count of functions above the threshold. Concept: [Cyclomatic complexity (Wikipedia)](https://en.wikipedia.org/wiki/Cyclomatic_complexity); originally [McCabe 1976](https://www.literateprogramming.com/mccabe.pdf). |
+| `cognitive_max`, `cognitive_avg`, `cognitive_high_count` | — | TS: ESLint [`sonarjs/cognitive-complexity`](https://github.com/SonarSource/eslint-plugin-sonarjs/blob/master/docs/rules/cognitive-complexity.md) · Java: PMD `CognitiveComplexity` · Python: [complexipy](https://github.com/rohaquinlop/complexipy) · Rust: rust-code-analysis `cognitive` | Cognitive complexity per function (SonarSource metric, weights nesting and control-flow breaks heavier than McCabe) — max, mean, and count above threshold. Original definition: [G. Ann Campbell — *Cognitive Complexity* whitepaper (PDF)](https://www.sonarsource.com/docs/CognitiveComplexity.pdf). |
+| `unit_count`, `unit_size_max`, `unit_size_avg`, `unit_size_median` | — | [`analyze-run.sh`](experiments/analyze-run.sh) | Number and size of the smallest named unit. The unit of size differs by stack — PMD NCSS **statements** per method on Java, **lines** per function on TS, Python and Rust — so these are comparable within a stack only. They exist because Java produces no clean-code metrics (`production_loc`, `functions`, `longest_function`, `avg_loc_per_function`, `median_loc_per_function`) function metrics: the clean-code detector reads brace- and indentation-delimited functions, not Java methods. Formerly `java_methods` / `java_method_ncss_*`; runs analysed under the old names are still read. |
+
+### Token & context metrics
+
+| Metric | Description |
+|--------|-------------|
+| `tokens_total` | Total tokens consumed (input + output + cache) |
+| `context_utilization` | Final context-window utilization percentage |
+
+exact-subagents-v1-cc keeps the main context low because each agent has fresh context. exact-single-context-v1-cc accumulates tokens, so utilization is higher.
+
+### TDD discipline metrics
+
+Extracted from the harness-specific transcript by the corresponding parser:
+
+| Harness | Transcript file | Parser | Cycle-counting mechanism |
+|---------|----------------|--------|------------------------|
+| Claude Code | `transcript.jsonl` | `analyze_transcript.py` | `Skill` tool calls (`skill: "red"`) |
+| OpenCode | `transcript.jsonl` | `parse_opencode_transcript.py` | Same Skill-based logic |
+| pi | `transcript-pi.jsonl` | `parse_pi_transcript.py` | Text markers (`## Red` headers) in assistant output |
+| cursor-cli | `transcript-cursor.jsonl` | `parse_cursor_transcript.py` | Text markers in the `stream-json` event stream |
+
+The phase markers that drive these counts are documented in [`experiments/workflows/MARKERS.md`](experiments/workflows/MARKERS.md) — removing or renaming a marker silently zeroes the corresponding metric.
+
+**Why pi uses text markers instead of tool calls:** pi skills are auto-loaded documents, not tool calls. The model reads each `SKILL.md` once and then follows its instructions directly ("freihand"). There is no `Skill({skill: "red"})` tool invocation per cycle. Instead, the parser counts `## Red` headings in the assistant output (one per cycle) and `Red Phase Complete:` blocks with prediction lines. The `derive_cycle_count()` function in `analyze_transcript.py` uses text markers as a tertiary fallback (after Skill and Task tool calls), so both parsers agree on the same priority chain.
+
+> **Since 2026-10 TDD discipline has exactly one source: the phase chain.**
+> Everything in this subsection is **legacy** — kept so the findings written
+> from it stay reproducible, no longer computed for new runs, and available only
+> under a `legacy_` prefix. Jump to [Phase chain metrics](#phase-chain-metrics)
+> for the current source.
+>
+> Why they were retired: each keyed on something the workflow had to supply, so
+> each fell silent somewhere. Markers are absent from vendored external skills
+> by policy. The `test_blocks` family needed `Write`/`Edit`/`MultiEdit` calls and
+> read 0 for any model that writes files through the shell —
+> indistinguishable from "never wrote a test". And `cycle_count` had a fallback
+> chain ending in a count of `pnpm test` invocations, i.e. a suite-run counter
+> under a cycle counter's name: on one measured run it reported 82 cycles where
+> the chain found 26 closed ones.
+>
+> `experiments/migrate-legacy-discipline.py` performed the rename across the
+> existing corpus. `aggregate-by-query.py` still resolves a bare name in an
+> RQ's `outcomes:` to its legacy column, and warns — because **migrating an RQ
+> onto the current metrics means re-running its runs, not reanalysing them**:
+> the event stream the chain reads cannot be reconstructed after the fact.
+
+Names below are the historical column names. They survive with a `legacy_`
+prefix in each run's `metrics.json` only; no RQ declares them and `runs.csv` no
+longer carries them.
+
+| Metric | Source | Description |
+|--------|--------|-------------|
+| `cycle_count` | markers | Number of red-green-refactor cycles (TDD workflows only); should match test count for proper discipline. Undercounts on vendored external skills. |
+| `predictions_correct` / `predictions_total` | markers | Correctness of red-phase failure predictions (v4/v5). Higher accuracy shows deeper understanding of code state. The aggregator derives the pooled `predictions_correct_rate` from this pair. |
+| `refactorings_applied` | markers | Number of refactoring improvements applied. More refactorings indicate better discipline — but read it against the workflow's refactor position: 0 is expected for a tail-refactor workflow and a warning sign for a per-cycle one. |
+| `tests_passed_immediately` | markers | Tests passing immediately in the red phase, indicating over-implementation. Lower is better |
+| `avg_red_seconds` / `avg_green_seconds` / `avg_refactor_seconds` / `avg_cycle_seconds` | markers | Per-phase wall-clock averages |
+| `test_blocks` | transcript | Uninterrupted test-writing blocks. **1 = big bang**, >1 = incremental. A block ends at the next test run or `src/` edit. |
+| `test_cases_total` | transcript | Test cases (`it(` / `test(`) written across all blocks. `test_cases_total / test_blocks` says how coarse the steps were — ~1 is one case per step, higher means several cases go in before anything runs. |
+| `test_cases_first_block` | transcript | Test cases in the very first block — was the entry into the kata already coarse? |
+| `red_verified` / `red_unverified` | transcript | Whether a test run happened between writing a test and writing implementation. `red_unverified > 0` means code was written without ever seeing the test fail. |
+
+The transcript metrics came from `measure-tdd-rigour.py`, which `analyze-run.sh`
+folded into `metrics.json` until 2026-10. The pipeline no longer calls it, so
+runs produced since then carry none of these columns.
+
+**Not covered by either source:** GREEN discipline. Nothing measures whether only
+the minimal code to pass was written; over-implementation shows up indirectly in
+`cognitive_max` / `code_mass`, but there is no direct metric for it.
+
+### Phase chain metrics
+
+**The source of TDD discipline.** It is the only one that reads nothing the
+workflow has to supply, which is why the three routes above were retired to
+`legacy_` in 2026-10 rather than kept alongside it: parallel routes measuring
+one construct from different sources produced columns with confusingly similar
+names (`cycle_count`, `suite_cycles`, `cycles_closed`) and a standing question
+about which to believe.
+
+The one event no TDD workflow can avoid is **running the tests**. Each stack
+therefore carries a test-framework reporter that the framework itself invokes —
+`experiments/stacks/typescript-vitest/tdd-reporter.mjs` — appending one event
+per suite invocation to `tdd-events.jsonl`: the outcome, the test names, and a
+content hash per source file. `tdd-report.py` derives the phase of each event
+from **what changed since the previous invocation and what the suite then did**,
+so the vocabulary is identical across workflows, harnesses and edit mechanisms.
+
+All four stacks are wired. Three use their framework's own hook; Cargo has none that sees a compile failure, so Rust uses a wrapper:
+
+| Stack | Hook | Lives in |
+|---|---|---|
+| `typescript-vitest` | custom reporter in `test.reporters` | `tdd-reporter.mjs` at the run root |
+| `python-pytest` | `pytest_runtest_logreport` + `pytest_sessionfinish` | `conftest.py` at the run root |
+| `java-junit-maven` | JUnit `TestExecutionListener` via ServiceLoader | `src/test/java/lab/` + `src/test/resources/META-INF/services/` |
+| `rust-cargo` | `cargo` wrapper ahead of the real cargo on `PATH`; records `cargo test` only | `experiments/rust_tdd.py` (mounted), launched by `/usr/local/bin/cargo` from the image |
+
+**Rust splits files into two tree entries.** Rust unit tests live inside the
+source file under `#[cfg(test)]`, and the classifier decides test versus
+implementation by path. `rust_tdd.py` therefore publishes `src/x.rs` (the
+implementation) and `src/x.rs#test` (every `#[cfg(test)]`/`#[test]` item) as
+separate entries; `tdd-report.py` treats the `#test` suffix as a test file.
+`analyze-run.sh` uses the same split for Production LoC, Test LoC, complexity
+and coverage. Two further Rust specifics: the wrapper forces libtest's pretty
+format (also under `-q`), because a green is judged by which tests pass and
+terse output prints dots; and test names carry no target prefix, because cargo
+prints the `Running` line that would supply it only without `-q`. Libtest
+binaries after a failing one are not run, so a red event can under-report the
+suite size. Unlike Java, a compile failure is visible: `Red(c)` is measured.
+
+**Java has one structural gap.** `mvn test` runs `test-compile` first, so when
+production code does not compile the build aborts before JUnit starts and the
+listener never runs — measured: zero events for that invocation. That is exactly
+the `Red(c)` step of a two-step red phase, so on Java a two-step red appears as
+a single `Red` once it compiles, and `red_batch_unmeasurable` reads 0 where
+TypeScript would read more. The chain stays valid; the compile step is invisible
+rather than mislabelled. Closing it would need a Maven lifecycle extension,
+which means shipping a jar.
+
+Two Java specifics worth knowing before touching that stack. The listener needs
+`junit-platform-launcher` as a test dependency — Surefire supplies the launcher
+at runtime but not to the test compiler — pinned to the version pre-warmed in
+the `maven-repo` volume, because an uncached version makes every Java run
+attempt a network fetch and fail offline. And it lives under `src/test/java/lab/`
+rather than outside the test source root, because the clean placement needs
+`build-helper-maven-plugin`, which is not in that cache; `analyze-run.sh`
+therefore excludes any path with a `lab` segment from the Java source and test
+LoC counts so it cannot inflate Test LoC.
+
+`analyze-run.sh` writes the readable chain to `tdd-report.md` in the run
+directory and folds the metrics into `metrics.json`. The pipeline's own test
+runs are excluded via `TDD_REPORTER_OFF` — without it, `analyze-run.sh` would
+append its own events and mutation testing would add one per mutant.
+
+#### The label vocabulary
+
+A chain reads e.g. `Red -> Green -> Refactor -> Red -> Green`. The vocabulary is
+deliberately wider than red/green/refactor, because the interesting runs are the
+ones that do something else: collapsing `Both` into "red" would hide exactly the
+finding. Five labels make up a healthy cycle, six are deviations.
+
+| Label | Derivation | Healthy |
+|---|---|:-:|
+| `Red` | test file changed, suite fails | ✓ |
+| `Red(c)` | same, but does not compile yet — step 1 of a two-step red phase | ✓ |
+| `Green` | implementation changed, suite went from fail to pass | ✓ |
+| `Refactor` | implementation changed, suite stayed green | ✓ |
+| `Verify` | nothing changed, suite re-run | ✓ |
+| `Start` | first invocation; green means tests *and* implementation existed before anything ran | ✓ |
+| `Green?` | implementation changed, still failing — the attempt missed | ✗ |
+| `Green?(c)` | implementation changed, does not compile | ✗ |
+| `Both` | test **and** implementation changed together — **no verified red** | ✗ |
+| `Skip` | test arrived and passed immediately — was never red | ✗ |
+| `Drop` | tests were removed | ✗ |
+| `Break` / `Break(c)` | an implementation change broke a green suite | ✗ |
+
+`Skip` and `Drop` are told apart by the test count in the event, not by the
+diff: a test-file change that leaves the suite green means either "a new test
+passed at once" or "tests were deleted", and those are two different findings.
+The count is compared with the last invocation that ran the **whole** suite.
+A filtered run (`cargo test --lib`, `pytest -k`, an explicit test path) reports
+fewer tests without any being deleted, and in the first real Rust run two of
+five deviations were exactly that: the agent alternated `cargo test --lib` and
+`cargo test`. The Rust and Python reporters therefore mark such an event
+`partial: true`; it is never a `Drop` and never the reference. The TypeScript
+and Java reporters do not mark filtered runs yet, so on those stacks a filtered
+invocation following a full one can still read as `Drop`.
+
+Two rules in the classifier are worth knowing, because both were defects first:
+
+- **A green is judged against the tests the current cycle put in the red, not
+  against the whole suite.** A run that leaves one unrelated test failing keeps
+  the suite red for the rest of the run, and a global check then labels every
+  later implementation step `Green?` and drives `cycles_closed` to 0 on a run
+  doing textbook TDD on the current test. Measured on a six-invocation fixture:
+  the global check read `Red -> Red(c) -> Green? -> Red -> Green? -> Green?`
+  where two cycles had in fact closed. A permanently red test shows up in
+  `chain_ends_green` instead, which is where it belongs.
+- **A `Red(c)` carries its red forward.** An invocation that fails to compile
+  reports no test names, so the new test cannot enter the open set. The next
+  invocation that can report names is that same red becoming visible — usually
+  after a stub makes the code compile so the assertion can fail, i.e. step two
+  of a two-step red. Without that carry-forward, step two reads as `Break`
+  ("broke a green suite") when nothing was ever green. It does not double-count
+  a cycle: a cycle opens only on a red whose predecessor was passing.
+
+A **cycle** opens at the first test-touching label following a green suite and
+runs until the next one. That is presentation only — no label is merged or
+dropped, so the full chain stays authoritative.
+
+#### The derived metrics
+
+Column names as they appear in `runs.csv`.
+
+| Metric | Description |
+|---|---|
+| `chain_suite_runs` | Suite invocations. **A denominator, never read alone.** It is `null`, never 0, for a run that never tested: `tdd-report.py` emits an empty object for a missing or empty `tdd-events.jsonl`, so there is no value standing for "the suite was never run" — that run reads null across every column in this table. |
+| `cycles_total` / `cycles_closed` | Cycles, and those containing a `Green`. Their ratio is the completion rate. |
+| `test_first_rate` | `(Red + Red(c)) / (Red + Red(c) + Both + Skip)` — share of cycles that began with a **verified** failure. The core discipline metric, and the one `red_verified` was trying to be before shell edits could silence it. Higher is better. |
+| `red_batch_size` | Median number of tests that newly fail when a red arrives. **1 = one failing test at a time**; higher means a batch was authored before any implementation existed. Lower is better. |
+| `red_batch_max` | The largest such batch. Catches a single big-bang opener that the median absorbs — report the pair, not either alone. |
+| `red_batch_unmeasurable` | Red events whose batch size could not be read, because a file failing to compile contributes no test names. A trust column. |
+| `green_batch_size` | The mirror: median tests turned green by one implementation step. Separates from `red_batch_size` when a workflow writes several tests up front and then implements them one by one — red high, green 1. |
+| `refactor_events` | Raw `Refactor` count — the direct replacement for `refactorings_applied`. |
+| `skip_events` | Raw `Skip` count: tests that arrived already passing. The direct replacement for `tests_passed_immediately`. Lower is better. |
+| `refactor_per_cycle` | `Refactor / cycles_closed`. **Ambivalent — no trophy:** frequent refactoring can be discipline or nervousness. |
+| `green_attempts` | `(Green? + Green?(c)) / cycles_closed` — how often the first implementation attempt missed. **Ambivalent — no trophy.** |
+| `chain_deviations` | `Both + Skip + Drop + Break + Break(c)`. The per-cell flag for "go read `tdd-report.md`". Lower is better. |
+| `chain_opens_red` / `chain_ends_green` | Did the first suite run fail, and did the run end green? |
+
+**Why four columns carry a `chain_` prefix.** `tdd-report.py`'s own vocabulary
+calls them `suite_runs`, `deviations`, `opens_red` and `ends_green`; three of
+those names were already taken by the retired `suite_*` family. The prefix is
+what keeps a chain number from being readable as a legacy one. The JSON keys `tdd-report.py` prints are unprefixed; `analyze-run.sh` adds
+the prefix when it folds them into `metrics.json`.
+
+#### The consolidated score
+
+`tdd_discipline` is one number, 0..1, higher is better — the geometric mean of
+three components, each 0..1, each with an agreed direction:
+
+| Component | From | Ideal |
+|---|---|---|
+| `tdd_discipline_test_first` | `test_first_rate` | 1.0 — every cycle opened on a verified failure |
+| `tdd_discipline_step` | `1 / red_batch_size` | 1.0 — one failing test at a time |
+| `tdd_discipline_closure` | `cycles_closed / cycles_total` | 1.0 — every cycle reached a green |
+
+**Geometric, not arithmetic, and that is the point.** The score is conjunctive:
+all three must hold. A run that never saw a failing test before writing the code
+did not do TDD, and must not score 0.67 because its steps were small and its
+cycles closed. An arithmetic mean would let any one component buy off a zero in
+another.
+
+The cost is deliberate: several distinct failure modes all land on 0.0, so the
+score does not rank the bottom of the field. That is what the three components
+are reported for — a 0 is always diagnosable. Read the score with them, never
+alone.
+
+The two ambivalent metrics (`refactor_per_cycle`, `green_attempts`) are
+deliberately **excluded**: folding a metric with no agreed direction into a
+score smuggles one back in. They stay separate and take no trophy.
+
+`tdd_discipline` is null, not 0, when any component is unmeasurable —
+unmeasurable is not the same as undisciplined.
+
+#### Verification tests and the cutoff
+
+A test-list workflow can separate the tests that drive the implementation from
+**verification tests** — tests written to confirm behaviour the TDD part already
+built, typically combinations across specification dimensions, and therefore
+expected to arrive green. The workflow runs the TDD tests first and the
+verification tests after them.
+
+`tdd-report.py` recognises a verification test by a **container** named
+`verification`, never by the leaf name (a TDD test may be called
+`test_verification_of_input`). Per stack:
+
+| Stack | Convention | Appears in the event as |
+|---|---|---|
+| `typescript-vitest` | `describe("verification", …)` | `src/x.spec.ts > verification > …` |
+| `python-pytest` | `class TestVerification` or `test_verification.py` | `tests/x.py::TestVerification::test_a` |
+| `java-junit-maven` | `@Nested class Verification` | `[…]/[nested-class:Verification] > a()` |
+| `rust-cargo` | `mod verification` | `tests::verification::a` |
+
+The match ignores case, separators and a `test`/`tests` prefix or suffix, so
+`Verification Tests` and `VerificationTest` count as well.
+
+**The cutoff.** The first suite invocation at which a verification test arrives
+— runs for the first time, green or red — ends the TDD part. The cycle metrics
+and the score read only the invocations before it. A verification test arriving
+green is labelled `Verified` (healthy) instead of `Skip`. Reclassifying a test as
+verification is legitimate as long as it happens before the test first runs: a
+test that already ran green as a TDD test is a `Skip` in an event that is
+already written, and renaming it afterwards does not change that event.
+
+| Metric | Description |
+|---|---|
+| `verification_tests` | Distinct verification tests that ran. How much the score leaves out — always report it alongside `tdd_discipline`. |
+| `verification_red` | Verification tests that arrived red and needed a cycle after all. The hit rate of the split. Lower is better. |
+| `tdd_after_cutoff` | Non-verification tests that arrived only after verification began: TDD work the score does not see. Lower is better. |
+
+Read the whole run, not just the TDD part: `chain_suite_runs`,
+`chain_opens_red`, `chain_ends_green` and `refactor_events` (a refactor in the
+verification part is still a refactor). For a workflow without a verification
+group the cutoff never fires and every column reads exactly as before.
+
+#### Comparability: the test-list boundary
+
+**`tdd_discipline` and its Skip-fed columns are not comparable across workflows
+that differ in whether a test list is written up front.** The affected set is
+`tdd_discipline`, `tdd_discipline_test_first`, `tdd_discipline_closure`,
+`test_first_rate`, `skip_events`, `cycles_total` and `chain_deviations`.
+
+A `Skip` — a test that arrived and passed immediately — means opposite things in
+the two families. EXACT Coding's Predictive TDD writes the complete test list as
+inactive tests first and then activates them one at a time; its rules say *"A
+test already satisfied by an earlier generalization is legitimate evidence. Do
+not manufacture a failure."* Superpowers lists the same event under "Red Flags —
+STOP and Start Over" and answers it with *"Delete code"*. Kesseler takes a middle
+position, obliging the model to pause and name which earlier step satisfied the
+test for free; the hybrid line and Pocock state no rule at all.
+
+The doctrine wording does not predict the numbers — the silent group spans both
+families. **The test list does.** Measured on `claim-office-example-mapping` ×
+`opus-5-5-no-thinking`, n=5 per cell: 16.6 to 25.8 Skips per run in the four
+test-list workflows against 2.4 to 8.2 in the three ad-hoc ones, at comparable
+and sometimes higher red counts. `test-list.md` Step 5 is the cause — it requires
+a cross-check over independent specification dimensions, and a generalisation
+written for one cell necessarily satisfies cells of other dimensions. The more
+complete the list, the more tests pass on activation. **The metric penalises
+test-list completeness.**
+
+Skip hits the score twice: it sits in the denominator of `test_first_rate`, and
+it is a cycle opener, so it opens a cycle with no failure to close and depresses
+`tdd_discipline_closure`. Those are exactly the two components in which the
+test-list workflows trail; the third, `tdd_discipline_step`, is unaffected.
+
+This is not a defect in `tdd-report.py`. The chain reads artifact state, and a
+*prediction* leaves none — the same reason `predictions_*` stays
+marker-dependent. The rule is therefore procedural:
+
+- Report these columns **within** an architecture group, never across one.
+- `aggregate-by-query.py` warns when an RQ declares one of them and its cells
+  span the boundary; it classifies each workflow by its own text, so the warning
+  works across harness ports.
+- The columns that stay comparable everywhere: `tdd_discipline_step`,
+  `red_batch_size`, `red_batch_max`, `green_batch_size`, `refactor_events`,
+  `cycles_closed`, `chain_suite_runs`, `chain_opens_red`, `chain_ends_green`.
+  `red_batch_max` is the one to use for "one test at a time" — on the measured
+  field it is 1.00 ± 0.00 in every test-list workflow and 2.6 to 4.8 in the
+  ad-hoc ones, which is the opposite order from the score.
+
+Reference values from the fixtures used to build this:
+
+| Sequence | Score | Why |
+|---|---:|---|
+| `Red(c) -> Red -> Green -> Red -> Green -> Refactor` | **1.0** | two cycles, one test each, both closed |
+| the same with one unrelated test left permanently red | **0.737** | cycle still closes; the stray red surfaces as `chain_ends_green: false` |
+| a stream that never closed a cycle | **0.0** | closure component is 0, so the product is 0 |
+
+**These metrics exist only for runs produced after the reporter landed.** The
+event stream cannot be reconstructed retroactively: no reanalysis pass produces
+it, so the ~1840 older runs carry nothing in these columns. **Migration means
+re-running.** The superseded outcomes were removed from every RQ on
+2026-10-12, and the aggregator no longer reads `legacy_` columns; they remain in
+each run's `metrics.json` only. An RQ that needs TDD discipline on old runs has
+to refill its cells, because a cell mixing legacy and current runs compares two
+different constructs.
+
+Validated against the transcript before the old route was retired: on a real
+82-invocation run, `measure-suite-transitions.py` — which derived the same
+red/green sequence from the transcript instead of the reporter — agreed with the
+reporter on the count and on every single state, 82/82. That script and
+`measure-tdd-rigour.py` remain in the tree as manual tools, but nothing in the
+pipeline calls them.
+
+**Still outside this source, by construction:** `predictions_*` — no artifact
+state can reconstruct a prediction that was never spoken, so it stays
+marker-dependent and workflow-specific. Per-phase tokens and durations likewise
+need a marker to say where a phase begins.
+
+### Run status
+
+| Field | Description |
+|-------|-------------|
+| `run_status.exit_code` | Process exit code |
+| `run_status.exit_reason` | `ok`, `timeout`, `rate-limited`, `transient-api-error`, `provider-refusal`, `setup-error`, etc. Only `ok` counts toward `min_replicates` |
+
+## Adding New Experiments
+
+### New kata
+
+Create `experiments/katas/<kata-name>/prompt.md` with:
+
+- Feature description
+- Example Mapping (rules + examples)
+- Expected file paths
+- Constraints
+
+The directory name typically ends with one of `-prose`, `-user-story`, or `-example-mapping` (the prompt style); the part before is the **basename**. For CLI katas with an external acceptance suite, see [CLI katas with external acceptance suite](#cli-katas-with-external-acceptance-suite). For deeper kata-design guidance, see [`kata-construction.md`](https://github.com/marcoemrich/kata-builder/blob/main/kata-construction.md) in the sister repo [kata-builder](https://github.com/marcoemrich/kata-builder).
+
+### New workflow variant
+
+Create `experiments/workflows/<variant-name>/.claude/` with:
+
+- `rules/*.md` — TDD rules for this variant
+- `agents/*.md` — agent definitions (if using subagents)
+- `commands/*.md` — skill definitions (if using inline skills)
+
+For **pi** workflows, create `experiments/workflows/<variant-name>-pi/.pi/` with:
+
+- `AGENTS.md` — TDD rules and mandatory output-format markers (pi skills are documents, not tool calls)
+- `skills/<phase>/SKILL.md` — Skill documents for test-list, red, green
+- `agents/<name>.md` — Subagent definitions (refactor)
+
+See `experiments/workflows/exact-coding/opus/exact-hybrid-v4-cleaned-pi/` for a working example. The pi measurement pipeline (`parse_pi_transcript.py`) counts text markers (`## Red`, `## Green`) in assistant output rather than `Skill` tool calls — see [MARKERS.md](experiments/workflows/MARKERS.md) for the full marker specification.
+
+## Further Documentation
+
+| Document | Description |
+|----------|-------------|
+| [HUMAN-IN-THE-LOOP.md](HUMAN-IN-THE-LOOP.md) | How to re-enable human approval checkpoints between TDD phases |
+
+## Credits
+
+The Guessing Game and Predictive TDD approach used here is inspired by
+[Ted M. Young's Predictive TDD and TDD Game](https://tdd.cards/) and
+[Jon Jagger's cyber-dojo](https://cyber-dojo.org/).
+
+## License
+
+Released under the [MIT License](LICENSE) — code, scripts, workflow definitions, run
+artifacts, and findings alike. You are free to reuse, adapt, and build on any of it,
+including commercially, as long as the copyright notice is retained.
+
+Three exceptions vendor third-party TDD skills as external comparison baselines. All
+are MIT-licensed, and each upstream license is preserved alongside the skill in a
+`LICENSE.upstream` file at the workflow root:
+
+- `experiments/workflows/external/external-pocock-2026-09-04-cc/` — `tdd` + `code-review` + `codebase-design`
+  from [mattpocock/skills](https://github.com/mattpocock/skills), commit `6654f6b6` (2026-08-24).
+  A restructured workflow, not an update of the lab's earlier 2026-05-26 snapshot of the
+  same repo (vendored once, removed after it ended up with no runs) — upstream moved
+  refactoring out of the loop
+  ([license](experiments/workflows/external/external-pocock-2026-09-04-cc/LICENSE.upstream)).
+- `experiments/workflows/external/external-superpowers-2026-09-04-cc/` — the `test-driven-development` skill
+  from [obra/superpowers](https://github.com/obra/superpowers), plugin `5.1.0`
+  ([license](experiments/workflows/external/external-superpowers-2026-09-04-cc/LICENSE.upstream)).

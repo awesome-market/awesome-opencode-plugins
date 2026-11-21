@@ -1,0 +1,104 @@
+# opencode-telegram-notify
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![opencode](https://img.shields.io/badge/opencode-000000?style=flat&logo=opencode&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+Telegram notifications for [opencode](https://opencode.ai) — task completion, errors, and permission requests.
+
+```
+🟩 ᴋx9ꜰ2ᴀ@ᴍʏ-ᴀᴘᴘ ᴅᴏɴᴇ (1m 24s)
+```
+
+Zero npm dependencies, plain `fetch`. Send failures are logged to the opencode log instead of crashing your session.
+
+## Setup
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) → copy the token
+2. Send any message to your bot once, then get your chat ID from `https://api.telegram.org/bot<TOKEN>/getUpdates`
+3. Add the plugin and credentials.
+
+On OpenCode v2 (opencode2), add the plugin to your opencode config (`~/.config/opencode/opencode.jsonc`) using the `plugins` array:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    {
+      "package": "opencode-telegram-notify",
+      "options": {
+        "botToken": "123456789:AAHfW3v...",
+        "chatId": "123456789"
+      }
+    }
+  ]
+}
+```
+
+Or install it as a global package plugin:
+
+```sh
+opencode plugin add opencode-telegram-notify
+```
+
+> On OpenCode v1, use the `plugin` key with tuple form instead: `"plugin": [["opencode-telegram-notify", { "botToken": "...", "chatId": "..." }]]`. The same package supports both v1 and v2 (v1 object entrypoints require opencode `1.18.29`+).
+
+Or use env vars instead of inline credentials: `export TELEGRAM_BOT_TOKEN=...` and `export TELEGRAM_CHAT_ID=...` in your shell profile, then restart opencode.
+
+## Configuration
+
+| Option     | Type                                         | Default                  | Description                                  |
+| ---------- | -------------------------------------------- | ------------------------ | -------------------------------------------- |
+| `botToken` | `string`                                     | `TELEGRAM_BOT_TOKEN` env | Bot token from @BotFather                     |
+| `chatId`   | `string`                                     | `TELEGRAM_CHAT_ID` env   | Chat ID from step 2                           |
+| `theme`    | `"linux" \| "basic"`                         | `linux`                  | Message layout — switchable via `/theme`      |
+| `events`   | `Partial<EventKey, string \| false>`         | *(all enabled)*          | Custom status word per event, or `false` to mute |
+
+Events: `session.idle` (agent finished) → `done`, `session.error` → `error`, `permission.updated` (approval requested) → `check`.
+
+## Themes
+
+**`linux`** (default) — one small-caps line: status box, `sessionID@project` (both abbreviated — session ID 6 chars, project 20 chars), status word, duration. Error messages and permission commands are printed on the next line.
+
+```
+🟩 ᴋx9ꜰ2ᴀ@ᴍʏ-ᴀᴘᴘ ᴅᴏɴᴇ (1m 24s)
+🟥 ᴋx9ꜰ2ᴀ@ᴍʏ-ᴀᴘᴘ ᴇʀʀᴏʀ (12s)
+AI_APICallError: Upstream request failed
+```
+
+**`basic`** — multi-line with full details.
+
+```
+🟧 [PERMISSION REQUIRED]
+
+📁 Project: my-app
+⏱ Elapsed: 1m 10s
+🔧 Type: bash
+📝 Title: rm -rf node_modules && npm ci
+🆔 Session: kx9f2a
+🕐 16:05:23
+```
+
+## Switching theme: `/theme`
+
+Send `/theme` to your bot while opencode is running — it replies with clickable buttons (✓ marks the current theme):
+
+```
+⏱ theme: linux
+[linux ✓] [basic]
+[✕ close]
+```
+
+Tap a button to switch instantly (✓ marks the current theme), or tap ✕ close to hide the buttons. You can also type `/theme linux` / `/theme basic` directly. The choice is saved to `~/.config/opencode/telegram-notify.json`, applies to all running opencode instances, and survives restarts. Works only while opencode is open somewhere (one instance polls for the command via a lock file). Don't share the bot token with another polling bot.
+
+## Troubleshooting
+
+- **No messages** — did you message the bot once? Check token/chat ID; restart long-running processes after changing env vars
+- **Send errors** — check `~/.local/share/opencode/log/opencode.log` for `opencode-telegram-notify` entries
+- **`401 Unauthorized`** — wrong token; **`400 chat not found`** — wrong chat ID
+- **Group chats** — chat ID is negative; if silent, disable privacy mode via BotFather `/setprivacy`
+
+## License
+
+[MIT](./LICENSE)

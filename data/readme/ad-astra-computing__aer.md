@@ -1,0 +1,435 @@
+<p align="center">
+  <img src="docs/assets/aer-mark.svg" width="88" alt="AER">
+</p>
+
+<h1 align="center">AER client packages</h1>
+
+<p align="center">
+  A signed, tamper-evident record of what an AI agent actually did.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Ad-Astra-Computing/aer/actions/workflows/ci.yml"><img src="https://github.com/Ad-Astra-Computing/aer/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/@adastracomputing/aer"><img src="https://img.shields.io/npm/v/@adastracomputing/aer?label=cli" alt="Latest CLI version on npm"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License Apache-2.0"></a>
+  <img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen" alt="Requires Node 22 or newer">
+</p>
+
+---
+
+AER (Agent Execution Record) gives every agent run a signed record of the tools
+it called, the models it hit and the network egress it made. You can verify a
+record offline, gate MCP servers on attested agents and hand an auditor a bundle
+they can check without trusting you or us.
+
+This repository holds the client side: the code you install into your own agents
+and services. The service itself is a hosted product and is not open source.
+
+## How this fits together
+
+AER has two halves, and only one of them is here.
+
+**The service is hosted and closed.** Ingest, signing, storage and the console
+run at [aer.run](https://aer.run). Recording a run needs an account, because
+something has to hold the signing key and stand behind the record.
+
+**The client is open, and this is it.** Everything you install into your own
+agents, services and CI is Apache-2.0: the collector that watches a run, the
+SDKs that emit events, the guards that check attestation tokens, and the
+verifier.
+
+The split is deliberate rather than a licensing compromise. A record is only
+worth something if the person reading it does not have to trust the party that
+produced it, so the part that proves a record is genuine is the part you can
+read, audit and run yourself. `@adastracomputing/aer-verify` makes no network
+calls and needs no account: given a bundle it checks the hash, the signature and
+the transparency-log evidence on your machine. If we disappeared tomorrow, every
+record already issued would still verify.
+
+So: you need an account to *produce* records. You need nothing from us to
+*check* one.
+
+Request access at [aer.run](https://aer.run).
+
+If you are a coding agent, or you are pointing one at this repository, read
+[AGENTS.md](./AGENTS.md) instead of inferring the integration from the READMEs.
+
+## Packages
+
+| Package | What it does | Version |
+| --- | --- | --- |
+| [`aer`](https://www.npmjs.com/package/@adastracomputing/aer) | Command line: set up, import runs, verify records. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer?label=%20) |
+| [`aer-auto-node`](https://www.npmjs.com/package/@adastracomputing/aer-auto-node) | Auto-instrumentation for Node, no code changes. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-auto-node?label=%20) |
+| [`aer-verify`](https://www.npmjs.com/package/@adastracomputing/aer-verify) | Dependency-free verifier for signed bundles. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-verify?label=%20) |
+| [`aer-resource-node`](https://www.npmjs.com/package/@adastracomputing/aer-resource-node) | Verify attestation tokens at your API, fail-closed. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-resource-node?label=%20) |
+| [`aer-mcp-guard`](https://www.npmjs.com/package/@adastracomputing/aer-mcp-guard) | Admission control for HTTP MCP servers. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-mcp-guard?label=%20) |
+| [`aer-mcp-recorder`](https://www.npmjs.com/package/@adastracomputing/aer-mcp-recorder) | Transparent MCP proxy that records tool activity. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-mcp-recorder?label=%20) |
+| [`aer-hooks`](https://www.npmjs.com/package/@adastracomputing/aer-hooks) | Hook adapters for coding harnesses. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-hooks?label=%20) |
+| [`aer-emit`](https://www.npmjs.com/package/@adastracomputing/aer-emit) | Shared emit core used by the recorder and hooks. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-emit?label=%20) |
+| [`aer-sdk-ts`](https://www.npmjs.com/package/@adastracomputing/aer-sdk-ts) | TypeScript SDK for emitting events directly. | ![npm](https://img.shields.io/npm/v/@adastracomputing/aer-sdk-ts?label=%20) |
+| [`aer_sdk`](./packages/sdk-py) | Python SDK. Installed from this repo, not npm or PyPI. | ![release](https://img.shields.io/github/v/release/Ad-Astra-Computing/aer?filter=sdk-py-v*&label=%20) |
+
+Every library package is ESM and ships its own types. All target Node 22 or newer.
+
+## Install
+
+### Requirements
+
+Node 22 or newer. An AER account for anything that records a run; nothing
+for verifying one.
+
+### Set up a Node project
+
+```sh
+npx @adastracomputing/aer init
+```
+
+On Nix, run the CLI from the flake instead:
+
+```sh
+nix run github:Ad-Astra-Computing/aer#aer -- init
+```
+
+`init` wires the collector into the run scripts and writes `aer.config.json`,
+`.env.example` and a manifest of what it changed. It does not touch
+application code.
+
+To run without npm at all, take the packages as a node_modules tree:
+
+```sh
+nix build github:Ad-Astra-Computing/aer#node-modules
+ln -s ./result/lib/node_modules node_modules
+```
+
+### Upgrading
+
+Moving from an earlier release? [Upgrading](./docs/upgrading.md) lists what
+changed in each package and what to re-run.
+
+## Sign in
+
+Recording a run needs an AER account, from [aer.run](https://aer.run). The
+CLI can hold that credential for you, once per machine, rather than you
+copying a key into an environment variable yourself:
+
+```sh
+npx @adastracomputing/aer login
+```
+
+This opens `https://aer.run/device` and prints a code to type there. Once
+approved, the tenant key it mints is saved to
+`~/.config/aer/credentials.json`, owner-only and never printed again. Then
+tell the current project which agent to record as:
+
+```sh
+npx @adastracomputing/aer link
+```
+
+`link` writes `agent_id` and `env_id` into `aer.config.json` for you, picking
+from the tenant's existing agents on a terminal or creating one with
+`--create-agent <name>`. From here, every `aer` subcommand that needs a
+tenant key (`doctor`, `smoke`, `import claude-code` and the tenant-data
+commands) picks it up on its own. `npx @adastracomputing/aer whoami`
+shows what is signed in and `npx @adastracomputing/aer logout` revokes
+it.
+
+On Nix, both run from the flake the same way:
+
+```sh
+nix run github:Ad-Astra-Computing/aer#aer -- login
+nix run github:Ad-Astra-Computing/aer#aer -- link
+```
+
+Setting `AER_API_KEY` yourself still works and takes priority over a stored
+login, which is what a CI job or a container without a browser should do
+instead of running `login` there. `aer-hooks` and `aer-auto-node` read that
+same environment directly and do not consult a stored login, so a coding
+harness or a long-running agent still needs `AER_API_KEY` (and
+`AER_TENANT_ID` / `AER_AGENT_ID`) set in its own environment.
+
+## Usage
+
+Run your agent with the collector loaded:
+
+```sh
+node --import @adastracomputing/aer-auto-node/register your-agent.js
+```
+
+The collector stays off inside a Claude Code tool shell (`CLAUDECODE=1` or
+`CLAUDE_CODE_ENTRYPOINT` set), since that harness exports its environment into
+every command it runs and a script the coding agent starts would otherwise
+record as a separate session under the same account. Set
+`AER_RECORD_IN_AGENT_SHELL=1` to record such a process on purpose. `aer doctor`
+warns when it detects this.
+
+Check the integration. `doctor` exits non-zero if anything is wrong, so it is
+safe to gate on in CI:
+
+```sh
+$ npx @adastracomputing/aer doctor
+AER_BASE_URL          ok    https://api.aer.run
+API reachable         ok    ready (200)
+tenant auth           ok
+```
+
+Then send a tiny instrumented run end to end and verify what comes out:
+
+```sh
+npx @adastracomputing/aer smoke
+```
+
+On Nix, both run from the flake the same way:
+
+```sh
+nix run github:Ad-Astra-Computing/aer#aer -- doctor
+nix run github:Ad-Astra-Computing/aer#aer -- smoke
+```
+
+## Record a coding harness
+
+Claude Code, Codex CLI, Antigravity and opencode are recorded through hooks
+rather than the Node collector, since the agent is the harness rather than a
+script you launch:
+
+```sh
+npx @adastracomputing/aer-hooks install claude-code
+```
+
+`codex` and `antigravity` work the same way; opencode loads an in-process
+plugin instead (see the `aer-hooks` README). `status` shows what is wired, and
+lists any registration that has fallen behind: missing the current hook
+lifecycle, an end-of-session entry with no time budget, a relative
+`CODEX_HOME`, an Antigravity registration that records no tool calls,
+running an older `aer-hooks` release or shadowed by a nix-profile copy of
+`aer-hook` that sits ahead of the project's own on `PATH`. `uninstall` removes AER's entries and only those.
+Every config write keeps a backup, and running `install` again is safe: it
+updates an existing registration in place instead of duplicating it, which is
+also how you pick up a newer hook lifecycle after upgrading.
+
+A Claude Code subagent's tool calls join its lead session's record rather than
+opening one of their own, so a run that spawns subagents still seals into one
+record. `aer doctor` folds the same staleness checks in, so a project that
+also uses the Node collector sees both in one place.
+
+The hooks need `AER_API_KEY`, `AER_TENANT_ID`, `AER_AGENT_ID` and `AER_ENV_ID`;
+without `AER_ENV_ID` the hook records nothing and says so on stderr, since the
+API refuses to open a session without one. `AER_AGENT_VERSION` is optional
+and defaults to `unspecified`, because a harness does not tell its hooks its
+own version.
+
+A shell command records the programs it runs (up to 16) and the hosts that
+`curl`, `wget`, `git`, `ssh`, `scp` or `rsync` were pointed at (up to 8).
+Never the full command, an argument, a path or a query. A session that runs
+for hours is completed in parts rather than left open indefinitely: at the
+first turn end
+once the record is four hours old, and before the next event after an hour of
+quiet. `AER_HOOK_CHECKPOINT_MINUTES` and `AER_HOOK_QUIET_MINUTES` change
+either; `0` turns one off. The parts share one session reference, so they read
+back as one run.
+
+### Keep the key out of the agent's shell
+
+A harness passes its environment to every command its agent runs, so a key
+exported in your shell profile reaches all of them, not only the hook. Put
+the credentials in a file only you can read instead:
+
+```sh
+install -m 600 /dev/null ~/.config/aer/hooks.env
+$EDITOR ~/.config/aer/hooks.env      # AER_API_KEY=..., AER_TENANT_ID=..., AER_AGENT_ID=..., AER_ENV_ID=...
+npx @adastracomputing/aer-hooks install claude-code --env-file ~/.config/aer/hooks.env
+```
+
+`AER_ENV_FILE=<path>` works in place of the flag. The hook reads only the
+file's `AER_*` lines and never exports them, so nothing it starts inherits
+the key. `aer-hooks status` and `aer doctor` warn when an AER key is exported
+in the shell they run in while hooks are wired.
+
+On Nix, install the tools first so the hook binary is on `PATH`, then wire the
+harness:
+
+```sh
+nix profile add github:Ad-Astra-Computing/aer#tools
+aer-hooks install claude-code
+```
+
+`nix run` is not enough on its own here: it puts the binary on `PATH` only for
+the length of that one command, and the harness needs `aer-hook` later, every
+time it runs a tool.
+
+## Configuration
+
+The collector and the hooks read these directly, whether or not you have
+also run `aer login`:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `AER_API_KEY` | Yes, to record | The only secret. Never commit it |
+| `AER_BASE_URL` | No | Defaults to `https://api.aer.run` |
+| `AER_DISABLE` | No | Set to turn the collector off without code changes |
+
+`aer-hooks` also needs `AER_TENANT_ID`, `AER_AGENT_ID` and `AER_ENV_ID`; see
+[Record a coding harness](#record-a-coding-harness) above for why those
+belong in an owner-only file rather than the shell.
+
+Non-secret identity (tenant, agent and environment) lives in
+`aer.config.json`, written by `init` or `aer link`. The `aer` CLI itself
+resolves a tenant key in a different order, so a person who signed in with
+`aer login` does not need `AER_API_KEY` set to use it: `AER_API_KEY` (or
+`AER_TENANT_API_KEY`) first, then the credentials `aer login` stored for the
+base URL in use. An environment key always wins over
+a stored login.
+
+## Documentation
+
+- [Instructions for coding agents](./AGENTS.md)
+- [What is in a record](./docs/concepts/what-is-in-a-record.md)
+- [Bodies-off](./docs/concepts/bodies-off.md)
+- [Verifying a record](./docs/concepts/verifying-a-record.md)
+- [Attestation and admission control](./docs/concepts/attestation.md)
+- [Upgrading from an earlier release](./docs/upgrading.md)
+
+Each package carries its own README with its full API.
+
+## Verifying a record
+
+Verification is the part that needs nothing from us. `aer-verify` recomputes the
+bundle hash, checks the Ed25519 signature and evaluates the transparency-log
+evidence. The library itself makes no network calls, so you can check a bundle
+you already hold. The command below fetches the bundle and the public key first,
+then does all of the checking locally.
+
+```sh
+npx @adastracomputing/aer verify <aer-id>
+```
+
+On Nix:
+
+```sh
+nix run github:Ad-Astra-Computing/aer#aer -- verify <aer-id>
+```
+
+## Python SDK
+
+[![latest Python SDK release](https://img.shields.io/github/v/release/Ad-Astra-Computing/aer?filter=sdk-py-v*&label=python%20sdk)](https://github.com/Ad-Astra-Computing/aer/releases?q=sdk-py)
+
+The Python SDK lives in [`packages/sdk-py`](./packages/sdk-py) and imports as
+`aer_sdk`. It is stdlib-only and needs Python 3.10 or newer.
+
+It is not published to PyPI, and there is no plan to publish it. The package is
+maintained here and installed from this repository, which keeps one source of
+truth for it rather than a copy that drifts from the code under test. Pin the
+release tag rather than tracking the default branch. Most current Python
+installs refuse a bare `pip install` outside a virtual environment, so make
+one first:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install "git+https://github.com/Ad-Astra-Computing/aer.git@sdk-py-v0.1.0#subdirectory=packages/sdk-py"
+```
+
+With Nix, take it as a flake output rather than a git URL:
+
+```nix
+inputs.aer.url = "github:Ad-Astra-Computing/aer";
+
+# then, in your own package set
+python3.withPackages (ps: [ aer.packages.${system}.sdk-py ])
+```
+
+## Development
+
+With [Nix](https://nixos.org), `nix develop` gives a shell with Node, pnpm,
+Python and pytest. Otherwise install Node 22 or newer and pnpm 11.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm -r typecheck
+```
+
+Agents working in this repository should read [AGENTS.md](./AGENTS.md).
+Contribution guidelines are in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Testing
+
+```sh
+pnpm -r test
+nix flake check
+```
+
+`nix flake check` builds, typechecks and tests every workspace member inside
+the sandbox with no network, and builds the Python SDK with its own suite.
+
+Releases are managed with
+[changesets](https://github.com/changesets/changesets): a change that should
+ship includes a changeset file, CI opens a version pull request that bumps
+versions and changelogs, and merging it publishes to npm. Publishing uses npm
+trusted publishing over OIDC, so no npm token exists in this repository or in
+its secrets.
+
+Every package here is pre-1.0, so a release publishes to the `next` dist-tag,
+not `latest`. A version that has only just been cut has not been proven by
+anyone yet, and `latest` is what an unpinned `npm install` resolves to, so
+moving it is a claim about maturity rather than a side effect of merging a pull
+request. Install a fresh release explicitly:
+
+```sh
+npm install @adastracomputing/aer@next
+```
+
+Once a version has run somewhere real, promote it:
+
+```sh
+pnpm promote                      # show what would move, change nothing
+pnpm promote @adastracomputing/aer --yes
+```
+
+`latest` moves only through that second command.
+
+One consequence to be deliberate about: a fix sits on `next` until someone
+promotes it, and that includes a security fix. `latest` is what the quick start
+above resolves, so promoting is part of shipping a security patch, not a
+follow-up chore.
+
+## Nix
+
+The root `flake.nix` provides:
+
+- `devShells.default`: Node 24, pnpm, Python 3 and pytest.
+- `packages.<name>`: one output per publishable npm package, each building the
+  exact tarball `npm publish` would produce, for example
+  `nix build .#aer-verify`. Workspace dependencies are vendored once from
+  `pnpm-lock.yaml`, so builds are offline and reproducible after the first
+  fetch.
+- `apps.aer`, `apps.aer-hooks`, `apps.aer-hook`, `apps.aer-mcp-recorder`: every
+  binary the packages ship, runnable with `nix run .#<name>`. Libraries have no
+  app output because there is nothing to run.
+- `packages.tools`: all of those binaries in one output, for
+  `nix profile add github:Ad-Astra-Computing/aer#tools` or a devShell. Use
+  this rather than `nix run` when wiring a coding harness: the hook config
+  invokes a bare `aer-hook`, so that binary has to be on `PATH` at the moment
+  the harness runs a tool, which an ephemeral `nix run` cannot provide.
+- `packages.sdk-py`: the Python SDK as an installable Python package. Its test
+  suite and an import check run as part of the build.
+- `checks`: `nix flake check` builds, typechecks and tests the whole workspace
+  inside the sandbox with no network, and builds the Python SDK.
+
+`@aer/schemas` and the internal test utilities are intentionally not published
+and not exposed as flake outputs. They are workspace-only dependencies used at
+build time, never a runtime dependency of anything that ships.
+
+## Security
+
+Report a vulnerability through [SECURITY.md](./SECURITY.md). Please do not open
+a public issue for a security report.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+The AER service is a hosted product and is not open source. The client packages
+in this repository are licensed under Apache-2.0 (SPDX: `Apache-2.0`),
+copyright Ad Astra Computing Inc. See [LICENSE](./LICENSE).

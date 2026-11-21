@@ -1,0 +1,328 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Cyb3rRon1n/dojo/main/assets/dojo-banner.svg"
+       alt="dojo — warm up before you spar"
+       style="max-width: 100%; height: auto;">
+</p>
+
+# dojo
+
+A training ground for AI coding tools. Clone once, run one command, and
+**opencode**, **Claude Code**, **GitHub Copilot CLI**, **OpenAI Codex CLI**,
+**Aider**, **Google Antigravity CLI**, **OpenClaw**, **Cursor**, and **Orca** are all set up with
+whatever token-saving optimizations each one actually supports — plus your
+GitHub projects, cloned and ready.
+
+**Orca is dojo's frontend.** dojo optimizes the agents; **Orca** is the
+work environment you actually work in — a desktop GUI that runs those
+agents side by side, each in its own git worktree, with a code editor, diff
+review, terminal, browser, and a mobile companion. `dojo workspace` is the
+front door: it verifies Orca is wired, then jumps you into the worktrees.
+dojo *is* Orca's optimizer — the RTK/graphify/token-optimizer/ponytail stack
+lives in the agent configs Orca reads, so a dojo machine is automatically a
+token-efficient Orca machine, no Orca-side setup needed.
+
+Anyone can point this at their own GitHub and train their own setup the
+same way.
+
+## Quickstart
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Cyb3rRon1n/dojo/main/install.sh)
+```
+
+```powershell
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/Cyb3rRon1n/dojo/main/install.ps1 | iex"
+```
+
+Installs whichever of the tools you don't already have and wires up
+whatever optimizations each one supports (including Orca's headless agent
+skills). It then asks whether to set up your projects workspace — cloning
+your GitHub repos into `~/projects/github/repos` (see "Set up your
+projects"). No sudo/elevation required for any of it. Safe to re-run later —
+every step is a no-op if already done.
+
+**Windows notes** (native PowerShell, not WSL):
+- The `dojo` CLI itself (`dojo update`/`status`/`doctor`/`workspace`/`tokens`) is a bash
+  script — `bootstrap.ps1` wires
+  it through Git for Windows' `bash.exe` if found (near-universal, since
+  it ships with Git for Windows). Everything else works without it.
+- `rtk` now ships a real Windows build and installs automatically, same as
+  Linux/Mac.
+- **Orca (the frontend) on Windows:** `install.ps1` guides you to the
+  `.exe` installer (it's a GUI app). After installing, launch Orca once and
+  register its CLI (Settings → General → Orca CLI), then `dojo update`
+  wires Orca's agent skills and `dojo workspace` opens the environment.
+- Prefer WSL instead? `install.sh`/`bootstrap.sh` already run unmodified
+  inside it — just run the bash Quickstart command above from your WSL
+  shell instead of `install.ps1`.
+- **No desktop?** Orca needs a GUI to work your agents in by default, but on
+  a headless box (server/VPS) you can run to it remotely: `orca serve` on the
+  host, then connect from Orca's app on another machine — so dojo's
+  optimizer stack still wires the agents while the GUI lives where you do.
+
+## Catalog
+
+### Tools dojo sets up
+
+| Tool | What it is |
+|---|---|
+| [opencode](https://opencode.ai) | Open-source terminal coding agent |
+| [Claude Code](https://www.npmjs.com/package/@anthropic-ai/claude-code) | Anthropic's terminal coding agent |
+| [GitHub Copilot CLI](https://www.npmjs.com/package/@github/copilot) | GitHub's terminal coding agent |
+| [OpenAI Codex CLI](https://www.npmjs.com/package/@openai/codex) | OpenAI's terminal coding agent |
+| [Aider](https://aider.chat) | Open-source, git-native AI pair programmer |
+| [Antigravity CLI](https://antigravity.google) | Google's terminal coding agent (replaced the retired Gemini CLI, 2026-06) |
+| [OpenClaw](https://openclaw.ai) | Agent runtime with a plugin system |
+| [Cursor](https://cursor.com) | AI IDE (install-only — no plugin API, so no optimizations) |
+| [Cline](https://cline.bot) | Headless CLI of the Cline VS Code agent (5M+ installs) |
+| [Qwen Code](https://www.npmjs.com/package/@qwen-code/qwen-code) | Alibaba's terminal agent, free Qwen OAuth tier |
+| [Goose](https://block.github.io/goose) | Block's MCP-native agent, Linux-Foundation governed |
+| [Pi](https://pi.dev) | Minimal coding-agent harness, any provider or local model |
+| [Orca](https://github.com/stablyai/orca) | Desktop **work environment** — runs your CLI agents (Claude Code, Codex, opencode…) each in its own git worktree, with a mobile companion. Not an agent itself: it runs the ones dojo already optimizes |
+
+> **Orca + dojo:** Orca is the *environment*, dojo is the *optimizer inside it*.
+> Orca reads each agent's own config (`.claude/`, `.codex/`, opencode config,
+> hooks) — exactly where dojo's RTK/graphify/token-optimizer/ponytail stack
+> lives — and does no token optimization of its own. So a dojo-provisioned
+> machine is automatically an Orca machine whose agents run token-efficient,
+> with zero Orca-side setup. bootstrap.sh wires Orca's native agent skills
+> (`orca-cli` / `orchestration` / `computer-use`) headlessly into those agents;
+> only the GUI features (worktrees, Design Mode, mobile) need the app paired
+> once. Those three native skills are the only ones dojo installs for you —
+> Orca has no public skill/plugin catalog, so any shared skill bundle you
+> later want is installed from its share link **inside the app** (Skills →
+> Install from link), not by dojo.
+
+dojo never force-installs a tool you didn't ask for — `bootstrap.sh` only
+configures what's already present on the machine (`install.sh` is the one
+that offers to install all of them fresh).
+
+### Optimizations dojo wires up
+
+| Plugin | What it does | Works with |
+|---|---|---|
+| [RTK](https://github.com/rtk-ai/rtk) | Filters command output before it hits context — up to 90% fewer tokens per command | Claude Code, opencode, Copilot CLI, Codex CLI |
+| [graphify](https://www.npmjs.com/package/@javargasm/opencode-graphify) | Builds a queryable knowledge graph of the codebase, once, instead of re-reading files every question | Claude Code, opencode, Copilot CLI, Codex CLI, Aider |
+| [token-optimizer](https://github.com/alexgreensh/token-optimizer) | Audits the running session for context waste and gives a quality score | Claude Code, opencode, OpenClaw |
+| [ponytail](https://github.com/DietrichGebert/ponytail) | Coding-style guardrail against over-engineering — smallest correct solution, stdlib first | Claude Code, opencode, OpenClaw |
+| [opencode-token-usage](https://www.npmjs.com/package/opencode-token-usage) | Live token/cost usage in the opencode session list | opencode |
+| [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) | 11 subagents, LSP/AST tools, multi-agent team mode on git worktrees | opencode |
+| Aider's native settings | Turns on Aider's own built-in prompt caching (off by default upstream) — no plugin exists because Aider has no plugin system | Aider only |
+
+Nothing here is faked: token-optimizer and ponytail simply don't have a
+Copilot CLI / Codex CLI / Aider build yet, so dojo doesn't claim one. What
+those tools *do* support natively — a token/context readout in the TUI footer
+(Codex `status_line`, Copilot CLI experimental `STATUS_LINE` statusline, and
+Claude Code's statusLine slot, auto-filled by token-optimizer) — is wired up
+too. Cursor has no plugin API or statusline, so it's install-only, honestly
+noted.
+
+### Claude Code-only additions
+
+Not token/context optimizations, so kept out of the table above — a coding
+methodology library and a meta-skill for growing your own skill set:
+
+| Plugin | What it does |
+|---|---|
+| [superpowers](https://github.com/obra/superpowers) | Skills library for TDD, systematic debugging, and collaboration patterns |
+| [code-review](https://claude.com/plugins/code-review) + [pr-review-toolkit](https://claude.com/plugins/pr-review-toolkit) | Anthropic's official review agents: five parallel reviewers with confidence-scored filtering, plus PR summarization and line-level review |
+| [task-observer](https://github.com/rebelytics/one-skill-to-rule-them-all) | Watches sessions for corrections/gaps and logs skill-improvement candidates for review — vendored under `claude/skills/task-observer/` (see that dir's `UPSTREAM.md`), since upstream ships as a plain skill bundle with no plugin-marketplace manifest |
+
+dojo also ships two of its own, symlinked into `~/.claude/` by bootstrap:
+
+| Bundle | What it does |
+|---|---|
+| `dojo-audit` skill (`/dojo-audit`) | Token/perf diagnostics of this whole stack — runs the token-optimizer, RTK and graphify readouts, summarises context overhead / cost-per-session / quality trends, and hands back a ranked list of fixes. Diagnosis only; changes land as a dojo PR |
+| `researcher` agent | Sonnet, read-only (web + docs). Target for the "heavy web research → subagent" rule in `claude/CLAUDE.md`: it synthesises and keeps raw pages out of the parent context, instead of research fanning out on Opus |
+
+### settings.json + ponytail
+
+bootstrap patches `~/.claude/settings.json` (never clobbering values you set):
+
+- **`respondToBashCommands: false`** — since CC v2.1.186 the model writes a reply
+  after every `!cmd` / `/command`; off here saves output tokens on every command.
+- **`permissions.deny`** — security-critical read blocks only (`.env`, `secrets/**`,
+  `*.pem`, `id_rsa`). Noise/generated-file excludes live in `~/.claude/.contextignore`
+  (`claude/contextignore`, honoured by token-optimizer), not here.
+
+`claude/ponytail/config.json` → `~/.config/ponytail/config.json` sets ponytail's
+default mode to **lite** — still enforces the ladder, far less per-turn prompt
+text. `/ponytail full` per-session for over-engineering-prone work.
+
+### Shared MCP servers
+
+Wired into both Claude Code (`claude mcp add --scope user`) and opencode
+(`mcp` block in `opencode.jsonc`) by bootstrap.sh:
+
+| Server | What it does | Auth |
+|---|---|---|
+| [Serena](https://github.com/oraios/serena) | Symbol-level semantic code tools (find/rename/references via LSP, 40+ languages) — big token saver on large repos. Installed via uv; opencode uses it with `--context ide` | none (local) |
+| [GitHub](https://github.com/github/github-mcp-server) (remote) | Official Issues/PRs/Actions/repos tooling, zero local deps | PAT header (`GITHUB_PERSONAL_ACCESS_TOKEN`, from `gh auth token`) — its OAuth server doesn't support dynamic client registration, so `/mcp`'s interactive login doesn't work here |
+| [Context7](https://github.com/upstash/context7) (remote) | Fresh version-specific library docs on demand | none |
+
+MCP servers add tool definitions to context — that's the point, but if you
+run lean sessions, disable what you don't use per project
+(`enabled: false` in `opencode.jsonc`, `claude mcp remove <name>`).
+
+## Commands
+
+Once installed, a `dojo` command is on your `PATH`:
+
+```bash
+dojo status    # versions, GitHub auth, whether you're behind origin
+dojo doctor    # verify every wiring point (PATH, symlinks, hooks, plugins); exit 1 if broken
+dojo update    # git pull + re-run bootstrap.sh, from wherever you cloned it
+dojo install   # re-run install.sh (idempotent) — same one-shot as a fresh machine
+dojo repos setup <owner> [repo...]  # clone a GitHub owner's repos into ~/projects/github/repos
+dojo repos     # git pull + submodule update the workspace you already have
+dojo workspace # open dojo's frontend (Orca): verify it's wired, then list live worktrees
+dojo tokens    # live token usage / cache refresh / context-fill thresholds
+```
+
+`dojo update` is the self-heal: any wiring that rotted (deleted symlink, lost
+plugin, missing hook) is re-created. `dojo doctor` tells you *when* to run it.
+
+### Set up your projects
+
+**1. Add your repos to the workspace.** Repos live under `~/projects/github/repos`
+(the default `REPOS_DIR`), one clone per project. Populate it with a GitHub
+owner's repos (your user, or an org):
+
+```bash
+dojo repos setup            # uses gh's logged-in user; clones all of their repos
+dojo repos setup <owner>    # clone every repo under <owner>
+dojo repos setup <owner> <repo> [repo...]  # just the ones you name
+```
+
+`dojo install` offers this same step interactively ("Set up your projects
+workspace?"). Already-present repos are left alone (a plain `git pull` keeps
+them current), and submodules are synced after cloning. `dojo repos` runs the
+pull + submodule update over whatever you have. Cloning is additive — run it
+again to pick up repos you've since created.
+
+**2. Work on a project.** Open Orca — dojo's work environment — with
+`dojo workspace` (it verifies the Orca CLI is wired, then lists live
+worktrees), or launch the Orca desktop app directly. Inside Orca, open a
+project from `~/projects/github/repos`; Orca checks out each agent into its
+own git **worktree** off that clone, so Claude Code, Codex, opencode, and
+friends each edit the project in parallel without stepping on each other.
+Work in those worktrees as you normally would — commits and pushes are real,
+landing on the branches Orca creates per agent. The `orca-cli` / `orchestration`
+/ `computer-use` agent skills bootstrap.sh installed are what let the agents
+drive Orca from inside the worktree. To add a *new* project later, either
+clone it with `dojo repos setup <owner> <repo>` or clone it directly into
+`~/projects/github/repos/` and open it in Orca.
+
+### Token status
+
+While opencode or Claude Code is running, token-optimizer writes live session
+state (per-session SQLite + a global trends DB) under
+`~/.local/share/token-optimizer/`; Claude Code also keeps JSON state under
+`~/.claude/token-optimizer/`. `dojo tokens` reads all of it (the env var
+`TOKEN_OPTIMIZER_DATA_DIR`, if set, overrides the data directory) and
+prints current **token usage** (input/output), **token refresh** (context-cache
+read/write), and **context-fill threshold** percentage vs the model's context
+window, colored by the same Good/Fair/Needs-Work/Poor bands the plugin itself
+uses. `dojo tokens --one-line` emits the same readout as one compact colored line.
+
+### Persistence
+
+The toolchain PATH is written into your shell profile (`~/.bashrc`, plus
+`~/.zshrc` if present) as a marked, dojo-managed block — so `opencode`,
+`claude`, `rtk`, `graphify`, and `nvm` are on `PATH` after a fresh login. The
+block is rewritten from the installed dojo version on every `dojo update`;
+don't hand-edit it. The same block also sources a shared ssh-agent helper
+(`ssh-agent.sh`, linked to `~/.local/bin/dojo-ssh-agent.sh`), so every shell —
+and tools launched from them — see your GitHub key through one stable agent
+socket. (Windows instead uses the built-in ssh-agent service, configured by
+`bootstrap.ps1`.)
+
+<details>
+<summary><b>Prefer manual setup?</b></summary>
+
+Same result, step by step — install only the tools you want:
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+npm install -g @anthropic-ai/claude-code
+npm install -g @github/copilot
+npm install -g @openai/codex
+curl -fsSL https://aider.chat/install.sh | sh
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard
+curl https://cursor.com/install -fsSL | bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+git clone git@github.com:Cyb3rRon1n/dojo.git ~/dojo
+~/dojo/bootstrap.sh
+```
+
+`bootstrap.sh` detects what's present and skips the rest. It also finds its
+own location, so `~/dojo` isn't required — cloning dojo alongside your
+other repos (e.g. `~/projects/github/repos/dojo`) works identically.
+
+</details>
+
+<details>
+<summary><b>Reference</b></summary>
+
+Only the opencode side is version-pinned, in `opencode/opencode.jsonc` /
+`opencode/package.json` — bump deliberately. Every other install path
+(Claude Code's plugin marketplace, RTK's and graphify's own install
+scripts, Aider's installer) always fetches latest, so don't expect versions
+to match across tools.
+
+| Component | opencode version (pinned) |
+|---|---|
+| RTK | 0.1.5 |
+| token-optimizer | 1.1.0 |
+| ponytail (`@dietrichgebert/ponytail`) | 4.9.0 |
+| graphify | 0.2.0 |
+| opencode-token-usage | 1.0.0 |
+| oh-my-openagent | 4.19.4 |
+
+Files this repo does **not** touch on your machine:
+- `~/.claude/settings.json` — hooks/settings stay machine-local. Only the
+  RTK `PreToolUse` hook is added, via `rtk init -g`, and the statusLine slot
+  is left empty (token-optimizer auto-fills it).
+- `~/.config/opencode/package-lock.json` — regenerated by `npm install`.
+
+Copilot CLI / Codex CLI config is owned by those tools: dojo only appends a
+statusline when one isn't already configured (`~/.copilot/settings.json`,
+`~/.codex/config.toml`) and never clobbers a user-managed one.
+
+</details>
+
+<details>
+<summary><b>Layout</b></summary>
+
+```
+opencode/
+  opencode.jsonc     # pinned plugin list (symlinked into ~/.config/opencode/)
+  package.json       # pinned npm deps (copied; npm install fills node_modules)
+  package-lock.json
+  plugins/
+    token-gauge.js   # local fallback plugin, linked when npm can't install the pinned ones
+claude/
+  CLAUDE.md          # user instructions (symlinked into ~/.claude/)
+  RTK.md             # RTK reference (symlinked into ~/.claude/)
+aider/
+  aider.conf.yml     # default Aider settings (symlinked to ~/.aider.conf.yml)
+copilot/
+  statusline.sh      # Copilot CLI footer readout (linked into ~/.copilot/)
+  statusline.ps1     # same, native Windows port (no python3 dependency)
+tests/
+  test_dojo.bats     # bats suite (SQLite/JSON fixtures, idempotence, pins)
+.github/workflows/
+  ci.yml             # py_compile + bats + shellcheck on main/PR
+assets/               # dojo's own logo/banner (mark, lockup, social preview)
+bootstrap.sh          # idempotent setup (plugins, hooks, configs, per tool)
+bootstrap.ps1         # same, native Windows port (PowerShell, run by install.ps1)
+install.sh            # one-shot fresh-machine build-out (installs all the tools, calls bootstrap.sh, then clones repos/)
+install.ps1           # same, native Windows port -- installs via npm/winget/official *.ps1 installers, calls bootstrap.ps1
+dojo                  # day-to-day command: `dojo update` / `dojo install` / `dojo status` / `dojo doctor` / `dojo tokens` (symlinked onto PATH by bootstrap.sh; shimmed via git-bash on Windows)
+dojo-tokens.py        # reads token-optimizer's live state (SQLite + Claude JSON) — used by `dojo tokens`
+ssh-agent.sh          # shared ssh-agent helper, sourced by the profile block (linked to ~/.local/bin/dojo-ssh-agent.sh)
+```
+
+</details>

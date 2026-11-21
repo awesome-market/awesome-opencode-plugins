@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
+  <title>OpenCode Plugins</title>
+  <link href="https://opencode-plugins.zhuikan.com/feed.xml" rel="self"/>
+  <link href="https://opencode-plugins.zhuikan.com/"/>
+  <id>https://opencode-plugins.zhuikan.com/feed.xml</id>
+  <updated>2026-11-21T10:28:44Z</updated>
+  <entry>
+    <title>[首登] umairbaig8/okf-generator +1★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/umairbaig8__okf-generator"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/umairbaig8__okf-generator</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>OKF v0.1 knowledge bundle generator — Claude skill + OpenCode integration</summary>
+  </entry>
+  <entry>
+    <title>[首登] attilaszasz/sdd-pilot +1★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/attilaszasz__sdd-pilot"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/attilaszasz__sdd-pilot</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Replace chaotic AI code generation with a disciplined, spec-driven workflow. SDD Pilot enforces structured development phases and quality gates, leveraging AI agents to conduct online research for best practices and plan your architecture before a single line of code is written.</summary>
+  </entry>
+  <entry>
+    <title>[首登] veerps57/memento</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/veerps57__memento"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/veerps57__memento</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Local-first, LLM-agnostic memory layer for AI assistants. Run via npx @psraghuveer/memento.</summary>
+  </entry>
+  <entry>
+    <title>[首登] alexeyperov/unity-open-mcp</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/alexeyperov__unity-open-mcp"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/alexeyperov__unity-open-mcp</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>MCP server (stdio) routing tool calls to the live Unity Open MCP Bridge or batch Unity processes.</summary>
+  </entry>
+  <entry>
+    <title>[首登] mashware/flow-workflows</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/mashware__flow-workflows"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/mashware__flow-workflows</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Guided feat/bug workflows (start→ship), post-deploy monitoring and multi-agent code review, stack-agnostic. Each repo uses a shared FLOW.md plus optional harness overlay.</summary>
+  </entry>
+  <entry>
+    <title>[首登] 1cyberlangke1/compressed-context</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/1cyberlangke1__compressed-context"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/1cyberlangke1__compressed-context</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>OpenCode 上下文管理插件：按需压缩、自包含摘要</summary>
+  </entry>
+  <entry>
+    <title>[首登] jcendal/digital-pet</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/jcendal__digital-pet"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/jcendal__digital-pet</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>An OpenCode virtual-pet plugin with /digital-pet-spawn, /digital-pet-freeze, /digital-pet-unfreeze, /digital-pet-set, /digital-pet-dex, and /digital-pet-history commands.</summary>
+  </entry>
+  <entry>
+    <title>[首登] @tera-system/core</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@tera-system__core"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@tera-system__core</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Tera System OpenCode Plugin — governance core, 28 agents, 41 commands, distribution tools (personal edition)</summary>
+  </entry>
+  <entry>
+    <title>[首登] cheejiayuan512/opencode-file-editor</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/cheejiayuan512__opencode-file-editor"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/cheejiayuan512__opencode-file-editor</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>A file editor panel for OpenCode Desktop: tabs, autosave, external-change protection, and Markdown preview.</summary>
+  </entry>
+  <entry>
+    <title>[首登] ctliz/agent-intercom-claude</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/ctliz__agent-intercom-claude"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/ctliz__agent-intercom-claude</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Claude Code MCP plugin and wakeable worker for local messaging with Pi, Codex, OpenCode, Grok Build, and AGY agents.</summary>
+  </entry>
+  <entry>
+    <title>[首登] davnn1/opencode-mcp-toggle</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/davnn1__opencode-mcp-toggle"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/davnn1__opencode-mcp-toggle</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Manage and toggle OpenCode MCP servers on the fly directly from Paseo to save context tokens.</summary>
+  </entry>
+  <entry>
+    <title>[首登] favasconcelos/opencode-aws-bedrock-auth</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/favasconcelos__opencode-aws-bedrock-auth"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/favasconcelos__opencode-aws-bedrock-auth</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>OpenCode plugin that automatically refreshes AWS Bedrock SSO sessions</summary>
+  </entry>
+  <entry>
+    <title>[首登] goodfoot-io/git-span</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/goodfoot-io__git-span"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/goodfoot-io__git-span</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>In-session git-span for OpenCode: silent span-drift healing behind shell/read/edit/write/patch calls, and an installer for the git-span skills and expert agent.</summary>
+  </entry>
+  <entry>
+    <title>[首登] guotree/opencode-search-plugin</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/guotree__opencode-search-plugin"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/guotree__opencode-search-plugin</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Twenty-four self-contained websearch provider plugins for OpenCode v2: AnySearch, Bocha, Brave, DeepSeek, Doubao, Jina, Kagi, Keenable, Linkup, Metaso, Moonshot, Moonshot CN, Ollama, Perplexity, Querit, SerpApi, Serper, StepFun, You.com, Yuanbao, Z.ai, Z.</summary>
+  </entry>
+  <entry>
+    <title>[首登] haroldleo/magpie-aws-bedrock-sso</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/haroldleo__magpie-aws-bedrock-sso"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/haroldleo__magpie-aws-bedrock-sso</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Amazon Bedrock in Magpie, signed with SigV4 from your AWS SSO / IAM Identity Center profile instead of a Bedrock API key</summary>
+  </entry>
+  <entry>
+    <title>[日增] npm/opencode-auto-resume +137★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/npm__opencode-auto-resume"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/npm__opencode-auto-resume</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>OpenCode plugin that automatically resumes stalled LLM sessions when thinking/streaming freezes mid-generation.</summary>
+  </entry>
+  <entry>
+    <title>[日增] rehydra-ai/rehydra-sdk +108★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/rehydra-ai__rehydra-sdk"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/rehydra-ai__rehydra-sdk</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Rehydra plugin for OpenCode — anonymizes secrets in LLM context using native plugin hooks</summary>
+  </entry>
+  <entry>
+    <title>[日增] evilayman/opencode-raven +36★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/evilayman__opencode-raven"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/evilayman__opencode-raven</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Context-saving search, on-demand MCP routing, and registered CLI execution for OpenCode through focused Raven agents.</summary>
+  </entry>
+  <entry>
+    <title>[日增] getpaseo/paseo +31★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Orchestrate multiple coding agents from desktop and mobile</summary>
+  </entry>
+  <entry>
+    <title>[日增] guillaumemeyer/watermarks-remover +27★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/guillaumemeyer__watermarks-remover"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/guillaumemeyer__watermarks-remover</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>A privacy-first app that strips AI watermarks from content you own.</summary>
+  </entry>
+  <entry>
+    <title>[日增] deusdata/codebase-memory-mcp +22★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Local code intelligence for developers and AI agents. Connect code, docs and infrastructure in a persistent graph, with CBM Lens, MCP tools, agent integrations and change-aware test selection.</summary>
+  </entry>
+  <entry>
+    <title>[日增] mksglu/context-mode +18★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/mksglu__context-mode"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/mksglu__context-mode</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Free, local plugin that keeps tool output out of your coding agent&#x27;s context window. Sandbox and SQLite FTS5 search, 99% fewer bytes in context. Works with Claude Code, Codex, Pi, OMP, OpenCode, Gemini CLI, Copilot CLI and 4 more agents. Zero telemetry.</summary>
+  </entry>
+  <entry>
+    <title>[日增] jazzenchen/agent-hud-open +15★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas, tokens and sessions at a glance, answer requests and jump back in one click. On your screen, phone and watch.</summary>
+  </entry>
+  <entry>
+    <title>[日增] openchamber/openchamber +14★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/openchamber__openchamber"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/openchamber__openchamber</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Agentic Development Environment based on OpenCode AI agent</summary>
+  </entry>
+  <entry>
+    <title>[日增] paradevai/paradev +13★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/paradevai__paradev"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/paradevai__paradev</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Paradev is an open-source Codex App and Conductor alternative. Orchestrate an army coding agents in parallel with your own subscriptions.</summary>
+  </entry>
+  <entry>
+    <title>[日增] michael-denyer/pstack-claude +13★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/michael-denyer__pstack-claude"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/michael-denyer__pstack-claude</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Claude Code, Codex, Copilot, Pi, OpenCode, Muse, Gemini, and Prime Agent versions of Poteto&#x27;s pstack. Rigorous agent workflows with Cursor primitives translated for other harnesses.</summary>
+  </entry>
+  <entry>
+    <title>[日增] insane0777/awwwards-mcp +13★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/insane0777__awwwards-mcp"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/insane0777__awwwards-mcp</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Free, open-source MCP server that gives AI coding agents (Claude Code, Codex, Cursor, OpenCode, ZCode…) design inspiration from award-winning websites — search with real screenshots, pull design DNA, capture and record live sites. A Mobbin alternative. No API key.</summary>
+  </entry>
+  <entry>
+    <title>[日增] code-yeongyu/oh-my-openagent +12★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/code-yeongyu__oh-my-openagent"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/code-yeongyu__oh-my-openagent</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>OmO: Just type &quot;mass ulw&quot; keyword with your prompt. Now you are the master of graph engineering.</summary>
+  </entry>
+  <entry>
+    <title>[日增] zenstory-ai/oh-story-claudecode +12★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/zenstory-ai__oh-story-claudecode"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/zenstory-ai__oh-story-claudecode</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Claude Code / Codex / OpenCode agent skills for writing Chinese web novels (网文): 扫榜、拆文、写作、去AI味、封面全流程，长篇短篇都支持 | 14 skills for novel writing and long-form fiction with file-based continuity tracking. MIT.</summary>
+  </entry>
+  <entry>
+    <title>[日增] enmerasoftware/ai-design-check +11★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/enmerasoftware__ai-design-check"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/enmerasoftware__ai-design-check</id>
+    <updated>2026-11-21T10:28:44Z</updated>
+    <summary>Design rules and a zero-dependency checker for interfaces built with AI coding agents, on the web and in SwiftUI and Jetpack Compose apps. English and Turkish.</summary>
+  </entry>
+</feed>

@@ -1,0 +1,321 @@
+# opencode-morph-fast-apply
+
+[![CI](https://github.com/JRedeker/opencode-morph-fast-apply/actions/workflows/ci.yml/badge.svg)](https://github.com/JRedeker/opencode-morph-fast-apply/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/JRedeker/opencode-morph-fast-apply)](https://github.com/JRedeker/opencode-morph-fast-apply/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+OpenCode plugin for [Morph Fast Apply](https://morphllm.com) - 10x faster code editing with lazy edit markers.
+
+## Features
+
+- **10,500+ tokens/sec** code editing via Morph's Fast Apply API
+- **Lazy edit markers** (`// ... existing code ...`) - no exact string matching needed
+- **98% accuracy** with intelligent code merging
+- **Pre-flight validation** - prevents accidental file deletions when markers are missing
+- **Unified diff output** with context for easy review
+- **Custom TUI display** - branded titles like `Morph: src/file.ts +15/-3 (450ms)`
+- **OpenCode V2 native** - registers through the V2 plugin API; edits are confined to the session's directory per invocation
+- **Graceful fallback** - suggests native `edit` tool on API failure
+
+> **Note:** This is an OpenCode plugin that wraps Morph's Fast Apply API. For the official Morph MCP server (which includes WarpGrep search), see [@morphllm/morphmcp](https://www.npmjs.com/package/@morphllm/morphmcp). This plugin uses `morph_edit` as the tool name to avoid conflicts if you have both installed.
+
+## Installation
+
+### OpenCode version support
+
+| OpenCode version      | Support | Notes                                                                                                                                           |
+| --------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| V2 (2.x)              | Yes     | Loads through the V2 plugin API (`setup`). Edits are confined to the session's directory, resolved per invocation.                              |
+| V1 1.18.29+           | Yes     | Loads through the V1 `default.server` adapter with the same `morph_edit` behavior.                                                              |
+| V1 older than 1.18.29 | **No**  | These loaders do not read the dual-entry default export, so the plugin silently does not load. Upgrade OpenCode or pin an older plugin release. |
+
+### 1. Add the plugin and always-on instruction to your OpenCode config
+
+Preferred when your setup syncs packaged instructions into `~/.config/opencode/instructions/`:
+
+OpenCode V2 (2.x) reads the plural `plugins` key. Add to your global config (`~/.config/opencode/opencode.json`):
+
+```json
+{
+  "instructions": ["~/.config/opencode/instructions/morph-tools.md"],
+  "plugins": ["github:JRedeker/opencode-morph-fast-apply#v1.12.0"]
+}
+```
+
+Version `v1.12.0` supports both OpenCode V2 and V1 1.18.29+.
+
+OpenCode V1 (1.18.29+) reads the singular `plugin` key. Do not use `plugin` on V2 — V2 ignores it and the plugin will not load:
+
+```json
+{
+  "instructions": ["~/.config/opencode/instructions/morph-tools.md"],
+  "plugin": ["github:JRedeker/opencode-morph-fast-apply#v1.12.0"]
+}
+```
+
+Recommended setup summary:
+
+- Prefer the stable synced instruction path: `~/.config/opencode/instructions/morph-tools.md`
+- Use the packaged `node_modules/.../morph-tools.md` path only when your setup does not sync instructions
+- Keep the routing policy in the OpenCode `instructions` array, not a skill
+
+If you are installing the plugin directly and do not sync packaged instructions into
+`~/.config/opencode/instructions/`, you can point OpenCode at the packaged file
+instead. Use `plugins` on V2 and `plugin` on V1:
+
+```json
+{
+  "instructions": [
+    "~/.config/opencode/node_modules/opencode-morph-fast-apply/instructions/morph-tools.md"
+  ],
+  "plugins": ["github:JRedeker/opencode-morph-fast-apply#v1.12.0"]
+}
+```
+
+```json
+{
+  "instructions": [
+    "~/.config/opencode/node_modules/opencode-morph-fast-apply/instructions/morph-tools.md"
+  ],
+  "plugin": ["github:JRedeker/opencode-morph-fast-apply#v1.12.0"]
+}
+```
+
+The `morph_edit` tool description remains self-contained, but for more reliable
+tool selection you should also load the packaged always-on instruction file
+shown above. This avoids agents defaulting to native `edit` when `morph_edit`
+is the better fit for large, scattered, or whitespace-sensitive edits.
+
+Important: the active agent must also expose `morph_edit` in its tool manifest.
+If an agent profile marks `morph_edit: false`, the model cannot choose Morph
+even when the plugin is installed and the always-on instruction is present.
+
+### 2. Set your Morph API key
+
+Get an API key at [morphllm.com/dashboard](https://morphllm.com/dashboard/api-keys), then add it to the environment that starts OpenCode:
+
+```bash
+export MORPH_API_KEY="sk-your-key-here"
+```
+
+The plugin reads `MORPH_API_KEY` from the OpenCode process environment when it
+loads. Setting the variable in an unrelated shell does not update
+already-running OpenCode sessions.
+
+### 3. Restart OpenCode
+
+The `morph_edit` tool will now be available.
+
+## Usage
+
+The LLM uses `morph_edit` for efficient partial file edits:
+
+```
+morph_edit({
+  target_filepath: "src/auth.ts",
+  instructions: "I am adding error handling for invalid tokens",
+  code_edit: `// ... existing code ...
+function validateToken(token) {
+  if (!token) {
+    throw new Error("Token is required");
+  }
+  // ... existing code ...
+}
+// ... existing code ...`
+})
+```
+
+### When to use `morph_edit` vs `edit`
+
+| Situation                  | Tool         | Reason                    |
+| -------------------------- | ------------ | ------------------------- |
+| Small, exact replacement   | `edit`       | Fast, no API call         |
+| Large file (500+ lines)    | `morph_edit` | Handles partial snippets  |
+| Multiple scattered changes | `morph_edit` | Batch efficiently         |
+| Whitespace-sensitive       | `morph_edit` | Forgiving with formatting |
+
+## Configuration
+
+| Variable        | Default                    | Description              |
+| --------------- | -------------------------- | ------------------------ |
+| `MORPH_API_KEY` | (required)                 | Your Morph API key       |
+| `MORPH_API_URL` | `https://api.morphllm.com` | API endpoint             |
+| `MORPH_MODEL`   | `morph-v3-fast`            | Model to use (see below) |
+| `MORPH_TIMEOUT` | `30000`                    | Request timeout in ms    |
+
+### Available Models
+
+| Model            | Speed                | Accuracy | Best For                                          |
+| ---------------- | -------------------- | -------- | ------------------------------------------------- |
+| `morph-v3-fast`  | 10,500+ tok/sec      | 96%      | Real-time applications, quick edits               |
+| `morph-v3-large` | 5,000+ tok/sec       | 98%      | Complex changes, highest accuracy                 |
+| `auto`           | 5,000-10,500 tok/sec | ~98%     | Recommended - automatically selects optimal model |
+
+## How It Works
+
+1. Reads the original file content
+2. Sends to Morph API:
+   - `<instruction>` - Your intent description
+   - `<code>` - The complete original file
+   - `<update>` - Your partial edit with markers
+3. Morph intelligently merges the lazy edit markers with original code
+4. Writes the merged result back to the file
+5. Returns a unified diff showing what changed
+
+## Troubleshooting
+
+### "MORPH_API_KEY not configured"
+
+Ensure the environment variable is set and exported in the shell or service that
+starts OpenCode:
+
+```bash
+echo $MORPH_API_KEY  # Should show your key
+```
+
+After changing `MORPH_API_KEY`, restart OpenCode so the plugin reloads with the
+updated OpenCode process environment.
+
+### Timeout errors
+
+Increase the timeout for large files:
+
+```bash
+export MORPH_TIMEOUT=60000  # 60 seconds
+```
+
+### Unexpected deletions
+
+If code is being deleted unexpectedly, ensure your `code_edit` includes `// ... existing code ...` markers at the start and end. Omitting these markers tells Morph to replace the entire file.
+
+### Safety guards
+
+The plugin blocks unsafe Morph responses before writing files:
+
+- **Marker leakage guard**: If merged output contains `// ... existing code ...` but the original file did not, the write is aborted.
+- **Catastrophic truncation guard**: If merged output loses more than 60% of characters **and** more than 50% of lines (for marker-based edits), the write is aborted.
+- **Dropped imports guard**: If top-level import identifiers present in the original file are missing from the merged output, the write is aborted. This catches silent import loss that can occur when edits fall outside the anchoring context.
+- **Path confinement**: Edits open their file and directories beneath the invoking session's allowed root (V1 context worktree/directory, or V2 session directory) and use only those opened objects, so a concurrent symlink swap cannot redirect them. A new file another process creates at the destination during the edit is never silently overwritten: publication is an atomic create-if-absent link (requiring hard-link support in the target directory's filesystem) and the edit fails instead. Paths outside that root, including sibling worktrees, are rejected. Any symlink in the root or target path, a file with more than one hard link, and a nonregular target are refused. Confinement requires Linux with procfs; other hosts refuse every edit. Start a session in an ad-hoc worktree to edit within it. Arguments cannot select another root.
+- **Replacement access metadata**: Existing files require Bun FFI and Linux glibc (`libc.so.6`) on x64 or arm64 for descriptor-based `flistxattr` inspection. Unavailable inspection, inspection errors, and visible extended attributes (including POSIX ACLs) refuse the edit before reading content. Source metadata is rechecked before reading and replacing. A replacement starts with private `0600` staging; inherited attributes or a different owner/group abort it before content is written. Source and replacement metadata are checked again before publication. Successful replacements keep ordinary permission bits and owner/group, but change inode identity and drop special mode bits. New files retain kernel-applied umask and default ACL semantics without requiring metadata inspection. Inspection cannot detect attributes the kernel hides from the caller, and checks do not serialize concurrent metadata changes; no protection against privileged metadata changes or hostile code in the plugin process is claimed.
+- **Object lifetime**: Authority follows the opened objects, not their former paths. If another process moves an opened directory outside the session root, Morph may still edit files or create new files and directories through it. Replacing the old path with an outside symlink cannot redirect the edit to that symlink's referent.
+- **Secret scrubbing**: API error messages are automatically scrubbed to prevent leaking your `MORPH_API_KEY` or Bearer tokens in tool output.
+
+Merge-guard errors include recovery options such as tighter anchors or native `edit`. A root refusal names the allowed root and directs you to native `edit` or `apply_patch` with the absolute path, only when that tool is exposed and permitted for the target. Never retry a refused absolute target as a relative path: that can name a different file inside the session root. `workdir` and `taskId` are unsupported and are rejected when received by either adapter.
+
+### Markdown-fenced `code_edit` input
+
+If an AI agent wraps `code_edit` in markdown fences (for example, ` ```typescript ... ``` `), `morph_edit` strips the outer fence before sending content to Morph.
+
+### Wrong edit location
+
+If edits are applied to the wrong location, add more unique context around your changes and make your `instructions` more specific about which function/section you're modifying.
+
+### Native edit recovery
+
+When a native `edit` reports an unmatched or ambiguous exact target:
+
+1. Re-read the target file before any retry.
+2. Do not repeat the unchanged failed `edit` input.
+3. Make at most one corrected native `edit` only when the re-read proves the change is still small and exact.
+4. Otherwise use `morph_edit` for the contextual repair — multi-line, scattered, whitespace-sensitive, or broader anchoring.
+5. Use `write` only for new-file or intentional full-file replacement.
+
+This recovery sequence is separate from the Morph API-error/timeout fallback, which still recovers to native `edit`.
+
+### Tool blocked in plan/explore mode
+
+The `morph_edit` tool is disabled in readonly agent modes (`plan`, `explore`). Switch to a build/code mode to make edits.
+
+## Changelog
+
+For the full release history, see [CHANGELOG.md](CHANGELOG.md).
+
+### v1.12.0
+
+- **OpenCode V2 support** — Registers `morph_edit` through the V2 plugin API and resolves the invoking session directory for each edit. OpenCode V1 1.18.29+ remains supported; older V1 loaders are unsupported.
+- **Structured edit outcomes** — Returns `status`, a stable `code`, `truncated`, and readable `text`. V1 exposes machine fields in metadata; V2 exposes schema-declared output and metadata. The truncation flag identifies shortened diff output, not shortened file writes.
+- **File I/O errors** — Creation write failures report `write_failed` instead of a read failure. File I/O errors are scrubbed before returning them.
+
+### v1.10.2
+
+- **Native edit recovery policy** — The embedded `morph_edit` description, the packaged always-on instruction, and the README now share the same bounded recovery sequence for a failed native exact `edit`: re-read the target, do not repeat unchanged input, allow at most one corrected native edit only when still small and exact, otherwise hand off to `morph_edit` for contextual repair. The existing Morph API-error/timeout → native `edit` fallback is preserved.
+- **Drift regression tests** — Content-level tests assert the recovery policy is present and consistent across all three routing surfaces.
+
+### v1.8.2
+
+- **Tool exposure requirement docs** — `instructions/morph-tools.md` now documents that agent profiles must expose `morph_edit: true` in their tool manifest for the routing policy to take effect
+- **README alignment** — Installation section notes the tool manifest requirement alongside the always-on instruction
+- **Test coverage** — Tests verify the tool exposure section exists in the instruction file and README
+
+### v1.8.1
+
+- **Stable instruction path guidance** - README now prefers `~/.config/opencode/instructions/morph-tools.md` and keeps the packaged `node_modules/...` path as a fallback for direct installs
+- **Canonical routing policy wording** - `instructions/morph-tools.md` now explicitly says morph routing belongs in always-on instructions, not a skill
+- **Docs/test alignment** - Tests now verify the stable instruction path and canonical policy wording
+
+### v1.8.0
+
+- **Packaged always-on instruction** - `instructions/morph-tools.md` now ships with the plugin so OpenCode can load reliable `morph_edit` selection guidance through the `instructions` array
+- **Packaging coverage** - package metadata now includes the `instructions/` directory, and tests verify that the shipped instruction path is documented
+- **Installation docs updated** - README now recommends adding the packaged always-on instruction to global OpenCode config for more reliable `morph_edit` selection
+
+### v1.7.0
+
+- **Self-contained tool description** — Core `morph_edit` guidance still lives in the tool description so the tool is usable even without extra setup.
+- **Packaged always-on instruction** — `instructions/morph-tools.md` can be added to your OpenCode `instructions` array so agents choose `morph_edit` more reliably.
+- **Removed skill pattern** — Deleted `skills/morph/SKILL.md` and `MORPH_INSTRUCTIONS.md`. The skill added a round-trip and split-brain problem where guidance lived in multiple places.
+- **Removed `MORPH_SKILL_LOAD_HINT`** — Agents no longer need to load a skill before using `morph_edit`.
+
+### v1.6.0
+
+- **Post-merge safety guards** - Blocks unsafe Morph output before writing to disk:
+  - **Marker leakage guard** - Detects when merge model treats `// ... existing code ...` as literal text
+  - **Truncation guard** - Dual-metric validation (>60% char + >50% line loss) prevents silent data loss
+- **Input normalization** - Strips markdown fences from `code_edit` to prevent merge confusion
+- **TUI guard titles** - Shows `Morph: blocked (marker leakage)` or `Morph: blocked (truncation)` on guard failures
+- **32 test cases** - Comprehensive coverage of normalization, leakage detection, and truncation edge cases
+
+### v1.5.0
+
+- **Custom TUI display** - Tool output shows branded titles like `Morph: src/file.ts +15/-3 (450ms)`
+- **API timing** - Response time tracked and displayed in tool title
+- **Structured metadata** - Provider, version, model info included for future TUI enhancements
+
+### v1.4.0
+
+- **Fixed stdout pollution** - Replaced `console.log`/`console.warn` with `client.app.log()` SDK method
+- **Readonly agent protection** - Blocks `morph_edit` in `plan` and `explore` modes to prevent accidental edits
+- **Stderr fallback** - Graceful logging if SDK method unavailable
+
+### v1.3.0
+
+- **Pre-flight validation prevents accidental deletions** - Tool now returns an error if `code_edit` is missing markers for files >10 lines, preventing catastrophic code loss
+- **Improved code_edit parameter description** - Changed from "Only the changed lines" to "The code changes wrapped with markers" to emphasize wrapping
+- **Added explicit wrapping rule** - Tool description now includes "ALWAYS wrap your changes with markers at the start AND end"
+- **Restored comprehensive examples** - `MORPH_INSTRUCTIONS.md` now includes all key examples (adding functions, modifying code, deletions)
+- **Added Quick Reference** - Aligned with Morph's official agent instructions format
+- **Added fetch timeout example** - From official Morph documentation
+
+### v1.2.0
+
+- **Tool schema aligned with Morph official spec** - Tool description now matches [Morph's recommended format](https://docs.morphllm.com/quickstart)
+- **Concise AI agent instructions** - `MORPH_INSTRUCTIONS.md` reduced by 72% (237→67 lines) while keeping critical guidance
+- **Added marker validation warning** - Server logs warn when `code_edit` is missing markers (helps debug unexpected deletions)
+- **Documentation improvements** - Added troubleshooting section, model comparison table, updated config paths
+
+### v1.1.0
+
+- Initial public release
+- Morph Fast Apply integration with lazy edit markers
+- Unified diff output
+- Graceful fallback suggestions
+
+## Contributing
+
+Contributions welcome! This plugin could potentially be integrated into OpenCode core.
+
+This project uses Bun. The `bun.lock` lockfile is tracked in git; `pnpm-lock.yaml` and `package-lock.json` are ignored.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,99 @@
+<p align="center">
+  <img src="docs/assets/banner.jpg" alt="Sortie - Turn tracker tickets into agent sessions" width="100%">
+</p>
+
+<div align="center">
+
+
+**Your next sprint isn't capped by headcount.**
+
+The open-source coding agent orchestrator.<br/>
+Run the coding agents you already use on tasks from your issue tracker - in parallel, on your own machine or server.
+
+[![CI](https://github.com/sortie-ai/sortie/actions/workflows/ci.yml/badge.svg)](https://github.com/sortie-ai/sortie/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/sortie-ai/sortie/graph/badge.svg?token=K2TPXBCbvb)](https://codecov.io/gh/sortie-ai/sortie)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sortie-ai/sortie.svg)](https://pkg.go.dev/github.com/sortie-ai/sortie)
+
+[Website](https://sortie-ai.com) · [Documentation](https://docs.sortie-ai.com) · [GitHub Action](https://github.com/marketplace/actions/sortie-action) · [Discord](https://discord.gg/MCNrc8Wf9M) · [Contributing](CONTRIBUTING.md)
+
+**English | [简体中文](README.zh-CN.md)**
+
+</div>
+
+## The Problem
+
+Coding agents can fix bugs, update dependencies, add tests, and build features. But running agents you trust across a backlog takes more than launching sessions: isolated workspaces, retries, tracker integration, and cost tracking all need to work together.
+
+Building and maintaining that infrastructure becomes another engineering project.
+
+Sortie is that infrastructure.
+
+## Works With
+
+**Issue trackers:** GitHub Issues, GitLab Issues, Gitea Issues, Linear and Jira.
+
+**Coding agents:** Claude Code, Copilot, OpenCode, Codex, Kiro and Gemini.
+
+## Install
+
+```bash
+curl -sSL https://get.sortie-ai.com/install.sh | sh
+```
+
+Or via Homebrew: `brew install --cask sortie-ai/tap/sortie`
+
+Try the [local demo](https://docs.sortie-ai.com/getting-started/quick-start/) with a simulated agent and no external services, or [connect your tracker and coding agent](https://docs.sortie-ai.com/getting-started/).
+
+## How It Works
+
+You describe the work in one `WORKFLOW.md` file: which issues to pick up, which agent to run, and what to tell it.
+
+```markdown
+---
+tracker:
+  kind: github
+  api_key: $GITHUB_TOKEN
+  project: acme/billing-api
+  query_filter: "label:agent-ready"
+  active_states: [todo, in-progress]
+  handoff_state: review
+  terminal_states: [done]
+  
+agent:
+  kind: claude-code
+  max_concurrent_agents: 4
+---
+  
+You are a senior engineer.
+  
+## {{ .issue.identifier }}: {{ .issue.title }}
+  
+{{ .issue.description }}
+```
+
+Sortie polls your tracker for matching issues and runs an agent on each one in its own workspace, several at a time. A failed run is retried. Turn on CI and review feedback, and failed checks and review comments go back to the agent to fix.
+
+You can edit `WORKFLOW.md` while Sortie runs, and it picks up the change without a restart. Run history survives restarts too, so progress and costs are still there afterwards.
+
+Follow along in the built-in dashboard, or connect your own tools: a JSON API with a live stream of changes, health probes, and Prometheus metrics, all on one port.
+
+Sortie runs the same way on a laptop, a VM, or a Kubernetes cluster. It ships as a container image at `ghcr.io/sortie-ai/sortie`, its health probes plug straight into liveness and readiness checks, and it shuts down cleanly when the pod stops. The [Kubernetes guide](https://docs.sortie-ai.com/guides/deploy-sortie-to-kubernetes/) walks through a full deployment.
+
+Sortie is a single binary. There's no separate database or job queue to deploy, and Sortie itself sends no telemetry.
+
+## Documentation
+
+Full configuration reference, CLI usage, and getting started guide: [docs.sortie-ai.com](https://docs.sortie-ai.com)
+
+- [Guides](https://docs.sortie-ai.com/guides/)
+- [Architecture](https://docs.sortie-ai.com/concepts/architecture/)
+- [Roadmap](https://github.com/orgs/sortie-ai/projects/1)
+- [Code signing policy](https://docs.sortie-ai.com/code-signing-policy/)
+
+## Prior Art
+
+Sortie's architecture is informed by [OpenAI Symphony](https://github.com/openai/symphony), a spec-first orchestration framework with an Elixir reference implementation. Sortie diverges in language (Go for deployment simplicity), persistence (SQLite instead of in-memory state), extensibility (pluggable adapters for any tracker or agent, not hardcoded to Linear and Codex), and completion signaling (orchestrator-managed handoff transitions instead of relying solely on agent-initiated tracker writes).
+
+## License
+
+[Apache License 2.0](LICENSE)

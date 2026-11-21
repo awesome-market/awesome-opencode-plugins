@@ -1,0 +1,180 @@
+<p align="center">
+  <img src="docs/assets/agent-lifecycle-kit-banner.svg?v=2026-08-02-1" alt="Agent Lifecycle Kit - plan, execute, prove, finish agent work" width="100%">
+</p>
+
+# Agent Lifecycle Kit
+
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/avksp/agent-lifecycle-kit?label=release)](https://github.com/avksp/agent-lifecycle-kit/releases)
+![Python](https://img.shields.io/badge/python-3.11--3.15-blue.svg)
+
+**Agent Lifecycle Kit (ALK)** coordinates coding-agent work through a verifiable finish. It keeps the requested outcome, reviewed plan, execution boundaries, evidence and acceptance decisions connected while the external agent changes the project.
+
+ALK secures imports and documents the [external AI SDLC CLI contract](docs/guides/ai-sdlc-integration.md) and eight bounded consumer cases. Wheel/sdist include both guides and case JSON; the plugin ships the paired CLI contract. Native authority and release gates remain required.
+
+The provider-neutral workflow works with Codex, Claude Code, Qwen Code, Goose, OpenInterpreter, Pi, Grok Build, or another CLI. Provider commands, model choice and secret handling stay in adapters or host-local profiles.
+
+Release 2.28 adds [bounded lifecycle and accounting baselines](docs/reference/performance-and-resource-budgets.md#release-228-lifecycle-and-accounting-baselines). Repository tools measure real read-only operations and separate fixture preparation from operation and subprocess time. The Windows fixture comparison observed a 13.08% median reduction in one six-sample experiment; it is not a universal speed promise. All security and platform checks remain required.
+
+## Quick start
+Start with [install ALK and make the first run](docs/guides/install-and-first-run.md). Release 2.23 adds [compact S0/S1 authoring](docs/reference/tier-proportional-plan-packages.md) with explicit checklist completion and unchanged approval gates. Release 2.22 adds [conservative plan-review reuse](docs/reference/conservative-delta-review.md) with independent current applicability and no automatic full reruns. Release 2.21 adds [command accounting, bounded preparation and response recovery](docs/reference/source-native-workflow-accounting.md). Release 2.20 adds [target-bound initialization](docs/reference/cli.md#release-220-composed-initialization-and-digest-display), [bounded local continuation](docs/reference/workflow-continuation.md) and batched Git snapshots. Release 2.19 adds [safe artifact authoring and planning preflight](docs/reference/safe-artifact-authoring.md), [bounded review handoff](docs/reference/review-mesh.md#bounded-review-handoff) and thin skills with complete references. Release 2.18 bounds process/Git diagnostics, hardens signing and distinguishes OpenCode 1.x/2.x compatibility ([adapter notes](docs/adapters/opencode.md)); 2.17 strengthens [workflow validation and recovery](docs/reference/workflow-completeness.md). Release 2.16 introduced cumulative accounting within verified host capabilities; see [retention maintenance](docs/operations/retention-maintenance.md).
+
+It includes macOS, Linux and Windows instructions, Python 3.11-3.15, [PyPI](https://pypi.org/project/agent-lifecycle-kit/) installation with `python -m pip install agent-lifecycle-kit==2.48.0`, and common `agent-lifecycle version` errors. See [2.15 migration notes](docs/reference/cli.md#migrating-authority-artifacts-to-215) and [authority boundaries](docs/reference/authority-artifact-boundaries.md).
+
+For a quick start, run:
+
+```bash
+git clone https://github.com/avksp/agent-lifecycle-kit.git
+cd agent-lifecycle-kit
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+agent-lifecycle version
+agent-lifecycle diagnose --no-install-plans
+```
+
+Choose `<adapter-id>` from the [adapter support matrix](docs/adapters/support-matrix.md) and pass a task from a file:
+
+```bash
+agent-lifecycle start --adapter <adapter-id> --file task.md
+```
+
+- Then choose a suitable scenario in [how ALK works for different tasks](docs/guides/how-alk-works.md).
+- The boundaries of [planning-only launch](docs/reference/planning-only-launch.md) and [frozen-task launch through a verified profile](docs/reference/qualified-host-launch.md) are documented in the reference. Shipped planning profiles remain candidates with safe failure until the corresponding profile is verified.
+- The [system architecture](docs/architecture/system-architecture.md) page explains how the project is organized, and [project comparison](docs/reference/project-comparison.md) shows how it differs from similar tools.
+- Multiple-agent boundaries, workflow configuration, model choice, prompts, timeouts and retries are described in [workflow customization and execution controls](docs/reference/workflow-customization.md).
+- Create a local project profile with `agent-lifecycle project profile init`; see [project workflow profile](docs/reference/project-workflow-profile.md). Explain the selected profile, plan constraints and adapter capability lineage with [effective configuration](docs/reference/effective-configuration.md), [structured result qualification](docs/reference/structured-result-qualification.md) and [adapter action evidence](docs/reference/adapter-action-evidence.md). Add optional project-owned architecture and dependency evidence with [external verification checks](docs/reference/external-verification-checks.md), run longer specialized adapter work through [bounded external tool jobs](docs/reference/external-tool-jobs.md), track bounded terminology with [project domain language](docs/reference/project-domain-language.md), coordinate several runs with the read-only [multi-run attention view](docs/reference/multi-run-attention-view.md), or use the optional [security analysis profile](docs/reference/security-analysis-profile.md) for untrusted findings and independently verified remediation.
+- For long sessions, use [context checkpoints and compaction recovery](docs/reference/context-checkpoints.md). They preserve a bounded local continuation package without changing plan authority. Measure phases and releases with [release accounting](docs/reference/release-accounting.md), compare only compatible evidence through [workflow economics](docs/reference/workflow-economics.md), follow the bounded [phase-to-session handoff](docs/guides/phase-session-handoff.md) with [phase packets](docs/reference/phase-packets.md), and choose focused checks through the read-only [validation ladder](docs/reference/validation-ladder.md).
+## What it gives you
+- A finish-oriented lifecycle: plan, execute, review, and prove the result.
+- One process for different CLIs: adapter-specific commands stay outside the
+  core, and new adapters can be added without changing lifecycle schemas.
+- Small-model friendly packets: compact context, clear next actions, and
+  deterministic checks for local or cheaper models.
+- Quality without overengineering: one provider-neutral execution strategy
+  composes risk, model class, packet size, review and resource limits, then binds the decision to one exact task attempt without giving it workflow authority.
+- Usage visibility: tokens, time, resource counters and structured execution records without sensitive data are native; monetary cost is optional and only used when a metered host reports it.
+- Project-specific workflow settings: ALK can discover and validate uncommitted local defaults, or apply a built-in workflow preset for a common route, while the frozen plan remains authoritative.
+- Reproducible Python maintenance: pinned development-only Ruff, mypy and coverage checks, a non-growing quality ratchet, stable redacted CLI errors, installed package resources, an explicit documented Python API, and bounded performance controls that preserve security and evidence rules.
+- Optional adapter lifecycle control: operation-level `GUIDANCE_ONLY`, `OBSERVED` and `ENFORCED` declarations remain separate from general adapter support; bundled adapters currently publish `GUIDANCE_ONLY` with `NO_RECOMMENDATION`, and managed launch remains `WRAPPER_ONLY`. See [optional adapter lifecycle control](docs/adapters/lifecycle-control.md).
+- Project principles and plan deltas keep long-running work understandable: principles provide bounded defaults, while a digest-bound delta shows which plan authority changed and whether review and a new lock are required. CI also checks an acyclic module/package graph, layer direction and source-size limits; adapter inspection uses bounded literal profiles and fails closed without executing adapter code.
+- Read-only progress and managed sessions preserve review/freeze boundaries;
+  host UIs show lifecycle state and counters, `start` accepts task text,
+  Markdown, frozen requests or stored sessions, and `plan verify` only checks plan data.
+
+## Feature areas
+### Plan and execute
+- Reviewed specification and plan flow before implementation starts.
+- Deterministic task packets for splitting work across agents.
+- Execution records capture completion checks, blockers, bounded retries and final
+  proof; rework archives prior evidence and requires a current Git snapshot.
+- Ready-made task templates cover bug fixes, idea-to-PR flow, PR review,
+  merge-conflict repair, and release-readiness work.
+
+### Quality and proof
+- Implementation audits compare results with the frozen plan and acceptance
+  evidence; rework delta receipts focus the next reviewer and fail closed to a full audit.
+- For explicit bug and regression repair, the optional Bug Forensics profile
+  records reproduction, fingerprint, failure class, hypotheses, minimal patch,
+  regression proof, and reusable recipes.
+- Optional proof-integrity evidence for high-risk final proofs: stable findings,
+  root-cause digests, fix-impact receipts, and hash chains.
+- Cross-checks and runtime-policy receipts are opt-in controls; plans can
+  require proof for an external system update before acceptance.
+- Optional multi-model review can use any available adapter/model bindings;
+  Codex, Claude Code and OpenCode/GLM are examples, not a required roster.
+  Review Mesh prepares packets, imports answers, synthesizes findings and checks quorum; the operator or host wrapper starts each model. The reference-task suite validates or compares execution setups only after enough quality evidence; insufficient data produces `NO_RECOMMENDATION`.
+
+### Routing and resource control
+- Compact context profiles, small-model packets and local quality-cost learning
+  help choose a safe mode; audit optimization compares quality, time, tokens and resources after holdout evidence and requires operator approval.
+- Phase resource measurements reuse the usage export envelope for tokens,
+  duration, and resource counters without mandatory monetary accounting.
+- Usage/session exports include tokens, resources, receipt digests, and optional
+  host-reported `cost_usd`.
+
+### Security and containment
+
+- Release neutrality scans bind the Git index and current revision; ignored local evidence is read through an explicit policy-limited flag. Host-supplied rules keep local paths, secrets, trust roots and signing keys out of portable artifacts.
+- Host environment access uses explicit `--host-env-allow`; receipts store redacted metadata, and verified local profiles provide the managed launch route.
+- Imports, diagnostics, and usage exports redact local paths and common secret markers before validation.
+- Sandbox receipts separate runtime filesystem, network, process, and environment containment from git write-scope.
+- Release security gates validate portable paths, credentials, adapter scope and production claims.
+
+### Adapters and interop
+
+- Adapter contracts keep host-specific projections separate from lifecycle
+  schemas.
+- New CLI hosts start as adapters: descriptor, command projection, environment
+  boundary, and verification evidence live outside the lifecycle core.
+- Adapter capability checks and progress bridge support compare live receipts
+  and display lifecycle state while support levels remain evidence-driven.
+- Import mappers and issue-to-spec intake normalize external workflows, agent
+  dialects, and tickets into reviewable draft context.
+- The portable Agent Plugins package exposes the maintained ALK skills tree;
+  see [portable Agent Plugins](docs/reference/agent-plugins.md). After a
+  client-owned installation, [client qualification](docs/reference/agent-plugin-qualification.md)
+  checks discovery without claiming lifecycle proof.
+- Lightweight episode retrieval over receipt/session summaries keeps digest
+  provenance and explicit `chainVerified` or `chainUnchecked` state.
+### Operations
+
+- Runner recovery receipts cover attempt snapshot, restore, abandon, selected
+  attempt, worker lease, and heartbeat state.
+- Read-only diagnostics, event feeds, managed lifecycle steps, progress watch
+  receipts, and change summaries inspect checkout and workflow state without
+  model calls.
+
+## Adapter support level
+
+The adapter support level describes how much of the ALK integration is verified for a specific host. It covers the declared CLI/version, command projection, environment boundary,
+live conformance, resource calibration and accepted ALK lifecycle evidence. It describes the checked integration range; it is not a rating of the host model or of the external
+product.
+
+Accepted lifecycle artifacts include the reviewed plan and lock, state and task receipts, validation and evidence summaries, independent plan and implementation audits, and final
+proof. Host launch routes add usage, resource and containment receipts for the exact adapter/version binding.
+
+`EXPERIMENTAL` marks an adapter with offline checks and deterministic contract
+tests. `VERIFIED` adds bounded live host conformance, usage/resource calibration,
+accepted redacted evidence and lifecycle final proof for a defined host range.
+Each adapter page and the support matrix name the exact CLI, version and
+host-local binding covered by the evidence.
+The matrix covers Codex, Claude Code, Cursor, Gemini CLI, Goose, Grok Build,
+Hermes, Kimi Code, OpenCode, OpenInterpreter, Pi and Qwen Code.
+
+Adapter installation and support-level details live in [Adapter install](docs/adapters/install.md) and [Adapter support matrix](docs/adapters/support-matrix.md).
+
+## Design boundaries
+
+- The core stays provider-neutral. Concrete host commands and model bindings
+  live in adapters or host-local profiles.
+- New CLIs are integrated through adapters: descriptor, command projection,
+  environment boundary, and verification evidence. The lifecycle schemas remain
+  stable while host support grows.
+- Small models get compact packets, deterministic checks, and explicit
+  next-action lists instead of long narrative state.
+- All model sizes follow the same evidence gates; larger models receive the same
+  bounded workflow with richer reasoning capacity.
+- Public release claims use tracked source files and redacted evidence summaries.
+- External dialect imports and retrieved episodes enrich context, while reviewed
+  ALK artifacts remain the source of truth.
+- Cross-check, Review Mesh and historical runner recovery receipts add evidence when a task or plan enables them; legacy runner records are converted
+  read-only and the operator chooses the review depth. High-risk criteria can opt into [risk-bound independent verification](docs/reference/risk-bound-independent-verification.md);
+  ordinary criteria remain on the standard evidence path.
+
+## Documentation
+
+- Start: [English documentation](docs/README.md), [Русская документация](docs/ru/README.md), [Install](docs/guides/install-and-first-run.md), [Quickstart](docs/guides/quickstart.md), [Beginner and advanced workflows](docs/guides/beginner-and-advanced-workflows.md), [Commands by task](docs/guides/commands-by-task.md), [Research workflow](docs/guides/research-workflow.md), [Lifecycle task scenarios](docs/guides/lifecycle-cookbook.md), and [Code review workflows](docs/guides/code-review-workflows.md).
+- Planning and adapters: [Bounded plugin updates](docs/reference/plugin-updates.md), [Issue to specification drafts](docs/guides/issue-to-spec.md), [Adapter install](docs/adapters/install.md), and [Adapter support matrix](docs/adapters/support-matrix.md).
+- Reference: [System architecture](docs/architecture/system-architecture.md), [workflow customization and execution controls](docs/reference/workflow-customization.md), [guided workflow continuation](docs/reference/workflow-continuation.md), [execution strategy](docs/reference/execution-strategy.md), [CLI reference](docs/reference/cli.md), [External verification checks](docs/reference/external-verification-checks.md), [Bounded external tool jobs](docs/reference/external-tool-jobs.md), [Project domain language](docs/reference/project-domain-language.md), [Multi-run attention view](docs/reference/multi-run-attention-view.md), [Plan verification](docs/reference/plan-verification.md), [Research evidence](docs/reference/research-evidence.md), [Public locators and redaction](docs/reference/public-locators-and-redaction.md), [Finding-to-check adoption](docs/reference/finding-check-adoption.md), [Source of truth](docs/reference/source-of-truth.md), [Managed lifecycle runner](docs/reference/managed-lifecycle-runner.md), [Managed adapter sessions](docs/reference/managed-adapter-sessions.md), [Portable Agent Plugins](docs/reference/agent-plugins.md), [Plugin publication](docs/reference/plugin-publication.md), [Implementation audit](docs/reference/implementation-audit.md), [Plan completeness](docs/reference/plan-completeness.md), [Public contracts](docs/reference/public-contracts.md), and [Readiness diagnostics](docs/reference/readiness-diagnostics.md).
+- Quality and resources: [Reference-task evaluation](docs/reference/reference-task-evaluation.md), [model routing and optional ranking](docs/reference/model-routing.md), [quality-cost learning](docs/reference/quality-cost-learning.md), [review efficiency](docs/reference/review-efficiency.md), [evidence independence](docs/reference/evidence-independence.md), [performance and resource budgets](docs/reference/performance-and-resource-budgets.md), [lifecycle cost accounting](docs/reference/lifecycle-cost.md), [host-local token accounting](docs/reference/host-local-token-accounting.md), [process execution observability](docs/reference/process-execution-observability.md), [Usage export](docs/reference/usage-export.md), and [Evidence integrity](docs/reference/evidence-integrity.md).
+- Profiles and operations: [Project workflow presets](docs/reference/workflow-presets.md), [Project workflow profile](docs/reference/project-workflow-profile.md), [Read-only status views](docs/reference/read-only-status-view.md), [Adapter progress bridge](docs/reference/automatic-progress-bridge.md), [Sandbox boundaries](docs/reference/sandbox-boundaries.md), [Import mappers](docs/reference/import-mappers.md), [Episode retrieval](docs/reference/episode-retrieval.md), [Runner migration](docs/guides/runner-migration-2.md), [Runner recovery records](docs/reference/runner-recovery.md), [Cross-check profile](docs/reference/cross-check-profile.md), [Review Mesh](docs/reference/review-mesh.md), [Risk-bound independent verification](docs/reference/risk-bound-independent-verification.md), [Bug Forensics profile](docs/reference/bug-forensics.md), and [Bug Forensics context budget](docs/reference/bug-forensics-context-budget.md).
+- Release assets: [Task templates](templates/tasks/README.md), [Neutrality scanning](docs/reference/neutrality.md), and [Release security](docs/security/release-security.md).
+Apache-2.0. See [LICENSE](LICENSE).
+
+## Release 2.26: bounded discovery and precise quality gates
+
+Markdown imports bound examined entries, directories, depth and cooperative elapsed time; see the [security control map](docs/security/release-security.md). Tracked-source checks
+reuse the existing bare-token families. [Quality controls](docs/architecture/system-architecture.md)
+require both combined and statement coverage of 76 percent and retain legacy policy interpretation. The existing [reading pilot](docs/guides/controlled-technical-english.md) and host limits
+remain; measurements do not establish token savings or host enforcement.

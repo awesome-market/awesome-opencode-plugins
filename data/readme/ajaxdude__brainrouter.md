@@ -1,0 +1,2041 @@
+# brainrouter
+
+> **⚠ Under heavy development.** The v2 program (role cards, decision slot, plugins,
+> credentials store, swap supervisor, distributed roles) is landing leg by leg. Expect
+> breaking changes to configuration, CLI, and HTTP surfaces between releases; every
+> migrating release ships automatic config migration with a named restore point
+> (`brainrouter migration restore <phase>`), and v1-era configs keep booting.
+> As of **v2.0-p4**, legs L1–L7 are merged: provider registry (L6), swap supervisor
+> and native engine adapters (L4/L7), and review-backend failover
+> (`review.fallback_chain`, the ordered chain replacing `review.fallback_selector`;
+> boot migration `v2.0-p8`) all ship — but the daemon still **boots in shim
+> mode against llama-swap by default** (shim mode requires llama-swap installed
+> and enabled); the native-swap flip is a separate, soak-gated operator action,
+> and leg L8 (additional engine hardware) is pending. `QA.md` ships the
+> end-to-end operational scenario suite.
+
+<p align="center">
+  <img src="assets/brainrouter-logo.svg" alt="brainrouter logo" width="600">
+</p>
+
+A Rust proxy and local control plane between coding harnesss and LLMs. Assign the Main, Review, and Subagent **role cards** globally or per Git project — one grammar (`auto | local | cloud | cloud/<id> | <bare-key>`) everywhere — and let `auto` requests be classified by the pluggable **decision slot** (heuristic, OpenAI-compatible, structured-schema, webhook, or plugin). Inspect current model activity, decisions, and completed-stream measurements, manage six local serving backends, and explore imported benchmarks without running benchmark jobs. Decision models and Manifest cloud access are opt-in; the defaults stay local. Core management and reviews have a headless CLI, while the dashboard, benchmark, model-download, credentials, and model-observability pages also expose HTTP APIs.
+
+```
+coding harness -> brainrouter :9099 (OpenAI or Anthropic wire format)
+                      |
+                      +-- auto/default -> Main choice (local by default)
+                      +-- local/cloud  -> explicit backend default
+                      +-- model ID     -> exact local, or cloud/<id>
+                      +-- subs         -> separate local subagent pool
+                      +-- review       -> snapshotted Reviewer choice
+                      |
+                      +-- local -> llama-swap
+                      +-- cloud -> Manifest when enabled -> local fallback
+                      +-- Auto role -> Bonsai when enabled, otherwise local
+
+/dashboard  -> routing/profile/review/operations controls
+/models     -> read-only activity, measured completions, indicative alerts
+/benchmarks -> stored results, import previews, plan previews, inspector
+```
+
+- **One endpoint, all harnesses.** OpenAI-compatible on `POST /v1/chat/completions`. Anthropic-compatible on `POST /v1/messages`. Every harness connects to the same `:9099`.
+- **Role cards.** Assign Main, Review, and Subagent cards from one selector grammar (`auto | local | cloud | cloud/<id> | <bare-key>`), globally or per Git repository; unpinned projects inherit the global card. `auto` runs the pluggable decision slot (heuristic / OpenAI-compatible / structured-schema / webhook / plugin) with privacy/quality guardrail clamps. Legacy `auto`, `local`, `cloud`, and `subs` aliases remain supported. Cloud and the decision model stay off by default.
+- **Off by default, opt in.** Fresh installs run fully local with a single hop — no Bonsai model download, no Manifest stack, no cloud API key required.
+
+- **Optional local prompt rewriting.** Managed local routes can use a lean system prompt. Rewriting is off at startup, requires the decision slot to be enabled (any brain; the Bonsai classifier profile additionally needs a healthy server), and never rewrites explicit local model selections.
+- **Subs pool routing.** `subs` / `brainrouter/subs` selects the separate local pool (initially `llama_swap.subs_model`). The pool is independent of Main and Reviewer; clearing it restores classifier/auto behavior, not the Main override.
+- **Manifest cloud failover.** When Manifest is enabled, `cloud` traffic goes through it (runs locally in Docker, picks the cloud provider) and falls back to llama-swap's `fallback_model` on failure.
+- **MCP code review.** `mcp_brainrouter_request_review` triggers an iterative review loop (up to 5 rounds by default). Runtime toggles control whether review runs, whether PR-structuring guidance is injected into agent requests, and whether HankNDory design-aware review must compare the diff with an approved design. The reviewer prompt is budgeted against a conservative local/cloud context window before any LLM call.
+- **Dashboard.** Overview, Ops, Credentials, Plugins, Benchmarks, and Config are the primary destinations. **Ops** is the single resident-first management page — live residents, swap catalog, providers & peers with a health column, and Downloads/Serving launch below the fold — replacing the old Models and Engines destinations. A command strip keeps model scope, three per-role card pickers, flush/restart actions, health, and quality posture visible at `http://127.0.0.1:9099`.
+- **Benchmark explorer.** Import reproducible model/runtime/hardware results, compare throughput, memory, context scaling, quantizations, runtimes, speculation, and quality, inspect configurations, and export filtered CSV or JSONL at `http://127.0.0.1:9099/benchmarks`.
+- **Headless CLI.** `brainrouter cli` covers status, operations, role cards, credentials, plugins, migrations, and reviews. Use HTTP for benchmark and observability workflows without a dedicated CLI command. See [Headless CLI](#headless-cli-brainrouter-cli).
+- **Model observability.** `/models` shows exact local model activity, available metadata, uniquely correlated completed measurements, indicative rolling warnings, and explicit benchmark references. Missing measurements and unverified comparability are visible, not fabricated.
+- **VRAM control.** The dashboard or CLI can stop/start the Bonsai classifier and flush every model loaded in llama-swap — reclaim GPU memory without a reboot or a terminal.
+- **In-flight request tracker.** The dashboard shows every active request as it runs — elapsed, model, user agent, address, session, bytes received, PP progress, and a live activity label (tool calling / reasoning / asking a multiple choice question / generating) — with a per-row Cancel button. No need to open the llama-swap UI.
+- **Per-request throughput.** Conversation cards surface generation-tokens/s (tg) estimates from uniquely correlated completed streams. Missing measurements remain hidden; prompt-processing throughput is not inferred from first-output latency.
+- **Four-column Sankey.** The flow diagram is HARNESS (Pi / OMP / Opencode / Claude / Droid) → SESSION (OMP session title) → ROUTING (auto / cloud / local / fallback chain) → MODEL (resolved key). Click any node to highlight its start-to-end path; click a conversation card to highlight the matching Sankey path.
+
+---
+
+## Table of contents
+
+1. [Install (one script)](#install)
+2. [Configure](#configure)
+3. [Connect your harness](#connect-your-harness)
+4. [Dashboard guide](#dashboard-guide)
+5. [Toolbox backend management](#toolbox-backend-management)
+6. [Model observability and regression alerts](#model-observability-and-regression-alerts)
+7. [Benchmark explorer](#benchmark-explorer)
+8. [Headless CLI](#headless-cli-brainrouter-cli)
+9. [MCP code review guide](#mcp-code-review-guide)
+10. [Bridge: Discord and Signal](#bridge-discord-and-signal)
+11. [Reference](#reference)
+12. [Planned, not shipped](#planned-not-shipped)
+
+This documents the implemented source through `3691dcc` (2026-09-07), extended
+through `32935d1` by the native toolbox backend integration, dashboard
+navigation redesign, per-project model pins, and review hardening; the v2 L1
+purge (`docs/design/v2-streamlining.md`) reduced the shipped serving backends
+to **ds4 + gufo** (halogen/vllm/r9v removed; their catalog feed ids parse as
+browse-only data) and moved the benchmark explorer behind the non-default
+`benchmarks` cargo feature — see [Toolbox backend management](#toolbox-backend-management)
+and `docs/design/ai-toolbox-cockpit-integration.md`. Source transfer or a Git
+update is not a binary rollout: building, installing, and restarting a running
+service are separate operations. See [PRD.md](PRD.md) for requirements and the
+explicit boundary between shipped and future work.
+
+---
+
+## Install
+
+### From a clone — any Linux, single user
+
+Requirements: Rust (stable), an OpenAI-compatible local model server (llama-swap,
+llama-server, or any other), and optionally Docker+Manifest for cloud. No root needed.
+
+```bash
+git clone https://github.com/ajaxdude/brainrouter && cd brainrouter
+cargo build --release
+mkdir -p ~/.config/brainrouter
+cp brainrouter.example.yaml ~/.config/brainrouter/brainrouter.yaml   # edit model endpoints
+./target/release/brainrouter install omp --yes                       # point your harness at :9099
+./target/release/brainrouter serve --config ~/.config/brainrouter/brainrouter.yaml
+```
+
+Then point any harness at `http://127.0.0.1:9099/v1` (OpenAI) or `/v1/messages`
+(Anthropic) with model `brainrouter/auto` (role cards decide) or an explicit selector
+(`local`, `cloud`, `cloud/<id>`, a model key). For autostart, a systemd **user** service:
+
+```ini
+# ~/.config/systemd/user/brainrouter.service
+[Unit]
+Description=brainrouter
+[Service]
+ExecStart=%h/brainrouter/target/release/brainrouter serve --config %h/.config/brainrouter/brainrouter.yaml
+[Install]
+WantedBy=default.target
+```
+
+```bash
+systemctl --user daemon-reload && systemctl --user enable --now brainrouter
+```
+
+### Fedora fleet — multi-user one script
+
+For Fedora Linux with multiple users, one script installs and configures everything.
+Run it as a user with sudo access:
+
+```bash
+git clone https://github.com/ajaxdude/brainrouter ~/ai/projects/brainrouter
+cd ~/ai/projects/brainrouter
+sudo bash install.sh
+```
+
+The script installs (idempotent — safe to re-run):
+
+- **System packages** — git, golang, toolbox, docker, vulkan headers
+- **bun** — JavaScript runtime for oh-my-pi, installed system-wide
+- **oh-my-pi** — installed for every human user via bun
+- **Bonsai provisioning** — the script's prompted model-download step currently uses Bonsai-8B Q4_K_M under the shared models directory; classifier activation remains a separate runtime opt-in
+- **Manifest** — cloud LLM router running as a system Docker service on port 3001
+- **llama-swap** — local model runner as a system Docker service on port 8081
+- **brainrouter** — compiled and installed to `/usr/local/bin/brainrouter`
+- **llama-server-toolbox** — wrapper at `/usr/local/bin/llama-server-toolbox`
+- **toolbox container** `llama-vulkan-radv` — AMD RADV Vulkan environment
+- **Shared config** — `/etc/brainrouter/brainrouter.yaml` and `/etc/brainrouter/env`
+- **Per-user systemd services** — brainrouter enabled for every user, auto-starts at boot via `loginctl linger`
+- **Shell environment** — `/etc/profile.d/ai-stack.sh` sets PATH and harness env vars for all users
+
+### Optional cloud setup
+
+Cloud backends live in the **provider registry** (file `providers.json` under `$XDG_STATE_HOME/brainrouter/`, default `~/.local/state`, mode 0600; mutate through
+`brainrouter cli provider ...` or the dashboard Providers section — single-writer).
+Each provider record holds a base URL, a credential reference into the credentials
+store (values never printed), optional declared models, a live circuit breaker
+(`healthy | degraded | broken`, keyed per provider — three failures open it, 60s
+cooldown), and a monthly spend budget (`warn`, or `stop` to drop the provider from
+the cloud pool once over). Credentials bind either inline (`--credential
+env:VAR` / `file:PATH`) or by id from the credentials store:
+
+```bash
+brainrouter cli credential add NAME --kind env --env API_KEY_ENV --grants cloud
+brainrouter cli provider add NAME --kind openai-compatible \
+  --base-url https://gateway.example/v1 --credential NAME --model some/model
+```
+
+Federation peers (`--lan-peer`, e.g. a second box serving one pinned model) are
+reachable only by explicit selector and are never pooled as cloud; budgets and
+limits set via `--monthly-budget-usd` / `--budget-mode warn|stop`. Manifest-kind
+providers additionally do not trip their breaker on in-band "credits exhausted"
+or rate-limit pseudo-errors in the stream — a reachable-but-unfulfillable
+Manifest is not a dead backend. On upgrade, the `v2.0-p6` migration absorbs a
+legacy `manifest:` YAML block into a registry record automatically (backup kept;
+after that the YAML key is no longer read). For a **self-hosted Manifest** app,
+finish its browser wizard first, then register it like any provider
+(`--kind manifest`) or keep the legacy `manifest:` YAML block and let the
+migration convert it at first boot. A cloud profile does not enable the backend;
+local-only operation needs no cloud key.
+
+1. Open **http://localhost:3001**, complete the setup wizard, add your cloud API keys
+2. Go to **Settings → API Keys → Create key** — copy the `mnfst_…` key
+3. Paste it into the shared env file:
+   ```bash
+   sudo nano /etc/brainrouter/env
+   # Replace: MANIFEST_API_KEY=mnfst_REPLACE_WITH_YOUR_KEY
+   ```
+4. Reboot — all users come up with brainrouter running automatically.
+   Or without rebooting, for each user:
+   ```bash
+   sudo -u USERNAME XDG_RUNTIME_DIR=/run/user/$(id -u USERNAME) \
+     systemctl --user restart brainrouter
+   ```
+
+### Multi-user notes
+
+- The Manifest API key lives in `/etc/brainrouter/env` (owned `root:aistack`, mode `640`).
+  All users in the `aistack` group can read it. The script adds every human user to this group.
+- `loginctl enable-linger` is set for each user so brainrouter starts at boot without anyone
+  needing to log in.
+- New users added after install: their service file comes from `/etc/skel`; run
+  `sudo bash install.sh` again (idempotent) to complete their setup.
+- To edit which local model llama-swap serves:
+  ```bash
+  sudo nano /opt/ai/llama-swap/config.yaml
+  sudo systemctl restart llama-swap
+  ```
+
+
+## Configure
+
+After `install.sh` runs, the system config is already in place at `/etc/brainrouter/brainrouter.yaml`.
+Each user also gets a copy seeded to `~/.config/brainrouter/brainrouter.yaml` at install time.
+
+Verify backend URLs and set `fallback_model` to an existing llama-swap key.
+The daemon reads the per-user config path by default; use `serve --config` when
+your service uses the shared file. Keep each user's saved role preferences in
+mind: those override YAML role defaults after restart.
+
+```bash
+sudo nano /etc/brainrouter/brainrouter.yaml
+sudo nano /opt/ai/llama-swap/config.yaml  # define the model
+sudo systemctl restart llama-swap
+```
+
+```yaml
+# /etc/brainrouter/brainrouter.yaml (shared for all users)
+
+manifest:
+  # Cloud routing is OFF by default. Set enabled: true to route cloud traffic
+  # to your Manifest instance.
+  enabled: false
+  base_url: "http://localhost:3001/v1"
+  api_key_env: MANIFEST_API_KEY  # name of the env var, key lives in /etc/brainrouter/env
+
+llama_swap:
+  base_url: "http://localhost:8081/v1"
+  fallback_model: "your-local-model"  # must match a key in /opt/ai/llama-swap/config.yaml
+  # Optional: thinking-budget nudge for local routes (off by default)
+  # nudge:
+  #   enabled: true
+  #   budgets:
+  #     light: 10240
+  #     deep: 12288
+
+decision_model:
+  # The decision slot is OFF by default: `auto` requests route local (the v1
+  # classifier-off anchor). `kind` selects the decision model:
+  #   heuristic | openai-compatible | structured-schema | webhook | plugin
+  enabled: false
+  kind: openai-compatible
+  base_url: "http://127.0.0.1:9200"   # classifier endpoint
+  model: "bonsai"                     # classifier model id
+  prompt_profile: "bonsai"            # keep the v1 one-word classifier prompt
+  timeout_ms: 15000
+  min_confidence: 0.4                 # below this the heuristic answers
+  # launch: the embedded classifier server (the migrated v1 `bonsai:` block)
+  # launch:
+  #   server_port: 9200
+  #   model_path: "/mnt/models/prism/Bonsai-27B-dspark-bf16.gguf"
+  #   fork_path: "/home/papa/.local/share/brainrouter/llama-prism/llama-server"
+```
+
+The service can load the Manifest key from `/etc/brainrouter/env` (readable by
+the configured `aistack` group). A standalone `serve` process reads the named
+environment variable; it does not automatically parse `.env` files:
+
+```bash
+sudo nano /etc/brainrouter/env
+# MANIFEST_API_KEY=mnfst_your_key_here
+```
+
+After a YAML or service-environment change, restart brainrouter for your user:
+```bash
+systemctl --user restart brainrouter
+```
+
+Role/profile changes through the dashboard or CLI take effect without restart
+for new requests/reviews. Existing reviews retain their initial Reviewer.
+Benchmark database-path changes and repair of unavailable storage/settings need
+a restart; see the persistence and availability sections below.
+
+---
+
+## Connect your harness
+
+brainrouter includes an `install` subcommand that patches your harness config automatically.
+
+```bash
+# Auto-install (patches config files in place, asks for confirmation):
+./target/release/brainrouter install omp
+./target/release/brainrouter install claude --shell-rc
+./target/release/brainrouter install vibe
+./target/release/brainrouter install opencode
+./target/release/brainrouter install codex
+./target/release/brainrouter install droid
+
+# Skip confirmation prompt:
+./target/release/brainrouter install omp --yes
+```
+
+### Manual snippets
+
+These examples require a harness mode that sends OpenAI chat-completion or
+Anthropic Messages requests. Brainrouter does not serve the OpenAI Responses
+API (`/responses` or `/v1/responses`). Check the wire protocol/model ID when
+using a different harness version or an older installer-generated template.
+The proxy returns streaming SSE; it is not a full implementation of non-streaming
+provider APIs.
+
+#### omp
+
+```yaml
+# ~/.omp/agent/models.yml — add under providers:
+providers:
+  brainrouter:
+    baseUrl: http://127.0.0.1:9099/v1
+    api: openai-completions
+    auth: none
+    models:
+      - id: auto
+        name: Brainrouter (auto)
+      - id: local
+        name: Brainrouter (local)
+      - id: cloud
+        name: Brainrouter (cloud)
+```
+
+MCP registration in `~/.omp/agent/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "brainrouter": {
+      "type": "stdio",
+      "command": "/home/yourname/ai/projects/brainrouter/target/release/brainrouter",
+      "args": ["mcp", "--socket", "/run/user/1000/brainrouter.sock"],
+      "timeout": 300000
+    }
+  }
+}
+```
+
+#### Claude Code
+
+```bash
+# Register MCP tool:
+brainrouter install claude --shell-rc
+
+# Or manually:
+claude mcp add-json brainrouter '{
+  "type": "stdio",
+  "command": "/path/to/brainrouter",
+  "args": ["mcp", "--socket", "/run/user/1000/brainrouter.sock"]
+}' --scope user
+
+# Route Claude Code through brainrouter (add to ~/.zshrc):
+export ANTHROPIC_BASE_URL=http://127.0.0.1:9099
+export ANTHROPIC_AUTH_TOKEN=not-used
+```
+
+#### vibe
+
+```toml
+# Merge into ~/.vibe/config.toml
+# Keep root settings before TOML table declarations.
+mcp_servers = [
+  { name = "brainrouter", command = "/path/to/brainrouter", args = ["mcp", "--socket", "/run/user/1000/brainrouter.sock"] },
+]
+
+[[providers]]
+name = "brainrouter"
+api_base = "http://127.0.0.1:9099/v1"
+api_style = "openai"
+backend = "generic"
+
+[[models]]
+name = "auto"
+provider = "brainrouter"
+alias = "auto"
+```
+
+#### opencode
+
+Merge into `~/.config/opencode/config.json`:
+
+```json
+{
+  "provider": {
+    "brainrouter": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Brainrouter",
+      "options": { "baseURL": "http://127.0.0.1:9099/v1" },
+      "models": { "auto": { "model": "auto", "name": "Brainrouter (auto)" } }
+    }
+  },
+  "mcp": {
+    "brainrouter": {
+      "type": "local",
+      "command": ["/path/to/brainrouter", "mcp", "--socket", "/run/user/1000/brainrouter.sock"]
+    }
+  }
+}
+```
+
+#### codex
+
+```toml
+# ~/.codex/config.toml
+model = "auto"
+model_provider = "brainrouter"
+
+[model_providers.brainrouter]
+name = "Brainrouter"
+base_url = "http://127.0.0.1:9099/v1"
+
+[mcp_servers.brainrouter]
+command = "/path/to/brainrouter"
+args = ["mcp", "--socket", "/run/user/1000/brainrouter.sock"]
+```
+
+#### droid (factory.ai)
+
+MCP registration in `~/.factory/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "brainrouter": {
+      "type": "stdio",
+      "command": "/path/to/brainrouter",
+      "args": ["mcp", "--socket", "/run/user/1000/brainrouter.sock"]
+    }
+  }
+}
+```
+
+> **Note:** `provider: "anthropic"` is required for droid. Droid's `openai` mode posts to `/responses` (not served here). `anthropic` mode posts to `/v1/messages`, which brainrouter handles.
+
+Configure the custom model separately in Droid's provider settings, using its
+Anthropic-compatible mode, Brainrouter's localhost endpoint, and model ID
+`auto` to follow Main (or an explicit selector). Provider settings are not MCP
+server registration and their exact file/schema depends on the harness version.
+
+The examples use UID `1000`; replace it with your user's numeric UID or omit
+`--socket` to use `$XDG_RUNTIME_DIR/brainrouter.sock`. JSON/TOML launcher argument
+strings do not expand shell expressions such as `$(id -u)`. Use `model: auto`
+to follow the Main profile, not a made-up alias such as `brainrouter-auto`.
+Older templates may use that name for display; it is not a reserved server-side
+routing selector if sent as the actual model ID.
+
+
+
+## Multi-user deployment
+
+For shared machines with multiple users, see [`deploy/brainrouter_ecosystem.md`](deploy/brainrouter_ecosystem.md) which covers:
+
+- **System-level services**: llama-swap and Manifest run as system Docker services, shared by all users.
+- **Per-user brainrouter**: Each user runs their own brainrouter instance as a systemd user service.
+- **Shared model storage**: GGUFs in `/opt/models` with `aistack` group permissions.
+- **Automated scripts**: `deploy/deploy.sh --multi-user` for the admin, `deploy/user-setup.sh` for each user.
+- **Uninstall**: `deploy/uninstall.sh` and `deploy/uninstall_brainrouter_ecosystem.md`.
+
+
+---
+
+## Dashboard guide
+
+Open **`http://127.0.0.1:9099`** in a browser. The dashboard auto-refreshes every 3 seconds.
+
+### Live routing flow
+
+The top panel shows the most recent request as it moves through the pipeline:
+
+```
+harness -> Main profile or explicit selection -> optional classifier -> backend
+```
+
+Each stage shows:
+- **Bonsai decision** — `cloud` or `local` badge
+- **Provider** — which upstream handled it
+- **Model** — the model key that was used
+- **Routing latency** — time until the router obtains its result, not complete-stream latency or measured TTFT
+- **Fallback indicator** ↩ — appears when Manifest failed and llama-swap handled it instead
+
+### Routing events feed
+
+The feed groups the bounded 500-event buffer into conversations using client
+session headers or a stable prompt-prefix fingerprint, with turn and fallback
+details. Review events carry their review session ID. The displayed prompt is an
+excerpt, not a complete conversation archive; restart clears this history.
+
+### In-flight request tracker
+
+While a request is running, the dashboard shows it live — no need to open the llama-swap UI. The panel lists every active request with:
+
+- **Cancel** — a per-row button that aborts the in-flight request (the row is removed and the response stream ends)
+- **Elapsed** — how long the request has been running (updates every second)
+- **Model** — the resolved llama-swap model (updated after routing resolves; the requested model until then)
+- **Request** — the endpoint path (`POST /v1/chat/completions` or `POST /v1/messages`)
+- **Activity** — a live label derived from the response bytes: `tool calling` / `reasoning` / `asking a multiple choice question` / `generating`
+- **PP** — prefill progress (0–100%) when the llama-server build exposes slot progress
+- **Address / User-Agent / Session ID / Bytes received** — peer address, client UA, OMP session (or `#conv` hash), and bytes streamed so far
+
+The panel is hidden while no requests are in flight. Card progress bars show the same PP value; once a card settles it shows "Done for now".
+
+### Throughput chips on cards
+
+Each conversation card shows averaged **tg** (generation tokens/s) estimates from the OpenAI SSE `usage` count and observed output-frame interval of each successfully completed request. Builds without valid usage counts, or whose output is observed in a single frame, leave the chip hidden. **pp** is not inferred: time to first output includes more than prompt processing. See [Model observability and regression alerts](#model-observability-and-regression-alerts) for measurement definitions and limits.
+
+### Version header and upgrades
+
+The header row shows current installed versions of:
+
+- **llama-swap** — the local model router binary
+- **llama.cpp** — the llama-server build inside the toolbox container
+- **Manifest** — the running Docker container (image date · short hash)
+- **toolbox** — the OCI image version label
+- **bonsai** — classifier server state: `on`, `off`, or `down` (the decision
+  slot's launch backend)
+
+Click the **bonsai** row to stop or start the classifier server. Auto role
+cards choose local while it is disabled; cards explicitly pinned to a backend
+remain pinned. Stopping the classifier also turns prompt rewriting off.
+
+Version metadata is cached and refreshed in the background (normally every
+30 minutes), not re-fetched from upstream for each dashboard poll. Upgrade
+controls are explicit operations; they are not triggered by opening model or
+benchmark pages.
+
+### Navigation and command strip
+
+The dashboard left rail is intentionally small: **Overview**, **Ops**, **Benchmarks**, **Config**, **Credentials**, and **Plugins**. **Ops** is the single resident-first management page (P5): live residents with their budget/pins, lifecycle, queue, external engines and active consumers; the swap catalog plus the llama-swap import; providers & peers with a live **Health** column; and, below the fold in collapsible sections, **Downloads** and **Serving launch**. It replaces the former Models and Engines destinations, and it carries the **Model activity ↗** link to the standalone `/models` page. **Overview** keeps the live cards, Sankey, in-flight table, KPIs, and HankNDory verdict ledger. **Config** holds quality toggles, the Plugins tab (bridge and other sidecar plugins: status, config, HTML-escaped logs), toolbox management, service status, service restarts, raw YAML editors, and agent files.
+
+The always-visible command strip above the content contains:
+
+| Control | What it does |
+|---|---|
+| **Scope** | Switches between the global card scope and loaded Git projects with per-project role cards |
+| **main / review / subagent pickers** | One model picker per role (P5 A1); each offers `auto`, `local (backend default)`, `cloud (pool)`, and a **Pin exactly this model…** group built from `/api/routing-models` (local keys, cloud entries, LAN peers with health). A pin is stored verbatim as `cloud/<provider>/<id>` or a bare local key, so the card grammar and `/api/roles/set` are unchanged |
+| **Save cards** | Saves the active scope's three role cards (one request per role) |
+| **Flush Models** | Unloads every model from llama-swap memory (frees VRAM) without restarting |
+| **Restart Local Stack** | Restarts `llama-swap` |
+| **(v2 L3) `sync-omp` is gone** | Install templates carry one `auto` entry per harness; model lists are the L4 catalog's job |
+| **Health pill** | Summarizes service health from `/api/service-health` |
+| **Quality posture** | Shows reasoning, code-review, HankNDory, and PR-guideline state from their existing APIs |
+
+Rare restarts — **Restart llama.cpp**, **Restart Manifest**, and **Restart brainrouter** — are under Config → Service controls.
+
+### Review sessions
+
+Review sessions remain available through the review API/CLI and linked session pages:
+
+- Each row shows task ID, status (`pending` / `approved` / `needs_revision` / `escalated`), iteration count, reviewer type (LLM or human), and timestamps.
+- Open a session link for feedback, status, and requested/actual reviewer information.
+- If a session is `escalated` (LLM couldn't resolve it after max iterations), a **Resolve** panel appears — type your feedback and submit to close the loop.
+
+### Independent routing controls
+
+The dashboard command strip exposes the three role cards (scope-aware: global
+plus every project scope present) and the guardrail policy chips:
+
+| Card | Assignment | Effect |
+|---|---|---|
+| **main** | `auto` / `local` / `cloud`, optional `cloud/<id>` or bare model ID | Handles default/auto client requests only; explicit client selectors bypass cards |
+| **review** | same grammar | Snapshotted for each new review; independent of main |
+| **subagent** | same grammar | Used by `subs` aliases; `config.subs_model` seeds the auto pool |
+| **Privacy / Quality chips** | `cloud-ok`/`local-only`; `fast`/`balanced`/`maximum` | Guardrail clamps on slot decisions only (global + per-project scope) |
+
+Preferences persist across restart. Existing reviews and their continuations
+retain the original reviewer; see [Routing controls](#routing-controls) for
+precedence, migration, commands, and exact fallback behavior.
+
+### Role cards: global and per-project
+
+Use the command strip's **Scope** selector to keep one global set of role
+cards while assigning different selectors to specific repositories. A
+project scope is the canonical absolute Git repository root of the request
+`cwd`; non-Git and relative paths cannot be scoped and simply inherit the
+global card. Cards live in owner-only `role_cards.json` under
+`$XDG_STATE_HOME/brainrouter/`.
+
+| Card | Assignment | Used when |
+|---|---|---|
+| **main** | `auto \| local \| cloud \| cloud/<id> \| <bare-key>` | Client sends empty/default, `auto`, or `brainrouter/auto` |
+| **review** | same vocabulary | Fresh review session snapshots the card at start; continuations keep the snapshot |
+| **subagent** | same vocabulary | Client sends `subs` or `brainrouter/subs` (the selector names the subagent role) |
+
+Precedence is **explicit request selector > project card > global card >
+default (`auto`)**. Explicit selectors bypass cards entirely and are never
+policy-clamped. The `auto` path runs the decision slot (features →
+`{route, tier}` with privacy/quality guardrail clamps), then the local
+candidate pool + chain; the v1 per-selector strictness is preserved:
+bare-key cards are direct picks (no fallback), `local` keeps the managed
+one-`fallback_model` retry, `cloud`/`cloud/<id>` keep the managed
+cloud→local hop, and the review role is strict on cloud selectors. Policy
+chips (privacy `cloud-ok|local-only`, quality `fast|balanced|maximum`) apply
+to slot decisions only, per scope. CLI: `brainrouter roles get|set|remove`;
+HTTP: `GET /api/roles`, `POST /api/roles/set|remove`,
+`POST /api/policy/set`, `GET /api/policy` (loopback/CSRF-gated mutations).
+A routing failure landing within the first 15 s answers with a real HTTP
+status; slow resolutions (model loading) keep streamed responses.
+
+### Quality and review controls
+
+Config → **Quality** exposes four runtime toggles: thinking-budget nudge
+(`/api/nudge`), code review on/off (`/api/review/enabled`), PR-generation
+guidelines (`/api/review/pr-guidelines`), HankNDory design-aware review
+(`/api/review/hankndory`), plus local prompt rewrite (`/api/prompt-rewrite`).
+The command strip posture line reflects those same states, and the Overview
+right rail shows the HankNDory verdict ledger from `/api/review/status`.
+
+The model strip uses constrained local dropdowns for **Main**, **Reviewer**,
+and the always-local **Subagent pool** when provider discovery succeeds, while
+preserving explicit/custom IDs for unavailable or cloud models. The reviewer
+dropdown affects new review snapshots only; the subagent dropdown affects only
+the `subs` aliases.
+
+Reviews also use a token-aware prompt budget: the prompt builder estimates the
+whole review prompt against conservative defaults (8K local, 128K cloud),
+reserves output tokens, and terminally escalates rather than returning a
+confident approval if protected task/criteria text overflows or required
+diff/design evidence had to be truncated.
+
+## Toolbox backend management
+
+brainrouter is a native Rust webui for [kyuz0's `ai-toolbox-cockpit`](https://github.com/kyuz0/ai-toolbox-cockpit) —
+a Python Textual TUI with no CLI/API mode. It covers **`ds4`, `gufo`, and
+`llama_cpp`** toolboxes/models/servers (v2 L1 purge: the v1 halogen/vllm/r9v
+support was removed; those feed ids parse as browse-only catalog data);
+**`comfyui` (image-gen) is never surfaced.** Everything below works whether or not
+cockpit itself is installed on the host. Full design rationale lives in
+`docs/design/ai-toolbox-cockpit-integration.md`.
+
+### Toolboxes panel
+
+Lists podman containers across all six backends (not just llama.cpp),
+sourced from a vendored, weekly-CI-refreshed copy of cockpit's own
+`toolboxes.json`/`models.json` catalog (`assets/cockpit-catalog/`) plus the
+brainrouter-owned gufo overlay. From here you can create a new toolbox from any catalog entry, pull+recreate
+(update) an existing one, delete one, or **adopt** a container you created
+outside brainrouter (via cockpit or manually) so it shows up as managed.
+
+Fedora Toolbx does not support `toolbox create --label`, so ownership for
+brainrouter-created toolboxes is recorded in an owner-only
+`managed_toolboxes.json` sidecar keyed by podman container ID. Destructive
+operations are allowed only for legacy-labeled containers or when the sidecar
+ID matches the live container ID; update/delete use ID-bound `podman rm
+--force <id>`, and adopt records the current live ID without recreating it.
+
+### Server Mode panel
+
+Starts/stops/checks status of headless, detached servers for `ds4`
+and `gufo` — separate from the interactive
+Toolboxes-tab containers. Each backend's own defaults (batch size, GPU
+layers, KV cache type, etc.) come straight from the effective catalog. (v1
+also shipped halogen/vllm/r9v server panels, including an "unverified" R9V
+badge; the v2 L1 purge removed those builders, routes, and panels — requests
+to the removed paths answer 404; command
+construction is verified against upstream source, not live hardware.
+
+**gufo** is a brainrouter-owned overlay backend, not part of the vendored
+upstream cockpit catalog. It targets Strix Halo with ROCm and the image
+`ghcr.io/gufo-org/toolboxes/gufo-runtime:latest`. Server Mode launches a
+fixed detached container with `gufo serve --host 0.0.0.0 --port <port>
+--sessions <n> llm --model /models/<main>.gguf --served-model-name <id>
+--context <ctx>`; models that declare a DFlash2 draft add
+`--speculative dflash2 --dflash-model /models/<draft>.gguf`. gufo is recorded
+as OpenAI-compatible serving identity bookkeeping (`engine=rocm`,
+`openai_compatible=true`) but is still not a routable `/v1/chat/completions`
+upstream.
+
+### Models panel
+
+Browse the catalog's models per backend and trigger downloads through each
+backend's own native mechanism (`ds4`/`gufo`/`llama_cpp` after the v2 L1
+purge, which also removed the halogen/r9v download payloads and the R9V
+Prepare-PLE job; backends that pull from Hugging Face on demand at server
+start have no download step, matching upstream). Progress is a raw log tail, not a byte-level progress bar — the
+underlying `hf` CLI has no machine-readable progress output to drive one.
+
+**Prerequisite — the Hugging Face CLI.** `ds4`/`gufo`/`llama_cpp`
+downloads run the `hf` CLI on the host, so it must be installed and
+resolvable on the brainrouter **service's** PATH. Install it with:
+
+```bash
+python3 -m pip install --user -U "huggingface_hub[cli]"
+```
+
+If `hf` is missing, brainrouter shows a warning banner (with this command)
+on both the Models/Downloads and Server Mode panels, and downloads fail
+until it is installed — the empty model dropdowns in Server Mode are usually
+this, not a broken backend. (`vllm` needs no host download and is unaffected.)
+
+### Shared config with cockpit
+
+If `~/.config/ai-toolbox-cockpit/config.json` exists, brainrouter reads it
+directly for `active_platform` and per-backend default toolboxes, so both
+tools agree on one source of truth. Writing back is an **explicit,
+user-triggered "apply" action** scoped to those same keys — brainrouter never
+performs continuous background read-modify-write against this file, since no
+locking protocol exists between the two tools to make that safe. If the
+config directory is absent, brainrouter says so rather than silently
+creating it.
+
+### Sankey and benchmark integration
+
+The dashboard's routing Sankey and the [Benchmark explorer](#benchmark-explorer)
+both gained **backend** (which toolbox family) and **engine**
+(vulkan/rocm/etc.) as dimensions. Only `llama_cpp` traffic is genuinely
+routed through brainrouter's router today; every other backend's activity
+renders in an explicit `status_only` bucket — real request-routing
+integration for Server Mode containers is unshipped (see
+[Planned, not shipped](#planned-not-shipped)).
+
+### What's not here yet
+
+- **No CLI parity.** `brainrouter cli toolboxes`/`upgrade toolbox` remain
+  llama.cpp-only; the new backends are dashboard/API-only.
+- **No request routing to Server Mode containers.** Starting a ds4/gufo
+  server makes it visible and manageable, not dispatchable as live
+  LLM traffic.
+
+## Model observability and regression alerts
+
+Open **`http://127.0.0.1:9099/models`** or select **Model activity** in the dashboard. An exact local model key connects read-only backend status, active registry requests, completed stream measurements, recent routing results, and an explicitly selected historical benchmark reference. `/models?model=<URL-encoded-key>` links to a model. `/running` and `/v1/models` are polled with two-second timeouts and 1 MiB response limits; `/props` is queried only for up to four already-ready proxies. Polls run independently of routing, with a five-second pause between polls. Before the first poll completes, the API reports an awaiting-observation state; an empty initial list is not proof that no models exist. Missing quantization, runtime identity, RAM/VRAM, live token rates, or prefill progress remain unavailable, never inferred from model names, file sizes, elapsed time, or benchmark peaks.
+
+Performance measurements are keyed by the unique routing event ID, not the conversation. Only `[DONE]` followed by clean EOF records a completed sample; stream errors, cancellation, oversized/malformed frames, and incomplete streams are excluded. **Measured TTFT** is router-observed time from routing-body entry, including classification/retries but excluding outer profile selection, to the first complete SSE frame containing nonempty content, reasoning, or tool-call arguments. Role-only frames and heartbeats do not count. It is not client end-to-end latency. **Generation TPS** estimates `(provider completion_tokens - 1) / (last output frame time - first output frame time)`, requiring more than one reported token and distinct output times; usage/DONE tail time is excluded. Batched deltas, hidden reasoning tokens, buffering and backpressure limit precision. Missing or conflicting usage stays unknown; prompt-processing TPS is not fabricated. Route latency still means time until the router returns its result, not TTFT or completion latency.
+
+The Anthropic adapter keeps content streaming while consuming final usage and confirming EOF before its terminal events. Waiting after the first finish marker is limited to two seconds; ready data/EOF wins over the timer so client backpressure does not discard a completed response. Continuously ready tails are separately capped at 256 KiB total, 64 KiB per line, and 1,024 subsequent chunks. Tail errors, timeout, or budget exhaustion do not produce completed measurements.
+
+The default policy compares medians in the latest **five-minute window** with the preceding, disjoint five minutes. Each metric needs **five samples in each window**. Indicative warnings require a **20% generation drop**, a **30% TTFT rise**, or a **20-percentage-point error/fallback rate increase with at least three occurrences**. Two evaluations with new sample evidence activate a warning; two with new non-regressing evidence recover it. Repeated polls cannot advance debounce, and insufficient data is not recovery. The page exposes all thresholds and permits bounded operator changes. OOM/timeout categories require explicit recorded error text; fallback stages mean fallback-served routes, not that the fallback model caused a failure. Unattributed/cloud routing errors are shown separately. Router success does not guarantee stream success, so router-error counts are not an exhaustive stream-error rate.
+
+**These are indicative live trends, not controlled benchmark regressions.** Selecting a successful reference preserves its full artifact/runtime/hardware/workload identity and requires a mapping rationale plus confirmation of the inspected experiment hash. No model-family matching is performed. References older than the policy limit (30 days by default), changed references, and unavailable benchmark storage are surfaced explicitly. Even a valid reference is **not comparable** until per-sample artifact SHA, build, hardware, context/workload, concurrency and equivalent metric definitions can be established. Benchmark reference failure does not disable live observations or routing.
+
+Retention is bounded to **500 routing events and 500 completed stream samples globally**, in memory only. High traffic can evict a reference window early. Restart clears samples and alert state; policy or mapping changes reset debounce. Only explicit mappings and alert policy persist in the config-adjacent `*.observability.json` file (for example `brainrouter.observability.json`). Writes use a size-bounded atomic replacement and revision checks. Errors remain visible; unreadable/corrupt settings disable saves until repaired and the daemon restarted, but do not stop routing. There is no traffic-history database, automatic benchmarking, model switching, scheduling, or outbound notification.
+
+Read APIs are `GET /api/observability/models`, `/settings`, `/reference?run_id=...`, and `/baseline?model_key=...` under `/api/observability`. `POST /api/observability/settings` accepts `{ "revision": 0, "policy": { ... } }`; `POST /api/observability/baseline` accepts `{ "revision": 0, "model_key": "...", "run_id": "...", "expected_experiment_hash": "...", "note": "..." }`. Set `run_id` to `null` to clear a mapping, including while benchmark storage is unavailable. Writes use the existing localhost/CSRF guard, 128 KiB body limit, five-second body deadline, and conflict responses for stale revisions.
+
+Reference selection requires a known exact local key, a succeeded run with a
+non-future completion timestamp, and a positive generation-TPS or TTFT
+measurement; a metadata-only run is not a performance baseline. Up to 32 explicit
+mappings are supported. Backend catalogs/running lists are limited to 256 entries.
+The full policy shape and allowed ranges are documented in
+[the PRD](PRD.md#model-observability-and-regression-alerts).
+Revisions are process-local and reset on restart: always read the latest settings
+before writing. A settings error may report that rename committed but crash
+durability is uncertain; reload state before retrying rather than assuming
+nothing changed.
+
+```bash
+API=http://127.0.0.1:9099
+curl --fail-with-body -sS "$API/api/observability/models"
+curl --fail-with-body -sS "$API/api/observability/settings"
+# Inspect a real imported run before selecting it in the model page:
+curl --fail-with-body -sS --get "$API/api/observability/reference" \
+  --data-urlencode "run_id=your-imported-run-id"
+```
+
+## Benchmark explorer
+
+> **Feature gate (v2 R2):** the explorer — `/benchmarks`, `/api/benchmarks/*`,
+> and the native lab — compiles only with `cargo build --features benchmarks`.
+> Default builds answer the documented degradation envelope on those routes
+> (`503 {"error": "Benchmark explorer unavailable: … Core routing is still
+> available."}`) and the dashboard hides its Benchmarks nav entry.
+
+Open **`http://127.0.0.1:9099/benchmarks`** or select **Benchmarks** in the dashboard navigation. Brainrouter initializes a normalized SQLite database at `~/.local/share/brainrouter/benchmarks.sqlite3` by default. The explorer only imports and analyzes completed or externally managed benchmark runs; it never starts a model or benchmark process.
+
+Benchmark storage is optional for daemon availability. If initialization fails (for example, a corrupt database, an unwritable path, or a schema newer than this binary supports), core routing, listeners, and Bonsai startup continue normally. The daemon logs the cause, and benchmark pages/data APIs return HTTP **503** with recovery guidance instead of empty results. Repair the database or update `benchmarks.database_path`, then restart Brainrouter to retry; unsupported schemas are not downgraded.
+
+The explorer provides deterministic filtering and pagination, throughput-vs-memory/Pareto visualization, 8K/32K/128K context comparisons, runtime and quantization comparisons, pass@1-per-GiB analysis, and filtered CSV or JSONL downloads. **Charts and extrema cover the current page only (at most 25 runs)**, across its selected statuses, excluding missing measurements. Page/order/filter changes alter the sample. The total matching-run count is separate; charts do not imply full-registry aggregates or controlled comparisons between different workloads.
+
+### Schema and identity
+
+`migrations/0001_benchmark_explorer.sql` creates a dedicated normalized SQLite
+STRICT schema and initializes WAL; every connection enables foreign keys.
+`schema_migrations` records the supported version/identity, with indexes and
+`run_summary` for joined queries. This does not migrate live routing or review
+sessions into a database.
+
+| Data | Tables / meaning |
+|---|---|
+| Registry | `models`, `artifacts`, `runtimes`, `hardware_profiles`, `workloads`: declared model/tokenizer/quant/build/hardware/corpus identities |
+| Configuration | `experiment_specs`, `experiments`: canonical registry references plus context, token, batch, thread, optimization and sampling settings |
+| Attempts | `runs`: unique ID and `(experiment_id,repetition)`, status, timestamps, command/environment/log pointers and raw result |
+| Native jobs | `benchmark_jobs`: queued/running/terminal Riddllr and Plumebench job state, progress, request identity, workspace and resulting run |
+| Measurements | One-to-one `performance_metrics`/`speculative_metrics`; one-to-many `quality_results`/`telemetry_samples` |
+| Immutability | `entity_fingerprints` rejects changed registry/config payloads under reused IDs |
+| Exclusions | Schema reserves an `exclusions` table; current planning returns exclusions without persisting them |
+
+The experiment SHA-256 is computed from the canonical Rust-serialized
+configuration excluding its application ID. Referenced registry identities are
+immutable too. Checkpoint revisions, artifact/executable/manifest hashes,
+compiler/build flags, optimization feature states, and capture timestamps stay
+separate. `unsupported`, `disabled`, `enabled`, and `requested_unavailable` are
+data states, not proof that a backend implements or executed a feature.
+Draft-artifact references must exist.
+
+### Backend/engine dimensions and the spider chart
+
+`runtimes.backend` already carried an engine enum (e.g. `llama_cpp`,
+`vulkan`); `migrations/0003_toolbox_serving_dimension.sql` adds
+`serving_runtimes` and `toolbox_catalog_snapshot` — nullable, additive
+columns/tables recording which toolbox backend (`ds4`/`halogen`/`vllm`/`r9v`/
+`gufo`/`llama_cpp`) and compute engine (`vulkan`/`rocm`/etc.) produced a run, without
+requiring older rows to be backfilled. `/api/benchmarks/filters` and
+`/api/benchmarks/runs` both accept `backend`/`engine` alongside the existing
+`family`/`workload`/`quant_name` filters.
+
+A new **spider/radar chart** lets you pick two or more axes from **models,
+harnesses, engine, backend, toolbox, speed, and TEPR** and plot one polygon
+per selected series (e.g. compare `r9v` or `gufo` vs. `llama_cpp` across three models).
+Backed by `GET /api/benchmarks/spider`.
+
+> **TEPR ("token efficiency to positive result")**: `TEPR =
+> total_tokens_consumed / count(runs where the task's quality outcome is a
+> pass)` for the selected axis bucket, expressed as tokens-per-successful-task.
+> A bucket with zero passing runs has undefined TEPR (reported as `null`, not
+> `Infinity` or `0`) — do not read `null` as "perfectly efficient." See
+> `docs/design/ai-toolbox-cockpit-integration.md` for the full rationale.
+
+
+### Native Benchmark Lab
+
+The opt-in Benchmark Lab runs two integrated suites from `/benchmarks`:
+
+- **Riddllr** discovers matched `prompts/<case>.txt` and
+  `solutions/<case>-solution.txt` files, routes the prompt through Brainrouter,
+  grades cardinal-assignment or ordered-line answers deterministically, and
+  stores `pass@1`, duration, output, route provenance and the declared suite
+  manifest.
+- **Plumebench** discovers complete `tasks/<case>/` directories. Brainrouter
+  takes one immutable private snapshot of the task and grader, copies only
+  `starter/` plus the prompt into a per-job workspace, and invokes OMP through
+  the `brainrouter/<model>` provider inside a Bubblewrap filesystem sandbox.
+  The sandbox receives the starter workspace, a generated credential-free OMP
+  profile, the OMP executable, and read-only system files; it cannot see the
+  suite root, hidden tests, daemon configuration, user home, or sibling job
+  directories. Only after OMP exits does Brainrouter copy `tests_hidden/` from
+  the snapshot into a separate grader stage. Pytest and the snapshotted
+  `elegance.py` run in a second network-isolated Bubblewrap sandbox, with only
+  the grader stage writable. Brainrouter records test counts, pass@1, and raw
+  static metrics when the hidden gate passes.
+
+Execution is localhost-only, explicit, and limited to one heavy job. Job
+identity includes suite, case, model, repetition, source manifest and relevant
+runner settings. Duplicate active identities are rejected; successful run
+identities require a new repetition. Cancellation terminates the spawned Unix
+process group, captured output is bounded, source symlinks and path escapes are
+rejected, and queued/running jobs become `interrupted` after daemon restart.
+Source suite directories are never modified, and the configured workspace may
+not overlap either suite root. OMP requires a CLI exposing `--model`, `--mode`,
+`--max-time`, `--thinking`, `--auto-approve`, `--no-session`, and `--cwd`
+plus the `--no-extensions`, `--no-skills`, and `--no-rules` isolation switches
+(OMP 18.1 or newer is recommended). Brainrouter enforces the configured turn
+limit from OMP `turn_start` events rather than passing an unsupported CLI flag.
+The OMP sandbox has a private network namespace. A short-lived proxy exposes
+only `/v1/models` and `/v1/chat/completions` through a filtered Unix socket, so
+generated code cannot reach Brainrouter's dashboard or administrative APIs.
+
+The lab remains disabled unless `benchmarks.lab.enabled` is true. A missing
+suite root disables that suite in the UI without disabling routing or imported
+benchmark exploration. A missing OMP/Python executable fails only the affected
+job. Completed, timed-out and cancelled executions use the same validated
+registry ingestion path as uploads.
+
+### Query and export semantics
+
+`GET /api/benchmarks/runs` returns `{items,page,per_page,total,total_pages}`.
+Defaults: `page=1`, `per_page=25`, `sort=started_at`, `order=desc`.
+Pages are positive; page size is 1..100; out-of-range pages are empty.
+Filters `status`, `family`, `backend`, `workload`, `quant_name`, and
+`speculator_type` are exact matches. Blank filters are ignored; repeated
+parameters take their last value. `q` is a literal substring search over
+family/architecture/quant/runtime/workload/run-ID labels, using SQLite's
+ASCII case-insensitive LIKE semantics with `%` and `_` escaped.
+
+Sort by `started_at`, `family`, `workload`, `context_tokens`, `prompt_tps`,
+`generation_tps`, or `ttft_ms`, with `asc`/`desc`. Timestamp sorting falls back to
+creation time for runs without a start. Missing numeric metrics sort last;
+ties use ascending run ID. Unknown parameters/sorts/orders return 400; an
+unknown exact filter value just matches nothing. Summary `quality_score` averages
+only the metric named `pass@1`, not unrelated quality measures.
+
+**Run inspector.** Open a row with the keyboard or mouse, or link directly to `/benchmarks?run_id=<URL-encoded-ID>`. Separate sections show model, artifact, runtime, hardware, workload, optimization and sampling definitions; commands and provenance; prompt/generation timing, TTFT, inter-token p50/p95/p99, memory, disk and energy; speculative metrics; and per-task compile/pass/test results. Telemetry is ordered and grouped by reported GPU index, with absent/null readings displayed as gaps, not zero or interpolated measurements. Host readings are not summed across GPUs. Raw JSON remains available for viewing/download. Commands, file paths and source URLs are inert text: the inspector never runs commands, opens server logs, or fetches artifacts.
+
+The raw inspector view/download preserves the original response text, including 64-bit integers. Rich browser values outside JavaScript's safe numeric range carry a precision warning. Browser import/plan previews reject unsafe numbers rather than silently rounding metadata or changing fingerprints; use the direct API for those numeric fields (or strings for free-form metadata).
+
+**Import and reuse.** The visible import panel supports complete bundle JSON and llama-bench JSON. Choose files, preview validation, review the prepared bundle, and explicitly confirm the import. Preview and planning never persist records or run workloads; a preview does not reserve IDs, and confirmation revalidates against concurrent changes. The confirmation result links to the imported run.
+
+The complete bundle format contains `model`, `artifact`, `runtime`, `hardware`, `workload`, `experiment`, and `run`, plus optional `performance_metrics`, `speculative_metrics`, `quality_results`, and `telemetry_samples`. `POST /api/benchmarks/validate` performs the same transactional ingestion checks and rolls back; `POST /api/benchmarks/ingest` commits. Cross-reference IDs must agree. SHA-256 fields require lowercase 64-character hex, metrics enforce bounds, and unknown fields are rejected. **Hashes and metadata are user-supplied declarations, not verified against artifact files.**
+
+For repeated imports, edit a reusable template containing only the five registry definitions and `experiment`; save/load it explicitly in this browser or download it as JSON. Saving a template does not insert registry data into SQLite. It excludes run commands/results/timestamps, but registry metadata itself can contain sensitive information: do not save sensitive definitions in a shared browser. `/api/benchmarks/prepare` accepts `{ "template": {...}, "repetition": 0, "status": "succeeded", "exact_command": "...", "llama_bench": {...} }`, plus optional `started_at`, `ended_at`, and a selected plan `experiment`. It wires references from the template IDs, derives stable experiment/run IDs, and previews a complete bundle. A selected plan experiment must match the supplied registry definitions. Existing custom experiment IDs and repetition/run IDs are reused; changing only the repetition never rewrites registry fingerprints or capture timestamps. Download the prepared bundle to add other metrics/provenance, then validate it as a complete bundle.
+
+Successful run payloads are immutable. To preserve reproducibility, corrections must use a new repetition or experiment. Other statuses (`planned`, `running`, `failed`, `oom`, `timeout`, `cancelled`, `skipped`) can receive a replacement full bundle until succeeded; run-to-experiment and repetition identity cannot change. Optional measurement sections replace that attempt's stored sections, not append a live telemetry stream. Registry rows and experiment configurations are insert-once.
+
+**llama-bench adapter.** `/api/benchmarks/validate/llama-bench` and `/api/benchmarks/ingest/llama-bench` accept `{ "bundle": {...}, "llama_bench": ... }`. The output may be one object, an array, or an object with a `results` array. Every row must supply unambiguous metrics. Use one throughput alias (`avg_ts`, `tokens_per_second`, or `tps`) with `ppN` / `tgN` or positive `n_prompt` / `n_gen`; reported token counts must match the experiment. Combined rows require distinct `prompt_tps` and `generation_tps`, not a combined rate passed off as both. Repeated phase/TTFT rows, contradictory labels/counts, wrong metric types, conflicting existing bundle metrics, and unrecognized rows are rejected without persisting anything. Split multi-configuration results into separate imports; do not average rows from different configurations. Original uploaded output is retained under `run.raw_result.llama_bench`.
+
+**Planning and examples.** The YAML/JSON matrix preview expands deterministically into experiments and exclusions, never execution. Select a candidate and combine it with a matching template to prepare an import; repetition is explicit and zero-based. Planning checks structure and configuration invariants, not the existence of artifact files, hardware feasibility, or runtime capabilities. Examples in [`examples/benchmarks/`](examples/benchmarks/) are **synthetic fixtures**, not measurements: [complete bundle](examples/benchmarks/synthetic-bundle.json), [matrix](examples/benchmarks/matrix.yaml), [llama-bench output](examples/benchmarks/llama-bench.json). Downloadable `/api/benchmarks/examples/{bundle.json,template.json,matrix.yaml,matrix.json,llama-bench.json}` versions use matching registry IDs and 8K/32K/128K contexts. Loading an example into an editor never inserts it; replacing synthetic metadata and placeholder hashes is the user's responsibility.
+
+**Isolation and resource limits.** HTTP body parsing, validation, planning, SQLite calls and response serialization run on blocking workers, not Tokio async workers. Store clones and `BenchmarkStore::run_blocking` share **two admission slots**, with no waiting queue. Saturation or SQLite lock contention returns **503** with `Retry-After: 1`; core routing stays available. Each admitted upload has a 16 MiB body limit and 15-second body deadline. Cancellation releases admission only when the actual blocking task exits. Response allocations and emitted `Bytes` slices retain admission even after Hyper drops the body; 16 KiB frames also bound transport-side copying. SQLite lock waiting is at most five seconds; cancellation does not roll back an ingestion already executing, so check the run ID before retrying a disconnected import.
+
+| Resource | Limit and recovery |
+|---|---|
+| HTTP SQLite row / JSON expression | 4 MiB; larger records remain in storage but require an offline reader or synchronous detail API |
+| JSON response / CSV or JSONL export | 8 MiB, with an explicit **413**, never a partial success |
+| HTTP run detail | 10,000 telemetry samples and 1,000 quality rows, plus byte limits; over-limit detail returns **413**, not a sampled or truncated timeline |
+| Run query | 1-100 runs per page, plus byte limits; narrow filters or reduce `per_page` if necessary |
+| Filter dropdowns | 1,000 distinct values per field, plus byte limits; use explicit run-query filters if exceeded |
+| Matrix plan | 10,000 candidates and 8 MiB expansion/response budget |
+| Filtered export | 10,000 runs and 8 MiB; narrow filters or export offline from a consistent SQLite snapshot |
+
+CSV/JSONL exports contain **all matching run summaries or an explicit limit error**, independently of UI pagination; they are not full bundle or telemetry exports. Each export reads a single stable SQLite transaction and writes bounded pages directly into a capped buffer, never an unlimited list. Ordering is deterministic with run-ID ties. CSV quotes commas, quotes and newlines and neutralizes spreadsheet formula prefixes. Use the raw run JSON download for full detail within HTTP limits; larger history remains accessible through the synchronous store detail API or offline SQLite tools. The public synchronous API stays available for tests/offline consumers; async callers must use `store.run_blocking(move |store| store.run_detail(&id)).await` (or `query_runs`) to share admission and HTTP read budgets. Schema migration 2 adds only the native job lifecycle table and indexes. It
+does not remove old records or turn optional benchmark storage/execution into a
+daemon-startup dependency.
+
+### API walkthrough: synthetic fixtures, no inference
+
+From the repository root, with an existing daemon running, these first two
+operations only validate/plan; they do not execute the command text or commit
+benchmark records:
+
+```bash
+API=http://127.0.0.1:9099
+curl --fail-with-body -sS -H 'Content-Type: application/json' \
+  --data-binary @examples/benchmarks/synthetic-bundle.json \
+  "$API/api/benchmarks/validate"
+curl --fail-with-body -sS -H 'Content-Type: application/yaml' \
+  --data-binary @examples/benchmarks/matrix.yaml \
+  "$API/api/benchmarks/plan"
+```
+
+Only if you explicitly want a labelled synthetic record in the selected database:
+
+```bash
+curl --fail-with-body -sS -H 'Content-Type: application/json' \
+  --data-binary @examples/benchmarks/synthetic-bundle.json \
+  "$API/api/benchmarks/ingest"
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/runs/synthetic-run-8k-0"
+curl --fail-with-body -sS --get "$API/api/benchmarks/runs" \
+  --data-urlencode 'status=succeeded' --data-urlencode 'sort=generation_tps' \
+  --data-urlencode 'order=desc' --data-urlencode 'per_page=25'
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/export?format=jsonl&status=succeeded" -o benchmarks.jsonl
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/export?format=csv&status=succeeded" -o benchmarks.csv
+```
+
+Re-importing that succeeded run returns 409; previews are not idempotent upserts
+for successful data. Use the template/plan preparation UI for a new repetition
+with the same registry identity. Imports do not verify file hashes or execute
+llama-bench/llama-perplexity. JSONL/CSV summaries are not a database backup;
+back up the SQLite database consistently (including active WAL state).
+
+---
+
+## Headless CLI (`brainrouter cli`)
+
+`brainrouter cli` is a thin client for core management, routing profiles and
+reviews, using the daemon's Unix socket or TCP (`--url`). It does not load Bonsai
+or run reviews in a second process; review commands ask the daemon to do the work
+and may wait for it. Benchmark/observability workflows currently use their pages
+or the HTTP API rather than dedicated CLI subcommands.
+
+```bash
+# Point at the daemon (only needed when the socket isn't the default)
+brainrouter cli --socket /run/user/1000/brainrouter.sock status
+brainrouter cli --url http://127.0.0.1:9099 status
+```
+
+All output is pretty-printed JSON. `brainrouter-config show` / `set` (alias `config`) print and write raw YAML instead.
+
+### Health and telemetry
+
+```bash
+brainrouter cli status          # llama-swap, manifest, llama.cpp, toolbox + cloud-fallback
+brainrouter cli versions         # installed + latest for every component
+brainrouter cli inference        # loaded model, state, slot progress
+brainrouter cli events           # recent routing decisions
+brainrouter cli stats            # aggregated routing stats
+brainrouter cli models           # proxy model list (auto/local/cloud + keys)
+brainrouter cli models --llama-swap   # raw llama-swap model list
+```
+
+### Routing controls
+
+```bash
+brainrouter cli bonsai status            # classifier launch backend state
+brainrouter cli bonsai enable            # start it; auto cards can use the slot
+brainrouter cli bonsai disable           # stop it, free VRAM — auto routing goes local
+brainrouter cli bonsai toggle
+
+brainrouter cli nudge status             # thinking-budget nudge state
+brainrouter cli nudge enable             # alternatives: nudge disable / nudge toggle
+brainrouter cli nudge tier auto          # Bonsai picks light/deep per request
+brainrouter cli nudge tier light         # inject the tight budget
+brainrouter cli nudge tier deep          # inject the full budget
+
+brainrouter cli prompt-rewrite disable   # enable requires healthy Bonsai; explicit IDs bypass rewriting
+brainrouter cli routing-mode status
+brainrouter cli routing-mode set local   # auto | cloud | local
+brainrouter roles get                    # cards + policy (JSON; direct-state when down)
+brainrouter roles set main cloud         # global card; --project <git-root> scopes it
+brainrouter roles set review cloud/vendor/reviewer-model
+brainrouter roles remove subagent        # falls back to the default `auto`
+brainrouter decision show                # {enabled, kind, available, min_confidence, ...}
+brainrouter decision test "prompt text"  # one full Decision JSON (incl. fallback)
+brainrouter credential list              # masked; add/remove/test share the verb set
+brainrouter cli review-config update --max-iterations 7
+
+brainrouter plugin list
+brainrouter plugin status bridge
+brainrouter plugin enable bridge
+brainrouter plugin disable bridge
+brainrouter plugin config set bridge discord.enabled=false
+```
+
+The dashboard gives each of the three role cards its own model picker (P5 A1:
+Main, Reviewer, Subagent — the former shared model text input is gone), so all
+three can pin different models and be saved together. Each picker offers
+`auto`, `local (backend default)`, `cloud (pool)` and a **Pin exactly this
+model…** group compiled from `/api/routing-models` (local keys, cloud entries,
+and LAN peer models with their health). A pin is stored verbatim as
+`cloud/<provider>/<id>` or a bare local key — the same assignment grammar the
+CLI uses — and an assignment the catalog cannot describe is kept as an explicit
+"pinned (unknown model)" option instead of being rewritten. Model lists come
+from the configured providers' `/models` endpoints using their existing
+authentication. Discovery errors remain visible; manual explicit IDs are
+accepted even when discovery is unavailable. The provider validates
+model availability when called. Choosing or saving a card does not perform inference.
+
+The older `brainrouter cli context` command still exists, but its `/api/context`
+server handler is absent at this baseline (404). Automatic/manual runtime context
+selection is therefore not a shipped control; benchmark matrix context values
+are experiment metadata, not instructions to resize a running model.
+
+Cards apply to `auto`, `brainrouter/auto`, `subs`, `brainrouter/subs`, or
+empty/default model requests — the card assignment compiles through the same
+selector path for every role.
+Explicit client selectors remain authoritative: bare names and
+`brainrouter/<id>` select local models, while `cloud/<id>` selects an exact
+Manifest model. Explicit `local` and `cloud` aliases select their backend
+defaults. An explicit local failure returns an error rather than switching
+models. Cloud failures and disabled cloud retain the existing local fallback
+policy (the review role is strict); requested and actual routes are shown in
+the dashboard and review metadata. Cloud traffic requires
+`manifest.enabled: true` in YAML; cards never change that opt-in.
+
+Cards are saved atomically, owner-only (`0600`), to
+`$XDG_STATE_HOME/brainrouter/role_cards.json`. The v1 routing profile,
+project pins, `review.forced_mode`/`forced_model`, and the `bonsai:` block
+migrate into cards + `decision_model:` at the `v2.0-p3` boot migration
+(exact table; snapshot + `.bak`; `brainrouter migration restore v2.0-p3`
+round-trips the pre-migration YAML byte-for-byte). Review sessions snapshot
+their review card at creation; continuations retain that snapshot. The
+reduced `POST /api/review-config` replaces its configuration (iterations +
+integration), not a partial merge; the CLI reads/merges before posting. The
+legacy `POST /api/routing-mode` sets the global main card. These JSON control
+bodies are capped at 16 KiB with strict validation.
+
+Example card writes (IDs are declarations, not model downloads):
+
+```bash
+brainrouter roles set main local
+brainrouter roles set review cloud/vendor/reviewer-model
+brainrouter roles set subagent my-local-subagent-pool --project /srv/repo
+brainrouter roles set main auto          # the decision slot answers
+```
+
+Saving does not verify that the provider can serve the ID and never silently
+enables cloud access.
+
+### Quality and review controls
+
+Config → **Quality** exposes four runtime toggles: thinking-budget nudge
+(`/api/nudge`), code review on/off (`/api/review/enabled`), PR-generation
+guidelines (`/api/review/pr-guidelines`), HankNDory design-aware review
+(`/api/review/hankndory`), plus local prompt rewrite (`/api/prompt-rewrite`).
+The command strip posture line reflects those same states, and the Overview
+right rail shows the HankNDory verdict ledger from `/api/review/status`.
+
+The model strip uses constrained local dropdowns for **Main**, **Reviewer**,
+and the always-local **Subagent pool** when provider discovery succeeds, while
+preserving explicit/custom IDs for unavailable or cloud models. The reviewer
+dropdown affects new review snapshots only; the subagent dropdown affects only
+the `subs` aliases.
+
+Reviews also use a token-aware prompt budget: the prompt builder estimates the
+whole review prompt against conservative defaults (8K local, 128K cloud),
+reserves output tokens, and terminally escalates rather than returning a
+confident approval if protected task/criteria text overflows or required
+diff/design evidence had to be truncated.
+
+## Toolbox backend management
+
+brainrouter is a native Rust webui for [kyuz0's `ai-toolbox-cockpit`](https://github.com/kyuz0/ai-toolbox-cockpit) —
+a Python Textual TUI with no CLI/API mode. It covers **`ds4`, `gufo`, and
+`llama_cpp`** toolboxes/models/servers (v2 L1 purge: the v1 halogen/vllm/r9v
+support was removed; those feed ids parse as browse-only catalog data);
+**`comfyui` (image-gen) is never surfaced.** Everything below works whether or not
+cockpit itself is installed on the host. Full design rationale lives in
+`docs/design/ai-toolbox-cockpit-integration.md`.
+
+### Toolboxes panel
+
+Lists podman containers across all six backends (not just llama.cpp),
+sourced from a vendored, weekly-CI-refreshed copy of cockpit's own
+`toolboxes.json`/`models.json` catalog (`assets/cockpit-catalog/`) plus the
+brainrouter-owned gufo overlay. From here you can create a new toolbox from any catalog entry, pull+recreate
+(update) an existing one, delete one, or **adopt** a container you created
+outside brainrouter (via cockpit or manually) so it shows up as managed.
+
+Fedora Toolbx does not support `toolbox create --label`, so ownership for
+brainrouter-created toolboxes is recorded in an owner-only
+`managed_toolboxes.json` sidecar keyed by podman container ID. Destructive
+operations are allowed only for legacy-labeled containers or when the sidecar
+ID matches the live container ID; update/delete use ID-bound `podman rm
+--force <id>`, and adopt records the current live ID without recreating it.
+
+### Server Mode panel
+
+Starts/stops/checks status of headless, detached servers for `ds4`
+and `gufo` — separate from the interactive
+Toolboxes-tab containers. Each backend's own defaults (batch size, GPU
+layers, KV cache type, etc.) come straight from the effective catalog. (v1
+also shipped halogen/vllm/r9v server panels, including an "unverified" R9V
+badge; the v2 L1 purge removed those builders, routes, and panels — requests
+to the removed paths answer 404; command
+construction is verified against upstream source, not live hardware.
+
+**gufo** is a brainrouter-owned overlay backend, not part of the vendored
+upstream cockpit catalog. It targets Strix Halo with ROCm and the image
+`ghcr.io/gufo-org/toolboxes/gufo-runtime:latest`. Server Mode launches a
+fixed detached container with `gufo serve --host 0.0.0.0 --port <port>
+--sessions <n> llm --model /models/<main>.gguf --served-model-name <id>
+--context <ctx>`; models that declare a DFlash2 draft add
+`--speculative dflash2 --dflash-model /models/<draft>.gguf`. gufo is recorded
+as OpenAI-compatible serving identity bookkeeping (`engine=rocm`,
+`openai_compatible=true`) but is still not a routable `/v1/chat/completions`
+upstream.
+
+### Models panel
+
+Browse the catalog's models per backend and trigger downloads through each
+backend's own native mechanism (`ds4`/`gufo`/`llama_cpp` after the v2 L1
+purge, which also removed the halogen/r9v download payloads and the R9V
+Prepare-PLE job; backends that pull from Hugging Face on demand at server
+start have no download step, matching upstream). Progress is a raw log tail, not a byte-level progress bar — the
+underlying `hf` CLI has no machine-readable progress output to drive one.
+
+**Prerequisite — the Hugging Face CLI.** `ds4`/`gufo`/`llama_cpp`
+downloads run the `hf` CLI on the host, so it must be installed and
+resolvable on the brainrouter **service's** PATH. Install it with:
+
+```bash
+python3 -m pip install --user -U "huggingface_hub[cli]"
+```
+
+If `hf` is missing, brainrouter shows a warning banner (with this command)
+on both the Models/Downloads and Server Mode panels, and downloads fail
+until it is installed — the empty model dropdowns in Server Mode are usually
+this, not a broken backend. (`vllm` needs no host download and is unaffected.)
+
+### Shared config with cockpit
+
+If `~/.config/ai-toolbox-cockpit/config.json` exists, brainrouter reads it
+directly for `active_platform` and per-backend default toolboxes, so both
+tools agree on one source of truth. Writing back is an **explicit,
+user-triggered "apply" action** scoped to those same keys — brainrouter never
+performs continuous background read-modify-write against this file, since no
+locking protocol exists between the two tools to make that safe. If the
+config directory is absent, brainrouter says so rather than silently
+creating it.
+
+### Sankey and benchmark integration
+
+The dashboard's routing Sankey and the [Benchmark explorer](#benchmark-explorer)
+both gained **backend** (which toolbox family) and **engine**
+(vulkan/rocm/etc.) as dimensions. Only `llama_cpp` traffic is genuinely
+routed through brainrouter's router today; every other backend's activity
+renders in an explicit `status_only` bucket — real request-routing
+integration for Server Mode containers is unshipped (see
+[Planned, not shipped](#planned-not-shipped)).
+
+### What's not here yet
+
+- **No CLI parity.** `brainrouter cli toolboxes`/`upgrade toolbox` remain
+  llama.cpp-only; the new backends are dashboard/API-only.
+- **No request routing to Server Mode containers.** Starting a ds4/gufo
+  server makes it visible and manageable, not dispatchable as live
+  LLM traffic.
+
+## Model observability and regression alerts
+
+Open **`http://127.0.0.1:9099/models`** or select **Model activity** in the dashboard. An exact local model key connects read-only backend status, active registry requests, completed stream measurements, recent routing results, and an explicitly selected historical benchmark reference. `/models?model=<URL-encoded-key>` links to a model. `/running` and `/v1/models` are polled with two-second timeouts and 1 MiB response limits; `/props` is queried only for up to four already-ready proxies. Polls run independently of routing, with a five-second pause between polls. Before the first poll completes, the API reports an awaiting-observation state; an empty initial list is not proof that no models exist. Missing quantization, runtime identity, RAM/VRAM, live token rates, or prefill progress remain unavailable, never inferred from model names, file sizes, elapsed time, or benchmark peaks.
+
+Performance measurements are keyed by the unique routing event ID, not the conversation. Only `[DONE]` followed by clean EOF records a completed sample; stream errors, cancellation, oversized/malformed frames, and incomplete streams are excluded. **Measured TTFT** is router-observed time from routing-body entry, including classification/retries but excluding outer profile selection, to the first complete SSE frame containing nonempty content, reasoning, or tool-call arguments. Role-only frames and heartbeats do not count. It is not client end-to-end latency. **Generation TPS** estimates `(provider completion_tokens - 1) / (last output frame time - first output frame time)`, requiring more than one reported token and distinct output times; usage/DONE tail time is excluded. Batched deltas, hidden reasoning tokens, buffering and backpressure limit precision. Missing or conflicting usage stays unknown; prompt-processing TPS is not fabricated. Route latency still means time until the router returns its result, not TTFT or completion latency.
+
+The Anthropic adapter keeps content streaming while consuming final usage and confirming EOF before its terminal events. Waiting after the first finish marker is limited to two seconds; ready data/EOF wins over the timer so client backpressure does not discard a completed response. Continuously ready tails are separately capped at 256 KiB total, 64 KiB per line, and 1,024 subsequent chunks. Tail errors, timeout, or budget exhaustion do not produce completed measurements.
+
+The default policy compares medians in the latest **five-minute window** with the preceding, disjoint five minutes. Each metric needs **five samples in each window**. Indicative warnings require a **20% generation drop**, a **30% TTFT rise**, or a **20-percentage-point error/fallback rate increase with at least three occurrences**. Two evaluations with new sample evidence activate a warning; two with new non-regressing evidence recover it. Repeated polls cannot advance debounce, and insufficient data is not recovery. The page exposes all thresholds and permits bounded operator changes. OOM/timeout categories require explicit recorded error text; fallback stages mean fallback-served routes, not that the fallback model caused a failure. Unattributed/cloud routing errors are shown separately. Router success does not guarantee stream success, so router-error counts are not an exhaustive stream-error rate.
+
+**These are indicative live trends, not controlled benchmark regressions.** Selecting a successful reference preserves its full artifact/runtime/hardware/workload identity and requires a mapping rationale plus confirmation of the inspected experiment hash. No model-family matching is performed. References older than the policy limit (30 days by default), changed references, and unavailable benchmark storage are surfaced explicitly. Even a valid reference is **not comparable** until per-sample artifact SHA, build, hardware, context/workload, concurrency and equivalent metric definitions can be established. Benchmark reference failure does not disable live observations or routing.
+
+Retention is bounded to **500 routing events and 500 completed stream samples globally**, in memory only. High traffic can evict a reference window early. Restart clears samples and alert state; policy or mapping changes reset debounce. Only explicit mappings and alert policy persist in the config-adjacent `*.observability.json` file (for example `brainrouter.observability.json`). Writes use a size-bounded atomic replacement and revision checks. Errors remain visible; unreadable/corrupt settings disable saves until repaired and the daemon restarted, but do not stop routing. There is no traffic-history database, automatic benchmarking, model switching, scheduling, or outbound notification.
+
+Read APIs are `GET /api/observability/models`, `/settings`, `/reference?run_id=...`, and `/baseline?model_key=...` under `/api/observability`. `POST /api/observability/settings` accepts `{ "revision": 0, "policy": { ... } }`; `POST /api/observability/baseline` accepts `{ "revision": 0, "model_key": "...", "run_id": "...", "expected_experiment_hash": "...", "note": "..." }`. Set `run_id` to `null` to clear a mapping, including while benchmark storage is unavailable. Writes use the existing localhost/CSRF guard, 128 KiB body limit, five-second body deadline, and conflict responses for stale revisions.
+
+Reference selection requires a known exact local key, a succeeded run with a
+non-future completion timestamp, and a positive generation-TPS or TTFT
+measurement; a metadata-only run is not a performance baseline. Up to 32 explicit
+mappings are supported. Backend catalogs/running lists are limited to 256 entries.
+The full policy shape and allowed ranges are documented in
+[the PRD](PRD.md#model-observability-and-regression-alerts).
+Revisions are process-local and reset on restart: always read the latest settings
+before writing. A settings error may report that rename committed but crash
+durability is uncertain; reload state before retrying rather than assuming
+nothing changed.
+
+```bash
+API=http://127.0.0.1:9099
+curl --fail-with-body -sS "$API/api/observability/models"
+curl --fail-with-body -sS "$API/api/observability/settings"
+# Inspect a real imported run before selecting it in the model page:
+curl --fail-with-body -sS --get "$API/api/observability/reference" \
+  --data-urlencode "run_id=your-imported-run-id"
+```
+
+## Benchmark explorer
+
+> **Feature gate (v2 R2):** the explorer — `/benchmarks`, `/api/benchmarks/*`,
+> and the native lab — compiles only with `cargo build --features benchmarks`.
+> Default builds answer the documented degradation envelope on those routes
+> (`503 {"error": "Benchmark explorer unavailable: … Core routing is still
+> available."}`) and the dashboard hides its Benchmarks nav entry.
+
+Open **`http://127.0.0.1:9099/benchmarks`** or select **Benchmarks** in the dashboard navigation. Brainrouter initializes a normalized SQLite database at `~/.local/share/brainrouter/benchmarks.sqlite3` by default. The explorer only imports and analyzes completed or externally managed benchmark runs; it never starts a model or benchmark process.
+
+Benchmark storage is optional for daemon availability. If initialization fails (for example, a corrupt database, an unwritable path, or a schema newer than this binary supports), core routing, listeners, and Bonsai startup continue normally. The daemon logs the cause, and benchmark pages/data APIs return HTTP **503** with recovery guidance instead of empty results. Repair the database or update `benchmarks.database_path`, then restart Brainrouter to retry; unsupported schemas are not downgraded.
+
+The explorer provides deterministic filtering and pagination, throughput-vs-memory/Pareto visualization, 8K/32K/128K context comparisons, runtime and quantization comparisons, pass@1-per-GiB analysis, and filtered CSV or JSONL downloads. **Charts and extrema cover the current page only (at most 25 runs)**, across its selected statuses, excluding missing measurements. Page/order/filter changes alter the sample. The total matching-run count is separate; charts do not imply full-registry aggregates or controlled comparisons between different workloads.
+
+### Schema and identity
+
+`migrations/0001_benchmark_explorer.sql` creates a dedicated normalized SQLite
+STRICT schema and initializes WAL; every connection enables foreign keys.
+`schema_migrations` records the supported version/identity, with indexes and
+`run_summary` for joined queries. This does not migrate live routing or review
+sessions into a database.
+
+| Data | Tables / meaning |
+|---|---|
+| Registry | `models`, `artifacts`, `runtimes`, `hardware_profiles`, `workloads`: declared model/tokenizer/quant/build/hardware/corpus identities |
+| Configuration | `experiment_specs`, `experiments`: canonical registry references plus context, token, batch, thread, optimization and sampling settings |
+| Attempts | `runs`: unique ID and `(experiment_id,repetition)`, status, timestamps, command/environment/log pointers and raw result |
+| Native jobs | `benchmark_jobs`: queued/running/terminal Riddllr and Plumebench job state, progress, request identity, workspace and resulting run |
+| Measurements | One-to-one `performance_metrics`/`speculative_metrics`; one-to-many `quality_results`/`telemetry_samples` |
+| Immutability | `entity_fingerprints` rejects changed registry/config payloads under reused IDs |
+| Exclusions | Schema reserves an `exclusions` table; current planning returns exclusions without persisting them |
+
+The experiment SHA-256 is computed from the canonical Rust-serialized
+configuration excluding its application ID. Referenced registry identities are
+immutable too. Checkpoint revisions, artifact/executable/manifest hashes,
+compiler/build flags, optimization feature states, and capture timestamps stay
+separate. `unsupported`, `disabled`, `enabled`, and `requested_unavailable` are
+data states, not proof that a backend implements or executed a feature.
+Draft-artifact references must exist.
+
+### Backend/engine dimensions and the spider chart
+
+`runtimes.backend` already carried an engine enum (e.g. `llama_cpp`,
+`vulkan`); `migrations/0003_toolbox_serving_dimension.sql` adds
+`serving_runtimes` and `toolbox_catalog_snapshot` — nullable, additive
+columns/tables recording which toolbox backend (`ds4`/`halogen`/`vllm`/`r9v`/
+`gufo`/`llama_cpp`) and compute engine (`vulkan`/`rocm`/etc.) produced a run, without
+requiring older rows to be backfilled. `/api/benchmarks/filters` and
+`/api/benchmarks/runs` both accept `backend`/`engine` alongside the existing
+`family`/`workload`/`quant_name` filters.
+
+A new **spider/radar chart** lets you pick two or more axes from **models,
+harnesses, engine, backend, toolbox, speed, and TEPR** and plot one polygon
+per selected series (e.g. compare `r9v` or `gufo` vs. `llama_cpp` across three models).
+Backed by `GET /api/benchmarks/spider`.
+
+> **TEPR ("token efficiency to positive result")**: `TEPR =
+> total_tokens_consumed / count(runs where the task's quality outcome is a
+> pass)` for the selected axis bucket, expressed as tokens-per-successful-task.
+> A bucket with zero passing runs has undefined TEPR (reported as `null`, not
+> `Infinity` or `0`) — do not read `null` as "perfectly efficient." See
+> `docs/design/ai-toolbox-cockpit-integration.md` for the full rationale.
+
+
+### Native Benchmark Lab
+
+The opt-in Benchmark Lab runs two integrated suites from `/benchmarks`:
+
+- **Riddllr** discovers matched `prompts/<case>.txt` and
+  `solutions/<case>-solution.txt` files, routes the prompt through Brainrouter,
+  grades cardinal-assignment or ordered-line answers deterministically, and
+  stores `pass@1`, duration, output, route provenance and the declared suite
+  manifest.
+- **Plumebench** discovers complete `tasks/<case>/` directories. Brainrouter
+  takes one immutable private snapshot of the task and grader, copies only
+  `starter/` plus the prompt into a per-job workspace, and invokes OMP through
+  the `brainrouter/<model>` provider inside a Bubblewrap filesystem sandbox.
+  The sandbox receives the starter workspace, a generated credential-free OMP
+  profile, the OMP executable, and read-only system files; it cannot see the
+  suite root, hidden tests, daemon configuration, user home, or sibling job
+  directories. Only after OMP exits does Brainrouter copy `tests_hidden/` from
+  the snapshot into a separate grader stage. Pytest and the snapshotted
+  `elegance.py` run in a second network-isolated Bubblewrap sandbox, with only
+  the grader stage writable. Brainrouter records test counts, pass@1, and raw
+  static metrics when the hidden gate passes.
+
+Execution is localhost-only, explicit, and limited to one heavy job. Job
+identity includes suite, case, model, repetition, source manifest and relevant
+runner settings. Duplicate active identities are rejected; successful run
+identities require a new repetition. Cancellation terminates the spawned Unix
+process group, captured output is bounded, source symlinks and path escapes are
+rejected, and queued/running jobs become `interrupted` after daemon restart.
+Source suite directories are never modified, and the configured workspace may
+not overlap either suite root. OMP requires a CLI exposing `--model`, `--mode`,
+`--max-time`, `--thinking`, `--auto-approve`, `--no-session`, and `--cwd`
+plus the `--no-extensions`, `--no-skills`, and `--no-rules` isolation switches
+(OMP 18.1 or newer is recommended). Brainrouter enforces the configured turn
+limit from OMP `turn_start` events rather than passing an unsupported CLI flag.
+The OMP sandbox has a private network namespace. A short-lived proxy exposes
+only `/v1/models` and `/v1/chat/completions` through a filtered Unix socket, so
+generated code cannot reach Brainrouter's dashboard or administrative APIs.
+
+The lab remains disabled unless `benchmarks.lab.enabled` is true. A missing
+suite root disables that suite in the UI without disabling routing or imported
+benchmark exploration. A missing OMP/Python executable fails only the affected
+job. Completed, timed-out and cancelled executions use the same validated
+registry ingestion path as uploads.
+
+### Query and export semantics
+
+`GET /api/benchmarks/runs` returns `{items,page,per_page,total,total_pages}`.
+Defaults: `page=1`, `per_page=25`, `sort=started_at`, `order=desc`.
+Pages are positive; page size is 1..100; out-of-range pages are empty.
+Filters `status`, `family`, `backend`, `workload`, `quant_name`, and
+`speculator_type` are exact matches. Blank filters are ignored; repeated
+parameters take their last value. `q` is a literal substring search over
+family/architecture/quant/runtime/workload/run-ID labels, using SQLite's
+ASCII case-insensitive LIKE semantics with `%` and `_` escaped.
+
+Sort by `started_at`, `family`, `workload`, `context_tokens`, `prompt_tps`,
+`generation_tps`, or `ttft_ms`, with `asc`/`desc`. Timestamp sorting falls back to
+creation time for runs without a start. Missing numeric metrics sort last;
+ties use ascending run ID. Unknown parameters/sorts/orders return 400; an
+unknown exact filter value just matches nothing. Summary `quality_score` averages
+only the metric named `pass@1`, not unrelated quality measures.
+
+**Run inspector.** Open a row with the keyboard or mouse, or link directly to `/benchmarks?run_id=<URL-encoded-ID>`. Separate sections show model, artifact, runtime, hardware, workload, optimization and sampling definitions; commands and provenance; prompt/generation timing, TTFT, inter-token p50/p95/p99, memory, disk and energy; speculative metrics; and per-task compile/pass/test results. Telemetry is ordered and grouped by reported GPU index, with absent/null readings displayed as gaps, not zero or interpolated measurements. Host readings are not summed across GPUs. Raw JSON remains available for viewing/download. Commands, file paths and source URLs are inert text: the inspector never runs commands, opens server logs, or fetches artifacts.
+
+The raw inspector view/download preserves the original response text, including 64-bit integers. Rich browser values outside JavaScript's safe numeric range carry a precision warning. Browser import/plan previews reject unsafe numbers rather than silently rounding metadata or changing fingerprints; use the direct API for those numeric fields (or strings for free-form metadata).
+
+**Import and reuse.** The visible import panel supports complete bundle JSON and llama-bench JSON. Choose files, preview validation, review the prepared bundle, and explicitly confirm the import. Preview and planning never persist records or run workloads; a preview does not reserve IDs, and confirmation revalidates against concurrent changes. The confirmation result links to the imported run.
+
+The complete bundle format contains `model`, `artifact`, `runtime`, `hardware`, `workload`, `experiment`, and `run`, plus optional `performance_metrics`, `speculative_metrics`, `quality_results`, and `telemetry_samples`. `POST /api/benchmarks/validate` performs the same transactional ingestion checks and rolls back; `POST /api/benchmarks/ingest` commits. Cross-reference IDs must agree. SHA-256 fields require lowercase 64-character hex, metrics enforce bounds, and unknown fields are rejected. **Hashes and metadata are user-supplied declarations, not verified against artifact files.**
+
+For repeated imports, edit a reusable template containing only the five registry definitions and `experiment`; save/load it explicitly in this browser or download it as JSON. Saving a template does not insert registry data into SQLite. It excludes run commands/results/timestamps, but registry metadata itself can contain sensitive information: do not save sensitive definitions in a shared browser. `/api/benchmarks/prepare` accepts `{ "template": {...}, "repetition": 0, "status": "succeeded", "exact_command": "...", "llama_bench": {...} }`, plus optional `started_at`, `ended_at`, and a selected plan `experiment`. It wires references from the template IDs, derives stable experiment/run IDs, and previews a complete bundle. A selected plan experiment must match the supplied registry definitions. Existing custom experiment IDs and repetition/run IDs are reused; changing only the repetition never rewrites registry fingerprints or capture timestamps. Download the prepared bundle to add other metrics/provenance, then validate it as a complete bundle.
+
+Successful run payloads are immutable. To preserve reproducibility, corrections must use a new repetition or experiment. Other statuses (`planned`, `running`, `failed`, `oom`, `timeout`, `cancelled`, `skipped`) can receive a replacement full bundle until succeeded; run-to-experiment and repetition identity cannot change. Optional measurement sections replace that attempt's stored sections, not append a live telemetry stream. Registry rows and experiment configurations are insert-once.
+
+**llama-bench adapter.** `/api/benchmarks/validate/llama-bench` and `/api/benchmarks/ingest/llama-bench` accept `{ "bundle": {...}, "llama_bench": ... }`. The output may be one object, an array, or an object with a `results` array. Every row must supply unambiguous metrics. Use one throughput alias (`avg_ts`, `tokens_per_second`, or `tps`) with `ppN` / `tgN` or positive `n_prompt` / `n_gen`; reported token counts must match the experiment. Combined rows require distinct `prompt_tps` and `generation_tps`, not a combined rate passed off as both. Repeated phase/TTFT rows, contradictory labels/counts, wrong metric types, conflicting existing bundle metrics, and unrecognized rows are rejected without persisting anything. Split multi-configuration results into separate imports; do not average rows from different configurations. Original uploaded output is retained under `run.raw_result.llama_bench`.
+
+**Planning and examples.** The YAML/JSON matrix preview expands deterministically into experiments and exclusions, never execution. Select a candidate and combine it with a matching template to prepare an import; repetition is explicit and zero-based. Planning checks structure and configuration invariants, not the existence of artifact files, hardware feasibility, or runtime capabilities. Examples in [`examples/benchmarks/`](examples/benchmarks/) are **synthetic fixtures**, not measurements: [complete bundle](examples/benchmarks/synthetic-bundle.json), [matrix](examples/benchmarks/matrix.yaml), [llama-bench output](examples/benchmarks/llama-bench.json). Downloadable `/api/benchmarks/examples/{bundle.json,template.json,matrix.yaml,matrix.json,llama-bench.json}` versions use matching registry IDs and 8K/32K/128K contexts. Loading an example into an editor never inserts it; replacing synthetic metadata and placeholder hashes is the user's responsibility.
+
+**Isolation and resource limits.** HTTP body parsing, validation, planning, SQLite calls and response serialization run on blocking workers, not Tokio async workers. Store clones and `BenchmarkStore::run_blocking` share **two admission slots**, with no waiting queue. Saturation or SQLite lock contention returns **503** with `Retry-After: 1`; core routing stays available. Each admitted upload has a 16 MiB body limit and 15-second body deadline. Cancellation releases admission only when the actual blocking task exits. Response allocations and emitted `Bytes` slices retain admission even after Hyper drops the body; 16 KiB frames also bound transport-side copying. SQLite lock waiting is at most five seconds; cancellation does not roll back an ingestion already executing, so check the run ID before retrying a disconnected import.
+
+| Resource | Limit and recovery |
+|---|---|
+| HTTP SQLite row / JSON expression | 4 MiB; larger records remain in storage but require an offline reader or synchronous detail API |
+| JSON response / CSV or JSONL export | 8 MiB, with an explicit **413**, never a partial success |
+| HTTP run detail | 10,000 telemetry samples and 1,000 quality rows, plus byte limits; over-limit detail returns **413**, not a sampled or truncated timeline |
+| Run query | 1-100 runs per page, plus byte limits; narrow filters or reduce `per_page` if necessary |
+| Filter dropdowns | 1,000 distinct values per field, plus byte limits; use explicit run-query filters if exceeded |
+| Matrix plan | 10,000 candidates and 8 MiB expansion/response budget |
+| Filtered export | 10,000 runs and 8 MiB; narrow filters or export offline from a consistent SQLite snapshot |
+
+CSV/JSONL exports contain **all matching run summaries or an explicit limit error**, independently of UI pagination; they are not full bundle or telemetry exports. Each export reads a single stable SQLite transaction and writes bounded pages directly into a capped buffer, never an unlimited list. Ordering is deterministic with run-ID ties. CSV quotes commas, quotes and newlines and neutralizes spreadsheet formula prefixes. Use the raw run JSON download for full detail within HTTP limits; larger history remains accessible through the synchronous store detail API or offline SQLite tools. The public synchronous API stays available for tests/offline consumers; async callers must use `store.run_blocking(move |store| store.run_detail(&id)).await` (or `query_runs`) to share admission and HTTP read budgets. Schema migration 2 adds only the native job lifecycle table and indexes. It
+does not remove old records or turn optional benchmark storage/execution into a
+daemon-startup dependency.
+
+### API walkthrough: synthetic fixtures, no inference
+
+From the repository root, with an existing daemon running, these first two
+operations only validate/plan; they do not execute the command text or commit
+benchmark records:
+
+```bash
+API=http://127.0.0.1:9099
+curl --fail-with-body -sS -H 'Content-Type: application/json' \
+  --data-binary @examples/benchmarks/synthetic-bundle.json \
+  "$API/api/benchmarks/validate"
+curl --fail-with-body -sS -H 'Content-Type: application/yaml' \
+  --data-binary @examples/benchmarks/matrix.yaml \
+  "$API/api/benchmarks/plan"
+```
+
+Only if you explicitly want a labelled synthetic record in the selected database:
+
+```bash
+curl --fail-with-body -sS -H 'Content-Type: application/json' \
+  --data-binary @examples/benchmarks/synthetic-bundle.json \
+  "$API/api/benchmarks/ingest"
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/runs/synthetic-run-8k-0"
+curl --fail-with-body -sS --get "$API/api/benchmarks/runs" \
+  --data-urlencode 'status=succeeded' --data-urlencode 'sort=generation_tps' \
+  --data-urlencode 'order=desc' --data-urlencode 'per_page=25'
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/export?format=jsonl&status=succeeded" -o benchmarks.jsonl
+curl --fail-with-body -sS \
+  "$API/api/benchmarks/export?format=csv&status=succeeded" -o benchmarks.csv
+```
+
+Re-importing that succeeded run returns 409; previews are not idempotent upserts
+for successful data. Use the template/plan preparation UI for a new repetition
+with the same registry identity. Imports do not verify file hashes or execute
+llama-bench/llama-perplexity. JSONL/CSV summaries are not a database backup;
+back up the SQLite database consistently (including active WAL state).
+
+---
+
+## Headless CLI (`brainrouter cli`)
+
+`brainrouter cli` is a thin client for core management, routing profiles and
+reviews, using the daemon's Unix socket or TCP (`--url`). It does not load Bonsai
+or run reviews in a second process; review commands ask the daemon to do the work
+and may wait for it. Benchmark/observability workflows currently use their pages
+or the HTTP API rather than dedicated CLI subcommands.
+
+```bash
+# Point at the daemon (only needed when the socket isn't the default)
+brainrouter cli --socket /run/user/1000/brainrouter.sock status
+brainrouter cli --url http://127.0.0.1:9099 status
+```
+
+All output is pretty-printed JSON. `brainrouter-config show` / `set` (alias `config`) print and write raw YAML instead.
+
+### Health and telemetry
+
+```bash
+brainrouter cli status          # llama-swap, manifest, llama.cpp, toolbox + cloud-fallback
+brainrouter cli versions         # installed + latest for every component
+brainrouter cli inference        # loaded model, state, slot progress
+brainrouter cli events           # recent routing decisions
+brainrouter cli stats            # aggregated routing stats
+brainrouter cli models           # proxy model list (auto/local/cloud + keys)
+brainrouter cli models --llama-swap   # raw llama-swap model list
+```
+
+### Routing controls
+
+Routing is the card grammar described in
+[Role cards: global and per-project](#role-cards-global-and-per-project):
+role (header, `subs`, review loop) → card (project > global > default `auto`)
+→ selector. Explicit selectors bypass cards and are never policy-clamped;
+the v1 per-selector strictness is preserved verbatim (bare key = strict, no
+fallback; `local` = one managed `fallback_model` retry; `cloud`/`cloud/<id>`
+= managed local-fallback hop, with the review role strict). `auto` runs the
+decision slot, then the pool + chain (connect/response-headline failure
+only, never mid-stream). The review loop calls the router with role
+`review` and the reviewer choice from its session's card snapshot;
+admission is gated by the card's backend. The `v2.0-p3` migration expands
+presets/pins/`forced_*` into cards via the exact table and strips the
+consumed YAML keys (snapshot + `.bak` first; `restore v2.0-p3` round-trips
+the pre-migration YAML byte-for-byte).
+
+### Operations
+
+```bash
+brainrouter cli toolboxes                # list llama-* toolbox containers
+brainrouter cli restart llama-swap       # llama-swap | llama-cpp | manifest | brainrouter
+brainrouter cli upgrade llama-swap       # llama-swap | manifest | toolbox
+brainrouter cli flush-models             # unload every model (frees VRAM)
+brainrouter cli config-files             # config files the daemon manages
+brainrouter cli brainrouter-config show # current brainrouter.yaml (raw YAML); `config` alias works
+brainrouter cli brainrouter-config set ./new.yaml  # replace it; "-" reads stdin
+brainrouter cli llama-swap-config show   # llama-swap's config.yaml
+brainrouter cli llama-swap-config set ./config.yaml
+brainrouter cli provider list            # registry (v2 L6): kinds, breakers, budgets
+brainrouter cli provider add NAME --kind openai-compatible --base-url URL --credential env:VAR
+brainrouter cli provider test NAME       # probes declared models (openai-compatible: /models)
+brainrouter cli credential list          # vault; values are never printed
+brainrouter cli credential add NAME --kind env --env VAR --grants cloud
+```
+
+CLI spelling vs dashboard: `llama-cpp` (CLI value) is the `llama.cpp` row in the dashboard sidebar — same component. `toolbox` (upgrade value) is the `toolboxes` container image.
+
+`brainrouter cli toolboxes`/`upgrade toolbox` remain **llama.cpp-only** — the
+`ds4`/`halogen`/`vllm`/`r9v` toolbox/model/Server-Mode management described in
+[Toolbox backend management](#toolbox-backend-management) is dashboard/API-only
+today, with no CLI equivalent yet.
+
+### Reviews
+
+```bash
+brainrouter cli review list                     # all sessions
+SESSION_ID="paste-returned-session-id"
+brainrouter cli review get "$SESSION_ID"        # one session
+# Blocking request — prints progress, polls every 5 s, 30-minute cap:
+brainrouter cli review request feature-20260819-001 "Added role profile controls" \
+    --cwd /home/papa/ai/projects/brainrouter
+# Fire-and-forget, then poll yourself:
+brainrouter cli review request feature-20260819-001 "…" --cwd /path/to/project --async
+brainrouter cli review continue "$SESSION_ID"   # extra LLM rounds (keeps context)
+brainrouter cli review lgtm "$SESSION_ID"       # quick-approve
+brainrouter cli review resolve "$SESSION_ID" "feedback text"
+```
+
+Session IDs are validated before use in URLs (alphanumeric + `-`/`_`), so `review get` can't path-traverse.
+
+> **Headless workflow:** run `brainrouter serve` via systemd, then use the CLI for
+> core operations and HTTP for explorer/observability APIs. A review request or
+> continuation does perform inference; metadata discovery and benchmark previews
+> do not. Schedule restarts/upgrades separately from source/Git transfer.
+
+---
+
+## MCP code review guide
+
+The review tool is exposed over MCP so any harness can call it after completing a task.
+
+### How it works
+
+1. Your harness calls `mcp_brainrouter_request_review` with a task ID and summary.
+2. brainrouter gathers context: your project's PRD (auto-detected from `docs/PRD.md`, `PRD.md`, or `README.md`), the current `git diff HEAD`, and any `AGENTS.md`.
+3. The new session snapshots its Reviewer choice and iteration settings. Main and Subagent changes do not change that reviewer.
+4. The loop builds a token-budgeted prompt for the admitted reviewer (local defaults to an 8K conservative window, cloud to 128K), reserves output tokens, and escalates instead of approving when required diff/design evidence is truncated.
+5. The loop requests JSON `{status, feedback}` from the selected reviewer, with bounded rounds and parsing/error handling.
+6. Agents can act on feedback, request a new review, or continue the existing session through the CLI/API. Continuation reuses its initial reviewer and prior in-memory turns.
+6. Exhausted iterations or LLM errors escalate to human review. `/review/` redirects to the dashboard; session pages and JSON/CLI session listing remain available. Sessions/turns do not survive daemon restart.
+
+### Tool parameters
+
+| Parameter | Required | Description |
+|---|---|---|
+| `taskId` | yes | Unique ID for this task, e.g. `feature-20260424-001` |
+| `summary` | yes | 2–3 sentences: what changed, why, and any assumptions |
+| `details` | no | Additional technical context |
+| `conversationHistory` | no | Array of strings — recent conversation for context |
+| `cwd` | yes (CLI defaults to its own directory) | Absolute path to the project directory — required for accurate git diff. An invalid cwd (relative, `..`, empty) is rejected with HTTP 400, never silently replaced |
+
+### Calling the review tool (agent instruction)
+
+If you are an LLM agent completing a task in a project, add this to your workflow:
+
+```
+After completing all work, call mcp_brainrouter_request_review with:
+  taskId:  "<type>-<YYYYMMDD>-<seq>"  (e.g. feature-20260424-001)
+  summary: "<2–3 sentences: what changed, why, assumptions>"
+  cwd:     "<absolute path to the project root>"
+  details: "<optional extra context, changed files, security notes>"
+
+If the response status is "needs_revision", read the feedback, fix the issues,
+then call mcp_brainrouter_request_review again. Repeat until "approved".
+Do not consider the task complete until you receive status: "approved".
+```
+
+### MCP tools reference
+
+| Tool | Parameters | Description |
+|---|---|---|
+| `request_review` | `taskId`, `summary`, `cwd?`, `details?`, `conversationHistory?` | Start a new review; existing-session continuation uses the CLI/API |
+| `get_session_list` | — | List all review sessions |
+| `get_session_details` | `sessionId` | Full detail for one session |
+| `resolve_session` | `sessionId`, `feedback` | Human resolves: "lgtm"/"ok"/"approved" → approved; any other text → needs_revision |
+
+---
+
+## Bridge: Discord and Signal
+
+Since v2 L2 the bridges are a sidecar plugin: build the plugin binary
+(`cargo build --manifest-path plugins/bridge/Cargo.toml --release`), install
+it, and enable it —
+
+```bash
+brainrouter plugin install <dir-with-plugin.toml-and-brainrouter-bridge>
+brainrouter plugin config set bridge discord.enabled=true signal.enabled=true ...
+brainrouter plugin enable bridge
+```
+
+The plugin (`brainrouter-bridge`) shells out to the `omp` CLI, which connects
+back through the normal proxy path, so bridge conversations get the same
+routing/fallback/review behavior as v1. The Discord bot token is no longer a
+YAML key: it migrates to the credentials store (credential `discord_token`,
+granted to plugin `bridge`) at first boot and reaches the plugin only via
+the grant-scoped `secrets.get` RPC. Per-transport pause lives in plugin
+config (`discord.enabled` / `signal.enabled`).
+
+### Discord bot commands
+
+| Command | Description |
+|---|---|
+| `!br ping` | Health check |
+| `!br reset` | Clear conversation session |
+| `!br status` | Show current model |
+| `!br auto` / `local` / `cloud` | Set routing mode |
+| `!br <model-name>` | Set specific llama-swap model (names containing `-` or `.`) |
+| `!br list` | List all models (routing + llama-swap) |
+| `!br model <name> <query>` | One-off model override for a single query |
+| `!br ls` | List files in current working directory |
+| `!br cd <dir>` | Change working directory |
+| `!br ..` | Go up one directory |
+| `!br mkdir <name>` | Create a directory |
+| `!br review` | Show review mode |
+| `!br review auto\|local\|cloud` | Set review mode |
+| `!br help` / `!br ?` | Show command help |
+| bare text | Send query directly (no prefix needed) |
+
+### Signal bot commands
+
+| Command | Description |
+|---|---|
+| `!br ping` | Health check |
+| `!br reset` | Clear conversation session |
+| `!br status` | Show current model |
+| `!br auto` / `local` / `cloud` | Set routing mode |
+| `!br <model-name>` | Set specific llama-swap model (names containing `-` or `.`) |
+| `!br model <name>` | Set model (legacy form) |
+| `!br list` | List models |
+| `!br review` | Show current review mode |
+| `!br review auto\|local\|cloud` | Set review mode |
+| `!br help` / `!br ?` | Show command help |
+| bare text or `!br <query>` | Send query |
+
+### Model aliases
+
+Specific llama-swap models can be set directly via `!br <model-name>` (e.g. `!br gemma-4-26b-a4b`). Model names are detected by containing `-` or `.`. Use `!br list` to see all available models.
+
+### Session management
+
+Each channel (Discord) or conversation (Signal) maintains its own session. Sessions track conversation history, current working directory, and selected model. Use `!br reset` to clear a session.
+
+### Persistence paths
+
+| Data | Path |
+|---|---|
+| Plugin state (all six files, copied from v1 on first start) | `$XDG_STATE_HOME/brainrouter/plugins/bridge/` |
+| v1 originals (kept for revert) | `~/.local/share/omp-bridge/` |
+
+Long responses are automatically chunked (1500 chars for Discord, 4000 chars for Signal).
+
+---
+
+## Reference
+
+### brainrouter.yaml — full options
+
+```yaml
+manifest:
+  enabled: false                        # cloud routing off by default
+  base_url: "http://localhost:3001/v1"   # required
+  api_key_env: MANIFEST_API_KEY          # optional — name of env var holding mnfst_* key
+
+llama_swap:
+  base_url: "http://localhost:8081/v1"   # required
+  fallback_model: "my-model"             # required — must match a key in llama-swap config
+  local_models: ["my-model", "other"]    # optional — model keys that bypass Bonsai when used directly
+  subs_model: "my-subs-pool"             # optional — model=subs / brainrouter/subs routes here, bypassing Bonsai
+  local_system_prompt: "/path/to/prompt.md"  # optional — override built-in lean prompt
+  nudge:
+    enabled: false                       # thinking-budget injection off by default
+    model_key: "my-model"                # optional — which local model receives the budget
+    budgets: { light: 10240, deep: 12288 }
+
+bonsai:
+  enabled: false                         # classifier off by default; auto → local while off
+  model_path: "/mnt/models/prism/Bonsai-27B-dspark-bf16.gguf"  # required when enabled
+  server_port: 9200                                    # external llama-server port (default)
+  fork_path: "/path/to/llama-server"                   # PrismML fork binary (default ~/.local/share/brainrouter/llama-prism/llama-server)
+
+models:
+  path: /opt/models                                    # shared GGUF dir; ${models_path} expands to this
+  shared_write: false                                  # true = all aistack members can add/delete models
+
+benchmarks:
+  database_path: "/home/you/.local/share/brainrouter/benchmarks.sqlite3"
+  lab:
+    enabled: false                       # opt in to native Riddllr/Plumebench jobs
+    riddllr_root: "/home/you/ai/projects/riddllr"
+    plumebench_root: "/home/you/ai/projects/plumebench"
+    workspace_path: "/home/you/.local/share/brainrouter/benchmark-lab"
+    omp_bin: "/home/you/.bun/bin/omp"
+    plumebench_sandbox_bin: "/usr/bin/bwrap"
+    python_bin: "python3"
+    max_job_seconds: 900                 # whole suite job deadline, 1..86400
+    riddllr_max_tokens: 4096
+    plumebench_max_turns: 40
+    plumebench_thinking: "low"           # off|minimal|low|medium|high|xhigh|max|auto
+
+review:
+  max_iterations: 5           # LLM review rounds before escalating to human
+  # fallback_chain:                     # ordered reviewer failover (v2.0-p8)
+  #   - cloud/fedora1/swift-1.5-qwen3.8-27b.mq4
+  #   - auto                            # (omit; a bare cloud selector means the cloud pool)
+  #   - cloud/deepinfra/deepseek-ai/DeepSeek-V4-Flash
+  # Ordered reviewer failover chain. When the primary review-card backend
+  # fails (credits exhausted, circuit open, unreachable), the review walks
+  # this list in order — ONE attempt per member — before escalating to a
+  # human. Members must be cloud selectors; the qualified
+  # cloud/<provider>/<model> form names a distinct provider, and a member
+  # pointing at a LAN peer is health-probed pre-dispatch (breaker + /models
+  # liveness) — an unreachable peer is skipped, never dialed. Every hop and
+  # skip is recorded in the session's review provenance. Replaces the old
+  # single `fallback_selector` (boot migration `v2.0-p8` rewrites it into a
+  # one-element chain). Read from this file at boot (restart to apply); it
+  # is not part of the review card store and the POST /api/review-config
+  # body ignores it. Applies to any review card, peers included.
+# v2 L3: the reviewer MODEL lives on the review role card
+# (`brainrouter roles set review cloud/vendor/review-model`); the v1
+# `forced_mode`/`forced_model` keys and the `routing:` block (including
+# `preset`) are consumed by the v2.0-p3 migration into cards and stripped.
+# This example keeps cloud disabled above. Set manifest.enabled: true
+# explicitly before expecting cloud execution.
+
+# (v2 L2) the `bridge` section is gone — Discord/Signal run as the `bridge`
+# plugin. Same keys minus the token live in the plugin's namespaced config:
+#   brainrouter plugin config set bridge discord.enabled=true signal.enabled=true
+# The Discord token lives in the credentials store (auto-migrated from the v1
+# key at boot); see UPGRADE.md for the full move + restore path.
+    storage_path: "/path/to/signal-cli/data"      # passed to signal-cli --config
+    llama_swap_url: "http://localhost:8081"        # for llama-list command
+```
+
+The Signal bridge supervises one persistent `signal-cli daemon` and uses its
+private Unix JSON-RPC socket for incoming events, messages, and typing
+indicators. It no longer launches `signal-cli receive` every three seconds.
+If the daemon or socket fails, the bridge reports itself disconnected and
+restarts the daemon after a short backoff.
+
+When `signal-cli` is provided through a Flatpak wrapper, invoke
+`flatpak run --die-with-parent ...` so stopping or restarting Brainrouter also
+terminates the sandboxed daemon instead of leaving an account-locking orphan.
+
+### State and restart behavior
+
+| State | Location / behavior |
+|---|---|
+| Selected YAML | `serve --config`, else `$XDG_CONFIG_HOME/brainrouter/brainrouter.yaml` or `~/.config/brainrouter/brainrouter.yaml` |
+| Role cards + policy | Per-user `role_cards.json` under `$XDG_STATE_HOME/brainrouter/`; global and per-Git-root scopes, owner-only atomic writes (migrated from `routing_state.json` + `project_pins.json` at `v2.0-p3`) |
+| Managed toolbox ownership | Selected config path with file name `managed_toolboxes.json`; records brainrouter-created/adopted podman container IDs, owner-only |
+| Legacy review overrides | Sibling `review_state.json` (v1); consumed into the review card extras at `v2.0-p3`; source left unchanged |
+| Benchmark records | `benchmarks.database_path`, default `$XDG_DATA_HOME/brainrouter/benchmarks.sqlite3` or `~/.local/share/brainrouter/benchmarks.sqlite3` |
+| Observation policy/mappings | Selected YAML path with extension replaced by `.observability.json`; no live request history |
+| Review sessions, route/sample buffers, alert latches, in-flight state | Process memory only; cleared on restart |
+
+Role writes use owner-only atomic files and validate before changing runtime
+preferences. Observation writes add revision checks and explicit I/O diagnostics.
+Raw benchmark/environment/result data can be sensitive; use appropriate filesystem
+permissions and redact imports/exports. No environment file is automatically
+loaded by the daemon: the service or shell must supply the configured credentials.
+
+### Environment variables
+
+| Variable | Description |
+|---|---|
+| `RUST_LOG` | Log level filter (default `info`). Overrides `--log-level`. Example: `RUST_LOG=debug` |
+| `HOME` | User home directory. Used for default paths |
+| `XDG_RUNTIME_DIR` | Socket base; daemon uses `/run/brainrouter.sock` if absent (login systems commonly set `/run/user/$UID`) |
+| `XDG_CONFIG_HOME` | User YAML/role-state directory base (default `~/.config`) |
+| `XDG_DATA_HOME` | Data directory containing the default benchmark SQLite database (default `~/.local/share`) |
+| `BRAINROUTER_MANIFEST_DIR` | Override Manifest docker-compose directory for restart/upgrade |
+| `<manifest.api_key_env>` | Dynamic: whatever env var name is set in `manifest.api_key_env` (e.g. `MANIFEST_API_KEY`) holds the Manifest API key |
+
+### Subcommands
+
+| Command | Description |
+|---|---|
+| `brainrouter serve` | HTTP proxy daemon. Listens on TCP `:9099` and UDS `/run/user/$UID/brainrouter.sock` |
+| `brainrouter cli` | Core management, role profiles and reviews over the daemon API. See [Headless CLI](#headless-cli-brainrouter-cli) |
+| `brainrouter mcp` | MCP stdio server. Spawned by harnesses; forwards tool calls to the daemon over UDS |
+| `brainrouter install <harness>` | Idempotently patches harness config. Harnesses: `omp`, `vibe`, `opencode`, `codex`, `droid`, `claude`, `pi` |
+
+### HTTP API
+
+All on `http://127.0.0.1:9099`.
+
+#### Proxy
+
+| Method | Path | Protocol | Notes |
+|---|---|---|---|
+| `GET` | `/health` | — | `{"status":"ok"}` |
+| `GET` | `/v1/models` | OpenAI | Managed aliases plus available llama-swap model IDs |
+| `POST` | `/v1/chat/completions` | OpenAI | Main routing endpoint |
+| `POST` | `/v1/messages` | Anthropic | For Claude Code and droid |
+
+#### Management (localhost-only, CSRF-protected)
+
+Protected mutations require a loopback peer or the Unix socket. Browser `Origin`/`Referer` URLs may use HTTP `localhost`, IPv4 loopback, or IPv6 loopback on any port, including a port remapped by a local tunnel or proxy. `Origin: null`, non-loopback origins, and credential-bearing URLs remain forbidden. Non-loopback proxy frontends need a separate trusted-origin policy; port forwarding does not remove the peer restriction. There is no general proxy/read-API authentication: keep the daemon loopback-bound unless a separate access-control layer is in place.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/api/versions` | Installed versions + latest available |
+| `GET` | `/api/routing-events` | Live routing events feed |
+| `GET` | `/api/inflight` | Active in-flight requests (for the dashboard tracker) |
+| `POST` | `/api/inflight/cancel` | Cancel one in-flight request — body `{id}`; 404 for an unknown id |
+| `GET` | `/api/omp-sessions` | OMP session titles for the Sankey SESSION column |
+| `GET` | `/api/routing-stats` | Routing statistics |
+| `GET` | `/api/service-health` | Service health status per provider (`manifest` breaker-derived once registry-managed; active probe otherwise) |
+| `GET` | `/api/plugins` | Plugin registry, live status lines, notification toasts (v2 L2) |
+| `GET` | `/api/inference-status` | Current inference state (for progress bar) |
+| `GET` | `/api/review-config` | Current review mode and forced model |
+| `POST` | `/api/review-config` | Replace current/new-review configuration; existing session snapshots stay unchanged |
+| `GET` | `/api/models/llama-swap` | Model list from llama-swap |
+| `POST` | `/api/upgrade/llama-swap` | Build and install latest llama-swap binary |
+| `POST` | `/api/upgrade/manifest` | Pull latest Manifest image and recreate container |
+| `POST` | `/api/upgrade/toolbox` | Pull latest toolbox image and recreate container |
+| `POST` | `/api/restart/:service` | Restart `llama-swap`, `manifest`, `llama-cpp`, or `brainrouter` |
+| `GET` | `/api/bonsai` | Bonsai classifier server state (`enabled`, `healthy`) |
+| `POST` | `/api/bonsai/toggle` | Stop/start the Bonsai classifier to free/reclaim VRAM |
+| `GET/POST` | `/api/nudge` | Thinking-budget nudge state / update `{enabled, tier}` |
+| `GET/POST` | `/api/prompt-rewrite` | Prompt-rewrite state / update `{enabled}` |
+| `GET/POST` | `/api/review/enabled` | Runtime code-review master switch |
+| `GET/POST` | `/api/review/pr-guidelines` | Runtime PR-structuring guideline injection toggle |
+| `GET/POST` | `/api/review/hankndory` | Runtime design-aware review toggle |
+| `GET` | `/api/review/status` | HankNDory/review verdict ledger status |
+| `GET/POST` | `/api/routing-mode` | Routing override / set `{mode}` |
+| `GET` | `/api/roles` | Role cards + policy + review-card extras |
+| `POST` | `/api/roles/set`, `/api/roles/remove` | `{role, assignment, scope?}` in the selector grammar; loopback/CSRF-gated |
+| `GET` `POST` | `/api/policy`, `/api/policy/set` | Guardrail policy per scope `{scope, privacy, quality}` |
+| `GET` `POST` | `/api/credentials`, `/api/credentials/add\|update\|remove\|test` | Masked credential CRUD + resolve-test verdicts (v2 L3) |
+| `GET` `POST` | `/api/decision`, `/api/decision/test` | Decision slot describe / classify one prompt |
+| `GET` | `/api/routing-models` | Local/cloud catalog with explicit per-provider discovery errors; no inference |
+| `POST` | `/api/plugins/install\|enable\|disable\|remove\|config` | Plugin management (v2 L2; `install` takes `{dir}`, config takes `{id,key,value}`) |
+| `GET` | `/api/toolboxes` | List llama-* toolbox containers |
+| `POST` | `/api/models/flush` | Unload all models from llama-swap memory (no restart) |
+| `GET` | `/api/config-files` | Config files the daemon manages |
+| `GET/POST` | `/api/config` | Read raw YAML / validate and replace YAML; source changes require restart |
+| `GET/POST` | `/api/llama-swap-config` | Read/write llama-swap YAML |
+
+#### Toolbox backend management
+
+Native Rust management for `ds4`/`halogen`/`vllm`/`r9v`/`gufo`/`llama_cpp` toolboxes,
+models, and detached servers — brainrouter as a webui for `ai-toolbox-cockpit`,
+without needing cockpit installed or running. `comfyui` is never exposed.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/api/toolbox-catalog` | Effective typed catalog: vendored cockpit catalog plus gufo overlay (all 6 backends) |
+| `GET` | `/api/toolbox-models` | Typed `models.json` catalog |
+| `GET` | `/api/toolbox-containers` | Podman containers across all 6 backends, with ownership/adoption status |
+| `POST` | `/api/toolbox-containers` | Create a container from a catalog entry |
+| `POST` | `/api/toolbox-containers/:name/update`\|`/delete`\|`/adopt` | Pull+recreate / remove / record live container ID as managed |
+| `GET/POST` | `/api/model-downloads` | List / start a download job (ds4/halogen/r9v/gufo/llama_cpp; not vllm, which pulls from HF on demand) |
+| `GET` | `/api/model-downloads/:id` | Job detail — raw-log-tail progress, no byte-level bar |
+| `POST` | `/api/model-downloads/:id/cancel` | Cancel a download job |
+| `POST` | `/api/model-downloads/verify` | Verify a downloaded model's integrity |
+| `POST` | `/api/model-downloads/r9v/prepare-ple` | R9V's second readiness gate |
+| `GET/POST` | `/api/server-mode/{ds4,halogen,vllm,r9v,gufo}/status`\|`start`\|`stop` | Detached Server Mode lifecycle |
+| `POST` | `/api/server-mode/vllm/cache-paths` / `/api/server-mode/r9v/paths` | Per-backend path configuration |
+| `GET` | `/api/serving-identities` | Read-only registry of running Server Mode containers; **bookkeeping only, not routing** |
+| `GET` | `/api/cockpit-config` | Read cockpit's own `~/.config/ai-toolbox-cockpit/config.json` |
+| `POST` | `/api/cockpit-config/default-toolbox`\|`/active-platform` | Explicit single-write "apply" back to cockpit's config |
+
+#### Model observability
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/models` | Local model activity/measurement/alert/reference page; `?model=` selects a key |
+| `GET` | `/api/observability/models` | Cached observations, active/recent data, attribution/errors, policy/retention/measurement definitions |
+| `GET` | `/api/observability/settings` | Current policy/mappings, revision, source path, read/write errors |
+| `POST` | `/api/observability/settings` | `{revision,policy}` with all policy fields; revision checked |
+| `GET` | `/api/observability/reference?run_id=...` | Validate/project a successful measured benchmark reference |
+| `GET` | `/api/observability/baseline?model_key=...` | Explicit reference state/reason; lookup failures do not disable live observations |
+| `POST` | `/api/observability/baseline` | `{revision,model_key,run_id,expected_experiment_hash,note}`; null run ID clears |
+
+#### Benchmarks
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/benchmarks` | Native Benchmark Lab plus interactive benchmark explorer/import workflow; feature-gated (503 degradation envelope in builds without `--features benchmarks` or when storage init failed) |
+| `GET` | `/api/benchmarks/lab/suites` | Configured Riddllr/Plumebench availability, cases and source manifest hashes |
+| `GET` | `/api/benchmarks/lab/jobs` | Recent persisted native jobs; optional `limit` 1-100 |
+| `GET` | `/api/benchmarks/lab/jobs/:id` | Current or persisted job detail |
+| `POST` | `/api/benchmarks/lab/jobs` | Queue `{suite,case_id,model,repetition}`; localhost-only, one heavy execution slot |
+| `POST` | `/api/benchmarks/lab/jobs/:id/cancel` | Cancel a queued/running job and terminate its process group |
+| `GET` | `/api/benchmarks/runs` | Filtered page; supports `page`, `per_page` (1-100), `q`, `status`, `family`, `backend`, `workload`, `quant_name`, `speculator_type`, `sort`, and `order` |
+| `GET` | `/api/benchmarks/runs/:id` | Full run detail within row/sample/byte limits; explicit 413 otherwise |
+| `GET` | `/api/benchmarks/filters` | Deterministically ordered filter values |
+| `GET` | `/api/benchmarks/spider` | Radar-chart series for a picked axis pair: models/harnesses/engine/backend/toolbox/speed/TEPR (see [Benchmark explorer](#benchmark-explorer)) |
+| `GET` | `/api/benchmarks/export` | `format=csv` or `format=jsonl` (default); all matching summaries or explicit 413; 10,000-run / 8 MiB cap |
+| `GET` | `/api/benchmarks/examples/:name` | Synthetic bundle, template, matrix YAML/JSON, or llama-bench JSON download; no inserts |
+| `POST` | `/api/benchmarks/prepare` | Reusable template plus run fields / optional selected experiment / llama-bench output -> validated bundle preview |
+| `POST` | `/api/benchmarks/validate` | Transactionally validate a complete bundle then roll back; no persistence |
+| `POST` | `/api/benchmarks/validate/llama-bench` | Validate an adapter payload and return a complete bundle preview |
+| `POST` | `/api/benchmarks/ingest` | Validate and transactionally import one result bundle (localhost-only) |
+| `POST` | `/api/benchmarks/ingest/llama-bench` | Import a bundle plus llama-bench JSON output (localhost-only) |
+| `POST` | `/api/benchmarks/plan` | Deterministically expand a JSON/YAML experiment matrix without running it (localhost-only) |
+
+#### Review
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/review/` | Redirect to `/dashboard` |
+| `GET` | `/review/session/:id` | Session detail |
+| `GET` | `/review/api/sessions` | JSON session list |
+| `GET` | `/review/api/sessions/:id` | JSON session detail |
+| `POST` | `/review/api/request-async` | Start a review, return `sessionId` immediately. Body: `{taskId, summary, details?, cwd?}` |
+| `POST` | `/review/api/request` | Legacy blocking variant — still routed, no client uses it |
+| `POST` | `/review/api/resolve` | Resolve a review session. Body: `{sessionId, feedback}` |
+| `POST` | `/review/api/continue` | Continue a review iteration (seeds prior turns; waits on human if it escalates) |
+| `POST` | `/review/api/lgtm` | Quick-approve a review session |
+| `POST` | `/review/session/:id/resolve` | Human resolve. Body: `{feedback: "lgtm"}` |
+
+All `/review/api/*` POSTs go through the same loopback-only + Origin-check gate as the other management endpoints.
+The legacy `/review/session/:id/resolve` form path is not covered by that prefix
+gate; prefer the protected JSON APIs and do not expose the listener publicly.
+
+### Architecture
+
+```
+src/
+  main.rs            	-- clap dispatcher (serve | cli | mcp | install)
+  cli.rs             	-- core management, profiles and reviews over the daemon API
+  daemon_client.rs   	-- shared thin HTTP client (UDS + TCP) used by cli and mcp
+  daemon.rs          	-- core startup; optional benchmark storage; enabled Bonsai only
+  server.rs          	-- HTTP dispatch and protected API access gates
+  classifier.rs      	-- Cloud/Local decision via external Bonsai server
+  bonsai_server.rs    	-- Bonsai llama-server lifecycle (spawn, health, dashboard toggle)
+  router.rs          	-- routes to Manifest or llama-swap; circuit breaker; fallback
+  roles.rs          	-- role cards: Main/Reviewer/Subagent choices + policy records, atomic state, v1 migration
+  decision.rs       	-- decision slot: heuristic/openai-compatible/structured-schema/webhook/plugin + clamps
+  prompt_rewriter.rs 	-- system prompt rewriter for local mode
+  anthropic.rs       	-- Anthropic <> OpenAI protocol translation
+  mcp_server.rs      	-- JSON-RPC stdio, forwards to daemon over UDS
+  install.rs         	-- idempotent harness config merger
+  session.rs         	-- in-memory review session store
+  config.rs          	-- YAML config parsing and validation
+  types.rs           	-- OpenAI-compatible request/response types
+  lib.rs             	-- library root
+  peer_cwd.rs        	-- peer CWD resolution via /proc
+  routing_events.rs  	-- bounded events and event-correlated completed measurements
+  benchmark.rs       	-- validated registry/domain, SQLite store, queries and budgets
+  benchmark/
+    http.rs          	-- admission, bounded bodies/responses, blocking HTTP work
+    imports.rs       	-- template preparation and synthetic example downloads
+    http_tests.rs    	-- synthetic response/backpressure/API coverage
+  observability.rs   	-- read-only polling, rolling alerts and explicit reference settings
+  inference_state.rs 	-- inference state tracking
+  review/
+    mod.rs           	-- ReviewService
+    review_loop.rs   	-- iterative LLM review loop
+    context.rs       	-- gathers PRD, git diff, AGENTS.md
+    prompt.rs        	-- review prompt template
+  escalation/
+    mod.rs           	-- /review/* HTTP handlers + ReviewRequest parsing
+    templates/       	-- dashboard, session, benchmark inspector and model activity HTML
+  provider/
+    mod.rs           	-- Provider trait + SseStream type
+    openai.rs        	-- OpenAI-compatible HTTP adapter
+  health.rs          	-- circuit breaker (3 failures -> open; 60 s cooldown)
+  stream.rs          	-- TimeoutStream: chunk stall detection
+  bridge/
+    mod.rs           	-- bridge feature flags and init
+    core.rs          	-- shared bridge logic (session, OMP dispatch, chunking)
+    persist.rs       	-- JSON persistence for sessions, models, work dirs
+    discord/
+      mod.rs         	-- Discord bot (serenity) with command handler
+    signal/
+      mod.rs         	-- Signal bot with polling loop
+```
+
+The initial benchmark schema is in `migrations/0001_benchmark_explorer.sql`;
+synthetic import/planning fixtures are in `examples/benchmarks/`.
+
+### External services
+
+| Service | Purpose | Default URL |
+|---|---|---|
+| **Manifest** | Cloud LLM router — provider selection, failover, cost tracking | `http://localhost:3001` |
+| **llama-swap** | Local model runner — spawns llama-server on demand | `http://localhost:8081` |
+| **Bonsai** | External classifier — llama-server on port 9200 (PrismML fork) | `http://127.0.0.1:9200` |
+
+### Tests
+
+```bash
+cargo test --locked
+cargo clippy --locked --all-targets
+node --test scripts/test-benchmark-ui.cjs
+node --test scripts/test-hf-preflight-ui.cjs
+bash scripts/check-html-js.sh
+cargo build --locked --bin brainrouter
+```
+
+The repository test suite covers core routing/failover, both protocols, exact
+role choices, review snapshots, event-correlated measurements, real-daemon
+startup under bad benchmark storage and legacy auto state, strict write APIs,
+transactional imports/previews, Benchmark Lab discovery/grading/lifecycle
+helpers, backpressure/limits, inspector workflows and alert rules. Automated
+tests use fixtures and mock processes rather than consuming a real model slot.
+Node DOM tests are not a real-browser/accessibility certification. Existing
+unrelated Clippy warnings remain; do not confuse baseline warnings with new
+diagnostics.
+
+## Planned, not shipped
+
+The explorer/observability foundation does **not** implement the complete feature
+plans found in the separate Quant Lab / Model Compare notes:
+
+- **Quant Lab:** actual llama-perplexity/PPL/KLD execution, same-family reference
+  compatibility, queued/sequential jobs with cancellation/live progress, GGUF
+  parsing, and per-token distributions.
+- **Model Compare:** complete common-suite execution for unrelated model
+  families, compatible token-space/KLD checks, and blind human evaluation.
+- Persistent request/review history, non-model
+  per-project settings, optional strict cloud fallback consent, reviewer-diversity
+  policies, or review escalation ladders.
+- The native-swap flip: the swap supervisor and engine adapters ship in v2.0-p4,
+  but boot stays in shim mode (llama-swap) until the documented soak
+  (`docs/design/v2-streamlining.L7.soak.md`) passes and an operator flips
+  `swap.mode`. Leg L8 (additional engine hardware, e.g. Metal/ds4 hosts) is pending.
+- Automatic benchmark scheduling, controlled regression campaigns, model
+  switching, outbound alerts, Parquet export, or runtime-loaded-asset attestation.
+- A working `/api/context` control/automatic runtime context selection; the
+  retained legacy CLI command alone does not implement it.
+
+Ember/Flash environment provisioning and cache-building work are not shipped
+Brainrouter features. Imported metrics, declared hashes and existing charts do
+not imply that these execution or verification pipelines exist.
+
+**ai-toolbox-cockpit integration gaps** (see
+`docs/design/ai-toolbox-cockpit-integration.md` for full rationale):
+
+- No `brainrouter cli` parity for ds4/halogen/vllm/r9v/gufo toolbox, model, or
+  Server Mode management — dashboard/API-only today.
+- No request routing to Server Mode containers; they're visible and
+  manageable, not dispatchable as live LLM traffic (`status_only` in the
+  serving-identity registry and Sankey).
+- R9V command construction is verified against upstream source only — no real
+  2×AMD R9700 (or other ROCm) hardware was available to validate it end to
+  end; treat it as an explicit "unverified" feature until confirmed on real
+  hardware.
+- config.json sharing is single-write "apply," not continuous bidirectional
+  sync — concurrent edits from cockpit and brainrouter are not merged live.
+- No automatic ROCm/ROCm-vs-Vulkan hardware detection; engine selection is
+  driven by the catalog/gufo overlay and user choice, not host GPU introspection.

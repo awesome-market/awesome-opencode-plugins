@@ -1,0 +1,175 @@
+# oso (openspec-superpowers-opencode)
+
+> Bridges Superpowers + OpenSpec workflows into OpenCode with enforced worktree isolation.
+
+[![GitHub last commit](https://img.shields.io/github/last-commit/moyaspace/openspec-superpowers-opencode?style=flat-square&logo=github&color=blue)](https://github.com/moyaspace/openspec-superpowers-opencode)
+[![GitHub Stars](https://img.shields.io/github/stars/moyaspace/openspec-superpowers-opencode?style=flat-square&color=yellow&logo=github)](https://github.com/moyaspace/openspec-superpowers-opencode)
+[![npm Version](https://img.shields.io/npm/v/@moyaspace/openspec-superpowers-opencode?style=flat-square&logo=npm&color=cb3837)](https://www.npmjs.com/package/@moyaspace/openspec-superpowers-opencode)
+[![npm Total Downloads](https://img.shields.io/npm/dt/@moyaspace/openspec-superpowers-opencode?style=flat-square&logo=npm&color=cb3837)](https://www.npmjs.com/package/@moyaspace/openspec-superpowers-opencode)
+[![License](https://img.shields.io/github/license/moyaspace/openspec-superpowers-opencode?style=flat-square&color=blue)](https://github.com/moyaspace/openspec-superpowers-opencode)
+[![macOS](https://img.shields.io/badge/macOS-000?style=flat-square&logo=apple&logoColor=white)](https://github.com/moyaspace/openspec-superpowers-opencode)
+[![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://github.com/moyaspace/openspec-superpowers-opencode)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)](https://github.com/moyaspace/openspec-superpowers-opencode)
+
+> If you find this useful, consider giving it a ⭐ on GitHub!
+
+**🌐 Read this in other languages:** [English](README.md) | [中文](docs/README.zh.md)
+
+---
+
+## The Problem
+
+Install **OpenSpec** and **Superpowers** separately, and you get two powerful but disconnected tools.
+
+OpenSpec gives you artifact-driven development — brainstorm → specs → tasks → plan.
+
+Superpowers gives you battle-tested methodologies — brainstorming, writing-plans, TDD.
+
+But out of the box, they don't talk to each other. OpenSpec generates generic artifacts, Superpowers skills sit in a separate cache directory, and there's nothing connecting them into a unified workflow.
+
+You can use both, but you'll spend more time stitching them together than actually building features.
+
+And even if you do wire them up, you're still stuck with a **single working tree** — one change at a time. Want to add login and search simultaneously? Context collision, partial commits, reverting. You either wait, or you break things.
+
+**oso bridges the gap and adds isolation.**
+
+## The oso Solution
+
+oso is a developer CLI toolset that integrates OpenSpec and Superpowers workflows into OpenCode: one-command init, enforced worktree isolation, active change registry tracking, native command interception with passthrough, and system health verification.
+
+```
+          ┌─ .worktrees/feature-a/  (feature/feature-a branch)
+main ─────┼─ .worktrees/feature-b/  (feature/feature-b branch)
+          └─ .worktrees/feature-c/  (feature/feature-c branch)
+```
+
+<!-- TODO: 30s 终端录屏 GIF — 展示 /opsx-ff feature-a → /opsx-ff feature-b → 各自 apply，互不干扰 -->
+
+```bash
+# Create two changes simultaneously
+/opsx-ff feature-a
+/opsx-ff feature-b
+
+# Work on feature-a
+/opsx-apply feature-a     # AI auto-cds into .worktrees/feature-a/
+# ... write code ...
+
+# Switch to feature-b (no need to finish feature-a first)
+/opsx-apply feature-b     # AI auto-cds into .worktrees/feature-b/
+# ... write code ...
+
+# Finish independently
+/opsx-finish feature-a    # test → merge → cleanup
+/opsx-finish feature-b
+```
+
+## Quick Start
+
+```bash
+# 1. Install
+npm install -g @moyaspace/openspec-superpowers-opencode
+
+# 2. Init a project
+mkdir my-project && cd my-project
+oso init                                  # 或: openspec-superpowers-opencode init
+
+# 3. Open in OpenCode, then use the workflow
+/opsx-ff add-user-auth    # create change + generate artifacts
+/opsx-apply               # AI implements in isolated worktree
+/opsx-finish              # test → merge → cleanup
+```
+
+## Features
+
+| # | Feature | One-liner |
+|---|---------|-----------|
+| 1 | **13 OPSX commands** | `/opsx-ff` → `/opsx-apply` → `/opsx-finish` — full change lifecycle |
+| 2 | **Git worktree isolation** | Each change in its own `.worktrees/<name>/` dir + `feature/<name>` branch |
+| 3 | **One-command init** | `oso init` → deploy templates + config + `git init` + first commit |
+| 4 | **Bridged OpenSpec + Superpowers** | Pre-configured schema + skill mapping + lock verification, one-command deploy |
+| 5 | **Greenfield/brownfield** | Auto-deploy on new projects; safe merge on existing ones |
+| 6 | **Cross-platform + i18n** | Unifed JS installer (`lib/setup/`) on Windows/Linux/macOS, `--lang zh-CN \| zh-TW \| en` |
+| 7 | **SHA-256 lock** | Skill file integrity verified on deploy |
+| 8 | **Layered architecture** | Superpowers (HOW) → OpenSpec (WHAT) → Worktree (WHERE) → Commands (WHEN) |
+| 9 | **Full worktree + openspec change support** | Auto-register on change creation, smart `openspec list` interception, `verify` one-click health check |
+| 10 | **High-performance Worktree code search** | CodeGraph integrated in worktree, auto-indexed for high-performance code search |
+
+> Detailed features → [docs/FEATURES.md](docs/FEATURES.md)
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| [Quick start](docs/QUICKSTART.md) | 10-minute first change |
+| [How it works](docs/HOW-IT-WORKS.md) | Command execution chain explained |
+| [Worktree creation](docs/WORKTREE-CREATION.md) | Three-layer code-level guarantees |
+| [Design decisions](docs/DESIGN.md) | ADRs: architecture tradeoffs |
+| [Testing](docs/TESTING.md) | 17-phase test suite |
+| [Why oso](docs/WHY-OSO.md) | Deep dive: 6 gaps between OpenSpec and Superpowers |
+
+## Prerequisites
+
+- Node.js >= 16 (recommended)
+- `openspec` CLI v1.3+
+- `opencode` CLI
+- `git`
+- Superpowers plugin
+
+Setup script checks these automatically.
+
+## Local Development
+
+```bash
+node bin/cli.js init test-project   # test locally
+npm publish                         # publish to npm
+```
+
+## Community
+
+Join the oso WeChat community to connect with developers using oso, OpenSpec, Superpowers, and OpenCode.
+
+**In the group you can:**
+
+- Get hands-on help and setup guidance for oso
+- Stay up to date with releases and feature announcements
+- Share AI-assisted development workflow practices
+- Report issues and shape the roadmap with your feedback
+
+**How to join: add the maintainer**
+
+Scan the QR code below to add the maintainer on WeChat with the note **"oso"**, and you will be invited to the group. Please be patient if there are many pending requests.
+
+<div align="center">
+  <img src="docs/images/wechat-group-join-qrcode.png" alt="oso maintainer WeChat" width="200">
+</div>
+
+**Group guidelines:**
+
+- Be respectful. No spam, self-promotion, or off-topic content.
+
+## Partners
+
+<div align="center">
+  <img src="https://moyaspace.com/home/favicon.png" alt="MoyaAI" width="120">
+</div>
+
+> **MoyaAI** ([moyaspace.com](https://moyaspace.com)) is a partner of oso, providing an OpenAI-compatible AI API relay that puts mainstream models behind a single API key.
+
+One key, every mainstream model. MoyaAI aggregates GPT, DeepSeek, GLM, Kimi, Qwen, Grok and more, backed by multi-node load balancing and automatic failover for stable, low-latency access. Pay-as-you-go with transparent per-token billing (Alipay supported, no credit card needed), and track every request in real time on the dashboard.
+
+**Get started in 3 steps:**
+
+1. **Register and create a token** — Sign up at [moyaspace.com](https://moyaspace.com), open the **API Keys** page, and generate an API key (starts with `sk-`).
+2. **Get the Base URL** — OpenAI-compatible endpoint: `https://moyaspace.com/v1`
+3. **Configure your tool** — Paste the Base URL and API key into Claude Code, Cursor, Codex, NextChat, etc. and start using it.
+
+> **Keep your key safe.** Never commit real API keys to this or any repository — use placeholders or environment variables.
+
+**Questions or feedback about MoyaAI?** Discussions are welcome in the [oso community group](#community) above.
+
+---
+
+**GitHub**: https://github.com/moyaspace/openspec-superpowers-opencode<br>
+**npm**: https://www.npmjs.com/package/@moyaspace/openspec-superpowers-opencode<br>
+**Author**: rl robincn@gmail.com<br>
+**License**: MIT

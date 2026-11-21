@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0009-aaf/vibecoding-template · OpenCode Plugins</title>
+<meta name="description" content="OpenCode Vibe Coding 工作流模板仓库。包含：global/（16 个 AI Skill + 7 条 vibe 命令 + 10 个文档模板 + 插件镜像）、starter-template/（可复制项目脚手架）、docs/（PRD/架构/安全/规范等 10 类文档）、constitution.md（项目宪法）、scripts/（同步与机器校验工具）">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="vibecoding-template, 0009-aaf, 0009-aaf/vibecoding-template, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/0009-aaf__vibecoding-template">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="0009-aaf/vibecoding-template · OpenCode Plugins">
+<meta property="og:description" content="OpenCode Vibe Coding 工作流模板仓库。包含：global/（16 个 AI Skill + 7 条 vibe 命令 + 10 个文档模板 + 插件镜像）、starter-template/（可复制项目脚手架）、docs/（PRD/架构/安全/规范等 10 类文档）、constitution.md（项目宪法）、scripts/（同步与机器校验工具）">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/0009-aaf__vibecoding-template">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=93292ae7">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "0009-aaf/vibecoding-template", "codeRepository": "https://github.com/0009-aaf/vibecoding-template", "url": "https://opencode-plugins.zhuikan.com/repos/0009-aaf__vibecoding-template", "description": "OpenCode Vibe Coding 工作流模板仓库。包含：global/（16 个 AI Skill + 7 条 vibe 命令 + 10 个文档模板 + 插件镜像）、starter-template/（可复制项目脚手架）、docs/（PRD/架构/安全/规范等 10 类文档）、constitution.md（项目宪法）、scripts/（同步与机器校验工具）", "author": {"@type": "Organization", "name": "0009-aaf", "url": "https://github.com/0009-aaf"}, "isAccessibleForFree": true, "additionalType": "OpenCode skill", "dateCreated": "2026-08-22", "keywords": "workflow,tools"}</script>
+</head>
+<body data-repo="0009-aaf/vibecoding-template" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">0009-aaf/vibecoding-template</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="0009-aaf__vibecoding-template"><img class="rp-side-av" src="https://github.com/0009-aaf.png?s=300" width="300" height="300" alt="0009-aaf avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">vibecoding-template</div>
+      <a class="rp-side-owner" href="https://github.com/0009-aaf">0009-aaf</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/0009-aaf">0009-aaf</a>
+        <span class="rp-sep">/</span><span class="rp-name">vibecoding-template</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode Vibe Coding 工作流模板仓库。包含：global/（16 个 AI Skill + 7 条 vibe 命令 + 10 个文档模板 + 插件镜像）、starter-template/（可复制项目脚手架）、docs/（PRD/架构/安全/规范等 10 类文档）、constitution.md（项目宪法）、scripts/（同步与机器校验工具）</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-verified"><span class="i18n-zh">已实测可装可用</span><span class="i18n-en">Tested: installs &amp; loads</span></span><span class="rp-meta-bit">skill</span><span class="rp-meta-bit">Created 2026-08-22</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/0009-aaf/vibecoding-template">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">vibecoding-template
+
+ Vibe Coding 工作流模板仓库 — 给 AI Agent（opencode 等）配上&quot;图纸、地基、规矩、门禁&quot;：可复制的项目脚手架 + 19 个全局 Skill + 13 条命令 + 提交前机器校验，让&quot;边聊边写&quot;有章法、可验证、不漂移。
+
+
+
+
+
+
+ 这是什么
+
+一套让 AI 辅助开发从&quot;凭感觉&quot;变成&quot;有章法&quot;的工作流模板。普通 vibe coding 的四个坑——聊到哪写到哪、无需求基线、无架构决策、无验收门禁——在这里被一条固化的流水线替代：
+
+定图纸（/vibe-plan）→ 立规矩（/vibe-spec）→ 切片开发（/vibe-implement）→ 审计收尾（/vibe-audit）
+
+图纸、规矩、门禁全部落成文件（PRD / 架构 / 宪法 / 切片规格 / 门禁脚本）：AI 每次会话读同样的真源，不再靠猜；提交前由机器校验兜底，不再靠 AI 自觉。本仓库自身就按这套工作流运行（docs/ 下全套文档齐备，Dogfooding）。
+
+ 特性一览
+
+- ✅ Spec-driven：PRD → NFR → 架构 → 契约 → 切片规格，先图纸后编码，每片有验收标准
+- ✅ 成熟方案优先：10 维架构选型目录（架构风格/前端/后端/数据库/缓存/高并发/事务/CI/CD/灾备/部署），每维带推荐与优劣，不现场发明
+- ✅ 机器门禁：commit 前自动跑 quality-gate（密钥扫描/测试强制/结构检查）+ check-sync 漂移检测 S1-S7
+- ✅ 防漂移三件套：单一真源 + 多副本哈希校验 + 误报/漏报矩阵回归——同步不靠自觉
+- ✅ 危险命令拦截：guard 插件拦截 rm -rf 全变体、sudo/doas 关机、format 格式化（16+22 矩阵用例全绿）
+- ✅ 技术栈无关：模板不绑定语言；ts / react / vue / node / python / c / api / html / shell / 小程序 10 个专项规范 skill 按文件类型自动路由
+- ✅ 提交历史可读：CM11 规范——subject 与 Body 都是文件功能描述（Body 列出全部变更文件各自的功能），不读 diff 也能看懂仓库
+
+ 快速开始
+
+要求：Node.js ≥ 18（quality-gate / check-sync 为纯 Node 脚本）、opencode（命令与 skill 宿主）；同步脚本为 PowerShell。
+
+bash
+ 1. 克隆并同步全局命令与 skill（opencode 全局可用）
+git clone https://github.com/0009-aaf/vibecoding-template.git
+cd vibecoding-template
+powershell -ExecutionPolicy Bypass -File scripts/sync-global.ps1
+
+ 2. 新建项目：复制脚手架
+cp -r starter-template/ /path/to/my-project &amp;&amp; cd /path/to/my-project
+
+ 3. 改 AGENTS.md（项目名 + 一段话定位），然后开跑第一个命令
+opencode /vibe-plan
+
+
+安装验证（应看到）：
+
+bash
+node scripts/check-sync.mjs
+ ✅ 漂移检测通过（阻断 0）
+
+
+已有项目不想复制脚手架？只做第 1 步装全局命令，再把 starter-template/.opencode/quality-gate.js 拷入项目的 .opencode/，即可获得提交门禁。
+
+ 工作流命令
+
+vibe 主工作流（7 条）
+
+| 命令 | 阶段 | 产出 |
+|------|------|------|
+| /vibe-plan | 定图纸 | PRD + NFR + 架构 + 安全基线 + 宪法（01-PRD / 02-ARCH / 07-SECURITY / constitution） |
+| /vibe-spec | 立规矩 | 切片规格与契约（04-CONTRACTS + slices//spec.md） |
+| /vibe-implement | 开发 | 切片实现 + 测试 + e2e 验证 + CHANGELOG / 技术债登记 |
+| /vibe-audit | 收尾 | 全量审查：质量 / 架构一致性 / 文档同步 / 安全 / 技术债 / 漂移 |
+| /vibe-status | 查看 | 项目全貌：切片进度 / 活跃项 / 下一步 |
+| /vibe-clean | 维护 | 清理孤儿 worktree / 分支 / 临时文件 |
+| /vault-sync | 沉淀 | 决策 / 教训写入 Obsidian Vault |
+
+Agent Team 辅助（5 条）：/execution-plan（执行计划编排）· /plan-design（方案设计编排）· /focus-start /focus-status /focus-done（专注会话三件套）
+
+另有 vibe-README.md（命令族导航文档，非执行命令）——共 13 个命令文件。
+
+mermaid
+flowchart LR
+    A[&quot;/vibe-plan定图纸&quot;] -- B[&quot;/vibe-spec立规矩&quot;]
+    B -- C[&quot;/vibe-implement切片开发&quot;]
+    C -- D{切片全部完成？}
+    D -- 下一片 -- B
+    D -- 完成 -- E[&quot;/vibe-audit审计收尾&quot;]
+    E -- F[&quot;/vibe-clean清理维护&quot;]
+
+
+ Skills 一览（19 个）
+
+方法 skill（5 个）
+
+| Skill | 职责 |
+|-------|------|
+| prd-generator | 原始需求 → 结构化 PRD / NFR / 验收标准 |
+| architecture-designer | PRD → 轻量架构：分层 / 数据模型 / 服务端边界 / ADR |
+| architecture-selection | 10 维成熟架构选型目录，每维选项 + 推荐 + 优劣 |
+| slice-spec-writer | 功能 → 垂直切片规格（验收 / 依赖 / 测试 anchor / Protected Region） |
+| e2e-verifier | 浏览器端到端验证方案 |
+
+coding-standards 族（11 个）：总纲 coding-standards（81 条编号规则 + 语言路由表 + CM1-CM11 提交规范）按文件类型自动路由到 ts / react / vue / node / python / c / api / html / shell / wx 十个专项 skill。
+
+ 质量防线
+
+| 防线 | 入口 | 拦什么 |
+|------|------|--------|
+| q</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-21T10:28:44Z · Data license Apache-2.0 ·
+<a href="../data/repos/0009-aaf__vibecoding-template.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/purify.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/qrcode.min.js?v=93292ae7"></script>
+<script src="../assets/common.js?v=93292ae7"></script>
+<script src="../assets/repo.js?v=93292ae7"></script>
+</body>
+</html>

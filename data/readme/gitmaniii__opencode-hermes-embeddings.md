@@ -1,0 +1,216 @@
+# opencode-hermes-embeddings
+
+An **embeddings-backed long-term memory provider for [opencode-hermes](https://github.com/GitmanIII/opencode-hermes)** — semantic recall on your own GPU via [HuggingFace text-embeddings-inference (TEI)](https://github.com/huggingface/text-embeddings-inference).
+
+It plugs into opencode-hermes's external **provider slot** (module-spec loading). It **complements** the built-in memory instead of replacing it:
+
+- **Built-in memory** (opencode-hermes' `MEMORY.md`/`USER.md`) stays the small, always-on curated set — injected whole.
+- **This provider** is the unbounded, **semantic** recall store — notes are embedded and the most relevant are injected automatically before each turn.
+
+Unlike the usual CPU-only local-ONNX or cloud-API setups, embeddings here run **locally on the GPU** behind a fast OpenAI-compatible endpoint.
+
+## How it works
+
+- `add` / `onMemoryWrite` → embed the note (`document` side) and store the vector. Built-in writes are mirrored: `replace` deletes the superseded text and stores the new one, `remove` propagates the deletion, and `demote` keeps the fact (append-only). `add` is idempotent per (text, scope) and re-checks after the embed await, so concurrent identical adds don't create duplicates; resurrecting a re-added fact clears only its **tombstoned** rows, so it can't clobber a live note raced in concurrently. An **add-time near-duplicate guard** then skips the write if the nearest active note in the same scope scores ≥ `duplicateThreshold` (default 0.92) — bounding growth at the source; disable with `dedupeOnWrite: false` (the idle dream still reconciles against canonical memory).
+- `prefetch(query)` → embed the user message (`query` side), cosine-search the store, inject the top matches as a `<provider-memory>` block. **Canonical notes are skipped**: they mirror `MEMORY.md`/`USER.md`, which the host already injects whole every turn, so recalling them again only spends tokens (set `prefetchIncludeCanonical: true` to include them). Each note is injected up to `prefetchCharsPerNote` chars.
+- `search` / `forget` → the `provider_memory` tool.
+- **Scoped**: notes are tagged `global` or `project:<id>`; a query only sees `global` + the **current** project — no cross-project bleed.
+- `reconcile(canonical)` — the **dream** invoked on idle by opencode-hermes: notes made obsolete by a current canonical fact are **superseded** (tombstoned, excluded from recall); near-duplicates (`cosine ≥ duplicateThreshold`) are collapsed, and an optional `judge` resolves an ambiguous band. opencode-hermes passes `hardDelete`, so each dream GCs its tombstones (the store stays bounded). All new canonical facts are embedded in **one batched request** (was one per fact), and canonical facts are deduped across `MEMORY.md`/`USER.md`.
+- Vectors live in SQLite (BLOBs). Search has **two interchangeable, result-identical paths**: **brute force** (always available — streams row-by-row with zero-copy float32 views, no per-note vector copy; measured **~3.5 µs/note**, 100k ≈ **0.35 s**, ~80 MB RSS) and an optional **sqlite-vec** `vec0` index — an **exact** SIMD KNN (**~1.1 µs/note**, 100k ≈ **0.11 s**, ~25% smaller) that is auto-detected and falls back to brute force (identical results) when the optional `sqlite-vec` package isn't installed. The active path is logged once at startup (`embeddings: search index = …`, through the host log sink — see the `log` option). Identical text (a note mirrored into both scopes) is deduped **before** the top-K cut so it can't crowd out a distinct hit. Vectors whose `dims` don't match the query are skipped, so switching models/quantizations can't silently produce garbage scores — and a one-time warning is logged (once per query dims) so the skipped notes aren't silently lost from recall.
+
+## Requirements
+
+- [opencode-hermes](https://github.com/GitmanIII/opencode-hermes) **>= v0.5.0** (external provider loading + `providerOptions`/`projectId`); the **dream** (`reconcile`) needs **>= v0.7.0**; provider diagnostics in `opencode-hermes.log` (host `log`/`warn` sinks) need **>= v0.10.3** — older cores fall back to `console`.
+- A running **TEI** server with a CUDA GPU.
+- Bun (opencode-hermes runtime).
+- **Optional:** `sqlite-vec` — ships as an optional dependency (prebuilt binaries for linux/darwin/windows x64+arm64). It powers the accelerated search index (exact KNN); without it (unsupported platform, or `accelerate: false`) the provider uses brute force with identical results.
+
+**Versioning:** from v0.10.4 onward, this repo and opencode-hermes share **one version number**. They are a pair — the host and its optional provider — so a release of either bumps both, and the same number always means a tested pair. The current pair is **opencode-hermes v0.10.6 + opencode-hermes-embeddings v0.10.6**. See [RELEASING.md](RELEASING.md).
+
+## 1. Run TEI (GPU, Docker)
+
+One-time setup (needs sudo):
+```bash
+sudo pacman -S nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+sudo usermod -aG docker "$USER"    # then log out/in (or run docker with sudo)
+```
+
+Then run TEI — **bound to loopback only** (`127.0.0.1`, never the LAN):
+```bash
+./scripts/run-tei.sh
+# or manually:
+docker run --rm --gpus all -p 127.0.0.1:8080:80 -v "$HOME/.cache/huggingface:/data" \
+  ghcr.io/huggingface/text-embeddings-inference:latest \
+  --model-id nomic-ai/nomic-embed-text-v1.5
+```
+
+> `-p 127.0.0.1:8080:80` (not `-p 8080:80`) — the latter publishes on all interfaces.
+
+**Binary (no Docker):** download a CUDA build from the [TEI releases](https://github.com/huggingface/text-embeddings-inference/releases); it links against the CUDA runtime externally, so you must provide matching `libcudart`/`libcublas` (e.g. the `nvidia-*-cu12` pip wheels) and set `LD_LIBRARY_PATH`. This is why Docker + `nvidia-container-toolkit` is recommended.
+
+Verify:
+```bash
+curl -s localhost:8080/v1/embeddings -H 'content-type: application/json' \
+  -d '{"input":"hello","model":"nomic-ai/nomic-embed-text-v1.5"}' | head -c 200
+```
+
+> `nomic-embed-text-v1.5` supports 8192 tokens and **requires** the `search_document:` / `search_query:` prefixes — this provider applies them for you (`prefixes: true` by default). Swapping models? Set `prefixes: false` for models that don't use them (e.g. `bge-m3`).
+
+## Keep it running (automatic)
+
+TEI is a service the provider connects to; it should be up whenever opencode runs.
+
+**Detached container (recommended):**
+```bash
+sudo systemctl enable docker      # start the Docker daemon at boot
+./scripts/run-tei.sh --detach     # named container, --restart unless-stopped
+./scripts/stop-tei.sh             # add --remove to delete the container
+```
+TEI then starts with Docker on every boot. (`docker.socket` alone is socket-activated, so the daemon starts on first use — enable `docker.service` for reliable boot start.)
+
+**`systemd --user` unit (optional, starts at login):**
+```bash
+./scripts/run-tei.sh --detach      # create the container once
+mkdir -p ~/.config/systemd/user
+cp systemd/opencode-hermes-tei.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now opencode-hermes-tei.service
+```
+Caveat: the **user manager must already be in the `docker` group**. If you were added to `docker` after the manager started — common with `Linger=yes`, where the manager starts at boot and persists — it stays stale and the unit fails. Refresh with a reboot, or `sudo systemctl restart user@$(id -u).service`. (An unprivileged user manager can't add the group itself, so `SupplementaryGroups=docker` doesn't help — it fails with `216/GROUP`.) If you just want automatic operation, prefer the restart-policy route above.
+
+## Alternative embedder: local venv (no Docker)
+
+TEI+Docker is the fastest, but needs the NVIDIA container toolkit. If you'd rather stay Docker-free, the repo ships an equivalent OpenAI-compatible server running `sentence-transformers` on CUDA in a self-contained `uv` venv:
+
+```bash
+./scripts/setup-venv.sh          # once: creates .venv (torch cu + sentence-transformers)
+./scripts/run-venv.sh            # foreground (127.0.0.1:8080)
+./scripts/run-venv.sh --detach   # background
+./scripts/stop-venv.sh
+```
+The provider is unchanged — just point `providerOptions.endpoint` at it. (No prefixes here either; the provider adds them.)
+
+Trade-offs vs TEI: same model/endpoint, but Python's `import torch` makes **startup slower** and there's no container. Run both on different ports and compare latency:
+
+```bash
+./scripts/run-tei.sh --detach                    # TEI on :8080
+EMBED_PORT=8081 ./scripts/run-venv.sh --detach   # venv on :8081
+python scripts/bench.py http://127.0.0.1:8080 http://127.0.0.1:8081
+```
+
+Measured on an RTX 3090 (nomic-embed-text-v1.5, single short note):
+
+| backend | cold start | p50 | p95 | VRAM |
+|---|---|---|---|---|
+| **TEI** (Docker) | ~5–8 s | **1.73 ms** | 1.79 ms | **562 MiB** |
+| **Ollama** (GGUF) | warm | 5.39 ms | 6.35 ms | 620 MiB |
+| **venv** (sentence-transformers) | ~6–8 s | 6.12 ms | 6.88 ms | 902 MiB |
+
+All are imperceptible for this workload (a few embeds per turn). TEI wins on latency/VRAM; no-Docker routes (Ollama, venv) trade a little speed. Note the venv route pins `transformers<5` (nomic's remote code predates Transformers 5).
+
+## Other backends (Ollama, llama.cpp)
+
+Anything that serves OpenAI `/v1/embeddings` works — set `endpoint` + `model`, no code changes:
+
+**Ollama** (GGUF via llama.cpp):
+```bash
+ollama pull nomic-embed-text
+ollama serve                       # http://127.0.0.1:11434
+```
+```jsonc
+"providerOptions": { "endpoint": "http://127.0.0.1:11434/v1", "model": "nomic-embed-text", "prefixes": true }
+```
+
+**llama.cpp `llama-server`** (GGUF, no daemon):
+```bash
+llama-server --embedding -m nomic-embed-text-v1.5.Q8_0.gguf --host 127.0.0.1 --port 8080
+```
+```jsonc
+"providerOptions": { "endpoint": "http://127.0.0.1:8080/v1", "model": "nomic-embed-text-v1.5", "prefixes": true }
+```
+
+Ollama and llama.cpp **share the same engine**, so they perform nearly identically — that's why neither gets its own script. Measured (RTX 3090, nomic-embed-text): **Ollama p50 5.39 ms / p95 6.35 ms, 620 MiB VRAM, 100 % GPU**; expect llama.cpp to be similar.
+
+Note: vectors are close but not identical across engines/quantizations, so **use one backend per store** (or re-embed when switching).
+
+## 2. Install this provider
+
+```bash
+git clone https://github.com/GitmanIII/opencode-hermes-embeddings.git ~/opencode-hermes-embeddings
+```
+
+Point opencode-hermes at it — `~/.config/opencode/opencode-hermes.json`:
+```jsonc
+{
+  "provider": "file:///home/YOU/opencode-hermes-embeddings/src/provider.ts",
+  "providerOptions": {
+    "endpoint": "http://127.0.0.1:8080",
+    "model": "nomic-ai/nomic-embed-text-v1.5",
+    "topK": 5,
+    "minScore": 0.58
+  }
+}
+```
+
+Restart opencode. The log (`opencode-hermes.log`) should show `provider=embeddings`.
+
+> **`minScore` — tune per model.** It's the cosine floor a note must clear to be injected; `0` disables the gate (topK always injected). Score scales differ by model: `nomic-embed-text` compresses high, so its *unrelated* text still scores ~0.49–0.56 and truly relevant hits ~0.61–0.84. Measured on a real store, **≈0.58 is the full gate** for nomic (drops every unrelated probe, keeps every relevant top hit), so that is the default — matching the shipped default model. A lower-scale model needs a lower value (or `0` to disable).
+
+## Options (`providerOptions`)
+
+| option | default | meaning |
+|---|---|---|
+| `endpoint` | `http://127.0.0.1:8080` | TEI base URL |
+| `model` | `nomic-ai/nomic-embed-text-v1.5` | model id (must match TEI) |
+| `dims` | auto | vector dims (informational; read from responses) |
+| `prefixes` | `true` | apply doc/query retrieval prefixes |
+| `docPrefix` / `queryPrefix` | nomic | override prefixes |
+| `topK` | `5` | notes injected per turn / max search results |
+| `prefetchCharsPerNote` | `400` | chars injected per recalled note; longer notes are **truncated in recall** (0 = no truncation). Notes past it also warn at add time |
+| `minScore` | `0.58` | minimum cosine to inject; **model-specific** (default matches nomic's full gate; 0 = off) |
+| `recencyWeight` | `0` | blend cosine with a recency term (0 = pure cosine) |
+| `recencyHalfLifeDays` | `30` | recency half-life, in days |
+| `canonicalWeight` | `0` | additive score boost for canonical notes |
+| `duplicateThreshold` | `0.92` | cosine ≥ this is a duplicate (dream collapse + add-time guard) |
+| `ambiguousThreshold` | `0.8` | dream: cosine ≥ this consults the judge |
+| `dedupeOnWrite` | `true` | add-time: skip a note whose nearest same-scope note is ≥ `duplicateThreshold` |
+| `prefetchIncludeCanonical` | `false` | include canonical notes (mirrors of `MEMORY.md`/`USER.md`) in prefetch — they are already in the system prompt |
+| `accelerate` | `"auto"` | sqlite-vec accelerated search (exact KNN, not approximate): `"auto"` (use when installed) / `true` (warn if unavailable) / `false` (force brute force) |
+| `log` / `warn` | `console.log` / `console.warn` | diagnostic sinks (**functions** — not settable in JSON). Precedence: an explicit option, then the host's `initialize()` **context** sink, then the console. `opencode-hermes` passes the context sinks, so provider lines land in `opencode-hermes.log`. |
+| `dbPath` | `<memoryRoot>/embeddings.sqlite` | vector store path |
+
+> **`duplicateThreshold` (0.92) — calibrated.** On the live nomic store, same-fact paraphrases scored **0.935–0.982** and the most-similar *distinct* notes scored **≤0.841** (hand-built hard negatives ≤0.789), so 0.92 sits in the gap with a deliberate high bias: a false merge silently loses a distinct fact, while a miss only leaves a duplicate (a later add or the idle dream may still collapse it).
+
+## Verified (RTX 3090)
+
+End-to-end, with opencode-hermes wired to this provider and TEI running on the GPU:
+
+- **Explicit semantic search** — `provider_memory search "colour preference"` returned *"My favourite test colour is aubergine-42"* at **score 0.76**.
+- **Cross-session semantic recall** — in a *new* session, asking *"when do we copy data off-site?"* surfaced *"The nightly backup archives snapshots to cold storage at 03:00."* (no keyword overlap).
+- **Latency** — TEI `openai_embed` on GPU: **~1.7 ms** for a short note (p50 over 50 runs), **~4–18 ms** for longer prompts; 768-dim vectors; **~0.6 GB VRAM**.
+- **Scoping** — a note added in a project is visible only in that project (+ `global`); verified by the isolation tests. A **legacy `project:global` scope** (an early host project id of `global`) matched *no* query scope, so those notes were silently unreachable; `initialize()` moves them to `global` and rebuilds the index (the vec index partitions by scope, so a bare `UPDATE` would leave it stale).
+- **Long notes** — one mean-pooled vector per note, and only `prefetchCharsPerNote` (400) chars are injected, so past the slice a note's tail can never be recalled. Measured on nomic for a fact stated at the top of a note: **0.69** at 1200 chars, **0.65** at 2000, **0.58** at 5000 — so keep notes short; the add path warns once past the slice.
+
+Try it:
+```
+provider_memory add "The nightly backup archives snapshots to cold storage at 03:00."
+provider_memory search "when do we copy data off-site?"
+```
+
+## Testing
+
+```bash
+bun run test
+```
+
+72 hermetic checks using an injectable fake embedder (no TEI needed): cosine, recency ranking, dims guard + mismatch warning, **sqlite-vec parity vs brute force + incremental sync (supersede/restore/delete/rebuild) + `accelerate:false` fallback + startup index report (option and context sinks) + scope repair with index rebuild**, add-time near-dup guard (skip/disable/mirror), **prefetch hygiene (canonical skipped by default, configurable per-note slice, long-note warning)**, add/search, concurrent-add dedupe, tombstone-only cleanup, prefetch block, project isolation, global mirroring + dedupe (before the top-K cut), replace/remove/demote propagation, dream reconcile (near-dup collapse, judge band, canonical, GC, tombstone resurrection, batched multi-fact pass), volume search, forget.
+
+## Roadmap
+
+- **Store-wide contradiction pass** — full **note-vs-note** supersession (the dream currently reconciles notes against *canonical* facts only). The blocking O(N²) JS comparison is gone now that per-note `vec0` KNN can generate candidates in C; still deferred until the add-time guard + canonical dream prove insufficient.
+
+## License
+
+MIT © GitmanIII. Compatible with opencode-hermes (module-spec external provider).

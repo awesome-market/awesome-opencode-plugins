@@ -1,0 +1,261 @@
+# agent-harness
+
+A performance layer for coding agents. Skills, instincts, memory, security, and a research-first workflow that works the same in Claude Code, Codex, Opencode, Cursor, Kiro CLI, Kiro, Cline, Aider and anything else.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-black)](package.json)
+
+I built this because I was tired of watching agents re-read the same codebase for 3 minutes every new session, re-research the same questions, and then guess at APIs anyway. Harness caches what matters and enforces a research step before code.
+
+Early days. It works for me daily, API might still shift a bit. Issues and small PRs welcome.
+
+## What it does
+
+Four things that actually moved the needle for me:
+
+**Skills**: reusable markdown skills (`SKILL.md` + scripts). Write once, use in every harness. Follows the agent skills spec.
+
+```bash
+harness skill list
+```
+
+**Instincts**: hooks that fire on their own. Pre-tool checks, post-edit format + typecheck, session start hydration. Muscle memory so the agent does the right thing without you prompting it.
+
+**Memory**: persistent context that survives between sessions. `MEMORY.md` stays under ~8k tokens and loads in a couple seconds. No more 3 minute cold start re-explaining your project.
+
+```
+memory/
+  MEMORY.md      # long term, always loaded
+  SOUL.md        # who the agent is
+  USER.md        # who you are
+  sessions/      # raw session notes, pruned after a bit
+  decisions/     # ADRs when we pick between options
+```
+
+On my main repo cold start went from ~180s to about 13s.
+
+**Security**: default deny. Prompt injection checks, secret scanning before commits, bash allowlist, file write boundaries. Nothing fancy, just catches the dumb mistakes before they ship.
+
+**Research first**: the agent has to look things up before it edits. Checks `research/findings/` first, then codebase, then web. Writes a short plan in `research/plans/` and waits for a quick ok. Sounds strict but it cuts rework a lot.
+
+```
+research/
+  findings/      # one file per topic, cached
+  plans/         # short plan per task
+  evidence/      # links, repros, citations
+```
+
+More detail in [`skills/`](skills/), [`instincts/`](instincts/), [`memory/`](memory/), [`security/`](security/), [`research/`](research/).
+
+## Performance
+
+Numbers below are from my own setup (250k LOC TS monorepo, M2 Max), not universal claims. Independent A/B runs on other models and hardware live on the [Benchmark tab](https://theelephantcoder.com/agent-harness/benchmark.html), raw rows in [`docs/benchmarks.md`](docs/benchmarks.md).
+
+- cold start 180s -> 13s
+- tokens per task down ~65 percent
+- tool calls down ~40 percent
+- hook overhead p99 under 100ms
+
+Run it yourself:
+
+```bash
+harness bench --quick
+harness bench --compare   # diffs against .harness/bench.json (first run saves it)
+```
+
+Notes and how it works in [`docs/performance.md`](docs/performance.md). One measured caveat from an M4 Mac mini: guards run ~5ms, the post-edit check ~300ms in JS repos, details on the Benchmark tab.
+
+Verified regardless of model (file arithmetic, not behavior): `optimize` shrinks overgrown memory 3-11x to budget, and the repo index compresses orientation 13.5x vs reading everything. Method in [`docs/benchmarks.md`](docs/benchmarks.md).
+
+## Works with
+
+You write skills and memory once, harness installs to each tool.
+
+- Claude Code -> `.claude/settings.json` + `.claude/skills/`
+- Opencode -> `.opencode/plugins/harness.js` + `.opencode/skills/`
+- Codex -> `.codex/hooks.json` + `.agents/skills/`
+- Cursor -> `.cursor/hooks.json` + `.cursor/rules/*.mdc`
+- Kiro CLI -> `.kiro/hooks/` + `.kiro/skills/`
+- Kiro (Desktop) -> `.kiro/hooks/` + `.kiro/steering/`
+- Cline -> `.clinerules/*.md` + `AGENTS.md`
+- Aider -> `.aider.conf.yml` + `CONVENTIONS.md`
+- anything else -> `.harness/` + `AGENTS.md`
+
+```
+agent-harness/
+  skills/       # shared
+  instincts/    # shared
+  memory/       # shared
+  research/     # shared
+  adapters/
+    claude/
+    opencode/
+    codex/
+    cursor/
+    kiro-cli/
+    kiro-desktop/
+    cline/
+    aider/
+```
+
+See [`adapters/`](adapters/) for the per-tool mappings.
+
+## Quick start
+
+```bash
+# one line, the default (macOS + Linux, needs Node >= 20)
+curl -fsSL https://theelephantcoder.com/agent-harness/install.sh | bash
+# pin a release instead of main, or install user-local
+curl -fsSL ... | HARNESS_REF=v0.2.1 bash
+HARNESS_PREFIX=$HOME/.local bash scripts/install-cli.sh
+
+# from source (macOS + Linux, needs Node >=20)
+git clone https://github.com/TheElephantCoder/agent-harness.git
+cd agent-harness
+npm install
+npm run build
+npm link
+```
+
+Those are the only two ways to install: the curl script (default), or a source checkout. npm, npx, pip, apt, and brew installs are retired; existing ones keep updating through `harness upgrade`.
+
+On Ubuntu, if `node --version` is under 20, grab a newer Node first:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs git bash python3
+```
+
+In your project:
+
+```bash
+cd your-project
+harness init
+# detects harnesses from project files, or:
+harness init --auto        # tries to detect what you use
+harness init --migrate     # add to existing project without overwriting
+
+harness doctor             # check everything wired up
+harness bench --quick      # seconds, measures hooks/skills/cold-start
+```
+
+What `init` creates:
+
+```
+your-project/
+  .harness/config.json
+  .harness/hooks/
+  AGENTS.md
+  MEMORY.md
+  .claude/skills/*/SKILL.md   # if you picked claude
+  opencode.json               # if you picked opencode
+  .cursor/rules/              # if you picked cursor
+```
+
+Day to day:
+
+```bash
+harness optimize             # prune MEMORY.md to budget, archive overflow
+harness optimizations        # cost controls, all on (menu item 4 too)
+harness doctor               # verify install, scan staged for secrets
+harness bench --compare      # measure against baseline
+harness skill list           # skills with ~token cost
+harness skill search "hook"  # grep skills
+harness memory sync "note"   # append + re-prune
+harness security audit       # run the audit script here
+```
+
+## CLI
+
+```
+harness init [--harness <name>] [--auto] [--migrate] [--dry-run] [--force]
+harness doctor [--fix] [--strict] [--json]
+harness status
+harness bench [--compare] [--quick]
+harness optimize
+harness optimizations [enable|disable] [name|all]
+harness map
+harness skill <list|search|info|add|remove|verify|lint|update> ...
+harness memory <show|prune|sync|edit|stats|search|backup> [note]
+harness instinct <list|enable|disable|test> [name]
+harness research [query|search|remove] ...
+harness security <audit|scan> [--staged]
+harness adapter <list|add|remove> [name]
+harness upgrade [--check]
+```
+
+Run `harness` with no args on a terminal to open the interactive menu over every command (Quit or Ctrl-C to leave).
+
+`harness --help` has the rest. Also [`docs/cli.md`](docs/cli.md).
+
+## How it fits together
+
+```
+adapter layer:  Claude Code | Codex | Opencode | Cursor | Kiro CLI | Kiro | Cline | Aider
+                -------------------------------------------------------------------------
+harness core:   skills | instincts | memory | security | research
+                cache + batch + compress (perf bits)
+                ---------------------------------------------------------
+your project:   .harness / MEMORY.md / AGENTS.md
+```
+
+No lock in. Adapters are just file mappings. Remove harness and your project still works, you just lose the caching and guardrails.
+
+## Research first flow
+
+For anything that touches more than a couple files:
+
+1. research -> check `research/findings/`, grep codebase, web search if needed
+2. plan -> write `research/plans/<task>.md` (approach, files, risks)
+3. approve -> you give a quick ok (small low risk edits auto approve)
+4. build -> implement
+5. verify -> tests + `harness bench` + `harness doctor`
+6. remember -> `harness optimize` prunes MEMORY.md to budget (overflow archived)
+
+`instincts/research-first` blocks multi-file edits until the plan exists. Annoying at first, saves time later.
+
+## Examples
+
+```bash
+# new next app with harness from the start
+npx create-next-app@latest my-app && cd my-app
+harness init --auto     # needs harness installed, see quick start
+harness doctor --fix
+```
+
+Custom instinct after a TS edit:
+
+```markdown
+# instincts/my-check/SKILL.md
+
+---
+
+name: my-check
+trigger: post-edit
+when: "file =~ \\.ts$"
+---
+
+Run `npm run typecheck` after TS edits. Block commit on failure.
+```
+
+## Contributing
+
+Small PRs are easiest to review. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Good first issues are labeled `skill`, `adapter`, `instinct`.
+
+If you touch perf, include a before/after `harness bench`.
+
+## Security
+
+See [SECURITY.md](SECURITY.md). For vulns DM `@theelephantcoder` on Discord or open a GitHub issue and note it's private.
+
+## License
+
+[MIT](LICENSE) - TheElephantCoder
+
+https://github.com/TheElephantCoder/agent-harness
+
+## Contact
+
+Business inquiries: contact@theelephantcoder.com

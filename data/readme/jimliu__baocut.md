@@ -1,0 +1,389 @@
+<p align="center">
+  <img src="apps/desktop/build/icon.png" alt="BaoCut" width="128">
+</p>
+
+<h1 align="center">BaoCut</h1>
+
+<p align="center">
+  <strong>The video editor built for agents.</strong><br>
+  Your agent does the editing. You review and fine-tune.
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.zh-Hans.md">简体中文</a>
+</p>
+
+---
+
+Hand BaoCut to your agent (Claude Code, Codex, Cursor and others) and say what you want in one sentence: transcribe, subtitle, translate and dub, cut a talking-head recording, or make an explainer from scratch. The agent edits through commands, and the result is a timeline you can keep editing. Open the editor, watch it once, then tell the agent what to change or drag things yourself.
+
+## Quick start
+
+**1. Install BaoCut and open it once**
+
+Download for [macOS (Apple Silicon)](https://baocut.com/download/mac-dmg) or [Windows](#download-and-install). On first launch the app puts the `baocut` command in your terminal. Check it:
+
+```bash
+baocut status
+```
+
+It lists what this machine can do right now and what is missing (local models, `ffmpeg` and so on), each with a fix.
+
+If the terminal cannot find `baocut` (on Windows, open a new terminal first), install it once by full path (macOS shown); it tells you whether a folder still needs adding to PATH. For other cases see the [desktop CLI entrypoint](apps/desktop/README.md#外部-agent-与-cli).
+
+```bash
+/Applications/BaoCut.app/Contents/MacOS/baocut-cli cli install
+```
+
+**2. Install the BaoCut skill for your agent**
+
+```bash
+baocut skill install
+```
+
+The skill is a manual on how to use BaoCut. Once it is installed, your agent knows when and how to use it. It goes into `~/.agents/skills` and `~/.claude/skills` by default and updates with the app; use `--dir <folder>` for another location. For agents that connect over MCP, run `baocut mcp install`.
+
+**3. Ask your agent**
+
+```text
+Transcribe ~/Movies/talk.mp4, add English and Chinese subtitles, and export an MP4.
+Download the video at this link, translate it into English and dub it: <video page link>
+Cut the filler words and long pauses from this recording, then make 3 vertical shorts.
+Use BaoCut to make a 3-minute explainer about <topic>, presented by a virtual host.
+```
+
+**4. Review and fine-tune**
+
+When the timeline plays from start to finish, the agent stops and gives you a review link. It opens this video's editor in your browser. Say what to change ("the subtitle at 0:42 covers the face"), or drag clips and fix captions yourself; you and the agent edit the same timeline. Once you approve, it exports the final video.
+
+**No external agent? That works too.** Chat in the desktop app's Home. It runs on the Codex CLI or Claude Code signed in on this machine, and works the same way.
+
+<img width="4432" height="2704" alt="CleanShot 2026-10-07 at 9 35 49 PM@2x" src="https://github.com/user-attachments/assets/304eecf4-56f7-40bf-a1f0-83dd9a7d4ee8" />
+
+<img width="3294" height="2582" alt="CleanShot 2026-10-07 at 9 38 02 PM@2x" src="https://github.com/user-attachments/assets/f71e7ad1-a7cb-40f5-987b-4b78403c11cf" />
+
+## Why "built for agents"
+
+Traditional editors are designed for human hands, so an agent has to work around the interface. Most AI video tools go the other way: they render one MP4, and if the second sentence of the translation is wrong, you start over. BaoCut lets the agent edit through commands and keeps the result on a timeline:
+
+- **Editing runs on commands, not clicks.** The CLI, the MCP server and the skill share one tool catalog, and every command documents its parameters and effect. The agent never has to click through an interface.
+- **The result is an editable video.** Transcripts, translations, subtitle layers, chapters, voice-overs and motion graphics all live inside one video. SRT, MP4, audio and transcript files are exports of it.
+- **Change one thing, and only that thing changes.** Fix one subtitle line, swap one shot, redo one voice-over sentence. The agent edits the scope you named and returns a receipt, and a wrong edit can be undone. Render caches are invalidated by actual dependencies; a local edit sometimes still re-renders the compositions it touches.
+- **You and the agent share one editor.** You drag a clip, the agent rewrites a caption; both go through the same command gateway, transactions and undo stack. You can take over at any point.
+- **Bounded autonomy.** The agent works inside an explicit scope, access mode and budget, and destructive actions follow approval rules. Outside material such as a downloaded page or a transcript is treated as data only.
+- **Honest delivery.** The agent reports what it measured, which frames it actually looked at, and what still needs a human ear. A failed check is reported as failed.
+
+## What it can do
+
+**From existing footage**
+
+- **Transcribe** with local models (Whisper large-v3 / v3-turbo, Qwen3-ASR, MOSS with diarization) or online APIs, with word-level timing. Segments stream into the timeline while the job runs.
+- **Subtitle** in the original language, translated, or bilingual. The agent translates sentence by sentence itself; subtitle styles are remembered per project.
+- **Dub into another language.** Translate, separate vocals from background (HTDemucs), synthesize per sentence with a cloned or preset voice, lay the new track on the timeline.
+- **Cut a talking-head recording.** Remove filler words, long pauses, retakes and false starts on the timeline. The original media is never touched.
+- **Chapters, summaries, titles, blog posts, shorts.** Read the timed transcript and write the derivatives, with every claim traceable to a timestamp.
+- **Fix and prepare footage on this computer.** Stabilize shaky clips (vid.stab through your ffmpeg, or deshake), upscale video (Real-ESRGAN), make smooth slow motion (RIFE), grade shots to one reference, cut subjects out without a green screen (rembg's weights), and split any track into stems (HTDemucs). Each one writes a new file and leaves the original alone.
+- **Find the edit points.** Detect shots, including handheld footage and fades, find dead air without a transcript, and read the beat, bars and accents of a song so cuts land on it.
+
+**From a brief**
+
+- **Make a video from a prompt** with 24 built-in scene templates and example prompts: explainers, product launches, trailers, tutorials, data stories, typography motion and more.
+- **Narration-first production.** Plan the script, synthesize the voice in one pass, then cut the picture to the narration.
+- **Put a virtual host on screen.** A cartoon character lip-syncs to the narration, blinks, breathes and turns its head. Use a built-in original host or generate your own from one front-facing portrait. Frames are computed by the engine, so the same narration renders the same way every time.
+- **Motion graphics as code.** The agent writes a self-contained HTML composition (lower thirds, big numbers, callouts, brand stingers), imports it as a code bundle, bakes frames and places it on the timeline. Supports BaoCut's own `baocut/1` contract and `hyperframes/1`.
+- **Image generation** for shots that need a still: local Qwen-Image or online providers.
+
+**Delivery**
+
+- Export MP4 with burned-in or sidecar subtitles, SRT / WebVTT, transcripts, audio stems, and a portable `.baocut` bundle that reopens on another machine for continued editing. The bundle includes a video snapshot and all document and asset versions; it does not include the original video's complete transaction or undo history.
+
+## Four ways in, one Runtime
+
+Every surface talks to the same local Runtime over the same protocol and edits the same video.
+
+| Surface | What it is |
+| --- | --- |
+| **Desktop app** (Electron) | Home for working with the agent, Space for browsing and re-editing everything a project produced, a full timeline editor with preview, undo and live captions. |
+| **CLI** `baocut` | Thin client for scripts and terminals. Emits JSON when piped; exit codes tell you whether the user needs to act. |
+| **MCP service + BaoCut skill** | Your own agent (Claude Code, Codex, Cursor, Gemini CLI…) drives BaoCut through the same tool catalog. `baocut skill install` links the skill into `~/.agents/skills` and `~/.claude/skills` (or any folder) so it updates with the app; `baocut mcp install` wires up MCP. Same tool names on both paths. |
+| **Web client** | Open any video's editor in the browser with a one-time link from `baocut web open --video <id>` so a remote agent can show you its work. |
+
+**Bring your own agent engine.** Claude Code and Codex CLI are validated end to end. GitHub Copilot CLI, Pi and OpenCode are built in, and any Agent Client Protocol agent (Qwen Code, Gemini CLI, Cursor Agent, Grok, Kimi Code, or one you add) plugs in through the same driver.
+
+**Bring your own models.** Capabilities (transcribe, speak, generate image, generate text, separate audio) are decoupled from providers. Run local models on Apple Silicon (MLX, Core ML) or on Windows (whisper.cpp + candle, with CUDA and Vulkan builds), with local speech (Qwen3-TTS, IndexTTS, VoxCPM2, OmniVoice, Fish Audio S2 Pro; Built with Fish Audio, research/non-commercial license) and music on the bundled audio.cpp engine, or point a capability at OpenAI, Anthropic, Google, ElevenLabs, DeepSeek, Moonshot, Qwen, Zhipu, MiniMax, Volcengine, xAI, Mistral, Groq, OpenRouter, SiliconFlow or any OpenAI-compatible endpoint. A usage ledger tracks cost per job. One machine can share its local models with others on the LAN.
+
+## Download and install
+
+BaoCut is available for macOS and Windows. The links below always download the latest release; version numbers and release notes are on [baocut.com](https://baocut.com/#download) and [GitHub Releases](https://github.com/JimLiu/baocut/releases). Packaged apps include the Runtime and native workers; Node.js and Rust are only needed for development.
+
+| Platform | Installer | ZIP | Choose this version for |
+| --- | --- | --- | --- |
+| macOS 14+ · Apple Silicon | [DMG](https://baocut.com/download/mac-dmg) | [ZIP](https://baocut.com/download/mac-zip) | Apple Silicon Macs; Developer ID signed and notarized |
+| Windows x64 · CPU | [Setup EXE](https://baocut.com/download/win-setup) | [ZIP](https://baocut.com/download/win-zip) | CPU inference |
+| Windows x64 · CUDA | [Setup EXE](https://baocut.com/download/win-cuda-setup) | [ZIP](https://baocut.com/download/win-cuda-zip) | NVIDIA GPUs supported by CUDA 13, starting with RTX 30 / Ampere |
+| Windows x64 · Vulkan | [Setup EXE](https://baocut.com/download/win-vulkan-setup) | [ZIP](https://baocut.com/download/win-vulkan-zip) | Vulkan-capable AMD / Intel GPUs or older NVIDIA GPUs; Whisper and audio.cpp (speech, music) use the GPU, candle uses the CPU |
+
+On macOS, open the DMG and drag BaoCut into Applications. On Windows, install the [Microsoft Visual C++ v14 x64 Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist/) first, then run the installer or extract the ZIP. Windows packages are unsigned; GPU variants need compatible graphics drivers. Checksums and verification details are on each release's GitHub page. The app checks GitHub Releases for updates through its platform-specific update feed.
+
+External agents use the [desktop CLI entrypoint](apps/desktop/README.md#外部-agent-与-cli); see that guide for absolute paths, `BAOCUT_CLI`, and older packages that lack it.
+
+Agent features require a signed-in agent engine such as Codex CLI or Claude Code. Media analysis, transcription preparation and export also require `ffmpeg` and `ffprobe`; these external tools are not bundled.
+
+Local models download from Hugging Face by default. If it is unreachable or slow, set the download source to ModelScope (Download and storage at the bottom of a model page's local models, or Settings › General › Model download source) to download from ModelScope instead (the few model files ModelScope lacks still come from Hugging Face; every file is checked against its built-in checksum), or choose Custom and enter a mirror's base URL.
+
+## Run from source
+
+For normal use, choose a [packaged app](#download-and-install): it includes the Rust workers and WASM, so you do not need Node.js, Rust or a compiler. Source development has two paths:
+
+| Goal | Command after `npm ci` | Requirements / limits |
+| --- | --- | --- |
+| Full desktop development | `npm run dev` | Node.js 24.22.1+ (LTS), Rust, CMake and platform build tools below. Builds native workers and WASM before launching. |
+| Shell/UI development without Rust | `npm run dev:lite` | Node.js 24.22.1+ (LTS). Skips native and WASM builds. On a fresh checkout, video editing, preview, export, local inference and speech processing are unavailable; existing outputs may still be used. |
+
+Agent conversations additionally need an installed, signed-in agent engine. Media analysis, transcription preparation and export need `ffmpeg` and `ffprobe` on PATH. Neither is bundled. Opening the app does not require an agent login.
+
+### 1. Install the tools for your OS
+
+Install [Git](https://git-scm.com/downloads) and [Node.js](https://nodejs.org/en/download) 24.22.1+ (LTS) first. Open a new terminal and check `git --version`, `node --version` and `npm --version`. For lite mode, skip the Rust/compiler steps below and continue at step 2.
+
+**macOS**
+
+Install the Command Line Tools (`xcode-select --install`). If you use [Homebrew](https://brew.sh), install CMake and FFmpeg with `brew install cmake ffmpeg`. Install Rust using the [official rustup installer](https://rust-lang.org/tools/install/):
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+. "$HOME/.cargo/env"
+rustup default stable
+rustup target add wasm32-unknown-unknown
+```
+
+On Apple Silicon with macOS 14+, the local model worker uses MLX / Core ML and also needs **full Xcode with the Metal compiler**. Install Xcode, launch it once to finish setup, and select it (adjust the path if installed elsewhere):
+
+```sh
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+xcrun --find metal
+# If Metal is missing from the selected Xcode:
+xcodebuild -downloadComponent MetalToolchain
+```
+
+Intel Macs use candle / whisper.cpp instead, requiring CMake and a C++ compiler. Published macOS packages target Apple Silicon; Intel source builds are not covered by the release checks.
+
+**Windows x64**
+
+Install [Visual Studio / Build Tools](https://visualstudio.microsoft.com/downloads/) with **Desktop development with C++**, the MSVC x64 tools and a Windows SDK (see [Rust's MSVC prerequisites](https://rust-lang.github.io/rustup/installation/windows-msvc.html)). Install [CMake](https://cmake.org/download/) with its PATH option enabled, and [LLVM](https://releases.llvm.org/download.html) for the libclang used by Rust bindings. If bindings cannot locate it, set `LIBCLANG_PATH` to LLVM's `bin` directory. Install FFmpeg with both `ffmpeg.exe` and `ffprobe.exe` on PATH.
+
+Download and run [rustup-init.exe](https://rust-lang.org/tools/install/), keeping the default `x86_64-pc-windows-msvc` host. Reopen an **x64 Native Tools Command Prompt** or a **Developer PowerShell configured for x64** before running the source-build commands; a regular terminal may find Rust but lack `cl.exe` and the SDK environment.
+
+```powershell
+rustup default stable
+rustup target add wasm32-unknown-unknown
+cargo --version
+cmake --version
+cl /?
+```
+
+The default Windows build uses CPU inference and does not need CUDA or Vulkan SDKs. GPU builds have extra requirements; see the [desktop guide](apps/desktop/README.md#windows-打包).
+
+**Linux (source development)**
+
+Install Rust with the same rustup commands as macOS. On Debian/Ubuntu, install the native tools with `sudo apt install build-essential cmake clang libclang-dev pkg-config ffmpeg`. Other distributions use their corresponding packages. Linux source development uses candle / whisper.cpp; Linux installers and native release validation are not provided.
+
+### 2. Clone, check and run
+
+Run from the repository root. These commands work in macOS/Linux terminals and Windows developer terminals:
+
+```sh
+git clone https://github.com/jimliu/baocut.git
+cd baocut
+npm ci
+npm run doctor
+npm run dev
+```
+
+Use Node.js 24.22.1 LTS (pinned in `.node-version` and CI). Patched Node.js 22.23.4+ and 26.12.1+ are also supported within their respective major versions; older releases are rejected by `doctor` because they lack the October 2026 security fixes. The npm scripts that run TypeScript source explicitly enable type stripping. `doctor` reports missing tools with installation hints and exits nonzero for missing source-build prerequisites. FFmpeg is a warning because it is needed for media workflows, not to compile the app. The check does not install tools or prove all SDKs and Rust dependencies can build. `npm run setup` checks prerequisites and builds native workers and WASM without opening Electron; `npm run dev` runs it automatically and stops if either build fails. Rustup-based WASM builds install the target when missing. The first build downloads dependencies and can take considerable time and disk space; later runs reuse Cargo's cache. Cargo is also discovered in `CARGO_HOME/bin` and next to rustup when absent from PATH.
+
+Without Rust, use this **instead of** `doctor` and `dev`:
+
+```sh
+npm run dev:lite
+```
+
+After installing the full toolchain, run `npm run dev` to restore the native features. Development mode starts Electron and Vite, launches the Runtime on demand and stops it on exit. Data goes to `.dev/baocut-home` in the repo. Electron 44 downloads its binary before `dev`, `dev:lite` or `start`, so first launch needs network access. The development supervisor asks Electron, Vite and the Runtime to exit on Ctrl+C or terminal closure, then force-kills remaining processes after 12 seconds.
+
+### Troubleshooting
+
+- **Cargo missing / no default toolchain:** reopen the terminal after installing Rust and run `rustup default stable`, then `npm run doctor`.
+- **Windows `cl.exe`, linker or SDK missing:** use the x64 developer terminal and check the C++ workload and Windows SDK installation. For `libclang` errors, check LLVM and `LIBCLANG_PATH`.
+- **macOS `metal` missing:** select full Xcode and install its MetalToolchain component; Command Line Tools alone do not provide the MLX build environment.
+- **WASM target missing:** run `rustup target add wasm32-unknown-unknown`. `wasm-opt` is optional; without it the build uses Cargo's output.
+- **Electron download fails:** verify access to its download server and retry the launch. `npm ci` alone does not fetch the Electron 44 binary.
+- **`npm start` on a fresh checkout:** it previews existing build output. Run `npm run setup` and `npm run build` first.
+
+To connect a CLI to the Runtime started by the development desktop, on macOS/Linux:
+
+```sh
+BAOCUT_HOME=.dev/baocut-home npm run cli -- status
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:BAOCUT_HOME = '.dev/baocut-home'
+npm run cli -- status
+```
+
+In Windows Command Prompt, use `set "BAOCUT_HOME=.dev/baocut-home"` before the CLI command.
+
+With the development desktop closed, the same command starts the repository's Runtime in that home, so tools work before they are released. Without `BAOCUT_HOME`, the CLI uses your real `~/.baocut` and the installed app's Runtime, and commands newer than that app report `RUNTIME_OUTDATED`.
+
+For a separate home to test in, for example with an agent, run `npm run cli -- sandbox create ~/baocut-sandbox` (add `--link-accounts-from ~/.baocut` to link your model accounts read-only; calls are billed to them). It creates the folder, a `bin/baocut` that runs this checkout's CLI on it, and `env.sh` / `env.ps1`. After `. ~/baocut-sandbox/env.sh`, `baocut` in that shell and agents started from it use the sandbox.
+
+### Other commands
+
+| Command | What it does |
+| --- | --- |
+| `npm run doctor` / `npm run setup` | Check source-build prerequisites / check and build native workers, fetch the bundled audio.cpp engine, and build WASM |
+| `npm run dev:lite` | Run the desktop shell without Rust builds; see the limits above |
+| `npm run dev:designs` | Start the interactive prototype with Vite at `http://127.0.0.1:4331/#/home`, rebuilding and reloading on source changes. First run `npm --prefix designs/baocut ci`; see the [prototype README](designs/baocut/README.md). |
+| `npm run build` | Build main process, preload, Runtime and UI into `apps/desktop/out` |
+| `npm start` | Preview the already-built desktop app (UI loaded from files); first run `npm run setup` and `npm run build` |
+| `npm run package:mac -- --build <n> --sign-sha1 <SHA1> --out <new-directory>` | Signed and notarized Apple Silicon ZIP and DMG; see the [desktop guide](apps/desktop/README.md#macos-打包). |
+| `npm run package:win` / `package:win:cuda` / `package:win:vulkan` | Windows x64 installer (NSIS, per-user) and zip, unsigned: CPU, CUDA (NVIDIA) or Vulkan (AMD / Intel) model worker. See [desktop README](apps/desktop/README.md#windows-打包) |
+| `npm run runtime` | Start the Runtime alone (default home `~/.baocut`) |
+| `npm run cli -- --help` | The `baocut` CLI. Tool commands derive from the Runtime's tool catalog (same as MCP); `baocut help <command>` for arguments, `baocut spec` for a machine-readable catalog. Starts a Runtime in the background when none is running and lets it exit when idle (`baocut runtime status\|ensure\|stop`). Exit codes: 0 ok, 1 failed, 2 user action needed, 3 Runtime unavailable, 4 bad arguments. Design in [Agent surface §5](docs/design/agent-surface/agent-surface-design.md#5-cli-约定) |
+| `npm run build:engine` | Build the video engine (`engine-host`), export renderer (`export-worker`), `speech-worker`, face detection (`face-detect`), background removal (`matte`) and local inference process (`model-worker`). Backend follows the platform: MLX and Core ML on Apple Silicon, candle and whisper.cpp elsewhere (needs CMake and a C++ compiler); LiteRT-LM text embedding everywhere. Extra args go to cargo (`-- --release`) |
+| `npm run build:audiocpp` | Download the pinned audio.cpp release (local speech and music engine) for this machine into the cargo output dir's `audiocpp/`, checking size and sha256; `-- --variant cpu` takes the CPU build on Windows / Linux. `BAOCUT_TOOLS_ENDPOINT` downloads from a mirror. Packaging bundles the same release |
+| `npm run build:litertlm-runtime` | On Windows x64, unpack the LiteRT-LM C library that BaoCut builds for local semantic search (`packages/models/vendor/litertlm-runtime/`) into the cargo output dir's `litertlm-runtime/`, checking size and sha256; does nothing on other platforms (macOS downloads it with the model). Packaging bundles the same file |
+| `npm test` | Unit tests and Runtime end-to-end tests with a fake driver (no Codex needed) |
+| `npm run check:file-fonts` | Build the desktop app and verify, in a hidden Electron window over `file://`, that the preview renderer loads every font |
+| `npm run typecheck` | Type check |
+| `npm run build:slides-editor` | Build the slides editor (`packages/slides-runtime`) into `apps/slides-editor/dist`: the editor page and the compiler `slides_check` uses. Skipped when inputs are unchanged (`node apps/slides-editor/build.mjs --force` rebuilds). See [slides design §3](docs/design/slides/slides-design.md#3-运行时的放置与构建) |
+| `npm run build:design-editor` | Build the design (canvas) editor (`packages/design-runtime`) into `apps/design-editor/dist`: the editor page, the artboard runtime and the fast-edit worker. Skipped when inputs are unchanged (`node apps/design-editor/build.mjs --force` rebuilds). See [`packages/design-runtime`](packages/design-runtime/README.md) |
+| `npm run build:design-system-editor` | Build the design system editor (`packages/design-system-runtime`) into `apps/design-system-editor/dist`: the editor page, the preview page `artifact-type/run.html` and the React UMD files previews load. Skipped when inputs are unchanged (`node apps/design-system-editor/build.mjs --force` rebuilds). See [`packages/design-system-runtime`](packages/design-system-runtime/README.md) |
+| `npm run build:docs-editor` | Build the docs editor (`packages/docs-runtime`) into `apps/docs-editor/dist`: the editor page, its runtime and fonts. Skipped when inputs are unchanged (`node apps/docs-editor/build.mjs --force` rebuilds). See [docs design §3](docs/design/docs/docs-design.md#3-运行时的放置与构建) |
+
+## Status
+
+BaoCut is under active development, with macOS Apple Silicon and Windows x64 packages available above. What is true today:
+
+- Codex CLI and Claude Code are validated end to end, including an external-agent run over CLI and MCP ([record](docs/acceptance/agent-surface-e2e.md)). Other engines are built in but not individually tested in BaoCut.
+- Local inference is implemented for Apple Silicon (MLX, Core ML) and Windows (whisper.cpp, candle). Mac arm64 packages are Developer ID signed and notarized. Windows CPU, CUDA and Vulkan packages passed native build, installation, update-in-place and ZIP self-checks; they are unsigned, and GPU inference has not been tested on hardware. Windows Credential Manager storage and v2 credential migration are included; live credential migration has not been tested by CI. See the [desktop guide](apps/desktop/README.md).
+- Some local model weights (OmniVoice, Fish Audio S2 Pro, Qwen-Image) carry non-commercial licenses. The app says so before you pick them.
+- Full product scope, release stages and the current position on them: [Product design §11](docs/product/product-design.md).
+
+## Learn more
+
+| | |
+| --- | --- |
+| [docs/](docs/README.md) | Product design, architecture, format and protocol specs, acceptance criteria. Start with the reading guide. |
+| [designs/baocut/](designs/baocut/README.md) | Interactive UI prototype; UI changes land here first. |
+| [skills/](skills/README.md) | The BaoCut skill: the entry that teaches agents how to use BaoCut over CLI or MCP, with the built-in craft skills (subtitles, translation, talking-head cut, narration, motion graphics…) under [`skills/baocut/built-in-skills/`](skills/baocut/built-in-skills/README.md). |
+| [templates/](templates/README.md) | Built-in creation templates. |
+| [AGENTS.md](AGENTS.md) | Rules for coding agents working in this repository. |
+
+<a id="environment-variables"></a>
+<details>
+<summary><strong>Environment variables</strong></summary>
+
+| Variable | Purpose |
+| --- | --- |
+| `BAOCUT_LEGACY_ROOT` | Explicit v1/v2 data directory for startup migration, including in an isolated development home. Old data stays unchanged; completion is recorded in `<home>/store/legacy-upgrade.json`. The default desktop launch (development or packaged) detects historical platform directories automatically; explicitly configured sandbox homes stay isolated |
+| `BAOCUT_HOME` | Runtime home: discovery file, instance lock, session store, logs. Default `~/.baocut`; `.dev/baocut-home` in desktop development mode |
+| `BAOCUT_PROJECTS_DIR` | Where "New project" creates directories. Default `~/BaoCut`; `<home>/projects` when `BAOCUT_HOME` is set |
+| `BAOCUT_<ID>_PATH` | Executable of an agent engine; `<ID>` is one of `CLAUDE`, `CODEX`, `GEMINI`, `CURSOR`, `GROK`, `KIMI` (e.g. `BAOCUT_CODEX_PATH`). Otherwise the newest version found on the login shell's PATH and known install locations |
+| `BAOCUT_LOCALE` | Language of UI, Runtime and CLI text (`en`, `zh-Hans`; `zh-CN` and `en_US.UTF-8` are accepted). Overrides the setting. For tests and troubleshooting; the test suite sets `zh-Hans` |
+| `BAOCUT_SYSTEM_LANGUAGES` | System preferred languages as the Runtime sees them, comma separated. The desktop app passes the OS setting; otherwise `LC_ALL` / `LC_MESSAGES` / `LANG` |
+| `BAOCUT_ALLOWED_ORIGINS` | Extra origins allowed to connect to the Runtime, comma separated. Desktop development mode adds Vite's address |
+| `BAOCUT_BIN_DIR` | Directory of the native programs shipped with the app (workers and credential helper). When set, cargo outputs are not searched; the packaged desktop app sets `<resources>/bin` |
+| `BAOCUT_ENGINE_HOST` / `BAOCUT_MODEL_WORKER` | Path to `engine-host` / `model-worker`. Otherwise `BAOCUT_BIN_DIR`, then cargo output dirs (`CARGO_TARGET_DIR`, `.cargo/config*.toml` `build.target-dir`, repo `target/`) under `{release,debug}/`. Without `model-worker`, local transcription is unavailable |
+| `BAOCUT_EXPORT_WORKER` | Path to `export-worker`. Otherwise next to `engine-host`, then the cargo output dirs; without it export fails with `EXPORT_TOOL_MISSING` |
+| `BAOCUT_FACE_DETECT` | Path to `face-detect`. Otherwise `BAOCUT_BIN_DIR`, then the cargo output dirs; without it (or without the shipped YuNet model) `videos_frames` still returns frames, with `detector: null` and no faces |
+| `BAOCUT_MATTE` | Path to `matte` (background removal). Otherwise `BAOCUT_BIN_DIR`, then the cargo output dirs; without it the `assets_process` tool's `remove-background` is refused |
+| `BAOCUT_RUNTIME_ENTRY` | Entry the CLI uses to start a Runtime: `.ts` / `.js` run with the current Node, anything else as an executable. Otherwise the app the CLI ships in; `apps/runtime` when running from the repo with a non-default `BAOCUT_HOME`; an installed BaoCut app; then `apps/runtime` in the repo |
+| `BAOCUT_MODELS_DIR` | Local model files. Default `<BAOCUT_HOME>/models` |
+| `BAOCUT_MODELS_ENDPOINT` | Download source (base URL) for local models; overrides the Model download source setting. Default `https://huggingface.co`; `https://www.modelscope.cn` downloads from ModelScope |
+| `BAOCUT_TEMPLATES_DIR` | Built-in creation templates ([template spec §6](docs/spec/template-spec.md#6-目录来源与加载)). Otherwise the packaged `templates/`, then the repo's. User templates live in `<BAOCUT_HOME>/templates`; built-in wins on id clash |
+| `BAOCUT_SKILLS_DIR` | Built-in agent skills ([architecture §3.8](docs/architecture/architecture-design.md)). Otherwise the packaged `skills/baocut/built-in-skills/`, then the repo's. User skills live in `<BAOCUT_HOME>/skills`; built-in wins on id clash |
+| `BAOCUT_AGENT_SKILLS_DIR` | Source of the BaoCut skill for external agents ([Agent surface §8](docs/design/agent-surface/agent-surface-design.md)), rendered by the Runtime. Otherwise the packaged `skills/`, then the repo's |
+| `BAOCUT_AGENT_SKILL_DIR` | The rendered BaoCut skill that `baocut skill install` links to; the desktop app sets it to its `agent-skill/baocut`. Without it (development) the Runtime renders into `<BAOCUT_HOME>/agent-skills/baocut` |
+| `BAOCUT_CLI_ENTRY` | The app's own CLI launcher, shown by `baocut skill status` and the Skills page; the desktop app sets it. Unset in development |
+| `BAOCUT_SLIDES_EDITOR_DIST` | Built slides editor ([slides design §3](docs/design/slides/slides-design.md#3-运行时的放置与构建)). Otherwise the packaged `slides-editor/`, then the repo's `apps/slides-editor/dist` |
+| `BAOCUT_DESIGN_EDITOR_DIST` | Built design editor ([`packages/design-runtime`](packages/design-runtime/README.md)). Otherwise the packaged `design-editor/`, then the repo's `apps/design-editor/dist` |
+| `BAOCUT_DESIGN_SYSTEM_EDITOR_DIST` | Built design system editor ([`packages/design-system-runtime`](packages/design-system-runtime/README.md)). Otherwise the packaged `design-system-editor/`, then the repo's `apps/design-system-editor/dist` |
+| `BAOCUT_DOCS_EDITOR_DIST` | Built docs editor ([docs design §3](docs/design/docs/docs-design.md#3-运行时的放置与构建)). Otherwise the packaged `docs-editor/`, then the repo's `apps/docs-editor/dist` |
+| `BAOCUT_MODEL_ASSETS_DIR` | Model data shipped with the app (self-test samples, reference recordings of built-in voices, i.e. `packages/models/assets`). Otherwise the packaged `model-assets/`, then the repo's; the packaged desktop app sets `<resources>/model-assets` |
+| `BAOCUT_WORKER_FEATURES` | Extra cargo features for `model-worker` in `npm run build:engine`, comma separated. `cuda,whisper-ggml-cuda` for NVIDIA on Windows / Linux (needs the CUDA toolkit; Whisper on CUDA untested), `whisper-ggml-vulkan` for AMD / Intel (needs the Vulkan SDK; untested) |
+| `BAOCUT_GPU` | `off`, `0`, `false`, `cpu` or `no` keeps `model-worker` on the CPU for both candle and whisper.cpp ([Model Worker protocol §2.1](docs/spec/model-worker-protocol-spec.md)) |
+| `BAOCUT_AUDIOCPP_CLI` | Path to an `audiocpp_cli` you built; `audiocpp_server` is taken from the same directory. When set, only it is used (a missing file means no engine). Otherwise the bundled `<resources>/bin/audiocpp/`, in development the cargo output dir's `audiocpp/` ([Model Worker protocol §4.4](docs/spec/model-worker-protocol-spec.md)) |
+| `BAOCUT_AUDIOCPP_BACKEND` | audio.cpp backend for local speech and music (`metal`, `cuda`, `vulkan`, `cpu`). Otherwise the CLI picks its own and the speech server uses the first of Metal, CUDA, Vulkan compiled into the build, else CPU |
+| `BAOCUT_FFMPEG` | `ffmpeg` used for media analysis, WebM playback cache and transcription audio preparation. Otherwise found on the login shell's PATH |
+
+</details>
+
+<details>
+<summary><strong>Repository layout</strong></summary>
+
+```text
+apps/
+  desktop/          Electron main process, preload, UI entry
+  runtime/          Runtime process entry
+  cli/              Command-line client
+  web/              Web client, served by the Runtime's web service
+  slides-editor/    Slides editor page (built from packages/slides-runtime), served by the Runtime
+  design-editor/    Design (canvas) editor page (built from packages/design-runtime), served by the Runtime
+  design-system-editor/ Design system editor page (built from packages/design-system-runtime), served by the Runtime
+  docs-editor/      Docs editor page (built from packages/docs-runtime), served by the Runtime
+  portal/           baocut.com website: static pages and a Cloudflare Worker for downloads
+packages/
+  protocol/         Wire protocol: envelopes, methods, topic events, domain types, validation
+  client/           Connect, request, subscribe, reconnect; mirror reduction
+  runtime-core/     Assembly, WebSocket gateway, request handling
+  harness/          Sessions, tasks, stop barrier, Driver ABI
+  agent-drivers/    Agent engine adapters: Codex app-server, Claude Agent SDK, Copilot, Pi, OpenCode, ACP
+  runtime-storage/  Runtime home, session and project storage, discovery file
+  models/           Capabilities, local model bundles, selection, usage ledger
+  providers/        Online providers: OpenAI, Anthropic, Google, ElevenLabs, OpenAI-compatible
+  jobs/             Long-running jobs and scheduling
+  nodes/            LAN capability sharing (node service and initiator)
+  code-runtime/     Code bundle adapters and frame baking
+  ui/               React UI (React Spectrum 2 + Zustand)
+  slides/           Slide decks: file protocol, deck store, editor routes, editor host shim
+  slides-runtime/   Slides editor runtime: document model, HTML compiler, editor UI, presentation, export
+  design/           Design canvases: file layout, design_check, editor host shim
+  design-runtime/   Design editor runtime: canvas and artboards, properties, preview documents, artboard runtime, export
+  design-system/    Design systems: directory layout, design_system_check, editor host shim
+  design-system-runtime/ Design system editor runtime: tokens, components, assets, docs, previews, files-layout storage
+  docs/             Docs: per-directory doc store, prose model and ops, door and mux service, agent connector, editor host shim
+  docs-runtime/     Docs editor runtime: tabs, rich text, tables, comments, dropdowns, export
+crates/
+  editor-semantics/ Time semantics: exact rationals, decimal seconds, frame quantization
+  video-model/      Video interchange DTOs
+  video-engine/     Video engine and storage: transactions, receipts, undo
+  timeline/         Timeline and element model
+  render-graph/     Frame plans shared by native export and WASM preview
+  engine-host/      Engine Host process, talks to the Runtime over stdio
+  export-worker/    Final render
+  model-worker/     Local inference (ASR, image, separation, embeddings)
+  speech-doc/       Transcript post-processing, alignment, subtitle splitting
+bindings/
+  preview-wasm/     WASM entry for the editor preview
+skills/             The BaoCut skill (entry) for agents
+  baocut/built-in-skills/  Built-in craft skills, indexed in its README
+templates/          Built-in creation templates
+tools/              Build scripts
+```
+
+Dependency direction and layer responsibilities: [architecture §11, §13](docs/architecture/architecture-design.md#11-客户端架构). Placement and naming: [repo conventions](docs/repo-conventions.md).
+
+</details>
+
+<a id="license"></a>
+## License
+
+BaoCut is **source-available** under the [BaoCut Community License 1.0](LICENSE). In short:
+
+- Free for personal use, study and research, non-commercial modification and redistribution, and internal use and customization inside a company.
+- Free to make and sell content with BaoCut, including ads, paid videos and editing work for clients. No fees, attribution, watermark or source disclosure are required for your output; built-in original template elements are covered too.
+- Selling the software or a modified version, rebranding it, offering it as a hosted service or API, or embedding BaoCut code or engines in a commercial software product requires a separate written commercial license. Publishing modified sources does not waive this.
+- Independently written plugins and clients that contain no BaoCut code and only use public interfaces are not covered by this license; bundling or hosting BaoCut itself still is.
+- Third-party code, assets, fonts and models keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Rights already granted under earlier licenses (such as Apache-2.0) are not withdrawn.

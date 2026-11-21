@@ -1,0 +1,502 @@
+<div align="center">
+  <p>
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/cmo-so-logo-light.png">
+      <source media="(prefers-color-scheme: light)" srcset="assets/cmo-so-logo.png">
+      <img src="assets/cmo-so-logo.png" alt="AI Marketing OS — CMO.so" width="110" height="110" />
+    </picture>
+  </p>
+  <h1>CMO.so Skills</h1>
+  <p><strong>124 marketing skills for Claude Code and other AI agents, powered by Maggie and the CMO.so MCP server.</strong></p>
+  <p>
+    <a href="https://cmo.so">Website</a> |
+    <a href="https://ai.cmo.so">Dashboard</a> |
+    <a href="https://ai.cmo.so/hot/mcp">MCP setup</a> |
+    <a href="https://ai.cmo.so/hot/support">Support</a>
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/AI%20Marketing%20OS-EF476F?style=for-the-badge" alt="AI Marketing OS">
+    <img src="https://img.shields.io/badge/Skills-124-0074BA?style=for-the-badge" alt="124 skills">
+    <img src="https://img.shields.io/badge/Plugins-13%20%2B%20bundle-0074BA?style=for-the-badge" alt="13 plugins plus a bundle">
+    <img src="https://img.shields.io/badge/MCP-mcp.cmo.so-0074BA?style=for-the-badge" alt="MCP server">
+    <img src="https://img.shields.io/badge/License-MIT-EF476F?style=for-the-badge" alt="MIT licence">
+  </p>
+</div>
+
+<div align="center">
+Maggie, the AI marketing assistant in <a href="https://cmo.so">CMO.so</a>, writes and publishes blog posts to your website, drafts LinkedIn posts for you to approve, and reports how your site does in Google and in AI answers. These skills bring that, plus a full marketing playbook, to the agent you already use.
+<br/><br/>
+<a href="#quick-start">Quick start</a> · <a href="#supported-platforms">Platforms</a> · <a href="#standalone-install">Standalone install</a> · <a href="#how-it-works">How it works</a> · <a href="#skills">Skills</a> · <a href="#the-cmoso-mcp-server">MCP server</a> · <a href="#the-cmo-cli">CLI</a> · <a href="#safety">Safety</a> · <a href="#credits">Credits</a>
+</div>
+
+---
+
+## At a glance
+
+<table>
+  <tr>
+    <td><strong>Skills</strong><br/>124, one job each</td>
+    <td><strong>Plugins</strong><br/>13 categories + <code>cmo-so-all</code></td>
+    <td><strong>Core</strong><br/>CMO.so MCP server (OAuth)</td>
+    <td><strong>Index</strong><br/><a href="skills.json"><code>skills.json</code></a></td>
+  </tr>
+</table>
+
+---
+
+## What's new in 0.4.0
+
+- **Every popular coding agent.** Codex plugins (`codex plugin marketplace add AI-Marketing-OS-LTD/cmo-so-skills`), Pi packages (`pi install npm:@cmo-so/skills`), and `npx @cmo-so/skills install -a <agent>` for Cursor, Gemini CLI, OpenCode, GitHub Copilot, Windsurf and 13 more, in project or user scope.
+- Codex skills now go to `~/.agents/skills`, the folder Codex reads.
+
+## What's new in 0.3.0
+
+Ten new skills, and 72 existing skills improved with rules, checklists and platform details from a review of 196 open-source marketing, SEO, social media and analytics projects:
+
+- **Social channels:** `cmo-open-social` (Threads, Bluesky, Mastodon), `cmo-reddit`, `cmo-pinterest`, `cmo-china-social` (Xiaohongshu, WeChat, Douyin, Weibo).
+- **Social operations:** `cmo-social-listening`, `cmo-social-crisis`, `cmo-employee-advocacy`.
+- **Trust and delivery:** `cmo-email-deliverability`, `cmo-brand-protection`, `cmo-agent-readiness` (make your site usable by AI agents).
+
+---
+
+## Quick start
+
+Pick your agent. Every route installs the same 124 skills; the core ones run on the [CMO.so MCP server](#the-cmoso-mcp-server).
+
+| Agent | Install |
+|---|---|
+| **Claude Code** | `/plugin marketplace add AI-Marketing-OS-LTD/cmo-so-skills` then `/plugin install cmo-so-all@cmo-so` |
+| **Codex** | `codex plugin marketplace add AI-Marketing-OS-LTD/cmo-so-skills` then `codex plugin add cmo-so@cmo-so` (and any category, e.g. `cmo-so-seo@cmo-so`) |
+| **Pi** | `pi install npm:@cmo-so/skills` (or `pi install git:github.com/AI-Marketing-OS-LTD/cmo-so-skills`) |
+| **Cursor, Gemini CLI, OpenCode, GitHub Copilot, Windsurf, Amp, Cline, Goose, Kiro, Qwen Code, Trae, Roo, Kilo, Augment, Droid, OpenHands, Antigravity** | `npx @cmo-so/skills install -a cursor` (any agent id; comma-separated for several) |
+| **Any agent, any scope** | `npx @cmo-so/skills install` (this project) or `npx @cmo-so/skills install -g` (your user) |
+
+[`@cmo-so/skills`](https://www.npmjs.com/package/@cmo-so/skills) installs into the folder each agent reads, for one project or for your user:
+
+```sh
+npx @cmo-so/skills install                       # this project, for the agents set up here (.claude/skills, .agents/skills, …)
+npx @cmo-so/skills install -g -a codex,pi        # every project: ~/.agents/skills (Codex, Pi)
+npx @cmo-so/skills install -a claude --category seo,social --mcp   # some categories, plus the MCP server in .mcp.json
+npx @cmo-so/skills agents                        # every supported agent and its folders
+npx @cmo-so/skills@latest update -g              # update later; your edits are kept
+```
+
+See [`packages/skills`](packages/skills/README.md) for update, remove and the other options. The skills also work with the open `skills` CLI: `npx skills add AI-Marketing-OS-LTD/cmo-so-skills -a <agent>`.
+
+**Connect the MCP server** (the core skills need it; sign in with your CMO.so account, no keys):
+
+| Agent | Connect |
+|---|---|
+| Claude Code | The plugin brings it: `/mcp` → **cmo-so** → **Authenticate**. Otherwise `claude mcp add --transport http cmo-so https://mcp.cmo.so/mcp` |
+| Codex | The `cmo-so` plugin brings it: `codex mcp login cmo-so`. Otherwise `codex mcp add cmo-so --url https://mcp.cmo.so/mcp` |
+| Gemini CLI | `gemini mcp add --transport http cmo-so https://mcp.cmo.so/mcp` |
+| Cursor, VS Code, Windsurf | Add a remote MCP server with the URL `https://mcp.cmo.so/mcp` |
+| Pi and agents that start a command | `npx -y @cmo-so/mcp` (stdio), after `npx @cmo-so/cli login` |
+
+Or just ask your agent: *"Connect to CMO.so"*.
+
+Try asking:
+
+- *"What needs me today on my website?"*
+- *"How did my site do this week?"*
+- *"Which pages get impressions but no clicks?"*
+- *"Do AI answers mention my site?"*
+- *"Write three LinkedIn posts from my latest article and queue them."*
+
+## Supported platforms
+
+| Platform | How to install | Skills folder (project · user) | MCP server |
+|---|---|---|---|
+| **Claude Code** | Plugin marketplace, or `npx @cmo-so/skills -a claude` | `.claude/skills` · `~/.claude/skills` | Included in the `cmo-so` plugin |
+| **Codex** (CLI, IDE, ChatGPT desktop) | Plugin marketplace, or `npx @cmo-so/skills -a codex` | `.agents/skills` · `~/.agents/skills` | Included in the `cmo-so` plugin |
+| **Pi** | `pi install npm:@cmo-so/skills`, or `npx @cmo-so/skills -a pi` | `.agents/skills` · `~/.agents/skills` | `npx -y @cmo-so/mcp` |
+| **Cursor** | `npx @cmo-so/skills -a cursor` | `.agents/skills` · `~/.cursor/skills` | Remote URL |
+| **Gemini CLI** | `npx @cmo-so/skills -a gemini` | `.agents/skills` · `~/.gemini/skills` | `gemini mcp add` |
+| **OpenCode** | `npx @cmo-so/skills -a opencode` | `.agents/skills` · `~/.config/opencode/skills` | Remote URL |
+| **GitHub Copilot** | `npx @cmo-so/skills -a copilot` | `.agents/skills` · `~/.copilot/skills` | Remote URL |
+| **Windsurf** | `npx @cmo-so/skills -a windsurf` | `.windsurf/skills` · `~/.codeium/windsurf/skills` | Remote URL |
+| **Amp** | `npx @cmo-so/skills -a amp` | `.agents/skills` · `~/.config/agents/skills` | Remote URL |
+| **Cline** | `npx @cmo-so/skills -a cline` | `.agents/skills` · `~/.agents/skills` | Remote URL |
+| **Goose** | `npx @cmo-so/skills -a goose` | `.goose/skills` · `~/.config/goose/skills` | Remote URL |
+| **Kiro** | `npx @cmo-so/skills -a kiro` | `.kiro/skills` · `~/.kiro/skills` | Remote URL |
+| **Qwen Code** | `npx @cmo-so/skills -a qwen` | `.qwen/skills` · `~/.qwen/skills` | Remote URL |
+| **Trae** | `npx @cmo-so/skills -a trae` | `.trae/skills` · `~/.trae/skills` | Remote URL |
+| **Roo Code** | `npx @cmo-so/skills -a roo` | `.roo/skills` · `~/.roo/skills` | Remote URL |
+| **Kilo Code** | `npx @cmo-so/skills -a kilo` | `.kilocode/skills` · `~/.kilocode/skills` | Remote URL |
+| **Augment** | `npx @cmo-so/skills -a augment` | `.augment/skills` · `~/.augment/skills` | Remote URL |
+| **Factory Droid** | `npx @cmo-so/skills -a droid` | `.factory/skills` · `~/.factory/skills` | Remote URL |
+| **OpenHands** | `npx @cmo-so/skills -a openhands` | `.openhands/skills` · `~/.openhands/skills` | Remote URL |
+| **Antigravity** | `npx @cmo-so/skills -a antigravity` | `.agent/skills` · `~/.gemini/antigravity/skills` | Remote URL |
+| **Claude.ai, Claude Desktop** | Upload a skill folder as a zip ([standalone install](#standalone-install)) | — | Settings → Connectors → `https://mcp.cmo.so/mcp` |
+| **ChatGPT** | — (the tools work through the MCP server) | — | Custom MCP server `https://mcp.cmo.so/mcp` |
+| **Any other agent** | [Standalone install](#standalone-install) into the folder it reads | — | Remote URL or `npx -y @cmo-so/mcp` |
+
+Add `-g` to an `npx @cmo-so/skills install` command to install for your user (every project) instead of the current project. "Remote URL" means adding `https://mcp.cmo.so/mcp` as a remote (streamable HTTP) MCP server in that agent's settings; it signs in with OAuth. Tested end to end on Claude Code, Codex and Pi; the other folders follow each agent's documented skills location.
+
+## Standalone install
+
+Each skill is one self-contained folder with a `SKILL.md` (the open Agent Skills format), so you can install without any of the tools above.
+
+**All skills, without Node** (macOS, Linux, WSL; change the target to the folder your agent reads):
+
+```sh
+git clone --depth 1 https://github.com/AI-Marketing-OS-LTD/cmo-so-skills.git
+mkdir -p ~/.agents/skills
+cp -R cmo-so-skills/plugins/*/skills/* ~/.agents/skills/
+```
+
+**One skill** (no clone):
+
+```sh
+mkdir -p ~/.agents/skills
+curl -sL https://github.com/AI-Marketing-OS-LTD/cmo-so-skills/archive/refs/heads/main.tar.gz \
+  | tar -xz --strip-components=4 -C ~/.agents/skills cmo-so-skills-main/plugins/cmo-so-seo/skills/cmo-seo-audit
+```
+
+The path is `plugins/<plugin>/skills/<skill>`; [`skills.json`](skills.json) lists every skill with its plugin (`skill_file`).
+
+**With Node, any agent:** `npx @cmo-so/skills install [-g] -a <agent>` copies the skills, keeps a record, and later updates them without overwriting your edits. The open `skills` CLI works too: `npx skills add AI-Marketing-OS-LTD/cmo-so-skills -a <agent>`.
+
+**Windows:** download the [ZIP](https://github.com/AI-Marketing-OS-LTD/cmo-so-skills/archive/refs/heads/main.zip) and copy the folders from `plugins\<plugin>\skills\` to your agent's skills folder (for example `%USERPROFILE%\.agents\skills`), or use `npx @cmo-so/skills` in PowerShell.
+
+**Claude.ai and Claude Desktop:** zip one skill folder (for example `cmo-seo-audit/`) and upload it in Settings → Capabilities → Skills.
+
+**Agents without a skills folder:** paste a `SKILL.md` into the agent's custom instructions or rules, or point the agent at the file: *"Follow plugins/cmo-so-seo/skills/cmo-seo-audit/SKILL.md"*.
+
+To update, repeat the copy (it replaces the files) or switch to `npx @cmo-so/skills`, which keeps your edits. For the core skills, also connect the [MCP server](#the-cmoso-mcp-server).
+
+## How it works
+
+Every skill is a `SKILL.md` your agent loads when the task matches. Skills come in three tiers:
+
+| Tier | What it means |
+|---|---|
+| **core** | Runs on the CMO.so MCP server: Maggie's blog autopilot, LinkedIn queue, Search Console, AI visibility and business profile. Needs a CMO.so account. |
+| **connected** | Uses CMO.so data and actions when the server is connected, for example your business profile or queueing a blog idea. Works without it too. |
+| **standalone** | A marketing method that works with any agent, such as ad audits, pricing or PR. CMO.so is optional. |
+
+Each category is its own plugin, and every plugin installs `cmo-so` (the core skills and the MCP connection) with it. Install everything with `cmo-so-all`, or only what you need, for example `/plugin install cmo-so-seo@cmo-so`.
+
+## Skills
+
+<!-- skills:start -->
+
+**160 skills in 14 plugins**, plus the `cmo-so-all` bundle. Generated from the catalog: please open an issue rather than editing a `SKILL.md`.
+
+### CMO.so core (MCP) · `cmo-so`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-connect`](plugins/cmo-so/skills/cmo-connect/SKILL.md) | Connect an AI agent to CMO.so through the MCP server (OAuth, or CLI/API key without a browser) and pick the website to work on. |
+| [`cmo-daily`](plugins/cmo-so/skills/cmo-daily/SKILL.md) | What needs the user today (LinkedIn drafts, failures, setup steps, quota) and clearing it one approved action at a time. |
+| [`cmo-weekly-report`](plugins/cmo-so/skills/cmo-weekly-report/SKILL.md) | Weekly report from CMO.so data: posts, Search Console, AI visibility, best and worst content, and two or three next steps. |
+| [`cmo-blog-planner`](plugins/cmo-so/skills/cmo-blog-planner/SKILL.md) | Plan the blog in CMO.so: ideas from links, sentences, AI generation or the sitemap, and the ordered writing plan Maggie follows. |
+| [`cmo-linkedin`](plugins/cmo-so/skills/cmo-linkedin/SKILL.md) | Run the LinkedIn queue in CMO.so: review and approve drafts, turn articles into posts, plan days, campaigns, pause and resume. |
+| [`cmo-memory`](plugins/cmo-so/skills/cmo-memory/SKILL.md) | Keep the user's lasting taste in Maggie Memory (prefer, always, never per channel) so every future post, draft and picture follows it, and show or forget what is remembered. |
+| [`cmo-ops-autopilot`](plugins/cmo-so/skills/cmo-ops-autopilot/SKILL.md) | What Maggie does on her own every day and week (fills social slots, checks posts before they go out, retries failures, ideas from Search Console and competitors, post checks, Google reviews, the Monday report), how to switch each part, and how to read and save reports. |
+| [`cmo-seo-opportunities`](plugins/cmo-so/skills/cmo-seo-opportunities/SKILL.md) | Quick SEO wins from Search Console and content performance: low-CTR queries, positions 4-15, no-traffic articles, then Maggie rewrites. |
+| [`cmo-ai-visibility`](plugins/cmo-so/skills/cmo-ai-visibility/SKILL.md) | Monitor how the website shows up in AI answers: score, watched prompts, cited pages, live checks and keywords to watch. |
+| [`cmo-brand-profile`](plugins/cmo-so/skills/cmo-brand-profile/SKILL.md) | Complete the business profile every other skill reads: offer, products, audiences, competitors, CTAs, testimonials and brand voice. |
+| [`cmo-website-setup`](plugins/cmo-so/skills/cmo-website-setup/SKILL.md) | Get a website ready in CMO.so: verify ownership by email, DNS, the WordPress plugin or by asking the team, detect the platform, and hand off the publishing connection to a computer. |
+| [`cmo-autopilot`](plugins/cmo-so/skills/cmo-autopilot/SKILL.md) | Tune how Maggie publishes: posts per day, pause and resume, rewrite policy for old posts, and the content guard that blocks off-brand text. |
+| [`cmo-draft-review`](plugins/cmo-so/skills/cmo-draft-review/SKILL.md) | Review Maggie's blog drafts before they go out: read, edit, ask for a rewrite, delete, or publish one now. |
+| [`cmo-team-access`](plugins/cmo-so/skills/cmo-team-access/SKILL.md) | Manage who can do what on a website and the account itself: team permissions, connected apps, API keys and notifications. |
+| [`cmo-facebook`](plugins/cmo-so/skills/cmo-facebook/SKILL.md) | Run the Facebook Page queue in CMO.so: connect a Page, write posts for it (alone or next to LinkedIn), review and approve, pause, and set how often it posts. |
+| [`cmo-instagram`](plugins/cmo-so/skills/cmo-instagram/SKILL.md) | Run the Instagram queue in CMO.so: connect an Instagram professional account through its Facebook Page, write posts for it (alone or next to LinkedIn and Facebook), make sure each has its picture or set of 4, review and approve, pause and pace. |
+| [`cmo-google-business`](plugins/cmo-so/skills/cmo-google-business/SKILL.md) | Run the Google Business Profile queue in CMO.so: connect the business's profile, write short local updates for Google Search and Maps (alone or next to the other channels), pick each post's button, follow Google's review, and keep the pace within Google's limits. |
+| [`cmo-youtube`](plugins/cmo-so/skills/cmo-youtube/SKILL.md) | Run the YouTube queue in CMO.so: connect the channel, add a short video (5-30 seconds) from the app or a file link, check its title, description, tags, visibility and made-for-kids answer, get the user's approval, and follow it through YouTube's processing until it's live as a Short. |
+| [`cmo-tiktok`](plugins/cmo-so/skills/cmo-tiktok/SKILL.md) | Run the TikTok queue in CMO.so (beta): connect the account, add a short video (5-30 seconds) from the app or a file link, let the user choose TikTok's settings for it (who can view it, comments, Duet, Stitch, content disclosure, AI label) exactly as TikTok's rules ask, get their approval, and follow it through TikTok's processing. |
+| [`cmo-routines`](plugins/cmo-so/skills/cmo-routines/SKILL.md) | Turn any CMO.so skill into a scheduled agent run (Claude Routines or Codex Automations) that works with nobody watching — what to schedule, which connectors and keys, what it may confirm by itself, daily limits, and where its report goes. |
+| [`cmo-social-distribution`](plugins/cmo-so/skills/cmo-social-distribution/SKILL.md) | A daily check of every social post about to go out on LinkedIn, Facebook, Instagram and Google Business (read in full, fixed or held back before it's public), with the week's empty slots filled only when Maggie's own top-up couldn't. |
+
+### Strategy & research · `cmo-so-strategy`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-customer-research`](plugins/cmo-so-strategy/skills/cmo-customer-research/SKILL.md) | Build the ideal customer profile and personas from interviews, reviews and data: pains, triggers, objections and their words. |
+| [`cmo-positioning`](plugins/cmo-so-strategy/skills/cmo-positioning/SKILL.md) | Sharpen positioning, value proposition and messaging hierarchy, and keep brand guidelines consistent across channels. |
+| [`cmo-competitor-research`](plugins/cmo-so-strategy/skills/cmo-competitor-research/SKILL.md) | Profile competitors from their sites and search footprint: positioning, offers, content themes, keywords, links and gaps to exploit. |
+| [`cmo-marketing-plan`](plugins/cmo-so-strategy/skills/cmo-marketing-plan/SKILL.md) | A practical marketing plan: goals, audience, channels, budget, 90-day roadmap and the CMO.so autopilot as the engine for content. |
+| [`cmo-marketing-audit`](plugins/cmo-so-strategy/skills/cmo-marketing-audit/SKILL.md) | Score a website's marketing end to end (message, SEO, AI visibility, conversion, social, email) and rank the fixes. |
+| [`cmo-marketing-ideas`](plugins/cmo-so-strategy/skills/cmo-marketing-ideas/SKILL.md) | Generate and rank marketing ideas that fit the business, budget and stage, with the first step for each. |
+| [`cmo-marketing-psychology`](plugins/cmo-so-strategy/skills/cmo-marketing-psychology/SKILL.md) | Apply behavioural principles (social proof, anchoring, loss aversion, defaults) to pages, offers and emails, ethically. |
+| [`cmo-offer-design`](plugins/cmo-so-strategy/skills/cmo-offer-design/SKILL.md) | Design an irresistible offer: value framing, bonuses, guarantees, urgency that is real, and how to present it. |
+| [`cmo-pricing-strategy`](plugins/cmo-so-strategy/skills/cmo-pricing-strategy/SKILL.md) | Choose pricing model, tiers, value metric and the pricing page, and plan price changes. |
+| [`cmo-expert-panel`](plugins/cmo-so-strategy/skills/cmo-expert-panel/SKILL.md) | Score and improve any copy, plan or campaign with a simulated panel of expert reviewers until it clears a quality bar. |
+| [`cmo-brand-naming`](plugins/cmo-so-strategy/skills/cmo-brand-naming/SKILL.md) | Find and vet names for a business, product or feature: meaning, pronunciation across markets, domain and trademark checks. |
+| [`cmo-market-sizing`](plugins/cmo-so-strategy/skills/cmo-market-sizing/SKILL.md) | Estimate TAM, SAM and SOM bottom-up and top-down, with stated assumptions, to size goals and budgets. |
+| [`cmo-brand-protection`](plugins/cmo-so-strategy/skills/cmo-brand-protection/SKILL.md) | Respond to fake websites, phishing pages and impersonation of the brand: collect evidence, report in parallel, warn customers and win back branded search. |
+
+### SEO · `cmo-so-seo`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-seo-audit`](plugins/cmo-so-seo/skills/cmo-seo-audit/SKILL.md) | Full SEO audit of a site: technical health, on-page, content, links and search data, delivered as a short prioritised fix list. |
+| [`cmo-technical-seo`](plugins/cmo-so-seo/skills/cmo-technical-seo/SKILL.md) | Crawlability, indexing, Core Web Vitals, rendering, redirects and IndexNow: find and fix what stops pages being found. |
+| [`cmo-page-seo`](plugins/cmo-so-seo/skills/cmo-page-seo/SKILL.md) | Optimise one page for its query: title, meta, headings, intent match, internal links, images and alt text. |
+| [`cmo-keyword-research`](plugins/cmo-so-seo/skills/cmo-keyword-research/SKILL.md) | Find keywords worth targeting from Search Console, competitors and SERPs, judged by intent, difficulty and fit, then add them as ideas. |
+| [`cmo-keyword-clustering`](plugins/cmo-so-seo/skills/cmo-keyword-clustering/SKILL.md) | Group keywords by search intent and SERP overlap into topic clusters, mapped to existing or new pages. |
+| [`cmo-content-brief`](plugins/cmo-so-seo/skills/cmo-content-brief/SKILL.md) | A competitive brief for one article: intent, outline, sections, entities, questions, internal links and the CTA. |
+| [`cmo-content-refresh`](plugins/cmo-so-seo/skills/cmo-content-refresh/SKILL.md) | Revive decaying or no-traffic posts: diagnose why, rewrite with Maggie, and track the result. |
+| [`cmo-site-architecture`](plugins/cmo-so-seo/skills/cmo-site-architecture/SKILL.md) | Plan page hierarchy, URLs, navigation, sitemaps and internal linking so authority flows to the pages that matter. |
+| [`cmo-schema-markup`](plugins/cmo-so-seo/skills/cmo-schema-markup/SKILL.md) | Add, fix and validate JSON-LD structured data for rich results and for AI answers. |
+| [`cmo-programmatic-seo`](plugins/cmo-so-seo/skills/cmo-programmatic-seo/SKILL.md) | Build many useful pages from a template and data (locations, integrations, comparisons) without thin or duplicate content. |
+| [`cmo-competitor-pages`](plugins/cmo-so-seo/skills/cmo-competitor-pages/SKILL.md) | Fair, useful "X vs Y" and "alternatives to X" pages that rank and help buyers decide. |
+| [`cmo-local-seo`](plugins/cmo-so-seo/skills/cmo-local-seo/SKILL.md) | Win local search: Google Business Profile, NAP consistency, reviews, local pages, citations and map rankings. |
+| [`cmo-international-seo`](plugins/cmo-so-seo/skills/cmo-international-seo/SKILL.md) | Serve the right language and country: hreflang, URL strategy, and localised (not just translated) content. |
+| [`cmo-ecommerce-seo`](plugins/cmo-so-seo/skills/cmo-ecommerce-seo/SKILL.md) | Product and category pages, product schema, Shopping visibility and faceted navigation for online stores. |
+| [`cmo-link-building`](plugins/cmo-so-seo/skills/cmo-link-building/SKILL.md) | Analyse the backlink profile and earn new links: prospect lists, outreach drafts, digital PR angles and directory placements. |
+| [`cmo-seo-monitoring`](plugins/cmo-so-seo/skills/cmo-seo-monitoring/SKILL.md) | Baseline the SEO-critical parts of key pages and catch regressions (titles, canonicals, noindex, schema) before traffic drops. |
+| [`cmo-search-intent`](plugins/cmo-so-seo/skills/cmo-search-intent/SKILL.md) | Read what the SERP rewards for a query and reshape the page type and content to match the intent. |
+| [`cmo-seo-plan`](plugins/cmo-so-seo/skills/cmo-seo-plan/SKILL.md) | An SEO strategy for a new or existing site: priorities, topic map, technical baseline and a quarter-by-quarter roadmap. |
+
+### AI search (GEO / AEO) · `cmo-so-ai-search`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-ai-visibility-audit`](plugins/cmo-so-ai-search/skills/cmo-ai-visibility-audit/SKILL.md) | A one-off report on how the brand shows up in AI answers for its market and the few changes most likely to get it cited. |
+| [`cmo-ai-prompt-research`](plugins/cmo-so-ai-search/skills/cmo-ai-prompt-research/SKILL.md) | Find the questions people ask AI assistants about the market, how they are answered, and which sites get cited. |
+| [`cmo-ai-citation-gaps`](plugins/cmo-so-ai-search/skills/cmo-ai-citation-gaps/SKILL.md) | Find the pages AI assistants cite in the category and which of those sources the brand can get into or out-do. |
+| [`cmo-ai-brand-monitoring`](plugins/cmo-so-ai-search/skills/cmo-ai-brand-monitoring/SKILL.md) | Track what AI assistants say about the brand over time and catch wrong, outdated or damaging claims. |
+| [`cmo-aeo-content`](plugins/cmo-so-ai-search/skills/cmo-aeo-content/SKILL.md) | Restructure pages so AI assistants can quote them: direct answers, facts, sources, E-E-A-T signals and schema. |
+| [`cmo-agent-readiness`](plugins/cmo-so-ai-search/skills/cmo-agent-readiness/SKILL.md) | Make a site usable by AI agents that browse, fill in forms and buy for people: accessibility tree, layout stability, access policy, discovery files and safe agent tools, fixed in priority order. |
+| [`cmo-entity-audit`](plugins/cmo-so-ai-search/skills/cmo-entity-audit/SKILL.md) | Check that search engines and AI answers can tell exactly who the business is — Organization and Product schema, sameAs links to every official profile, Wikidata, and one consistent name, description and contact details everywhere — and fix the gaps in order. |
+
+### Content & copy · `cmo-so-content`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-content-strategy`](plugins/cmo-so-content/skills/cmo-content-strategy/SKILL.md) | Decide what to publish and why: pillars, topics by funnel stage, formats, cadence and how CMO.so's autopilot executes it. |
+| [`cmo-blog-writing`](plugins/cmo-so-content/skills/cmo-blog-writing/SKILL.md) | Write or direct one blog post from brief to publish-ready, in the brand voice, then hand it to Maggie's queue. |
+| [`cmo-copywriting`](plugins/cmo-so-content/skills/cmo-copywriting/SKILL.md) | Write page copy that converts: homepage, landing, pricing, feature and about pages, built on the brand profile. |
+| [`cmo-copy-editing`](plugins/cmo-so-content/skills/cmo-copy-editing/SKILL.md) | Edit existing copy for clarity, specificity, proof and flow with a structured review pass. |
+| [`cmo-humanize`](plugins/cmo-so-content/skills/cmo-humanize/SKILL.md) | Remove AI writing tells so text reads like a person wrote it, without losing facts. |
+| [`cmo-content-repurposing`](plugins/cmo-so-content/skills/cmo-content-repurposing/SKILL.md) | Turn one article, podcast or video into LinkedIn posts, threads, emails, ad hooks and short videos. |
+| [`cmo-lead-magnets`](plugins/cmo-so-content/skills/cmo-lead-magnets/SKILL.md) | Plan and build a lead magnet people actually want, and the capture and follow-up around it. |
+| [`cmo-thought-leadership`](plugins/cmo-so-content/skills/cmo-thought-leadership/SKILL.md) | Turn a founder's experience and notes into a point of view and a steady stream of long-form posts. |
+
+### Social & community · `cmo-so-social`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-social-strategy`](plugins/cmo-so-social/skills/cmo-social-strategy/SKILL.md) | Pick platforms, pillars, cadence and formats, and run a content calendar with CMO.so's LinkedIn queue as the engine. |
+| [`cmo-linkedin-posts`](plugins/cmo-so-social/skills/cmo-linkedin-posts/SKILL.md) | Write and lint LinkedIn posts (story, how-to, opinion, carousel, poll) with strong hooks, then queue them in CMO.so. |
+| [`cmo-linkedin-profile`](plugins/cmo-so-social/skills/cmo-linkedin-profile/SKILL.md) | Audit and rewrite a LinkedIn profile or company page: headline, About, experience, Featured and banner. |
+| [`cmo-linkedin-engagement`](plugins/cmo-so-social/skills/cmo-linkedin-engagement/SKILL.md) | Grow reach through comments, replies and connection notes with a daily routine that does not feel spammy. |
+| [`cmo-linkedin-strategy`](plugins/cmo-so-social/skills/cmo-linkedin-strategy/SKILL.md) | Positioning, content pillars and a test plan for LinkedIn, judged by what the numbers actually say. |
+| [`cmo-x-growth`](plugins/cmo-so-social/skills/cmo-x-growth/SKILL.md) | Build an audience on X: positioning, posts and threads, reply strategy and what to measure. |
+| [`cmo-social-analytics`](plugins/cmo-so-social/skills/cmo-social-analytics/SKILL.md) | Measure social performance honestly: engagement, reach, clicks and pipeline, with benchmarks and next tests. |
+| [`cmo-community`](plugins/cmo-so-social/skills/cmo-community/SKILL.md) | Start or grow a community (Discord, Slack, forum, Reddit) that drives product growth and loyalty. |
+| [`cmo-influencer`](plugins/cmo-so-social/skills/cmo-influencer/SKILL.md) | Find, vet and brief creators, structure deals and measure what each partnership returns. |
+| [`cmo-youtube-strategy`](plugins/cmo-so-social/skills/cmo-youtube-strategy/SKILL.md) | Plan a long-form YouTube channel: positioning, topics from outlier analysis, titles and thumbnails, scripts, a 90-day plan and what to measure. |
+| [`cmo-youtube-posts`](plugins/cmo-so-social/skills/cmo-youtube-posts/SKILL.md) | Write one YouTube Short's title, description, tags and hashtags so it's found and watched, and check the video before it goes out: the first seconds, the loop, captions inside the safe zones, licensed music and no other platform's watermark; then save it to the CMO.so YouTube queue. |
+| [`cmo-tiktok-posts`](plugins/cmo-so-social/skills/cmo-tiktok-posts/SKILL.md) | Write one TikTok video's caption so it's found in TikTok search and watched to the end: the keyword in the first line, 3-5 specific hashtags, no dead links; and check the video before it goes out: the first second, completion and loop, on-screen words in the safe zone, the cover frame, music rights, no other app's watermark and the AI label; then save it to the CMO.so TikTok queue. |
+| [`cmo-short-form-video`](plugins/cmo-so-social/skills/cmo-short-form-video/SKILL.md) | Ideas, hooks, scripts and an edit plan for Reels, TikTok and Shorts from what the business already knows. |
+| [`cmo-organic-social`](plugins/cmo-so-social/skills/cmo-organic-social/SKILL.md) | Grow organically on Instagram, TikTok and Facebook: profile, formats, posting rhythm, hooks and what to measure. |
+| [`cmo-china-social`](plugins/cmo-so-social/skills/cmo-china-social/SKILL.md) | Choose and run mainland-Chinese platforms (Xiaohongshu, WeChat, Douyin, Weibo, Zhihu, Bilibili): native notes, articles and video packs, compliance checks and a draft-only hand-off. |
+| [`cmo-employee-advocacy`](plugins/cmo-so-social/skills/cmo-employee-advocacy/SKILL.md) | Run a voluntary programme where employees and founders share the company's news in their own words: opt-in, share kits with varied angles, disclosure, staggered timing and honest tracking. |
+| [`cmo-open-social`](plugins/cmo-so-social/skills/cmo-open-social/SKILL.md) | Build a presence on Threads, Bluesky and Mastodon: fit check, profile and server setup, native posts within each network's limits, discovery, reply routine and honest measurement. |
+| [`cmo-pinterest`](plugins/cmo-so-social/skills/cmo-pinterest/SKILL.md) | Turn articles and product pages into keyword-led Pins, boards and a steady fresh-Pin schedule that brings search traffic from Pinterest. |
+| [`cmo-reddit`](plugins/cmo-so-social/skills/cmo-reddit/SKILL.md) | Earn an honest, disclosed presence in the subreddits where buyers ask questions: map each community's rules, contribute first, draft launch posts and replies, and correct outdated threads AI answers rely on. |
+| [`cmo-social-crisis`](plugins/cmo-so-social/skills/cmo-social-crisis/SKILL.md) | Prepare for and run the response when something goes wrong in public: triage and severity, pausing scheduled posts, holding statements, fair moderation, approvals and the stand-down. |
+| [`cmo-social-listening`](plugins/cmo-so-social/skills/cmo-social-listening/SKILL.md) | Watch public conversations for the brand, competitors, buyer questions and rising topics, surface only the few worth a reply or a post, and turn themes into content ideas. |
+| [`cmo-facebook-posts`](plugins/cmo-so-social/skills/cmo-facebook-posts/SKILL.md) | Write Facebook Page posts that land before 'See more' (question, behind the scenes, tip, before/after, offer, story), adapt one idea from LinkedIn or the blog, then queue them in CMO.so. |
+| [`cmo-instagram-posts`](plugins/cmo-so-social/skills/cmo-instagram-posts/SKILL.md) | Write Instagram posts where the picture does the stopping and the caption does the keeping: the short title and line on the picture, a set of 4 for steps or tips, and a caption with a hook before '… more', no links and 3-5 hashtags; adapt one idea from LinkedIn, Facebook or the blog, then queue it in CMO.so. |
+| [`cmo-google-business-posts`](plugins/cmo-so-social/skills/cmo-google-business-posts/SKILL.md) | Write Google Business Profile posts that nearby customers act on: a first line that says what's new, why it matters locally, one action that matches the post's button, about 300 characters, no links, phone numbers, hashtags or regulated-product claims; adapt an idea or article, then queue it in CMO.so. |
+
+### Email & lifecycle · `cmo-so-email`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-email-sequences`](plugins/cmo-so-email/skills/cmo-email-sequences/SKILL.md) | Welcome, nurture, launch and re-engagement sequences with subject lines and copy in the brand voice. |
+| [`cmo-cold-email`](plugins/cmo-so-email/skills/cmo-cold-email/SKILL.md) | B2B cold outbound that gets replies: targeting, first lines, follow-ups, deliverability and multichannel cadences. |
+| [`cmo-sms-whatsapp`](plugins/cmo-so-email/skills/cmo-sms-whatsapp/SKILL.md) | Compliant SMS and WhatsApp flows: welcome, abandoned cart, post-purchase and win-back. |
+| [`cmo-churn-prevention`](plugins/cmo-so-email/skills/cmo-churn-prevention/SKILL.md) | Keep customers: health signals, cancel flows, save offers, failed-payment recovery and win-back. |
+| [`cmo-newsletter`](plugins/cmo-so-email/skills/cmo-newsletter/SKILL.md) | A newsletter people open: positioning, format, sections, cadence and growth, fed by the posts Maggie publishes. |
+| [`cmo-email-deliverability`](plugins/cmo-so-email/skills/cmo-email-deliverability/SKILL.md) | Check that opted-in marketing email reaches the inbox: authentication, unsubscribe headers, bounces and suppression, sender reputation and list hygiene, with fixes in order. |
+
+### Paid ads · `cmo-so-paid-ads`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-ads-strategy`](plugins/cmo-so-paid-ads/skills/cmo-ads-strategy/SKILL.md) | Plan paid media: objectives, unit economics, channel choice, campaign architecture, audiences and the test plan. |
+| [`cmo-ads-audit`](plugins/cmo-so-paid-ads/skills/cmo-ads-audit/SKILL.md) | Audit any ad account against a platform checklist: tracking, structure, targeting, creative, bidding and wasted spend. |
+| [`cmo-google-ads`](plugins/cmo-so-paid-ads/skills/cmo-google-ads/SKILL.md) | Run Google Ads well: Search, Performance Max and Shopping structure, search terms, negatives, Quality Score and extensions. |
+| [`cmo-meta-ads`](plugins/cmo-so-paid-ads/skills/cmo-meta-ads/SKILL.md) | Meta ads that scale: Pixel and Conversions API, account structure, audiences, creative testing and frequency. |
+| [`cmo-linkedin-ads`](plugins/cmo-so-paid-ads/skills/cmo-linkedin-ads/SKILL.md) | B2B LinkedIn ads: Insight Tag, audiences and ABM, lead gen forms, creative and budgets that do not burn out. |
+| [`cmo-ad-creative`](plugins/cmo-so-paid-ads/skills/cmo-ad-creative/SKILL.md) | Write, test and refresh ad creative: angles, hooks, headlines, visuals and fatigue detection, from the brand profile. |
+| [`cmo-ads-budget`](plugins/cmo-so-paid-ads/skills/cmo-ads-budget/SKILL.md) | Allocate budget across channels, pick bid strategies, pace spend and forecast CPA and ROAS from real data. |
+| [`cmo-wasted-spend`](plugins/cmo-so-paid-ads/skills/cmo-wasted-spend/SKILL.md) | Find money spent on search terms, placements, audiences and ads that never convert, and the exact fixes. |
+| [`cmo-ads-monitoring`](plugins/cmo-so-paid-ads/skills/cmo-ads-monitoring/SKILL.md) | Daily checks and root-cause diagnosis: anomalies, CPA spikes, pacing, and splits by day, hour, device and location. |
+| [`cmo-ads-competitor-research`](plugins/cmo-so-paid-ads/skills/cmo-ads-competitor-research/SKILL.md) | Study competitors' ads in public ad libraries: angles, offers, formats and landing pages, and the gaps to own. |
+| [`cmo-ads-launch`](plugins/cmo-so-paid-ads/skills/cmo-ads-launch/SKILL.md) | Set up a campaign correctly the first time: naming, tracking, structure, guardrails and a launch checklist. |
+
+### Conversion (CRO) · `cmo-so-cro`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-page-cro`](plugins/cmo-so-cro/skills/cmo-page-cro/SKILL.md) | Increase conversions on any marketing page: clarity, proof, friction, CTA and offer, with a prioritised test list. |
+| [`cmo-landing-page-audit`](plugins/cmo-so-cro/skills/cmo-landing-page-audit/SKILL.md) | Score a landing page against the ads and emails that send traffic: message match, speed, mobile, trust and form friction. |
+| [`cmo-form-cro`](plugins/cmo-so-cro/skills/cmo-form-cro/SKILL.md) | Lead, contact and demo forms that people finish: fields, order, copy, validation and follow-up. |
+| [`cmo-signup-flow`](plugins/cmo-so-cro/skills/cmo-signup-flow/SKILL.md) | Fewer drop-offs from signup to first value: steps, social login, copy and trial setup. |
+| [`cmo-onboarding-activation`](plugins/cmo-so-cro/skills/cmo-onboarding-activation/SKILL.md) | Get new users to the moment of value fast: first-run, checklists, empty states and onboarding emails. |
+| [`cmo-popups`](plugins/cmo-so-cro/skills/cmo-popups/SKILL.md) | Popups, slide-ins and banners that convert without annoying people: trigger, offer, copy and frequency. |
+| [`cmo-paywalls`](plugins/cmo-so-cro/skills/cmo-paywalls/SKILL.md) | In-app paywalls, upgrade screens and feature gates that convert at the right moment. |
+| [`cmo-ab-testing`](plugins/cmo-so-cro/skills/cmo-ab-testing/SKILL.md) | Design tests that can be trusted: hypothesis, sample size, duration, guardrails, and reading results correctly. |
+| [`cmo-landing-page-builder`](plugins/cmo-so-cro/skills/cmo-landing-page-builder/SKILL.md) | Build a fast, on-brand landing page or small marketing site from the brand profile, ready to host on your own site. |
+| [`cmo-checkout-cro`](plugins/cmo-so-cro/skills/cmo-checkout-cro/SKILL.md) | Fewer abandoned carts and checkouts: friction audit, trust, payment and delivery options, and recovery emails and texts. |
+
+### Analytics & reporting · `cmo-so-analytics`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-tracking-setup`](plugins/cmo-so-analytics/skills/cmo-tracking-setup/SKILL.md) | Measurement that works: GA4 and Tag Manager events, conversions, UTM conventions and server-side tracking. |
+| [`cmo-attribution`](plugins/cmo-so-analytics/skills/cmo-attribution/SKILL.md) | Work out which marketing drives revenue: models compared side by side, conversion paths and platform disagreements. |
+| [`cmo-campaign-analytics`](plugins/cmo-so-analytics/skills/cmo-campaign-analytics/SKILL.md) | Analyse campaign and funnel performance, ROI and benchmarks, and decide what to scale or stop. |
+| [`cmo-client-report`](plugins/cmo-so-analytics/skills/cmo-client-report/SKILL.md) | A polished report for a client or the board (Markdown, HTML or PDF) with a plain-English narrative on top. |
+| [`cmo-closed-loop-measurement`](plugins/cmo-so-analytics/skills/cmo-closed-loop-measurement/SKILL.md) | Judge every marketing change by what it did in the data: baseline, change log, follow-up read and keep or revert. |
+
+### Growth & go-to-market · `cmo-so-growth`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-product-launch`](plugins/cmo-so-growth/skills/cmo-product-launch/SKILL.md) | Plan and run a launch or feature announcement: phases, channels, assets, Product Hunt and follow-through. |
+| [`cmo-referral-program`](plugins/cmo-so-growth/skills/cmo-referral-program/SKILL.md) | Design and run a referral or affiliate program: incentive, mechanics, promotion and fraud checks. |
+| [`cmo-co-marketing`](plugins/cmo-so-growth/skills/cmo-co-marketing/SKILL.md) | Find partners with the same audience and run joint content, webinars, bundles and integrations. |
+| [`cmo-free-tools`](plugins/cmo-so-growth/skills/cmo-free-tools/SKILL.md) | Plan a free tool (calculator, checker, generator) that earns links, rankings and leads. |
+| [`cmo-directory-submissions`](plugins/cmo-so-growth/skills/cmo-directory-submissions/SKILL.md) | Get listed in the right startup, SaaS, AI and review directories for links and discovery, without spam. |
+| [`cmo-public-relations`](plugins/cmo-so-growth/skills/cmo-public-relations/SKILL.md) | Earn coverage: angles, press releases, journalist targeting, pitches and follow-ups. |
+| [`cmo-events-webinars`](plugins/cmo-so-growth/skills/cmo-events-webinars/SKILL.md) | Plan, promote and convert webinars and events, from topic to follow-up sequence. |
+| [`cmo-app-store-optimization`](plugins/cmo-so-growth/skills/cmo-app-store-optimization/SKILL.md) | App Store and Google Play listings that rank and convert: keywords, metadata, screenshots and ratings. |
+| [`cmo-marketing-automation`](plugins/cmo-so-growth/skills/cmo-marketing-automation/SKILL.md) | Set up recurring loops an agent runs on a schedule (weekly report, LinkedIn week, content refresh) on top of CMO.so. |
+
+### Sales & revenue · `cmo-so-sales`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-prospecting`](plugins/cmo-so-sales/skills/cmo-prospecting/SKILL.md) | Find and qualify prospects and build a dossier for each before reaching out. |
+| [`cmo-sales-enablement`](plugins/cmo-so-sales/skills/cmo-sales-enablement/SKILL.md) | Decks, one-pagers, objection handling, battlecards and demo scripts that match the marketing message. |
+| [`cmo-revops`](plugins/cmo-so-sales/skills/cmo-revops/SKILL.md) | Lead lifecycle, scoring, routing and pipeline health so marketing and sales hand off cleanly. |
+| [`cmo-proposals`](plugins/cmo-so-sales/skills/cmo-proposals/SKILL.md) | Client proposals and SOWs for marketing work: scope, deliverables, timeline, pricing and terms. |
+
+### Images & video · `cmo-so-creative`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-image-generation`](plugins/cmo-so-creative/skills/cmo-image-generation/SKILL.md) | Create on-brand images: blog heroes, social graphics, OG images, ad visuals and product shots. |
+| [`cmo-video-production`](plugins/cmo-so-creative/skills/cmo-video-production/SKILL.md) | Plan and produce marketing videos with AI tools: script, footage, edit plan, captions and versions per platform. |
+| [`cmo-video-repurposing`](plugins/cmo-so-creative/skills/cmo-video-repurposing/SKILL.md) | Mine long videos, webinars and podcasts for clips, quotes and posts, with timestamps. |
+| [`cmo-ad-video`](plugins/cmo-so-creative/skills/cmo-ad-video/SKILL.md) | Make a 15-30 second ad video for a business with CMO.so (beta): a storyboard from a brief, a post or a YouTube ad to follow, shown with its cost before anything is paid for; then each scene's picture, a moving clip, the narrator's voice, music, on-screen words and an end card with the real logo, cut into one video and posted on Reels, TikTok, Shorts, LinkedIn or Facebook. |
+
+### Website (WordPress) · `cmo-so-website`
+
+| Skill | What it does |
+|---|---|
+| [`cmo-wp-builder`](plugins/cmo-so-website/skills/cmo-wp-builder/SKILL.md) | Build and look after a WordPress site on the Maggie Core theme through CMO.so alone: add, design, change or remove pages and sections, fix SEO, change the menu, header, footer and brand. |
+| [`cmo-wp-child-theme`](plugins/cmo-so-website/skills/cmo-wp-child-theme/SKILL.md) | Keep a site's own look — brand colours, fonts, header, footer, patterns, small CSS — in a child theme of Maggie Core, so the parent theme can update safely and the site's design lives in files, not only in the database. |
+| [`cmo-wp-clone`](plugins/cmo-so-website/skills/cmo-wp-clone/SKILL.md) | Take the look of the owner's existing homepage (or a reference site they're allowed to use) and rebuild it on Maggie Core — design tokens, section map, header and footer — as a Design Pack the rest of the site follows. |
+| [`cmo-wp-faq`](plugins/cmo-so-website/skills/cmo-wp-faq/SKILL.md) | Write 10+ questions and answers tailored to each WordPress page from the page's own facts — no invented prices, numbers or claims, no repeats across sibling pages — and put them in the page's FAQ section. |
+| [`cmo-wp-images`](plugins/cmo-so-website/skills/cmo-wp-images/SKILL.md) | Choose, size and describe the pictures on WordPress pages — the right shape per section, fast WebP files, honest alt text, no duplicates — and state the cost before generating any new image. |
+| [`cmo-wp-migrate`](plugins/cmo-so-website/skills/cmo-wp-migrate/SKILL.md) | Move an existing WordPress site (Elementor or another theme) onto Maggie Core page by page without losing SEO — inventory and baseline, page types, one approved page per type, batch conversion, gates, cut-over and rollback. |
+| [`cmo-wp-motion`](plugins/cmo-so-website/skills/cmo-wp-motion/SKILL.md) | Use Maggie Core's motion vocabulary — rise and stagger on entry, lift, zoom and float on hover, underline on links — through section classes only, calm and accessible, never custom scripts. |
+| [`cmo-wp-page-design`](plugins/cmo-so-website/skills/cmo-wp-page-design/SKILL.md) | Design a new WordPress page or rework an existing one as Maggie Core sections, review it on phone and computer, and fix generic, cluttered or weak layouts in place. |
+| [`cmo-wp-qa`](plugins/cmo-so-website/skills/cmo-wp-qa/SKILL.md) | The checks after any WordPress change and before a release or cut-over — pages open, one H1, valid blocks, SEO unchanged against a baseline, links, layout at 390/768/1440 px, contrast, forms — with a clear pass/fail report. |
+| [`cmo-wp-operation`](plugins/cmo-so-website/skills/cmo-wp-operation/SKILL.md) | The website owner's day in one look, from Maggie Operation in WordPress — what Maggie did this week, what is waiting for them, what is wrong, how the site does in Google and AI answers, which missing addresses need a redirect, and how bookings, the shop, enquiries and payments are doing — with each item linked to where it is handled. |
+| [`cmo-wp-sections`](plugins/cmo-so-website/skills/cmo-wp-sections/SKILL.md) | The rules for Maggie Core sections — which type to use for which job, what each needs, how many per page and in what order — so pages built by AI look designed, not assembled. |
+| [`cmo-wp-seo`](plugins/cmo-so-website/skills/cmo-wp-seo/SKILL.md) | Audit and fix a WordPress site's on-page SEO through CMO.so — titles, descriptions, keywords, H1s, robots, canonicals, structured data, redirects and business details — page by page or in batches. |
+| [`cmo-wp-vibe-coding`](plugins/cmo-so-website/skills/cmo-wp-vibe-coding/SKILL.md) | Run a WordPress site on Maggie Core from Claude Code, Cursor or ChatGPT through the CMO.so MCP — read it, change any page, post, setting, plugin, menu or style with block markup or sections, preview, publish and undo — without wp-admin, FTP or SSH. |
+| [`cmo-wp-seo-technical`](plugins/cmo-so-website/skills/cmo-wp-seo-technical/SKILL.md) | Crawl a connected WordPress site like a search engine through the CMO.so MCP — robots.txt, AI crawlers, sitemap, status codes, canonicals, noindex, H1s, alt text, structured data, broken links, Core Web Vitals — then lay out internal links between pages, articles, menu and footer, and publish an llms.txt for AI assistants. |
+| [`cmo-wp-security`](plugins/cmo-so-website/skills/cmo-wp-security/SKILL.md) | Check a connected WordPress site's security through the CMO.so MCP — vulnerable, outdated or abandoned plugins and themes, WordPress and PHP versions, risky settings, Administrators and old application passwords, WP-Cron jobs, and what visitors can see from outside — then fix what the tools can, with a yes for each. |
+| [`cmo-wp-booking`](plugins/cmo-so-website/skills/cmo-wp-booking/SKILL.md) | Run online booking on a Maggie Core WordPress site through the CMO.so MCP — switch it on, bring the menu, clients, appointments and gift cards over from Fresha or another system, set up treatments, team, hours, deals and gift cards, and handle the day's appointments (book, move, cancel, refund), run the till and the whole booking dashboard, and design the visitor booking pages — one approved change at a time. |
+| [`cmo-wp-shop`](plugins/cmo-so-website/skills/cmo-wp-shop/SKILL.md) | Run an online shop on a Maggie Core WordPress site through the CMO.so MCP — switch it on, bring products over from WooCommerce, add products with options and variants, keep stock right, fulfil, refund and follow up orders, set delivery prices, tax, payment methods and coupons, and build pages that sell — one approved change at a time. |
+| [`cmo-wp-languages`](plugins/cmo-so-website/skills/cmo-wp-languages/SKILL.md) | Give a Maggie Core WordPress site more languages through the CMO.so MCP — add Chinese, Spanish or any language at its own address (/zh/…), translate pages and posts from a brief that keeps every price, number and link, review them before search engines see them, keep translations fresh when the source changes, and get hreflang, canonicals and sitemaps right without wp-admin. |
+| [`cmo-wp-move`](plugins/cmo-so-website/skills/cmo-wp-move/SKILL.md) | Move a site built on Astro, Next.js, a custom stack or a site builder onto WordPress + Maggie Core as a byte-identical clone — every address, head tag and asset the same — with its blog, contact form, prices, languages and media running natively in WordPress, then cut over with no downtime and a one-minute rollback. |
+| [`cmo-sales-signals`](plugins/cmo-so-website/skills/cmo-sales-signals/SKILL.md) | Turn what a Maggie Core website's shop and bookings say — launches, new products and treatments, sales and deals, rising and best sellers, nearly sold out, back in stock, quiet booking days — into blog ideas and dated social posts (teaser, launch day, last chance) through the CMO.so MCP, set what to promote or never promote, check each item live before it is posted about, and see where orders and bookings came from. |
+
+<!-- skills:end -->
+
+## The CMO.so MCP server
+
+Every skill above runs on one MCP server: **`https://mcp.cmo.so/mcp`** (Streamable HTTP, OAuth 2.1).
+
+- **125 tools** cover your websites, results (Search Console, AI visibility, content performance, SEO audit), blog ideas, plan and drafts, the LinkedIn queue and campaigns, business profile and brand voice, autopilot settings and team access.
+- **Sign in with your CMO.so account.** There are no keys to paste. The agent gets exactly your team permissions on each website, and a read-only key only sees read tools.
+- **Two-step changes.** A tool that changes something first returns a preview and a `confirmation`. It runs only when called again with `confirm: true`, and it runs exactly the call that was previewed.
+- **Cards in ChatGPT.** Results, blog posts and the LinkedIn queue (with Approve) render as cards.
+
+| Client | How to connect |
+|---|---|
+| Claude Code | This plugin (`/mcp` → **cmo-so** → Authenticate), or `claude mcp add --transport http cmo-so https://mcp.cmo.so/mcp` |
+| Claude.ai / Claude Desktop | Settings → Connectors → Add custom connector → `https://mcp.cmo.so/mcp` |
+| ChatGPT | Plugins → Add → Add custom MCP server → `https://mcp.cmo.so/mcp`, OAuth (developer mode, until the listing is live) |
+| Cursor, VS Code, Windsurf | Add a remote HTTP server with the same URL, or run it locally (below) |
+
+Local (stdio), for clients that start a command:
+
+```json
+{
+  "mcpServers": {
+    "cmo-so": { "command": "npx", "args": ["-y", "@cmo-so/mcp"] }
+  }
+}
+```
+
+Sign in once with `npx @cmo-so/cli login`, or set `CMO_API_KEY` to an API key from your account settings. Package: [`@cmo-so/mcp`](https://www.npmjs.com/package/@cmo-so/mcp).
+
+## The cmo CLI
+
+[`@cmo-so/cli`](https://www.npmjs.com/package/@cmo-so/cli) runs the same actions from your terminal, in scripts and in CI.
+
+```sh
+npx @cmo-so/cli login            # sign in in your browser (device code)
+npm i -g @cmo-so/cli             # then just `cmo`
+
+cmo inbox                        # what needs you now
+cmo results --period 30d         # posts, ideas waiting, AI visibility
+cmo ideas add https://example.com/page     # queue a blog idea
+cmo ideas generate -n 5 --brief "spring skincare"
+cmo posts ls --status planned    # what Maggie writes next
+cmo social ls                    # LinkedIn queue
+cmo social approve 30 31         # approve drafts
+cmo autopilot pause             # or resume
+cmo run gsc_queries_get filter=low_ctr limit=10   # any of the 125 tools
+cmo mcp                          # the local MCP server (stdio)
+```
+
+- Options for every command: `--json`, `-w/--workspace <domain>`, `--dry-run` (preview only), and `-y/--yes` (no prompt, for CI).
+- Changes ask first. Without a terminal and without `--yes`, nothing changes.
+- Exit codes: `0` done, `2` input, `3` sign-in, `4` plan, permission or limit, `5` server.
+- In CI, set `CMO_API_KEY`; `CMO_WORKSPACE` picks the website.
+
+## Other agents
+
+The skills are plain `SKILL.md` folders under [`plugins/`](plugins), in the open Agent Skills format, so any agent that reads skills can use them with the MCP server above:
+
+- `plugins/*/skills/` for Claude Code plugins (`.claude-plugin/`), Codex and Agent Plugins hosts (`plugin.json`, `mcp.json`, marketplace in `.agents/plugins/marketplace.json`) and Pi packages (`package.json` → `pi.skills`).
+- `npx @cmo-so/skills agents` lists the 20 agents the installer knows and the folders it writes. Agents that share `.agents/skills` (Codex, Pi, Cursor, Gemini CLI, OpenCode, Copilot, Amp, Cline) get one copy.
+- The full index, with categories, channels, funnel stage, tier and the MCP tools each skill uses, is in [`skills.json`](skills.json). Setup guides: https://ai.cmo.so/hot/mcp
+
+## Safety
+
+- Changes take two steps: a preview (what will happen and what it costs) and a confirmation you give. The confirmation is bound to that exact action and expires after 10 minutes.
+- Your agent only gets the access your CMO.so account has on each website; a read-only team member cannot change anything.
+- Text from web pages, search queries and AI answers is treated as data, never as instructions.
+- Skills never ask for passwords or API keys in the chat. You can disconnect any agent in your CMO.so account settings under **Connected apps**.
+
+## Credits
+
+The skills are written by AI Marketing OS Ltd. Many adapt ideas from excellent open-source projects: marketing skill collections, social media and SEO tools, analytics, email and publishing platforms, and MCP servers and CLIs for the channels the skills cover. Each skill's **References** section names its sources, and [`skills.json`](skills.json) pins every source file to a commit with its licence.
+
+- [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) carries the copyright and licence notice of every MIT, Apache-2.0 or other permissive project a skill adapts.
+- Projects with no licence, or a copyleft or source-available licence (GPL, AGPL, BUSL and similar), were used for ideas only: no text from them is included. They are listed at the end of the notices.
+- `skills.json → excluded` records every source skill we looked at and left out, and why.
+
+This repository is separate from the TOPY AI `ai-cmo-skills` package (`@topy-ai/maggie`), which covers building and deploying websites.
+
+## Support
+
+[maggie@cmo.so](mailto:maggie@cmo.so) · [Support](https://ai.cmo.so/hot/support) · [Privacy](https://ai.cmo.so/hot/privacy-policy) · [Terms](https://ai.cmo.so/hot/terms-of-service)
+
+## License
+
+MIT © AI Marketing OS Ltd

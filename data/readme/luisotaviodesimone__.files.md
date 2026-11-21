@@ -1,0 +1,30 @@
+# .files<a name="files"></a>
+
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [.files](#files)
+  - [Submodule](#submodule)
+  - [lods](#lods)
+- [TODOs](#todos)
+
+<!-- mdformat-toc end -->
+
+This is the repository to host my automatic initial configuration to my Linux developing environment and also some other tool configuration in the `.config` directory
+
+### Submodule<a name="submodule"></a>
+
+If you are authorized and wanna mess around with the submodules from this repo, you can use the following command to pull them:
+
+```shell
+# Might need for the first pull
+git submodule update --init --recursive
+git pull --recurse-submodules
+```
+
+### lods<a name="lods"></a>
+
+This script also comes with my custom made CLI to automate some usual tasks that I have to do. To set it up properly, please visit its [github page](https://github.com/luisotaviodesimone/my-go-cli), as I already set some things up in this automatic installation script.
+
+# TODOs<a name="todos"></a>
+
+- Make rust installation script run automatically.

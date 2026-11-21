@@ -1,0 +1,300 @@
+# skills
+
+**Nitpicker** — a hostile audit toolkit for coding agents. One skill, one
+entry point, a full deck of audit commands:
+
+```text
+/nitpicker <command> [extra instructions]
+```
+
+Assumes the code is incorrect until proven otherwise. Every command files
+findings with evidence and a concrete fix — no compliments, no hedging.
+
+Works in **Claude Code**, **GitHub Copilot**, **pi**, and any agent that
+reads the open [Agent Skills](https://agentskills.io) format.
+
+## Install
+
+| Agent                                             | How                                                                                                                                                                |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Claude Code (plugin)                              | `/plugins` → add marketplace `ivuorinen/skills` → install `ivuorinen-skills`                                                                                       |
+| Any agent via [skills.sh](https://www.skills.sh/) | `npx skills add ivuorinen/skills` (installs into the agent you pick)                                                                                               |
+| GitHub Copilot                                    | `npx skills add ivuorinen/skills -a copilot`, or copy `skills/nitpicker/` into `.github/skills/` — Copilot also reads `.claude/skills/` and `.agents/skills/`      |
+| pi                                                | `npx skills add ivuorinen/skills -a pi`, copy into `.agents/skills/`, or add the checkout to the `"skills": [...]` setting; invoke as `/skill:nitpicker <command>` |
+
+The bundled tools (`skills/nitpicker/scripts/*.py`) are stdlib-only and run
+with plain `python3` — no uv, no package installs on the consumer machine.
+
+Context discipline is part of the toolkit rather than a host feature it borrows.
+`context_pack.py` (MCP: `np_context_pack`) answers with coordinates — path, line
+range, enclosing symbol, why it matched — never with file bodies, so a lens
+decides what to open without reading the repository to find out. The rule its
+callers are held to is stated in `commands/_conventions.md`: **compression may
+decide what to inspect next; only original source may prove a finding.**
+
+## Usage
+
+```text
+/nitpicker                       # exhaustive whole-repo audit (default)
+/nitpicker security              # run the security scanners, consolidate findings
+/nitpicker tests inline          # audit the test suite; findings in the response only
+/nitpicker cr fix only critical  # implement PR review comments, scoped by your words
+/nitpicker release-gate          # fail if any open finding ≥ High
+/nitpicker help                  # print the command table
+```
+
+The first word after `/nitpicker` picks the command (old 1.x skill names
+still work as aliases); everything after it is free-text instructions for
+that run. The modifiers `inline` (nothing written to disk) and
+`changed-files` (scope to modified files) work with every command.
+
+## Commands
+
+### Review and fixing
+
+| Command            | What it hunts                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------ |
+| _(none)_ / `audit` | Everything: code, tests, docs, config — the exhaustive review                                          |
+| `review`           | Bugs in a diff or file set — logic errors, edge cases, missing tests                                   |
+| `pr`               | PR defects; outputs copy-paste-ready GitHub review markdown                                            |
+| `cr`               | Unresolved PR review comments — evaluates and implements the valid ones                                |
+| `complexity`       | Over-engineering; forces the laziest solution that works                                               |
+| `unwired`          | Implementations never wired in, or left incomplete; wires, merges, or removes with per-finding consent |
+| `dead-code`        | Unreferenced or unreachable code; reachability-proven, public and orphan removals approval-gated       |
+
+### Planning
+
+| Command        | What it does                                                                                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plan`         | Turns a change request into a plan hardened by the audit lenses; writes a plan doc and stops for explicit approval before any implementation                                          |
+| `execute-plan` | Executes an approved plan task by task, verifying each task as it lands and stopping when blocked instead of guessing; finishes behind a gated commit/push menu. The sequel to `plan` |
+
+### Learning
+
+| Command | What it does                                                                                                      |
+| ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `teach` | Teaches a skill or concept across sessions; builds a persistent `docs/lessons/` workspace — lessons, not findings |
+
+### Security and data
+
+| Command         | What it hunts                                                                    |
+| --------------- | -------------------------------------------------------------------------------- |
+| `security`      | Vulnerabilities, exposed secrets, insecure dependencies (via installed scanners) |
+| `privacy`       | Personal data without the control its class requires                             |
+| `config`        | Undocumented env vars, unsafe prod defaults, committed secrets                   |
+| `iac`           | Container/IaC misconfig: root, open ingress, public stores, overbroad IAM        |
+| `prompt-safety` | LLM-integration safety: prompt injection, model-output-to-sink, tool agency      |
+| `skill-safety`  | Installed skills/agents/plugins as untrusted supply chain: overrides, exfil      |
+
+### Runtime behavior
+
+| Command       | What it hunts                                                          |
+| ------------- | ---------------------------------------------------------------------- |
+| `perf`        | N+1 queries, O(n²)+ hotspots, sync-blocking-in-async, unbounded growth |
+| `concurrency` | Data races, TOCTOU, deadlock ordering, unsafe publication              |
+| `errors`      | Swallowed exceptions, fail-open defaults, masking fallbacks            |
+| `leaks`       | Resources acquired without guaranteed release on failure paths         |
+| `reliability` | Non-idempotent retries, timeouts, crash-window dup, dropped work       |
+| `cache`       | Stale reads, key collisions, unbounded growth, stampede, drift         |
+
+### Structure and contracts
+
+| Command        | What it hunts                                                                  |
+| -------------- | ------------------------------------------------------------------------------ |
+| `arch`         | Architectural violations against detected or declared patterns                 |
+| `arch-profile` | Detects the architecture; writes `docs/audit/arch-profile.md`                  |
+| `contract`     | Spec-vs-code drift and surface changes vs the declared semver bump             |
+| `deps`         | Unused, phantom, dup, unmaintained + supply-chain: typosquat, scripts          |
+| `license`      | Project license, dependency compatibility, copyleft contamination, attribution |
+| `migrations`   | Migrations that eat production: destructive ops, long locks, drift             |
+
+### Quality surfaces
+
+| Command         | What it hunts                                                            |
+| --------------- | ------------------------------------------------------------------------ |
+| `tests`         | Tests that cannot fail: tautologies, mocked-out subjects, coverage holes |
+| `types`         | Suppressed type errors, any-escapes, unsound casts, untyped boundaries   |
+| `docs`          | Documentation that lies: stale, incorrect, missing                       |
+| `contributing`  | `CONTRIBUTING.md` drift vs real tooling; offers to scaffold when absent  |
+| `ci`            | Pipeline defects: unpinned actions, script injection, over-broad tokens  |
+| `commits`       | Commit messages that mis-version the release vs their actual diffs       |
+| `observability` | Dark paths, PII in logs, unfireable alerts, cardinality bombs            |
+| `a11y`          | WCAG 2.2 AA violations computed from the actual UI code                  |
+| `i18n`          | Hardcoded locale assumptions against the declared locale scope           |
+
+### Coding-agent enforcement
+
+| Command           | What it hunts                                                     |
+| ----------------- | ----------------------------------------------------------------- |
+| `agent-loopholes` | Bypassable constraints in the agent enforcement surface           |
+| `agent-hooks`     | Recurring failures no hook guards; missing hook coverage          |
+| `agent-rules`     | Rule file quality on any harness; rules mined from conventions    |
+
+### Meta
+
+| Command        | What it hunts                                               |
+| -------------- | ----------------------------------------------------------- |
+| `triage`       | Ranked run-plan of which commands to run; files nothing     |
+| `reverify`     | Re-verify open findings; resolve fixed/invalid, keep rest   |
+| `baseline`     | Snapshots open findings as accepted; gate fails only on new |
+| `release-gate` | Fails if any open finding at/above threshold (default High) |
+| `help`         | Prints the command listing                                  |
+
+Full command instructions: [`skills/nitpicker/commands/`](skills/nitpicker/commands/),
+shared conventions in [`commands/_conventions.md`](skills/nitpicker/commands/_conventions.md).
+
+## Findings store
+
+Open findings live one file each; resolving one appends to an append-only
+ledger and deletes the file, so audits scale, parallel worktrees never conflict
+on a counter, and PR review is never buried under resolved-finding files:
+
+```text
+docs/audit/findings/
+  INDEX.md                      # generated summary — never hand-edited
+  resolved.jsonl                # append-only ledger of fixed/invalid findings
+  .gitattributes                # marks the store linguist-generated (self-written)
+  <auditor>/open/<id>.md        # one open finding per file
+```
+
+IDs are content-hashed (`security-1a2b3c4d`). The store is managed by the
+bundled CLI:
+
+```bash
+python3 skills/nitpicker/scripts/findings.py list --status open
+python3 skills/nitpicker/scripts/findings.py resolve <id> --status fixed --notes "…"
+python3 skills/nitpicker/scripts/findings.py validate
+python3 skills/nitpicker/scripts/findings.py index
+python3 skills/nitpicker/scripts/findings.py recheck
+python3 skills/nitpicker/scripts/findings.py export --format sarif > nitpicker.sarif
+```
+
+`export` renders the store for another system — `sarif` for a code-scanning
+interface, `json` for another agent, `junit` for a CI reporter, which maps open
+findings to failures so they show beside failing tests. The markdown stays
+canonical.
+
+A finding filed with `--location src/auth.py:73-106` also records a fingerprint
+of the source there. `recheck` re-computes every one in a single pass, so
+`/nitpicker reverify` can skip a finding whose cited bytes have not moved
+instead of re-reasoning over it.
+
+### Migrating from 1.x
+
+1.x wrote one `docs/audit/<skill>-findings.md` per skill. Run
+`/nitpicker x-findings-migrator` (nitpicker also detects the old files
+itself and asks before migrating — never mid-PR without your consent), or
+convert manually:
+
+```bash
+python3 skills/nitpicker/scripts/findings.py migrate docs/audit/*-findings.md
+git rm docs/audit/*-findings.md
+```
+
+Legacy IDs (`N-042`) stay valid. All 1.x skill invocations
+(`/security-auditor`, `/test-auditor`, …) map to `/nitpicker <command>`
+aliases — the `## Commands` tables in `skills/nitpicker/SKILL.md` list
+every alias next to its command.
+
+## MCP server
+
+Installing the plugin registers a stdlib-only stdio MCP (Model Context Protocol)
+server (`nitpicker`) that exposes skill introspection (`np_list_skills`,
+`np_read_skill`,
+`np_read_command`, `np_read_reference`, `np_list_commands` — filterable to one
+category of the command table), findings
+management (`np_list_findings`, `np_show_finding`, `np_findings_index`,
+`np_validate_store`, `np_new_finding`, `np_resolve_finding`, `np_write_index`),
+scanner and rule analysis (`np_process_sarif`, `np_check_rules_anatomy`,
+`np_check_agent_instructions`), bounded repository context (`np_context_pack`),
+pull-request reads (`np_pr_comments`, `np_pr_status` — GitHub, GitLab and
+Bitbucket Cloud in one shared JSON format), and session task tracking
+(`np_task_create`, `np_task_get`, `np_task_update`, `np_task_list`,
+`np_todo_write` — the same five operations as Claude Code's task tools, on
+every harness that runs the server). Most of what a command invokes is
+reachable this way; the `python3 skills/nitpicker/scripts/…` form stays the
+documented fallback for Copilot, pi and CI, where no MCP server exists. Every
+tool is prefixed `np_` and publishes MCP annotations, so a client can tell the
+read-only tools from the ones that write and which calls are destructive, and
+the PR tools, the only ones that reach the network, from the rest, whose domain
+is the local filesystem. The "MCP server" section of `skills/nitpicker/SKILL.md`
+lists each annotation, the scope and the non-interactive mutate contract.
+
+Some operations are deliberately **not** exposed as tools and always run
+through the CLI. `skills/nitpicker/commands/_findings-store.md` names the
+findings-store set and the reason for each.
+
+### PR fetchers
+
+`cr` reads a PR's review surface through two shipped tools that cover GitHub,
+GitLab and Bitbucket Cloud behind one output format:
+
+```bash
+python3 skills/nitpicker/scripts/fetch-pr-comments.py <pr-url|pr_number|owner/repo N>
+python3 skills/nitpicker/scripts/fetch-pr-status.py   <pr-url|pr_number|owner/repo N>
+```
+
+The platform comes from the git remote host; `--platform` names it for a
+self-hosted instance whose hostname does not. Auth is `gh`/`GITHUB_TOKEN`,
+`GITLAB_TOKEN`/`glab`, or `BITBUCKET_TOKEN` (or username + app password), and a
+token is never sent to a host it was not declared for.
+
+Declare the host with `GH_HOST` or `GITLAB_HOST` when the token belongs to a
+self-hosted instance. GitLab needs it only to _pin_ a token to one instance —
+the target host comes from the git remote — so setting it to a host you are not
+addressing withholds the token rather than sending it. `--platform` selects the
+API to speak, not the host to trust; the two are separate. The full auth table
+is in `skills/nitpicker/commands/cr.md`.
+
+## Development
+
+```bash
+mise run check     # the full gate; `mise tasks` lists every task
+mise run list      # list the skill and its commands
+mise run test      # pytest suite for the tooling
+```
+
+Skills in this repo conform to the open
+[Agent Skills specification](https://agentskills.io/specification);
+`scripts/validate-skill.py` enforces it, and `scripts/validate-evals.py` checks
+the eval sets under `skills/*/evals/`.
+
+Repo conventions for agents working on this codebase: [`AGENTS.md`](AGENTS.md)
+(shared), [`CLAUDE.md`](CLAUDE.md) (Claude Code),
+[`.github/copilot-instructions.md`](.github/copilot-instructions.md) (Copilot).
+
+Versioning is [SemVer](https://semver.org/) automated with
+[release-please](https://github.com/googleapis/release-please) from
+Conventional Commits (`feat:` minor, `fix:` patch, `feat!:` major).
+
+## Credits
+
+- `/nitpicker plan` and `/nitpicker execute-plan` adapt the brainstorm → plan →
+  gated-execution model from
+  [obra/superpowers](https://github.com/obra/superpowers) — the separation of
+  planning from implementation, with explicit human sign-off before code is
+  written. `plan` hardens the plan with nitpicker's own adversarial audit lenses;
+  `execute-plan` carries out its `executing-plans` skill — load-and-review,
+  per-task verification, stop-when-blocked, never-build-on-main, gated finish.
+- `/nitpicker teach` adapts the stateful teaching-workspace model from
+  [mattpocock/skills](https://github.com/mattpocock/skills) — mission-grounded
+  learning, spaced retrieval-practice lessons, and learning records as ADRs —
+  rewritten to this repo's command conventions with lessons under `docs/lessons/`.
+
+## Third-party content
+
+This repo redistributes work by other authors: the vendored `graphify` skill
+under `.claude/skills/graphify/`, and command files adapted from
+[obra/superpowers](https://github.com/obra/superpowers),
+[DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail), and
+[mattpocock/skills](https://github.com/mattpocock/skills). All four are MIT.
+[NOTICE](NOTICE) carries each upstream's copyright and permission notice,
+repository, author, and SPDX identifier; the vendored skill also ships its
+upstream license at `.claude/skills/graphify/LICENSE`.
+
+## License
+
+[MIT](LICENSE) © Ismo Vuorinen
+
+Portions of this software are derived from third-party works; see
+[NOTICE](NOTICE).

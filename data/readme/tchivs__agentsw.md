@@ -1,0 +1,499 @@
+<div align="center">
+
+# agentsw
+
+**One provider, every coding agent — from the terminal.**
+
+A CLI that keeps your OpenAI- and Anthropic-protocol providers — base URL, key, model list,
+metadata — in one place and writes the active one into nine agents' own config files,
+without touching the settings you hand-tuned.
+
+[![npm version](https://img.shields.io/npm/v/agentsw?logo=npm&logoColor=white)](https://www.npmjs.com/package/agentsw)
+[![CI](https://img.shields.io/github/actions/workflow/status/tchivs/agentsw/ci.yml?branch=main&logo=github&logoColor=white&label=CI)](https://github.com/tchivs/agentsw/actions/workflows/ci.yml)
+[![node version](https://img.shields.io/node/v/agentsw?logo=nodedotjs&logoColor=white)](#install)
+[![license](https://img.shields.io/npm/l/agentsw?color=blue)](./LICENSE)
+
+[Install](#install) · [Quick start](#quick-start) · [Supported apps](#supported-apps) · [Commands](#commands) · [简体中文](./README.zh-CN.md)
+
+</div>
+
+![asw use myproxy writes one provider into nine coding agents](https://raw.githubusercontent.com/tchivs/agentsw/main/docs/demo.gif)
+
+`agentsw` and the short `asw` are the same binary.
+
+## Why a CLI
+
+- **It runs where a desktop app cannot.** Headless servers, containers, devcontainers, CI.
+  `npx agentsw use myproxy -a codex,omp` is one line in a provisioning script; nine GUI
+  clicks are not.
+- **`--dry-run` prints redacted diffs.** Preview changes without writing files or creating
+  backups — the provider store included, so a previewed `sync` does not leave its refreshed
+  model list behind. Existing configuration files are backed up when changes are committed.
+- **Non-destructive by design.** Only the fields agentsw owns are rewritten. Provider-level
+  keys it does not model — `authHeader`, `headers`, `compat`, `discovery` — per-model extras
+  like `thinkingLevelMap`, and YAML comments all survive a re-sync.
+- **Model metadata, not just an id list.** Reseller `/v1/models` endpoints return bare ids.
+  agentsw enriches them from [models.dev](https://models.dev), automatically fills meaningful gaps from AI Gateway when needed, and writes what each app
+  actually reads: `thinkingLevelMap` for pi/prime, `limit`/`attachment` for opencode,
+  `contextWindow`/`maxTokens` for omp, `reasoningEfforts`/`input` for dsh. Limits and prices the endpoint declares for
+  its own models outrank the catalogs, so one model cannot end up with two different context windows
+  depending on which provider lists it.
+- **Adopts what you already have** — including [cc-switch](https://github.com/farion1231/cc-switch).
+  `import` scans every installed agent *and* cc-switch's own store, merges duplicates
+  (same protocol + normalized endpoint + credentials), and never writes back to either.
+- **Wire-aware.** `/v1/chat/completions` and `/v1/responses` are different endpoints;
+  agentsw tracks which one a provider speaks and never downgrades a working one.
+
+## How it compares
+
+Two projects do most of this better than agentsw does, and both are worth your time:
+
+- **[cc-switch](https://github.com/farion1231/cc-switch)** — a desktop app (Tauri) for ten tools:
+  one-click switching, 90+ provider presets, MCP/Skills/Prompts management, local routing and
+  failover with API-format conversion, a usage and cost dashboard, a session manager, and
+  WebDAV/S3 sync.
+- **[cc-switch-cli](https://github.com/SaladDay/cc-switch-cli)** — the community CLI fork of the
+  same idea: TUI plus scriptable subcommands, seven tools, MCP and skills, a daemon proxy with
+  token accounting, SQLite-backed state.
+
+Between them they cover Claude Code, Claude Desktop, Codex, Gemini CLI, OpenCode, Hermes,
+OpenClaw, Pi, Grok Build and MiniMax Code. agentsw covers a different nine — Claude Code, Codex,
+omp, pi, prime-agent, opencode, Hermes, WorkBuddy and DeepSeek Harness — **four of which neither
+other tool writes at all.**
+
+| | agentsw | cc-switch | cc-switch-cli |
+|---|---|---|---|
+| Interface | CLI, `--json` for scripts | desktop GUI | TUI + CLI |
+| Model metadata (models.dev + AI Gateway) written into each app's own fields | **yes** | no | no |
+| MCP / Skills / Prompts management | — | yes | yes |
+| Routing, API-format conversion, failover | — | yes | yes |
+| Usage and cost dashboard | — | yes | yes |
+| Presets, sessions, cloud sync, deep links | — | yes | partial |
+| Reads the other tool's provider store | yes — read-only `import` | — | — |
+
+The honest summary: **if you want a GUI, MCP management, or a failover proxy, use cc-switch.** If
+you use omp, prime-agent, WorkBuddy or DeepSeek Harness, or you want each agent to receive real
+model metadata instead of a bare id, that is what agentsw is for. It reads cc-switch's store
+rather than competing with it.
+
+## Install
+
+```bash
+npx agentsw               # zero install: opens the interactive menu
+npm install -g agentsw    # requires Node >= 22.13 (built-in SQLite without an extra flag)
+```
+
+The provider sync and config management work on Linux, macOS, and Windows. On Windows,
+agentsw stores its own state under `%APPDATA%\agentsw`; native app-data locations are
+used for agents that require them. Set `AGENTSW_HOME` when running from Git Bash/WSL or
+when a portable home directory is desired.
+
+## Quick start
+
+```bash
+npx agentsw               # no install needed — opens the interactive menu
+agentsw                   # once installed globally; the short alias `asw` is identical
+```
+
+**Run it with no arguments and you get a menu — that is the whole tool.** Every action lives
+there: add a provider (auto-detect or manual setup), import the providers already configured in
+your agents, switch provider and default model, sync a provider (fetch its current model list,
+then write it to your agents), configure model metadata, rename or delete, install/upgrade an
+agent, change language. On the first run it asks for English or 简体中文 and offers to adopt what
+your agents are already using.
+
+Each menu action has a command equivalent for scripts, CI and headless machines — see
+[Commands](#commands). Examples below are written as `asw`; without a global install, run them
+as `npx agentsw <command>`.
+
+One command that needs no menu — `asw status` prints what each agent currently points at:
+
+```console
+$ asw status
+config: ~/.config/agentsw/config.json
+active provider: myproxy
+
+APP       FOUND  PROTOCOLS         CURRENT                                 CONFIG
+--------  -----  ----------------  --------------------------------------  --------------------------------
+claude    yes    anthropic         -                                       ~/.claude/settings.json
+codex     yes    openai            myproxy · glm-5.3-flash                 ~/.codex/config.toml
+omp       yes    openai+anthropic  providers: sub, sub-anthropic, myproxy  ~/.omp/agent/models.yml
+pi        no     openai+anthropic  -                                       ~/.pi/agent/models.json
+opencode  yes    openai+anthropic  myproxy/glm-5.3-flash                   ~/.config/opencode/opencode.json
+dsh       yes    openai+anthropic  myproxy · glm-5.3-flash                 ~/.dsh/settings.yaml
+```
+
+And the point of the whole thing — one command writes every detected agent (this is the run in
+the animation at the top of this page, as text):
+
+```console
+$ asw use myproxy
+switching to myproxy (openai) · default model glm-5.3-flash
+
+skip claude    Claude Code does not support openai-protocol providers
+ok   codex     ~/.codex/config.toml, ~/.codex/auth.json
+ok   omp       ~/.omp/agent/models.yml
+               select in omp with: omp --model myproxy/glm-5.3-flash
+ok   pi        ~/.pi/agent/models.json, ~/.pi/agent/settings.json
+ok   prime     ~/.prime/agent/models.json, ~/.prime/agent/settings.json
+ok   opencode  ~/.config/opencode/opencode.json
+ok   hermes    ~/.hermes/config.yaml, ~/.hermes/.env
+ok   workbuddy ~/.workbuddy/models.json, ~/.workbuddy/settings.json
+               WorkBuddy watches models.json; models appear in the selector's custom section without restart
+ok   dsh       ~/.dsh/settings.yaml, ~/.dsh/.credentials.yaml
+               select in dsh with the model picker, or run: dsh web
+```
+
+`claude` is the only skip: Claude Code speaks the Anthropic protocol, and `myproxy` is an
+OpenAI-protocol provider. On a machine where an agent's config already exists, committing to it
+also prints a `backup: ~/.config/agentsw/backups/transaction-<unique>` line; this sandbox starts
+with empty configs, so there is nothing to back up and none appear.
+
+## Supported apps
+
+| App | Config written | Protocols |
+|---|---|---|
+| [Claude Code](https://www.npmjs.com/package/@anthropic-ai/claude-code) | `~/.claude/settings.json` env block | anthropic |
+| [Codex CLI](https://www.npmjs.com/package/@openai/codex) | `~/.codex/config.toml` + `auth.json` (Responses API only) | openai |
+| [Oh My Pi](https://omp.sh) (omp) | `~/.omp/agent/models.yml` (comments preserved) | both |
+| [pi](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) | `~/.pi/agent/models.json` + `settings.json` | both |
+| [prime-agent](https://github.com/PrimeIntellect-ai/prime-agent) | `~/.prime/agent/models.json` + `settings.json` | both |
+| [opencode](https://opencode.ai) | `~/.config/opencode/opencode.json`, `.jsonc` or `config.json` (the one that exists; comments preserved) | both |
+| [Hermes](https://pypi.org/project/hermes-agent/) | `~/.hermes/config.yaml` + `.env` (comments preserved) | both |
+| WorkBuddy | `~/.workbuddy/models.json` + `settings.json` (`%APPDATA%\workbuddy` on Windows) | openai |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (dsh) | `~/.dsh/settings.yaml` + `.credentials.yaml` | both |
+
+An agent that is not installed is skipped, not guessed at. `--apps codex,omp` narrows a run;
+`--apps` with an uninstalled agent forces it.
+
+Every adapter honors the configuration-directory variable its app defines, and resolves it on
+each command, so `use`, `sync`, `status`, `rename` and `remove` always agree on the same files:
+`CLAUDE_CONFIG_DIR` (Claude Code), `CODEX_HOME` (Codex), `PI_CODING_AGENT_DIR` /
+`PRIME_AGENT_CODING_AGENT_DIR` (pi / prime-agent), `OPENCODE_CONFIG_DIR` and `OPENCODE_CONFIG`
+(opencode), `HERMES_HOME` (Hermes), `DSH_HOME` (dsh), `WORKBUDDY_CONFIG_DIR` (WorkBuddy, with
+the legacy `CODEBUDDY_CONFIG_DIR` as fallback). An empty value is ignored, a leading `~` is
+expanded, and opencode is edited in place whichever of `opencode.json`, `opencode.jsonc` or
+`config.json` exists.
+
+The interactive menu asks the same question before writing: a multi-select where the first row
+is **all detected apps**, detected agents are listed first and undetected ones are marked. The
+last selection is remembered, so a menu `use`/`sync` keeps rewriting only the agents you picked.
+An error in any config file (invalid JSON/YAML/TOML) is reported with the file and position, never
+with the offending line, and dry-run keeps that detail instead of hiding it.
+
+## Import what you already configured
+
+`import` reads every agent's config **and cc-switch's SQLite store** (read-only), resolves
+inline and env-backed keys, and merges candidates that share a protocol + base URL — model
+lists and source apps are unioned. Different protocols on the same host stay separate.
+
+```console
+$ asw import --all
+
+ID             PROTOCOL   BASE URL                                MODELS  FROM       KEY
+-------------  ---------  --------------------------------------  ------  ---------  ---
+any            anthropic  https://a-long-reseller.example.com...  1       cc-switch  yes
+sub            openai     https://api.example.com/v1              18      omp        yes
+sub-anthropic  anthropic  https://api.example.com                 18      omp        yes
+zhipu-glm      anthropic  https://open.bigmodel.cn/api/anthropic  1       cc-switch  yes
+imported sub · openai · https://api.example.com/v1 · 18 models [from omp]
+imported zhipu-glm · anthropic · https://open.bigmodel.cn/api/anthropic · 1 models [from cc-switch]
+```
+
+In an interactive terminal, omitting `--all` opens a multi-select preview before provider
+records are saved. `--all`, or non-interactive stdin, imports all eligible new entries;
+use `--all` explicitly in scripts. Model discovery may update the local metadata cache.
+
+## Model discovery filters
+
+`--discover` lists model ids from the provider's `/v1/models`, then enriches each id from models.dev first,
+with automatic AI Gateway supplementation when needed. Limits and prices the provider declares for its own models in
+that same listing win over what a catalog claims for them; ids it lists bare are enriched as before. Reseller lists are noisy,
+so filters are persisted per provider and re-applied on every `discover`:
+
+```bash
+# snapshot duplicates (gpt-5.2-latest, glm-4.7-250414, ...) are DROPPED by default
+# whenever the bare id is also listed; snapshot-only models are kept as-is
+asw add -y --discover --exclude "*embedding*,*video*" --id myproxy ...
+asw add -y --discover --no-dedup ...            # keep duplicates
+asw discover myproxy --include "gpt-*,glm-*"    # update the persisted filter
+asw discover myproxy --no-filter                # clear it
+
+# Refresh several providers' model lists without writing any agent config.
+asw discover --all
+asw discover myproxy backup-proxy
+```
+
+Explicit `--models` entries and the default model are never filtered out.
+
+## Automatic model metadata
+
+**No extra flags are needed.** New providers and providers without a saved mode use `auto`:
+models.dev is checked first, then the public
+[AI Gateway model catalog](https://vercel.com/docs/ai-gateway/models-and-providers#dynamic-model-discovery)
+is consulted only for missing core parameters (context window, maximum output, reasoning or image input),
+to refresh unchanged Gateway-supplied fields that models.dev has not replaced, or to verify an identity
+conflict in previously tracked automatic values. Missing names, prices, optional input limits or
+reasoning-effort lists alone do not trigger a Gateway lookup.
+agentsw directly fetches `https://ai-gateway.vercel.sh/v1/models` without provider credentials or an AI SDK dependency.
+
+```bash
+# Refresh only saved models using the saved mode (auto if unset)
+# No model discovery or agent config writes
+asw refresh --provider myproxy
+
+# Inspect effective mode, sources, conflicts and reference pricing (no API key)
+asw models --provider myproxy --metadata
+
+# Custom or ambiguous names need explicit aliases; wire model IDs stay unchanged
+asw refresh --provider myproxy --metadata-mode auto \
+  --gateway-models '{"my-model":"openai/gpt-5.4"}'
+
+# Always consult Gateway, even when core parameters are complete
+asw refresh --provider myproxy --metadata-mode on
+
+# Stop future Gateway fetches; retain saved model parameters
+asw refresh --provider myproxy --metadata-mode off
+
+# Return an explicitly disabled provider to automatic mode
+asw refresh --provider myproxy --metadata-mode auto
+
+# Preview and apply separately. Sync fetches the model list first;
+# --dry-run still fetches, so the preview matches a real sync, but saves nothing;
+# --no-refresh writes the saved list without touching the network.
+asw sync --provider myproxy --dry-run
+asw sync --provider myproxy
+asw sync --provider myproxy --no-refresh
+
+# Refresh and push several providers in one run.
+asw sync --all
+asw sync --provider myproxy,backup-proxy
+```
+
+The menu's **Configure and refresh model metadata** action offers **Automatic (recommended)**,
+**Always supplement**, and **Disabled**, with the provider's current mode selected. Onboarding has no extra prompts.
+`add`, `quick`, `discover`, `import`, and `refresh` accept `--metadata-mode <auto|on|off>`.
+The existing `--gateway-metadata` and `--no-gateway-metadata` flags remain explicit `on` and `off` choices.
+Omitted options preserve saved settings: an existing `false` remains off until you select `auto` or `on`.
+Invalid modes and conflicting mode/boolean flags are rejected before fetching or saving.
+Without `--provider`, `refresh` applies to all providers, including any supplied mode.
+`--gateway-models` replaces the whole alias map (`{}` clears it); aliases do not change the saved mode or override `off`.
+Import still skips already configured accounts.
+
+- **Field-level priority:** manual values > the endpoint's own declaration > models.dev > Gateway gap filling.
+  An endpoint that advertises `context_window_tokens`/`maximum_output_tokens`
+  (or their `context_length`/`max_output_tokens` spellings) for its own list is authoritative for its own
+  route, so those limits are written instead of a catalog's estimate for the same model. The same applies
+  to prices a route publishes for its own models — `input_cost_per_million_tokens_usd`,
+  `output_cost_per_million_tokens_usd`, `cached_input_cost_per_million_tokens_usd`,
+  `cache_write_cost_per_million_tokens_usd`, or the nano-USD `pricing.*_nano_usd_per_million_tokens`
+  form — which are stored as USD per million tokens. Rates priced per image, second or character are
+  not token prices, and a tier rate beside the base one is not the base price, so neither is written. Tracked automatic
+  values may refresh; subsequent manual edits are retained. Legacy values without provenance are conservatively
+  treated as manual overrides. Unmodeled extension fields survive enrichment too.
+- **Exact identities:** automatic lookup can map a bare, case-sensitive ID (no `/`) to a unique Gateway
+  `creator/model` identity when models.dev evidence is absent or agrees. Ambiguous creator evidence in either
+  catalog is rejected; custom or ambiguous names need explicit aliases. Qualified IDs never have their prefixes
+  stripped, and matching never guesses from substrings, case folding or versions. Auto/on mode also uses conservative
+  exact models.dev matching; off retains the legacy models.dev lookup. Unmatched models remain usable.
+  Alias changes clear unchanged automatic values tied to confirmed superseded identities, never manual edits.
+- **No routing changes:** metadata never adds available models or changes IDs, protocols, URLs, defaults or
+  accounts. Gateway capabilities are reference specs, not proof of reseller support. `supported_specifications`
+  is not a URL version.
+- **Reference-only prices:** Gateway prices are converted to USD per million tokens and stored separately in
+  `metadata.gateway.referenceCost`, not effective provider `cost` or runtime agent pricing. Variable/tiered
+  pricing is flagged separately.
+  Auto does not fetch solely to refresh this reference snapshot: check `metadata.gateway.fetchedAt`, or use
+  `refresh --provider <id> --metadata-mode on` to request fresh reference prices.
+- **Auditable and optional:** `metadata.fields` records origins, value snapshots and timestamps;
+  `metadata.conflicts` records disagreements with retained values. This audit stays in agentsw, never runtime agent configs.
+  Gateway has a separate 24-hour cache; a failed request is retried once before falling back to stale cached data
+  (or skipping supplementation when there is none). `AGENTSW_DEBUG=1` reports why an attempt failed, and
+  `AGENTSW_GATEWAY_TIMEOUT_MS` overrides the 15-second whole-request budget.
+- **A model the endpoint dropped is reported, not hidden.** A refresh keeps the default and small
+  model even when the listing stops carrying them — one flaky listing must not delete the model you
+  chose — but being kept also keeps them out of the "removed upstream" line, so they are named in a
+  `warning:` after the apply and in `--json` as `refreshed.missing`. That is what a renamed model
+  looks like from the client side: the agents keep working with an id the endpoint now rejects.
+- **One selection everywhere:** `--all` and a comma-separated `-p a,b` mean the same thing on `sync`, `discover`
+  and `refresh`, and `discover` also takes its ids positionally (`discover alpha beta`). Every id is resolved before
+  the first request, so a typo fails before half the run is on disk. Omitting the selection keeps each command's own
+  default: the active provider for `sync` and `discover`, every provider for `refresh`.
+- **Syncing several providers:** `sync --all` takes every configured provider and `-p a,b` takes a list; each is
+  refreshed and written in turn, finishing with the active provider so whatever "current" pointer an app keeps ends
+  up where the store says it should. An app that names one provider instead of a map — Claude Code's env block — is
+  written once rather than once per provider: it gets the active provider when it can accept it, or the single
+  provider in the run that it can (Claude Code takes anthropic endpoints only, so an openai active provider does not
+  starve it). With several candidates and the active provider not among them the choice is yours, so the app keeps
+  pointing where it already does: syncing is not switching. The same holds for an app that keeps a pointer of its
+  own — only the store's active provider may move it, so `sync -p other` writes that provider's block and models and
+  leaves the app's current model alone (`use` and `add` are what switch). A provider whose endpoint cannot be reached is reported
+  and skipped, the rest still sync, and the run exits non-zero.
+- **Automatic lookup is not an automatic push:** enrichment updates saved metadata during add/quick/discover/import/refresh
+  and never writes agent configs by itself. `sync` is the push, and it refreshes first: it fetches the provider's model
+  list, re-enriches it from the catalogs, saves the store, then applies it. `sync --dry-run` fetches the same list so
+  the preview is accurate but saves neither it nor the configs. `sync --no-refresh` writes the saved list without
+  fetching, and `discover` stops after the refresh without writing any agent.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `agentsw` | interactive menu (no arguments) |
+| `add` | add or update a provider; `--discover` fills the model list |
+| `quick` | discover protocols/models from URL + API key; auto-name by hostname + protocol |
+| `import [--all]` | adopt providers from your agents' configs and cc-switch |
+| `list` / `status` | configured providers / what each agent points at |
+| `list --apps omp,prime` | list agent-local provider IDs, including entries absent from agentsw |
+| `rename <id> <new-id>` | back up and migrate the ID and config references; supports `--dry-run` |
+| `use <id>` | switch every detected agent; `-a codex,omp`, `-m <model>`, `--small-model <id>` / `--no-small-model`, `--dry-run` |
+| `sync` | refresh each provider's model list, then re-apply it to the agent configs; `--all` or `-p a,b` for several, `--no-refresh` writes the saved list |
+| `discover [ids...] [--sync]` | refresh the model list + metadata from `/v1/models`; `--all` or several ids for more than one, no id for the active provider; `--sync` pushes them to the agents |
+| `models [query]` | search the models.dev catalog (`-r` refresh the cache, `-l <n>` limit rows) |
+| `refresh [--provider <ids>]` | refresh saved metadata and optionally configure Gateway; keep the model list; every provider unless `-p a,b` narrows it |
+| `models --provider <id> --metadata` | inspect field sources, conflicts and reference pricing as JSON |
+| `prune <id>` / `remove <id> [--prune]` | remove from app configs / from the store |
+| `remove <id> --apps omp` | delete only the selected app's entry; supports `--dry-run` |
+| `apps` / `install <app>` / `upgrade` | agent version manager |
+
+```bash
+# unattended add: discover the provider's model list, then write it everywhere
+asw add -y --id myproxy --protocol openai --openai-api responses \
+  --base-url https://api.example.com/v1 --api-key sk-... --discover
+asw use myproxy                           # every detected agent
+asw use myproxy -a codex,omp -m glm-5.2   # ...or only these, with another default model
+asw discover myproxy --sync
+asw remove myproxy --prune
+```
+
+New automatic IDs include the full hostname and protocol, e.g. `api-example-com-openai`.
+An explicit `--id` is retained, and syncing never renames an existing provider. Import
+deduplication compares endpoint, protocol, and credentials; different accounts remain separate.
+
+A bare IP works the same way — every dot and colon becomes a dash, and the **port is not part
+of the ID**, so `http://152.53.108.231:3456` becomes `152-53-108-231-openai`. Two ports on that
+host therefore share a base ID and the second provider gets `-2` appended
+(`152-53-108-231-openai-2`); pass `--id` to name them yourself. IPv6 hosts lose their brackets
+and dashes (`https://[2001:db8::1]:8080` → `2001-db8-1-openai`), an IDN host uses its punycode
+form, and a base URL that cannot be parsed falls back to `imported`.
+
+```bash
+asw rename myproxy api-example-com-openai --dry-run
+asw rename myproxy api-example-com-openai
+asw list --apps omp
+asw remove unused-provider --apps omp --dry-run
+asw remove unused-provider --apps omp
+```
+
+`remove` alone changes only the agentsw store; `--prune` also cleans matching app configs.
+`--apps` is instead app-only and can remove a provider never imported into agentsw.
+Do not combine `--apps` and `--prune`. Renames and removals preflight changes and create
+private backups before writes. App-only removal leaves the store intact, so a later explicit
+sync of a managed provider can add it back to that app.
+
+### Global options
+
+These work with every command, written before or after the subcommand:
+
+| Option | Effect |
+|---|---|
+| `--json` | write exactly one JSON document to stdout and nothing else; interactive prompts and progress are disabled, so a scripted run never blocks on input |
+| `-q, --quiet` | suppress progress, hints and warnings; results and errors are kept |
+| `--no-color` | disable colored output (`NO_COLOR=1` does the same; `FORCE_COLOR=1` forces color, `--no-color` wins) |
+| `--lang en\|zh-CN` | interface language |
+
+```bash
+asw status --json | jq '.data.apps[] | select(.current != .id)'
+asw use myproxy -a codex --dry-run --json   # file paths only, never config bodies
+asw list --quiet
+```
+
+Success is `{"ok":true,"command":"status","version":"…","data":{…}}`; a failure is
+`{"ok":false,…,"error":{"message":"…"}}` on stdout with exit code 1. `--json` overrides
+`--quiet`. Credentials never appear in a JSON payload, and `--json --dry-run` reports the file
+paths a run would touch — never the staged configuration. `install` and `upgrade` hand their
+stdio to the package manager, whose own output still reaches the terminal (under `--json` its
+stdout is routed to stderr so the JSON document stays parseable).
+
+Results go to stdout; progress, warnings and the dimmed next-step hints go to stderr. So
+`agentsw status > out.txt` captures only the table, and a script can read stderr for what
+happened without parsing it out of the result.
+
+Exit codes: `0` success, `1` error, `130` cancelled at a prompt. Without `--json`,
+`models --provider <id> --metadata` keeps printing its bare JSON object, so existing scripts
+are unaffected.
+
+## How your configs are treated
+
+- Existing provider-store and agent configuration files are backed up before committed
+  changes to `~/.config/agentsw/backups/transaction-*`. New files have no prior copy;
+  cache refreshes are not configuration backups. Dry runs create neither files nor backups.
+- Each adapter stages all its files before committing; failed writes trigger best-effort
+  rollback. A multi-agent sync is not one filesystem-wide transaction: successful agents
+  remain updated if another fails, and failures are reported with a nonzero exit status.
+- The provider store lives at `~/.config/agentsw/config.json` (mode 0600). Concurrent stale
+  saves are rejected instead of overwriting newer records; retry after the other writer finishes.
+- Existing file permissions are preserved and new configuration files default to 0600.
+- A busy write lock reports its owner PID/time. If a writer crashed, stop all agentsw
+  writers and confirm the lock is abandoned before manually removing the reported
+  `.write.lock` file; active or unknown locks are never automatically stolen.
+- A sync overwrites only the fields agentsw owns. Unmodeled provider-level keys and per-model
+  extras survive; an owned field that stops applying is cleared rather than left stale, and a
+  per-model `api`/`baseUrl` override that contradicts the route is dropped (it would silently
+  win over the entry) and reported. Clearing needs the entry to say something in the first
+  place: a model the store knows nothing about — an id no catalog row matched — is written as
+  an id and its capabilities alone, and the limits already in the file are kept rather than
+  deleted.
+- YAML configs (omp, Hermes, dsh) keep their comments. `~/.codex/config.toml` does not —
+  TOML round-trip drops them, which is why the backup happens first.
+- OpenAI endpoints come in two wires: `/v1/chat/completions` and `/v1/responses`. Imported
+  providers keep whatever the config declared — on the provider or on its models — the
+  interactive `add` asks, and `--openai-api responses` sets it by hand. A sync never
+  downgrades an existing responses entry.
+- Codex only speaks the Responses API; a chat-completions-only endpoint cannot be used with
+  it, and the sync output says so.
+- DeepSeek Harness keeps secrets out of `settings.yaml`: the route carries
+  `apiKeyEnv: AGENTSW_<ID>_<DIGEST>_API_KEY`, the key goes into `$DSH_HOME/.credentials.yaml`
+  (`refs:`, mode 0600). `$DSH_HOME` defaults to `~/.dsh`.
+  The digest distinguishes IDs such as `foo-bar` and `foo_bar`; legacy generated references
+  remain recognizable. External/custom references are not renamed or removed indiscriminately.
+- cc-switch's database is opened read-only and never written to.
+- The apps manager supports native Windows commands for Claude Code, Codex CLI, pi,
+  opencode, Hermes, and DeepSeek Harness. Oh My Pi and prime-agent still need their own
+  Windows installation method; WorkBuddy is installed and updated by its desktop app.
+- `OPENCODE_CONFIG_DIR`, `WORKBUDDY_CONFIG_DIR`, `CODEBUDDY_CONFIG_DIR`, `HERMES_HOME`,
+  and `DSH_HOME` can override native config locations.
+
+## Language
+
+The first interactive launch asks for English or 简体中文 and saves the choice; the menu can
+change it later. A one-run override wins over the saved choice, and with neither the system
+locale decides.
+
+```bash
+asw --lang zh-CN
+AGENTSW_LANG=en asw
+```
+
+## Development
+
+```bash
+npm install
+npm run build       # tsc -> dist/
+npm test            # node:test suite (filter semantics, adapter roundtrips)
+npm run dev -- ...  # run from source via tsx
+```
+
+Each agent is one adapter in [`src/targets/`](./src/targets) implementing
+`apply` / `prune` / `current` / `candidates`; read-only import sources live in
+[`src/sources/`](./src/sources). To add an app, register it in
+[`src/targets/index.ts`](./src/targets/index.ts), wrap its implementation with
+`transactionalTarget()`, and add its schemas/references to `rename.ts` and `remove.ts`.
+Use shared credential, YAML/JSONC, URL and model helpers; add apply/prune/import,
+rename/removal, malformed-input, dry-run and account-isolation tests. If installable,
+also add its platform commands to `apps.ts`. WorkBuddy local deletion uses the stable
+account selector shown by `list --apps workbuddy`, not an ambiguous hostname alone.
+
+## License
+
+MIT

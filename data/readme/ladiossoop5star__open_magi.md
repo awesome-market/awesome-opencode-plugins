@@ -1,0 +1,756 @@
+# open_magi
+
+English | [Traditional Chinese](README.zh-TW.md) | [Codex experimental notes](adapters/codex/README.md) | [Claude experimental notes](adapters/claude/README.md)
+
+**Open Magi is not multi-agent division of labor.** It does not split a task
+into pieces for different agents to own. It puts multiple agents on the *same*
+hard problem: three read-only deliberators independently investigate, propose,
+and adversarially review from different angles, while one main agent keeps the
+decision, the code changes, and the verification.
+
+The pain point it solves: when you cannot — or do not want to — rely on
+frontier models, a council of smaller, weaker models that investigate,
+challenge, and verify each other can get close to frontier-level results on
+hard coding tasks, instead of a single weak model getting stuck, guessing, or
+stopping early.
+
+`open_magi` packages the Magi deliberation loop for coding agents. The stable
+runtime today is the installable OpenCode plugin. Experimental Codex and Claude
+Code support are available as skill-first adapter plugins, without full runtime
+backstop parity yet.
+
+## What It Does
+
+Open Magi is for coding tasks where a single agent can get stuck in one line of
+reasoning, skip verification, or stop before the task is actually done. It turns
+one coding agent into a controlled Magi loop:
+
+1. The main agent records the goal, acceptance criteria, and verification
+   commands under `.open_magi/magi-log/`.
+2. In round 1, the main agent does only minimal scoping, then a recon council
+   pass: all three deliberators investigate read-only in parallel, and the main
+   agent synthesizes their findings into `evidence-base.md`.
+3. Three read-only deliberators review the problem from different angles:
+   Melchior for implementation risk, Balthasar for architecture, and Casper for
+   root cause and verification gaps.
+4. The main agent synthesizes their reports into a selected direction and, when
+   needed, asks the council for more passes before making code changes.
+5. Only after a clear verdict does the main agent edit code, run verification,
+   record `verdict_adherence: yes|no`, and either continue another round or
+   claim completion.
+6. A completion claim triggers one adversarial review council pass: the three
+   deliberators review the actual diff against the verdict, verification
+   output, and acceptance criteria. Only an approved `review-verdict.md` allows
+   `final-report.md` and closes the loop; objections start the next round.
+7. Runtime backstops, where supported, keep the loop from silently stopping,
+   asking procedural questions, or accepting missing artifacts.
+
+The important distinction is that the deliberators do not edit files. They
+produce reports. The main agent remains responsible for choosing the direction,
+making changes, running tests, and writing the final report.
+
+## Runtime Flow
+
+```mermaid
+flowchart TD
+    A[User gives a coding goal] --> B[Main agent creates .open_magi/magi-log state]
+    B --> C[Phase 1a: minimal scoping, write recon prompt]
+    C --> R[Phase 1b: recon council gathers evidence in parallel]
+    R --> R2[Main agent writes evidence-base.md]
+    R2 --> D[Phase 2: write focused council prompt]
+    D --> E[Phase 3: launch Melchior, Balthasar, and Casper]
+    E --> F[Read-only deliberator reports]
+    F --> G[Phase 4: synthesize consensus, risks, and selected direction]
+    G --> H{Enough agreement and verification plan?}
+    H -- No --> D
+    H -- Yes --> I[Phase 5: main agent edits code]
+    I --> J[Run build, tests, or requested verification]
+    J --> K{Acceptance criteria met?}
+    K -- No --> L[Record verification and start next round]
+    L --> C
+    K -- Yes --> V[Completion review: council adversarially reviews the actual diff]
+    V --> W{review-verdict approved?}
+    W -- No --> L
+    W -- Yes --> M[Write final-report.md and close loop]
+```
+
+## Support Status
+
+OpenCode is the only production-supported coding-agent runtime today. The
+current installer, config writer, runtime hook, and strongest guardrails are
+designed for OpenCode.
+
+Codex support is experimental. It exposes the `magi` skill through Codex plugin
+discovery, but timeout enforcement, auto-continue, question denial, and artifact
+repair still need a Codex-native runtime adapter.
+
+Claude Code support is experimental. It exposes `/open-magi:magi`, three native
+plugin agents, a headless `run-council` runner, and a conservative Stop hook
+through `adapters/claude`.
+
+Pi support is experimental. It exposes `/magi`, `/skill:magi`, an inline
+natural-language activation path, `/magi-setup`, an internal `magi_council
+runner` tool, a question firewall, and the Herdr hard transport membrane
+through `adapters/pi` and the root `pi` manifest.
+
+Future plan:
+
+1. Stabilize the OpenCode plugin and Magi protocol through real project usage.
+2. Validate Codex-native hooks and subagents for runtime backstop parity.
+3. Harden Claude Code native plugin-agent behavior through real usage.
+4. Validate Pi-native council pipeline and controller behavior through real
+   usage (activation, question firewall, and shutdown semantics).
+5. Add a Copilot CLI adapter if its extension points can support the required
+   loop control, subagent delegation, and artifact checks.
+
+Each future adapter should use the coding agent's own install path and runtime
+model. The shared Magi protocol can be reused where practical, but OpenCode
+runtime hooks are not assumed to work in other agents.
+Adapter-specific config files should live under that coding agent's own config
+directory, not in a shared Open Magi global directory.
+
+## Adapter Package Layout
+
+The repository keeps shared Magi protocol assets separate from installable
+adapter packages:
+
+```text
+shared/magi/
+  prompts/
+  references/
+
+skills/magi/
+  OpenCode-installed magi skill
+
+adapters/codex/
+  .codex-plugin/
+  bin/
+  hooks/
+  lib/
+  skills/magi/
+
+adapters/claude/
+  .claude-plugin/
+  agents/
+  bin/
+  hooks/
+  lib/
+  skills/magi/
+```
+
+`shared/magi` is source-of-truth maintenance material only. It is not installed
+into OpenCode or Codex. Tests enforce that shared prompts and common references
+stay identical across adapter skills while allowing adapter-specific runtime
+references.
+
+The OpenCode npm package contains only the OpenCode runtime plugin, OpenCode
+setup CLI, and OpenCode `skills/magi`. The Codex marketplace entry points at
+`./adapters/codex`, so Codex installs only the Codex plugin manifest, Codex
+Stop hook, Codex setup CLI, and Codex `skills/magi`.
+
+Claude Code support is packaged separately under `adapters/claude`, so Claude
+installs only the Claude plugin manifest, Claude plugin agents, Claude Stop
+hook, setup/runner CLI, and Claude `skills/magi`.
+
+## Development Hygiene
+
+Small changes, documentation edits, and routine debugging may be committed
+directly on `main`. Use a feature branch for risky or large changes, then merge
+back to `main` after verification.
+
+Keep real runtime logs, local test data, and personal notes out of the
+repository. `.gitignore` excludes `.open_magi/`, `docs/superpowers/`, `.env`
+files, editor swap files, and `tmp/` for this purpose. Test fixtures should use
+generic paths such as `/tmp/open_magi_repo` and generic users such as
+`example-user`.
+
+Before pushing public changes, run:
+
+```bash
+npm test
+npm pack --dry-run
+git diff --check
+```
+
+## Install
+
+Until the npm package is published, install directly from this public GitHub
+repo with the per-runtime steps below. The one-command flows that skip these
+steps are known to be unreliable today: `opencode plugin git+https://...`
+depends on the host's package tooling, and `codex plugin add` cannot install
+plugins that live in a repository subdirectory.
+
+### Claude Code (direct from GitHub)
+
+```bash
+claude plugin marketplace add ladiossoop5star/open_magi
+claude plugin install open-magi@open-magi
+```
+
+### OpenCode (clone + local link)
+
+```bash
+git clone https://github.com/ladiossoop5star/open_magi /path/to/open_magi
+mkdir -p ~/.config/opencode/node_modules
+ln -s /path/to/open_magi ~/.config/opencode/node_modules/open-magi-opencode
+node /path/to/open_magi/bin/open-magi.js setup --allow-default-model
+```
+
+Then edit `~/.config/opencode/opencode.json` (or `opencode.jsonc`) and replace
+the three `default-model` values with real models for deliberator-melchior,
+deliberator-balthasar, and deliberator-casper, and restart OpenCode.
+
+### Codex (clone + cache sync)
+
+```bash
+git clone https://github.com/ladiossoop5star/open_magi /path/to/open_magi
+node /path/to/open_magi/adapters/codex/bin/open-magi.js install-codex
+codex plugin marketplace add /path/to/open_magi
+```
+
+Make sure `~/.codex/config.toml` contains
+`[plugins."open-magi@open-magi-dev"]` with `enabled = true`, then configure
+the three `~/.codex/agents/deliberator-*.toml` model values as described in
+[Codex experimental notes](adapters/codex/README.md).
+
+### Ask an AI agent to install it
+
+OpenCode:
+
+```text
+Please install the public OpenCode plugin `open-magi-opencode` from the `open_magi` repo:
+https://github.com/ladiossoop5star/open_magi. Clone the repo, link it into
+~/.config/opencode/node_modules as open-magi-opencode, then run
+`node <repo>/bin/open-magi.js setup --allow-default-model`. Do NOT use
+`opencode plugin git+https://...`; it is unreliable for this repo. Afterwards,
+set real model values for deliberator-melchior, deliberator-balthasar, and
+deliberator-casper in ~/.config/opencode/opencode.json (or opencode.jsonc),
+and confirm ~/.config/opencode/skills/magi/SKILL.md exists.
+```
+
+Codex:
+
+```text
+Please install the Open Magi Codex adapter from the `open_magi` repo:
+https://github.com/ladiossoop5star/open_magi. Clone the repo, run
+`node <repo>/adapters/codex/bin/open-magi.js install-codex`, then
+`codex plugin marketplace add <repo>`. Do NOT use `codex plugin add`; it
+cannot install plugins that live in a repository subdirectory. Make sure
+~/.codex/config.toml has [plugins."open-magi@open-magi-dev"] with
+enabled = true, then set real model values in
+~/.codex/agents/deliberator-melchior.toml, deliberator-balthasar.toml, and
+deliberator-casper.toml.
+```
+
+Claude Code:
+
+```text
+Please install the Open Magi Claude Code plugin from the `open_magi` repo:
+https://github.com/ladiossoop5star/open_magi. Run
+`claude plugin marketplace add ladiossoop5star/open_magi` and
+`claude plugin install open-magi@open-magi`. If I want concrete deliberator
+models, clone the repo and run
+`node <repo>/adapters/claude/bin/open-magi-claude.js setup-claude
+--melchior-model <model> --balthasar-model <model> --casper-model <model>`
+instead. Restart Claude Code or run /reload-plugins afterwards.
+```
+
+After the npm package is published, the shorter npm install path will be:
+
+```bash
+opencode plugin open-magi-opencode -g
+```
+
+Use models already configured in your OpenCode `opencode.json`. You can use one
+shared model for all three deliberators, or give Melchior, Balthasar, and Casper
+different models. Restart OpenCode after editing the model values.
+
+## Codex Experimental Notes
+
+Codex support is packaged separately under `adapters/codex`. Do not use the
+OpenCode npm package or OpenCode setup command for Codex. See
+[Codex experimental notes](adapters/codex/README.md) for the current install,
+setup, and limitation details.
+
+Codex deliberators run under Codex's bubblewrap sandbox (`--sandbox
+read-only`). On Ubuntu 24.04+ hosts that restrict unprivileged user namespaces
+via AppArmor without a bubblewrap profile, every deliberator command fails and
+council reports degrade to prompt-only guesses; `run-council` detects this and
+fails the council with `haltReason: "sandbox_unavailable"`. Verify with
+`bwrap --dev-bind / / true` and fix by installing a `bwrap` AppArmor profile —
+see the
+[Linux sandbox troubleshooting](adapters/codex/README.md#linux-sandbox-troubleshooting)
+section. Claude and OpenCode deliberators do not use an OS sandbox and are not
+affected.
+
+## Pi Experimental Notes
+
+Pi support is experimental and packaged in the repository root so `pi install
+.` discovers it: the `pi` manifest in `package.json` points at
+`adapters/pi/extension.js` and `adapters/pi/skills`. The installed Pi and
+extension API expectation is @earendil-works/pi-coding-agent 0.85.1; Pi remains
+experimental even after OpenCode stabilizes. See
+[Pi experimental notes](adapters/pi/README.md) for the full guide.
+
+Install and use (interactive Pi sessions only — `rpc`, `json`, and `print`
+modes reboot Magi with a rejection message instead of starting a loop):
+
+```bash
+OPEN_MAGI_SKIP_POSTINSTALL=1 pi install git:github.com/ladiossoop5star/open_magi
+```
+
+- Activation: `/magi <goal>`, `/skill:magi <goal>`, or explicit natural
+  language such as "use Magi to debug this", "run this with Magi",
+  "run Magi now", "start Magi", "debug this through Magi", the Mandarin
+  "Qing shi yong Magi chu li zhe ge wen ti" (`\u8acb\u4f7f\u7528 Magi
+  \u8655\u7406\u9019\u500b\u554f\u984c`), or "yong magi skill lai debug"
+  (`\u7528 magi skill \u4f86 debug`). Informational questions (`What is
+  Magi?`) and negations (`do not use Magi`, the Mandarin negative command
+  `\u4e0d\u8981\u4f7f\u7528 Magi`) never activate.
+- `/magi-setup` edits per-role Pi model overrides with a dialog; the user
+  config lives under Pi's agent directory via `getAgentDir()/open-magi.json`
+  (honors `PI_CODING_AGENT_DIR`) with mode 0600, the trusted project config
+  reads `CONFIG_DIR_NAME/open-magi.json` under the project, and the precedence
+  is main session -> user -> trusted project. Per-role selector format:
+  `provider/model:thinking` with an optional thinking level
+  (off|minimal|low|medium|high|xhigh|max); an empty answer clears the role.
+- Deliberation runs through the internal `magi_council` tool: three ISOLATED
+  concurrent read-only Pi children in JSON mode
+  (`--mode json --print --no-session --no-extensions --no-skills
+  --no-context-files --no-prompt-templates --no-themes --tools
+  read,grep,find,ls --no-approve`), atomic `report-<sage>.md` writes, and
+  fail-closed error envelopes.
+- Herdr `HERDR_ENV=1` stays authoritative: the `.open-magi-herdr` gate,
+  panes, and lifecycle keep the Herdr contract and the native Pi council is
+  NEVER used (native runner never runs in Herdr mode).
+- Failures are fail-closed and NEVER fall back between models: timeout with
+  SIGTERM then SIGKILL after five seconds, model/auth/provider errors produce
+  `model_unavailable`, and subprocess-stop failures write
+  `report_source: pi_json_failed` reports.
+- Uninstall: `pi remove git:github.com/ladiossoop5star/open_magi` (or `pi
+  remove .` for a local checkout). Troubleshooting lives in the
+  [Pi experimental notes](adapters/pi/README.md).
+- Quiet STOPS: the adapter docs are deliberately no-Han outside README.zh-TW.md
+  and `pi-subagents` is never a dependency.
+
+## Claude Experimental Notes
+
+Claude Code support is packaged separately under `adapters/claude`. Do not use
+the OpenCode npm package or OpenCode setup command for Claude. From a local
+checkout, add this repo as a Claude plugin marketplace and install the Claude
+adapter:
+
+```bash
+claude plugin marketplace add /path/to/open_magi
+claude plugin install open-magi@open-magi
+```
+
+For local development, validate and load the plugin directly with:
+
+```bash
+claude plugin validate adapters/claude
+claude --plugin-dir /path/to/open_magi/adapters/claude
+```
+
+For separate Melchior, Balthasar, and Casper models, generate a local Claude
+skills-dir plugin with concrete agent `model:` values:
+
+```bash
+node /path/to/open_magi/adapters/claude/bin/open-magi-claude.js setup-claude \
+  --melchior-model model-a \
+  --balthasar-model model-b \
+  --casper-model model-c
+```
+
+If the CLI package is installed, use:
+
+```bash
+open-magi-claude setup-claude \
+  --melchior-model model-a \
+  --balthasar-model model-b \
+  --casper-model model-c
+```
+
+The generated plugin lives under `~/.claude/skills/open-magi`. If
+`open-magi@open-magi` was installed from the marketplace, uninstall it before
+using the generated skills-dir plugin:
+
+Manual Claude deliberator model configuration lives in the generated agent
+frontmatter. Edit these three files and change only the `model:` value:
+
+```text
+~/.claude/skills/open-magi/agents/deliberator-melchior.md
+~/.claude/skills/open-magi/agents/deliberator-balthasar.md
+~/.claude/skills/open-magi/agents/deliberator-casper.md
+```
+
+Example:
+
+```yaml
+---
+name: deliberator-melchior
+model: claude-haiku-4-5-20251001
+tools: ["Read", "Grep", "Glob"]
+---
+```
+
+```bash
+claude plugin uninstall open-magi@open-magi
+```
+
+Restart Claude Code or run `/reload-plugins` after changing plugin files.
+
+During Magi Phase 3, Claude uses the runner instead of relying on the main
+Claude agent to launch three `Agent` tool calls:
+
+```bash
+node ~/.claude/skills/open-magi/bin/open-magi-claude.js run-council \
+  --project-root "$PWD" \
+  --prompt-path ".open_magi/magi-log/round-NNN/council-PPP/prompt.md" \
+  --round N \
+  --pass P
+```
+
+The runner launches three headless Claude subprocesses concurrently and writes
+`report-melchior.md`, `report-balthasar.md`, and `report-casper.md`.
+If the CLI is on PATH, use `open-magi-claude run-council` with the same
+arguments.
+
+Then invoke:
+
+```text
+/open-magi:magi goal: fix the tests until npm test passes. Verification command: npm test.
+```
+
+If your environment uses a local Claude wrapper for local LLM routing, start
+Claude through that local Claude wrapper. See
+[Claude experimental notes](adapters/claude/README.md) for native plugin agent,
+Stop hook, and limitation details.
+
+## Update
+
+If you installed directly from this GitHub repo, use the same source with
+`--force`:
+
+```bash
+opencode plugin git+https://github.com/ladiossoop5star/open_magi.git -g -f
+```
+
+After the npm package is published, replace the installed plugin version and
+refresh the local skill files with:
+
+```bash
+opencode plugin open-magi-opencode -g -f
+```
+
+The plugin install hook refreshes `~/.config/opencode/skills/magi` and
+preserves unrelated OpenCode configuration. If the three model values are still
+`default-model`, edit them manually or use the setup command below to write real
+models directly.
+
+## What Installation Writes
+
+Plugin installation writes to the OpenCode config directory. By default this is:
+
+```text
+~/.config/opencode/
+```
+
+Generated or updated files:
+
+```text
+~/.config/opencode/opencode.json
+~/.config/opencode/skills/magi/SKILL.md
+~/.config/opencode/skills/magi/prompts/melchior.md
+~/.config/opencode/skills/magi/prompts/balthasar.md
+~/.config/opencode/skills/magi/prompts/casper.md
+```
+
+The install hook preserves unrelated `provider`, `agent`, and `plugin`
+configuration. It adds or updates:
+
+- `plugin[]`: `open-magi-opencode`, unless OpenCode already registered this
+  repository package directly.
+- `agent.deliberator-melchior`
+- `agent.deliberator-balthasar`
+- `agent.deliberator-casper`
+
+All three deliberator agents are configured as subagents with `edit=deny`,
+`bash=deny`, and `question=deny`, so they cannot modify files, run commands,
+or escalate questions to the user.
+
+## Setup Options
+
+The CLI setup command is optional. Use it to repair or regenerate config if the
+install hook was skipped. To intentionally write editable `default-model`
+placeholders, make that explicit:
+
+```bash
+open-magi setup --allow-default-model
+```
+
+Then edit `~/.config/opencode/opencode.json` and replace:
+
+```text
+agent.deliberator-melchior.model
+agent.deliberator-balthasar.model
+agent.deliberator-casper.model
+```
+
+One model for all three deliberators, without placeholders:
+
+```bash
+open-magi setup \
+  --model deepseek-v4-flash \
+  --config-dir ~/.config/opencode \
+  --plugin-spec open-magi-opencode
+```
+
+Independent deliberator models:
+
+```bash
+open-magi setup \
+  --melchior-model model-a \
+  --balthasar-model model-b \
+  --casper-model model-c
+```
+
+Dry run:
+
+```bash
+open-magi setup --model deepseek-v4-flash --dry-run
+```
+
+Environment overrides:
+
+```bash
+OPEN_MAGI_MODEL=deepseek-v4-flash open-magi setup
+OPEN_MAGI_MELCHIOR_MODEL=model-a \
+OPEN_MAGI_BALTHASAR_MODEL=model-b \
+OPEN_MAGI_CASPER_MODEL=model-c \
+  open-magi setup
+OPENCODE_CONFIG_DIR=/path/to/opencode-config open-magi setup --model deepseek-v4-flash
+```
+
+Interactive prompt mode:
+
+```bash
+open-magi setup --interactive
+```
+
+## Herdr-Native Deliberation
+
+When a user explicitly asks to start or use Magi for a project with
+`HERDR_ENV=1`, an activation hard gate runs before any repository/project
+read/search, reference load, state creation, runtime bootstrap, or Herdr call.
+Its only operation is exactly one initial `lstat` of the exact absolute
+`.open-magi-herdr` path in the already-current working directory. That single
+result determines `ENOENT` versus existing and supplies owner, type, and mode
+metadata. If missing, the first user-facing action is a direct request for all
+three commands. This is a zero-discovery branch: there is no Git or Herdr command,
+filesystem search, `.open_magi` access, state/question artifact, pane split, or
+agent launch before the question.
+
+If the exact file exists, Magi reuses the returned metadata; there is no second
+`lstat` or existence check before asking or parsing. Invalid permissions, type,
+format, roles, or commands cause the same immediate direct question without a
+search elsewhere. After the user supplies the three commands, Magi safely
+writes and revalidates the local file, then performs exclusion checks. Only a
+locally valid file permits `herdr pane current --current`, project exploration,
+state creation, and pane or agent setup. The file has one raw wrapper command
+per sage, for example:
+
+```text
+melchior=replace-with-melchior-agent-command
+balthasar=replace-with-balthasar-agent-command
+casper=replace-with-casper-agent-command
+```
+
+These are illustrative placeholders, not installed executables. Replace all
+three values with commands that work on your machine.
+
+The values may be arbitrary raw wrapper commands, but the application that each
+wrapper ultimately starts must be recognized by Herdr. Magi never infers these
+commands. If the file is missing, invalid, or names an unrecognized final
+application, Magi asks the user for the commands, writes or updates the file
+itself, validates the result, and corrects any launch or configuration failure
+with the user. It reports failures and never silently falls back to another
+transport.
+
+Where file modes are supported, the config is created or updated with
+owner-only `0600` permissions. Magi verifies its owner/mode before every read or
+update. An insecure mode is invalid and must be fixed before config content is
+read or changed. These checks apply in both Git and non-Git projects.
+
+In a Git repository, Magi runs `git rev-parse --show-toplevel` and
+`git rev-parse --show-prefix` from the captured starting directory to compute
+the exact anchored repository-relative config pattern. A config at the
+repository root uses `/.open-magi-herdr`; one under `packages/app` uses
+`/packages/app/.open-magi-herdr`. Magi resolves the repository-local exclude
+file with `git rev-parse --git-path info/exclude`, appends the exact pattern
+idempotently, and verifies the actual config path with
+`git check-ignore --no-index <config-path>` before continuing. Linked worktrees
+may share that exclude file.
+
+Never commit `.open-magi-herdr`, and do not embed secrets or tokens in its raw
+commands. Raw commands stay confined to the config file and the immediate
+launch. The only exception is an exact targeted correction question, which the
+controller marks `sensitive: herdr_raw_command`. That exact question may exist
+only in the owner-only transient
+`.open_magi/magi-log/question-request.md`; the plugin consumes and removes it.
+If the request is denied, the persistent `question-denied.md` record stores only
+the marker, a lowercase SHA-256 digest, and redacted free text; it never stores
+the raw command.
+Raw commands never appear in Magi reports, persistent logs, or general
+diagnostics. In a non-Git project, exclusion is skipped; protect the file
+manually.
+
+Inside Herdr this configuration replaces, rather than supplements, the native
+Codex, Claude, or OpenCode deliberator settings. Magi does not add a new runner:
+it uses Herdr's existing panes and agent controls. The initial layout keeps the
+main pane on the left and stacks Melchior, Balthasar, and Casper from top to
+bottom on the right; the right side initially occupies no more than 50% of the
+width. Later manual resizing is preserved, and a reused layout is not resized.
+
+Every subordinate split receives both the captured absolute project directory
+through `--cwd` and the sage-only `OPEN_MAGI_DISABLE_STOP_BACKSTOP=1`
+environment marker. The first shell command in each new pane is a standalone,
+safely quoted `cd -- <captured-directory>`. Magi verifies the pane-reported cwd
+before it runs the configured agent command; failure stops that role without
+launching it. This generic Herdr gate both prevents cwd drift and keeps a
+project-wide main-agent Stop hook from taking over a read-only sage.
+
+In normal operation, the three deliberator agents are persistent across passes,
+rounds, and completed Magi loops. Explicit cleanup requested by the user closes
+all three Magi-owned panes for the current project and source mapping, while
+leaving `.open-magi-herdr` in place for later use.
+
+Recovery from a startup failure, stale-busy agent, or config drift is a separate
+exception. Magi may replace or close only the affected role pane while preserving
+healthy siblings, but only after obtaining the required user authorization
+through the destructive-risk question and completing ownership validation.
+
+## Usage
+
+Start OpenCode in a project after installation:
+
+```bash
+opencode .
+```
+
+Then ask for Magi:
+
+```text
+magi, goal: fix the tests until npm test passes.
+```
+
+Equivalent trigger examples:
+
+```text
+magi, goal: complete this refactor and run verification.
+three-sages loop, goal: diagnose this bug and fix it.
+deliberation loop until done.
+```
+
+## Runtime Files
+
+For each project where Magi runs, runtime logs are written under:
+
+```text
+.open_magi/magi-log/
+```
+
+Expected layout:
+
+```text
+.open_magi/magi-log/
+├── state.json
+├── checklist.md
+├── round-001/
+│   ├── recon-001/
+│   │   ├── prompt.md
+│   │   ├── report-melchior.md
+│   │   ├── report-balthasar.md
+│   │   └── report-casper.md
+│   ├── evidence-base.md
+│   ├── research-prompt.md
+│   ├── council-001/
+│   │   ├── prompt.md
+│   │   ├── report-melchior.md
+│   │   ├── report-balthasar.md
+│   │   ├── report-casper.md
+│   │   └── synthesis.md
+│   ├── verdict.md
+│   ├── verification.md
+│   ├── cleanup.md
+│   ├── review-001/
+│   │   ├── prompt.md
+│   │   ├── report-melchior.md
+│   │   ├── report-balthasar.md
+│   │   └── report-casper.md
+│   └── review-verdict.md
+└── final-report.md
+```
+
+`checklist.md` is a required phase-transition gate. Magi reads it before
+moving phases, and the plugin can reopen a loop if required artifacts such as
+`council-001/report-melchior.md`, `council-001/report-balthasar.md`, or
+`council-001/report-casper.md` are missing.
+
+`verification.md` must explicitly confirm whether execution followed the
+approved `verdict.md` with `verdict_adherence: yes`. If execution drifted, the
+round cannot be finalized; the new evidence must go to the next council round.
+
+`recon-001/` exists only in round 1: the main agent does minimal scoping, then
+all three deliberators gather evidence in parallel before any direction is
+chosen. `review-001/` and `review-verdict.md` gate completion: when the main
+agent claims the goal is met, the cleanup gate first audits the round's full
+diff and removes redundant or ineffective changes (`cleanup.md`), then the
+council adversarially reviews the actual diff. `final-report.md` is allowed
+only after `outcome: approved` with `verdict_adherence_confirmed: yes`. Loops
+that close without an approved review verdict are reopened by the plugin and
+the stop hooks.
+
+Before code changes, Magi can run multiple bounded council passes in one round:
+the default maximum is 3, the hard maximum is 5, and early passes use veto
+rules to avoid premature implementation. If the council still cannot fully
+converge at the limit, Magi must choose the smallest reversible verifiable next
+action instead of asking the user for debug direction.
+
+Deliberator timeout is enforced by the plugin, not just by prompt text. The
+default timeout is 30 minutes per deliberator child session. When a deliberator
+times out, the plugin calls OpenCode `session.abort` for that child session and
+writes the corresponding timeout report under the active council directory,
+for example:
+
+```text
+.open_magi/magi-log/round-001/council-001/report-melchior.md
+```
+
+Timeout reports use `status: timeout`, `stance: needs_evidence`, and
+`blocking_objection: yes`, so the council gate can continue deterministically
+without asking the user what to do.
+
+The plugin also guards the phases in real time. Before each tool call
+(`tool.execute.before`), an active loop denies project code changes and
+build/test commands outside the execution phase, and execution-phase edits
+require `round-NNN/verdict.md`; writes under `.open_magi/` are always allowed.
+After each tool call (`tool.execute.after`), it appends a one-line
+`follow the open_magi process` reminder to the tool result when the loop
+signature changes or after a ten-minute heartbeat. Closed v2 loops whose
+`review-verdict.md` lacks `outcome: approved` or
+`verdict_adherence_confirmed: yes` are reopened for repair.
+
+## Test
+
+```bash
+npm test
+npm pack --dry-run
+```
+
+Live E2E tests require a working OpenCode provider. In this environment, use:
+
+```bash
+opencode run --agent build --model deepseek-v4-flash \
+  "Use the magi skill. Goal: create result.txt with PASS. Verification command: grep -qx PASS result.txt"
+```

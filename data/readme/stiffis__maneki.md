@@ -1,0 +1,216 @@
+# maneki
+
+[![tests](https://github.com/stiffis/maneki/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/stiffis/maneki/actions/workflows/tests.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![GTK 4.16+](https://img.shields.io/badge/GTK-4.16%2B-4A86CF?logo=gtk&logoColor=white)](https://www.gtk.org/)
+[![gtk4-layer-shell](https://img.shields.io/badge/gtk4--layer--shell-1.x-4A86CF)](https://github.com/wmww/gtk4-layer-shell)
+[![Wayland](https://img.shields.io/badge/Wayland-wlr--layer--shell-FFBC00?logo=wayland&logoColor=black)](https://wayland.freedesktop.org/)
+[![Hyprland](https://img.shields.io/badge/Hyprland-ready-58E1FF?logo=hyprland&logoColor=black)](https://hyprland.org/)
+[![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-A42E2B?logo=gnu&logoColor=white)](LICENSE)
+
+A small island at the top of the screen that keeps an eye on your coding agent
+sessions (Claude Code, Codex, GitHub Copilot CLI and OpenCode): what each one
+is doing, when it finishes, and the permission requests you can answer without
+going back to the terminal. The name comes from the maneki-neko, the lucky cat
+that raises its paw to call you over, which is what the island does when an
+agent needs you.
+
+Built for Hyprland, but any compositor with `wlr-layer-shell` works.
+
+## How it works
+
+```mermaid
+flowchart LR
+    subgraph agents [Coding agents]
+        claude[Claude Code]
+        codex[Codex]
+        copilot[Copilot CLI]
+        opencode[OpenCode]
+    end
+    hook[maneki hook]
+    daemon["maneki daemon<br/>GTK4 layer-shell island"]
+    you((You))
+    claude -->|hook| hook
+    codex -->|hook| hook
+    copilot -->|hook| hook
+    opencode -->|plugin| hook
+    hook -->|unix socket| daemon
+    daemon -->|sessions and requests| you
+    you -->|click or Super+Alt+Y / N| daemon
+    daemon -.->|allow / deny| hook
+    hook -.->|answer| agents
+```
+
+A permission request, step by step:
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant H as maneki hook
+    participant D as maneki daemon
+    actor U as You
+    A->>H: PermissionRequest (JSON on stdin)
+    H->>D: ask over the unix socket
+    D->>U: card on the island
+    U->>D: Allow (click or Super+Alt+Y)
+    D->>H: answer
+    H->>A: allow
+    Note over A,U: Claude Code also shows its own dialog: the first answer wins
+```
+
+- Every hook runs `async` except `PermissionRequest` and `SessionEnd`, so Claude
+  never waits on the island.
+- On a permission request the terminal dialog and the island race: the first
+  answer wins. If you answer in the terminal, the island sees the result in the
+  session transcript and drops the card.
+- If the island is not running, the hook exits at once and Claude behaves as if
+  maneki did not exist.
+- `AskUserQuestion` and plan approvals stay in the terminal; the island only
+  shows that the session needs you.
+- A session leaves the island on `SessionEnd`, when its `claude` process exits,
+  or after an interrupt settles it.
+- Each session shows how long the current turn has run (or how long the last
+  one took), and each subagent gets its own row with its steps, what it is
+  doing and its time. Claude Code does not report real progress, so steps are
+  the measure.
+
+## Agents
+
+Each session shows its agent's icon.
+
+| Agent       | How it connects                                  | Permissions from the island |
+| ----------- | ------------------------------------------------ | --------------------------- |
+| Claude Code | hooks in `~/.claude/settings.json`               | yes, races the terminal     |
+| Codex       | hooks in `~/.codex/hooks.json`                   | yes, for 60 seconds         |
+| Copilot CLI | hooks in `~/.copilot/hooks/maneki.json`          | yes, for 60 seconds         |
+| OpenCode    | plugin in `~/.config/opencode/plugins/maneki.js` | yes, for 60 seconds         |
+
+- Codex asks you to review and trust new hooks once: open `/hooks` in Codex.
+- Codex, Copilot and OpenCode wait for the hook before showing their own
+  prompt, so the island gives up after 60 seconds (or at once with **Terminal** or
+  `maneki terminal`) and hands the request back to them.
+- Copilot asks the hook before checking its own saved approvals, so the island
+  also shows requests Copilot would have approved by itself.
+- Copilot's hooks end in `|| true` because a failing `preToolUse` hook makes
+  Copilot deny the tool.
+- OpenCode runs plugins inside its background service, so restart it
+  (`opencode service restart`) after an update. Its plugin event stream does
+  not deliver events yet, so turns are followed through its session, tool and
+  permission hooks, and `session.wait` marks the end of a turn.
+
+## Requirements
+
+Python 3.11+ (for `tomllib`), `python-gobject`, `gtk4` (4.16+ for CSS
+variables) and `gtk4-layer-shell`. Developed on Python 3.14, GTK 4.24 and
+gtk4-layer-shell 1.3.
+
+## Install
+
+```sh
+maneki setup            # dry run: prints every change as a diff
+maneki setup --apply    # makes them, with timestamped backups
+```
+
+Setup links `~/.local/bin/maneki`, copies the themes to `~/.config/maneki`, adds
+the hooks to `~/.claude/settings.json`, the keybinds and autostart to Hyprland's
+`UserConfigs`, and a step to `~/theme-switcher`. Each edit is atomic, checked
+against the file's hash, and skipped when it is already there.
+
+## Use
+
+| Keys          | Command           | What it does                                  |
+| ------------- | ----------------- | --------------------------------------------- |
+| `Super+Alt+Y` | `maneki allow`    | allow the oldest pending request              |
+| `Super+Alt+N` | `maneki deny`     | deny it                                       |
+| `Super+Alt+A` | `maneki always`   | allow it and keep the rule Claude suggested   |
+| `Super+Alt+I` | `maneki toggle`   | show idle sessions and recent steps           |
+| `Super+Alt+D` | `maneki dnd`      | do not disturb: only permission requests show |
+| `Super+Alt+P` | `maneki mascot`   | switch to the next mascot                     |
+|               | `maneki terminal` | leave the request to the agent's own prompt   |
+
+While a window is truly fullscreen on the focused monitor (not just
+maximized), the island stays quiet the same way, and permission requests
+still show on top. The island follows the focused monitor, so it moves to an
+external screen when you work there.
+
+Click a session to see its recent steps and the agent's last message, with
+its markdown (bold, lists, code, quotes) rendered. `maneki status` prints the
+state as JSON and `maneki quit` stops the island.
+
+## Mascot
+
+A pixel-art mascot floats outside the island, at its left, and reacts to the
+most urgent session: it works while an agent works, startles when one asks for
+permission, celebrates when a turn finishes and sulks when one is interrupted.
+It moves for about three seconds after each change and then rests, blinking
+now and then. It never takes clicks: only the island does. In do not disturb,
+the mascot still pops up alone for a moment to show that something finished or
+was interrupted.
+
+Press `Super+Alt+P` to switch to the next one: it pops up for a moment so you
+can see who you picked. Or pick it in `~/.config/maneki/config.toml`; the island
+reloads the file when it changes:
+
+```toml
+mascot = "osaka"   # "cat" (the default), "osaka", "haruhi" or "none"
+mascot_scale = 2   # 1 to 4 screen pixels per sprite pixel (default 2)
+```
+
+The cat is an orange tabby. Osaka and Haruhi are fan art: Ayumu "Osaka" Kasuga
+from Azumanga Daioh belongs to Kiyohiko Azuma, and Haruhi Suzumiya from The
+Melancholy of Haruhi Suzumiya belongs to Nagaru Tanigawa and Noizi Ito. The
+pixel drawings and animations are ours and under the GPL, but the characters
+are not covered by it. Pick the cat for a mascot that is free all the way down. The sprites live as
+text grids in `maneki/mascots.py`.
+
+To add mascots of your own, write them in `maneki/mascots_local.py`, which git
+ignores, and export them as a `LOCAL_SPRITES` dictionary. The island loads the
+file when it exists and joins them to the rotation.
+
+## Theming
+
+The island loads `~/.config/maneki/colors.css`, then the base `themes/style.css`
+from this repo, then `~/.config/maneki/style.css`, which starts empty and holds
+your own overrides. It reloads them when a file in `~/.config/maneki` changes.
+`colors.css` is a copy of one of the four variants (everforest, gruvbox, dark
+and light); `~/theme-switcher/maneki/set-theme.sh` swaps it with the rest of the
+desktop.
+
+## Performance
+
+The island draws with GTK's cairo renderer, which keeps it near 90 MB instead
+of the 200 MB the GPU renderer loads (Vulkan and LLVM); run it with
+`GSK_RENDERER=vulkan` to use the GPU anyway. It redraws at most ten times a
+second and a working session's dot beats once a second, so the island stays
+near 0.3% of one core while agents work. Each hook event costs about 40 ms of
+CPU in the agent's process, most of it Python and `json` starting up.
+
+## Uninstall
+
+```sh
+maneki setup --remove           # dry run
+maneki setup --remove --apply
+```
+
+`~/.config/maneki` and `~/theme-switcher/maneki` are left in place.
+
+## Icons
+
+The agent icons in `icons/` are rebuilt from the path data of
+[Lobe Icons](https://github.com/lobehub/lobe-icons) (MIT, see
+`icons/LICENSE-lobe-icons`). The logos are trademarks of their owners.
+
+## Development
+
+```sh
+make check     # unit tests
+maneki demo    # two fake sessions and a permission request
+```
+
+## License
+
+maneki is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See [LICENSE](LICENSE). The agent logos and the Osaka and Haruhi
+characters are not the project's own; see Icons and Mascot above.

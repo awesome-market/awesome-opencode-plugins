@@ -1,0 +1,126 @@
+# Dotfiles
+
+Dotfiles managed via Ansible for automated multi-machine setup.
+
+## Quick Start
+
+Interactive menu (recommended):
+```bash
+make
+```
+
+Or directly run setup:
+```bash
+make setup
+```
+
+This will:
+- Install Ansible if needed
+- Create all necessary symlinks
+- Install required packages (pacman on Arch Linux, apt on Debian servers)
+- Configure shell environment
+- Set up all applications
+
+## Quick Commands
+
+**Management Tasks** (via Makefile):
+- `make` or `make menu` - Display interactive menu
+- `make setup` - Run full ansible setup (output also saved to `logs/setup-<timestamp>.log`)
+- `make dry-run` - Test changes without applying (logged to `logs/dry-run-<timestamp>.log`)
+- `make status` - Show git status and system info
+- `make docs` - Display documentation index
+- `make validate` - Validate playbook syntax
+
+**Maintenance** (via Makefile):
+- `make update-nvim` - Update Neovim plugins
+- `make backup` - Create configuration backup
+- `make clean` - Remove old backups and cache
+- `make sync` - Pull latest changes from remote
+
+**Security** (via Makefile):
+- `make aur-check` - Scan for AUR supply-chain compromise indicators
+- `make aur-check LIST=names.txt` - Also match installed AUR packages against a name list
+
+See [docs/AUR_SUPPLY_CHAIN.md](docs/AUR_SUPPLY_CHAIN.md) for what it checks and why.
+
+**Publishing** (via Makefile):
+- `make push-changes` - Commit and push changes
+
+For full list of available commands: `make help`
+
+## Machine Profiles
+
+- **kyrios**: Personal Arch Linux laptop (battery monitoring, single display)
+- **shinkiro**: Personal Arch Linux desktop (dual 4K displays, GPU monitoring, EWW widgets)
+- **barbatos**: Arch Linux ThinkPad T470p (hybrid Intel/NVIDIA 940MX, fingerprint reader). Formerly `lupus` on Omarchy; see `barbatos/README.md`
+- **virtue**: Debian server. Headless profile, detected by OS family rather than hostname, so any other Debian box gets the same treatment. Installs zsh + oh-my-zsh, Neovim with the LazyVim config, the terminal toolset (fzf, bat, jq, gh, lazygit, tmux, btop, broot), and the same dev toolchain as the other machines (rbenv + latest Ruby, nodenv + Node, pnpm, SDKMAN, g). No desktop, no Claude Code.
+- **Work machines**: Limited configs for non-personal machines
+
+### Setting up a Debian server
+
+```bash
+sudo apt-get update && sudo apt-get install -y git make
+git clone https://github.com/jabawack81/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make install-deps   # installs ansible via apt
+make setup          # asks for your sudo password once
+```
+
+Neovim comes from the official release tarball (apt's is too old for LazyVim), pinned to an exact version with sha256 checksums in `setup-dotfiles.yml`, and lands in `/opt/nvim-<version>` with `/opt/nvim` pointing at it. To upgrade, bump `neovim_release` and both hashes, then re-run `make setup`. The `private-config` submodule is not needed on a server.
+
+Commit signing on a server uses a plain SSH key instead of 1Password. Create it and register it on GitHub for both authentication and signing, then re-run `make setup` and git is configured to sign with it:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_github -C jabawack81@gmail.com
+gh auth login
+gh auth refresh -h github.com -s admin:ssh_signing_key
+gh ssh-key add ~/.ssh/id_ed25519_github.pub --title "$(hostname)"
+gh ssh-key add ~/.ssh/id_ed25519_github.pub --title "$(hostname)" --type signing
+git remote set-url origin git@github.com:jabawack81/dotfiles.git   # the clone above is HTTPS; pushes need SSH
+make setup
+```
+
+## Manual Steps After Setup
+
+### Neovim
+Open neovim and press `<space>l` then `S` to sync all plugins.
+
+**Auto-commit Plugin Updates**: After syncing plugins in LazyVim, you'll be prompted to automatically commit and push the updated `lazy-lock.json`. You can:
+- Use `./update-nvim-plugins.sh` (or alias `nvu`) from the terminal
+- Or just sync plugins in Neovim and approve the commit prompt
+- Toggle with `:LazyAutoCommitToggle` to disable the feature
+
+### Tmux
+Nothing to do — `make setup` checks out tpm and installs the plugins listed in
+`dot_tmux.conf`. In a tmux server that was already running when they were
+installed, `prefix` + `I` (or `tmux source-file ~/.tmux.conf`) loads them;
+`prefix` + `U` updates them.
+
+## Repository Structure
+
+**Configuration**:
+- `common/`: Shared configurations across personal machines (nvim, tmux, ghostty, btop, etc.)
+- `common/caelestia/`: Settings for the caelestia shell (`shell.json`)
+- `common/caelestia-shell/`: Vendored caelestia shell source (GPL-3, see its
+  `UPSTREAM` file). Build its plugin with `make caelestia-build`; re-sync with
+  `make caelestia-update TAG=vX.Y.Z`
+- `kyrios/`: Laptop-specific configurations (Hyprland, EWW, Waybar)
+- `shinkiro/`: Desktop-specific configurations (dual display, GPU monitoring)
+- `barbatos/`: ThinkPad T470p configurations (NVIDIA sleep hook, lid switch, GPU/fan waybar modules)
+
+**Documentation**:
+- `docs/`: Comprehensive documentation
+  - `ARCHITECTURE.md`: Project architecture overview
+  - `ANSIBLE.md`: Ansible playbook documentation
+  - `HYPRLAND_CONFIG.md`: Hyprland window manager config
+  - `HYPRLAND_KEYBINDINGS_COMPARISON.md`: Shinkiro vs Omarchy keybinding diff (historical — explains the current common.lua bindings)
+  - `SETUP.md`: Private config and initial setup
+  - `TESTING.md`: Ansible testing and validation guide
+  - `NEOVIM_TROUBLESHOOTING.md`: LSP and Mason debugging guide
+
+**Scripts & Tools**:
+- `Makefile`: Interactive task management menu
+- `scripts/`: Utility scripts (setup, updates)
+- `examples/`: Configuration templates and examples
+- `setup-dotfiles.yml`: Ansible playbook
+- `private-config/`: Private configuration (submodule)

@@ -1,0 +1,340 @@
+<div align="center">
+
+# rtrt
+
+### Retort — the Rust toolkit that distills agent context. Cut tokens, keep memory.
+
+<p>Single-purpose binaries: <code>compress</code>, <code>memory</code>,<br>
+<code>signatures</code>, plus a stdio / Streamable HTTP MCP server.<br>
+Auto-captures every event your agent fires. SQLite-backed, local-first,<br>
+no daemon, no cloud, no framework.</p>
+
+<pre><code># Latest stable release (default; falls back to --main if none yet)
+curl -fsSL https://raw.githubusercontent.com/kernalix7/rtrt/main/install.sh | sh
+
+# Latest main HEAD (development; may be unstable)
+curl -fsSL https://raw.githubusercontent.com/kernalix7/rtrt/main/install.sh | sh -s -- --main
+
+# Uninstall (keeps ~/.rtrt; pass --purge to wipe everything)
+curl -fsSL https://raw.githubusercontent.com/kernalix7/rtrt/main/uninstall.sh | bash -s -- --confirm</code></pre>
+
+[![Alpha](https://img.shields.io/badge/status-alpha-orange?style=for-the-badge)](#status-alpha)
+[![Latest](https://img.shields.io/github/v/release/kernalix7/rtrt?include_prereleases&style=for-the-badge&label=latest&color=2962FF)](https://github.com/kernalix7/rtrt/releases)
+
+[![license](https://img.shields.io/github/license/kernalix7/rtrt?style=flat-square&color=blue)](LICENSE)
+[![rust](https://img.shields.io/badge/rust-1.88%2B-CE412B?style=flat-square&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![edition](https://img.shields.io/badge/edition-2024-CE412B?style=flat-square)](https://doc.rust-lang.org/edition-guide/)
+[![CI](https://img.shields.io/github/actions/workflow/status/kernalix7/rtrt/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/kernalix7/rtrt/actions/workflows/ci.yml)
+[![stars](https://img.shields.io/github/stars/kernalix7/rtrt?style=flat-square&color=FFD93D&logo=github&logoColor=white)](https://github.com/kernalix7/rtrt/stargazers)
+[![downloads](https://img.shields.io/github/downloads/kernalix7/rtrt/total?style=flat-square&color=2EA44F)](https://github.com/kernalix7/rtrt/releases)
+
+###### Works on
+
+[![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)](https://www.kernel.org/)
+[![macOS](https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows/)
+[![WSL](https://img.shields.io/badge/WSL-4D4D4D?style=flat-square&logo=windows&logoColor=white)](https://learn.microsoft.com/windows/wsl/)
+
+<sub>**English** &nbsp;·&nbsp; [한국어](docs/README.ko.md) &nbsp;·&nbsp; [Design](DESIGN.md) &nbsp;·&nbsp; [Install](docs/INSTALL.md) &nbsp;·&nbsp; [Usage](docs/USAGE.md) &nbsp;·&nbsp; [Performance](docs/PERF.md) &nbsp;·&nbsp; [Features](docs/FEATURES.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Comparison](docs/COMPARISON.md)</sub>
+
+</div>
+
+---
+
+> ### Status: Alpha
+> RTRT is early. This source tree targets **v0.2.4**. MCP (stdio + Streamable HTTP), provider chat, BM25 + vector + graph + HNSW memory, auto-capture, install / uninstall, and benchmarks are implemented. CI runs workspace tests, clippy, formatting, optional-feature compile checks, and a macOS Intel test lane. File issues at <https://github.com/kernalix7/rtrt/issues>.
+
+## What RTRT is
+
+A **Unix-philosophy toolkit** for AI agents. Three pillars:
+
+1. **Cut tokens.** Rule + ML compressors, tree-sitter signature extractor, command-output filter, secret redactor.
+2. **Remember everything.** Auto-capture every event into a local SQLite store. SHA-256 dedup, privacy filter, session id, hourly consolidation — none of it manual.
+3. **Route to any LLM, prefer local.** Anthropic / OpenAI / Ollama / vLLM / LM Studio behind one trait. Response cache, budget meter, retry + fallback.
+
+The design is documented in [`DESIGN.md`](DESIGN.md) and the perf SLOs in [`docs/PERF.md`](docs/PERF.md). The repo follows ten short principles: tools-not-frameworks, stable substrates, three pillars only, auto-capture by default, optional crates instead of scope creep, measured performance, local-first, frozen public interfaces, slow / deep growth.
+
+## Quick install
+
+One-liner (Linux / macOS / WSL):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kernalix7/rtrt/main/install.sh | bash
+```
+
+Windows PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/kernalix7/rtrt/main/install.ps1 | iex
+```
+
+Or pick a build channel:
+
+```bash
+# Latest main HEAD
+curl -fsSL .../install.sh | bash -s -- --main
+
+# Specific tag / branch / commit
+curl -fsSL .../install.sh | bash -s -- --ref my-feature
+
+# Local clone (offline / air-gapped)
+sh install.sh --source ~/code/rtrt
+```
+
+See [docs/INSTALL.md](docs/INSTALL.md) for the full flag matrix, environment-variable equivalents (`RTRT_REF` / `RTRT_SOURCE` / `RTRT_SKIP_DEPS`), source builds, version pinning, and uninstall.
+
+## Launch
+
+The web dashboard is `rtrt-dashboard`. By default it serves on `http://127.0.0.1:7311`; set `RTRT_DASHBOARD_TOKEN` to gate every `/api/*` route behind a bearer token (the bundled HTML index and `/healthz` stay open so the UI can bootstrap).
+
+```bash
+# Open dashboard at http://127.0.0.1:7311 (Project and Tools navigation, dark mode, bearer-token guard)
+rtrt-dashboard
+
+# The dashboard is loopback-only. Use a local reverse proxy if remote access is required.
+```
+
+CLI surface (everything below is one process, no daemon required):
+
+```bash
+rtrt compress -l ultra < verbose.md             # Caveman-style rule rewrite
+rtrt compress --llm --provider openai-compat \  # LLM rewrite (Ollama / any provider)
+   --base-url http://127.0.0.1:11434/v1 --model llama3.2 < verbose.md
+rtrt proxy-run git status                       # Run + filter output, preserving exit code
+rtrt gain --daily --graph                       # Command Optimizer savings analytics
+rtrt signatures --lang rust < src/file.rs       # tree-sitter signature map
+rtrt repo-map crates/rtrt-core                  # signature map of a directory
+rtrt discover                                   # find proxy candidates in Claude transcripts
+rtrt templates                                  # list built-in templates
+rtrt new dev ./hello --var project_name=hello
+rtrt setup --agent claude --apply               # wire RTRT into Claude Code's MCP config
+rtrt setup --agent opencode --apply             # wire RTRT into OpenCode's MCP config
+rtrt setup --agent opencode --sandbox --machine-only --apply # machine shell only; authorizes no cwd
+rtrt setup --agent omo --binary ~/.local/bin/rtrt-mcp          # preview OmO native wiring (v0.2.4+; dry-run by default)
+rtrt setup --agent omo --binary ~/.local/bin/rtrt-mcp --apply   # apply the same OmO native wiring
+rtrt memory save --project p --kind note "fact"
+rtrt memory recall --project p --query rust
+rtrt memory extract --project p --provider openai-compat \
+   --base-url http://127.0.0.1:11434/v1 --model llama3.2 < passage.md
+rtrt memory compress --project p --keep 20 --provider anthropic --model claude-haiku-4-5
+rtrt prompt save greet "say hi" --meta env=dev
+rtrt prompt get greet
+rtrt docs facebook/react --topic hooks          # context7 library docs
+rtrt provider chat --model claude-haiku-4-5 "ping"
+rtrt detect                                     # scan for local AI CLIs / APIs / servers
+rtrt call ollama --model llama3.2 "ping"        # cross-tool invoke bridge (--failover available)
+rtrt route --explain "summarise this diff"      # cost + headroom-aware route pick
+rtrt usage                                      # windowed provider usage + [limits] headroom
+rtrt security scan --profile ai-default         # profile-driven security / license scan
+rtrt migrate --apply                            # migrate a repo to the rtrt project standard
+rtrt project refresh --apply                    # contract render + canonical settings + audit
+rtrt diagnose --provider anthropic --model claude-haiku-4-5 -- cargo test
+rtrt benchmark                                  # cargo bench wrapper
+rtrt-mcp --transport http --bind 127.0.0.1:7312 # stdio or Streamable HTTP, 23 tools, bearer-token guard
+```
+
+See [docs/USAGE.md](docs/USAGE.md) for the full CLI, MCP tool surface, and dashboard tour. The OmO native extension wiring is documented under [docs/OMO_NATIVE.md](docs/OMO_NATIVE.md).
+
+## Key features
+
+<table>
+<tr><td width="50%">
+
+**Output compression**
+- Rule-based rewriter with levels `lite` / `full` / `ultra` / `extreme`
+- Drops fillers, pleasantries, hedging, discourse markers; ultra rewrites verbose phrases; extreme drops qualifiers too
+- Code blocks, inline code, URLs, and quoted error strings preserved; secret-shaped substrings (AWS / GH / OpenAI / Anthropic / Bearer / private-key) auto-redacted before the rule pass
+- Measured savings on representative AI prose: short ~32%, mixed ~18%, long ~15%; code-heavy ~6% (intentional, we never rewrite code)
+- LLM-backed compression mode (Ollama-compatible) is the path to caveman-class 50–75% savings
+- [Details →](docs/FEATURES.md#output-compression)
+
+</td><td width="50%">
+
+**Command-output filtering**
+- `rtrt proxy-run <command>` executes a command, filters captured output, and preserves the command's exit code
+- Flags: `--raw`, `--errors-only`, `--ultra-compact`; `rtrt proxy "<cmd>"` remains available for explicit pipe workflows
+- 34 built-in command filters across git, Rust, filesystem/search, HTTP, GitHub, containers/Kubernetes, Python, Go, Node/package-manager, TypeScript, and formatter/linter domains
+- Claude Code `PreToolUse` Bash hook rewrites shrinkable commands to `rtrt proxy-run ...`; it skips pipes, `&&`, redirects, and already-wrapped commands. `rtrt setup --agent claude --apply` installs the wiring; other agents receive Command Optimizer tools through MCP.
+- `rtrt gain` reports totals, top commands, per-project totals, history, daily/weekly/monthly views, ASCII graphs, `--reset`, and `--format json` from `~/.rtrt/proxy-stats.sqlite` (tokens are labelled `chars / 4` estimates)
+- `rtrt discover` scans Claude Code transcripts for shrinkable commands and estimates savings
+- [Details →](docs/FEATURES.md#command-output-filtering)
+
+</td></tr>
+<tr><td width="50%">
+
+**Persistent project memory**
+- SQLite + FTS5 store with `scope / project / kind / body` schema; tiers: `user` / `agent` / `session` / `project`
+- BM25 (`recall_bm25`), dense-vector cosine (`recall_vector`), and BM25 ⊕ vector RRF (`recall_hybrid`)
+- Sub-linear ANN via `HnswIndex` behind the `hnsw` feature (`instant-distance`)
+- Directed labelled edges + `recall_via_graph` BFS for entity / relation traversal
+- `all-MiniLM-L6-v2` embeddings (`embeddings` feature, fastembed); attach via `MemoryStore::with_embedder` to auto-embed every `save`
+- LLM extract / compress via any `Provider` — local Ollama included — under the `llm` feature
+- [Details →](docs/FEATURES.md#persistent-memory)
+
+</td><td width="50%">
+
+**Multi-provider routing**
+- Provider trait with built-in Anthropic / OpenAI / OpenAI-compatible adapters
+- OpenAI-compatible base URL covers Ollama, llama.cpp, vLLM, LM Studio
+- `Gateway` fronts every provider behind one entry; per-request `RequestMetric` (id / parent_id / cost / latency) feeds the dashboard `/api/metrics`
+- `Budget::new(usd)` fails-fast when the cumulative cost cap is hit
+- Usage ledger (`~/.rtrt/provider-usage.tsv`) with rolling 5h / 24h / 7d windows; `rtrt usage` shows headroom against `[limits]` daily caps
+- `rtrt route` picks the cheapest useful target (local-free → subscription → metered), headroom-weighted; `--failover` walks ranked candidates on rate-limit / quota / 429 / 5xx / timeout; dashboard gauges at `/api/usage` + `/api/route/preview`
+- `Context7Client` fetches version-pinned library docs (`rtrt docs facebook/react --topic hooks`)
+- [Details →](docs/FEATURES.md#multi-provider-routing)
+
+</td></tr>
+<tr><td width="50%">
+
+**Security & license scanning**
+- `rtrt-security`: profile-driven scanner for AI-generated artifacts — five engines (secrets / licenses / deps / patterns / ai)
+- Six built-in profiles (`ai-default`, `ai-strict`, `owasp-top-10`, `asvs-l2`, `cis-baseline`, `nist-ssdf`); every rule maps to CWE / OWASP / NIST / CIS / SLSA / EU AI Act
+- Custom profiles are plain TOML under `~/.rtrt/security/profiles/`
+- `rtrt security scan | profile | gate | init`; `gate` exits non-zero at/above the threshold (CI gate); also in the dashboard Security page and MCP `security_scan`
+- [Details →](docs/FEATURES.md#security--license-scanning)
+
+</td><td width="50%">
+
+**Two-tier config & project lifecycle**
+- Global base kernel (`~/.rtrt/config.toml`, hooks / MCP / statusline wiring via `rtrt setup`) + per-project overrides in `<repo>/.rtrt/config.toml`; effective config = global ⊕ project
+- Per-project overrides: output level, compression, agent / provider enablement, statusline — each behind a **Follow global / Custom** toggle in the dashboard
+- `rtrt migrate` / `rtrt project refresh` (dry-run by default, `--apply` to write) standardize a repo and strip rtrt-owned key shadows with a `.bak` backup
+- `rtrt project status / health / repair` keep the contract consistent
+- [Details →](docs/FEATURES.md#two-tier-configuration--project-lifecycle)
+
+</td></tr>
+<tr><td width="50%">
+
+**Standardized project scaffolds**
+- Four built-in templates: `dev`, `design`, `plan`, `standardization`
+- Web-selectable from the dashboard (`/api/templates`)
+- Custom templates load from `~/.rtrt/templates/<name>/manifest.toml`
+- Variable substitution (`{{project_name}}`, `{{author}}`, `{{license}}`) + optional post-init hooks
+- [Details →](docs/FEATURES.md#project-scaffolds)
+
+</td><td width="50%">
+
+**MCP server + dashboard**
+- `rtrt-mcp` (rmcp 1.x) ships 23 tools over stdio **and** Streamable HTTP: `compress`, `compress_ml`, `proxy`, `repo_map`, `memory_save`, `memory_recall` (with qdrant-style payload filter), `memory_timeline`, `memory_profile`, `memory_relations`, `memory_smart_search`, `memory_export`, `memory_consolidate`, `memory_sessions`, `memory_set_block` / `memory_get_block` / `memory_list_blocks` (Letta), `templates_list`, `templates_scaffold`, `provider_chat`, `agent_call`, `agent_route`, `security_scan`, `permission_prompt`
+- HTTP transport hardens with `RTRT_MCP_HTTP_TOKEN` (environment-based constant-time bearer guard, 401 + `WWW-Authenticate`) and `--allowed-origins` (RFC 6454 Origin validation)
+- `rtrt-dashboard` (axum) — Project pages: Overview, Memory, Compression, Command, Statusline, Settings, Templates, Prompts, Diagnose, Security. Tools pages: LLM, Chat, Limits, Environment, Usage, Failover, Connect. Failover edits global policy only with no project selected; a selected project inherits it read-only until **Custom** writes an override, and **Follow global** removes that override. `RTRT_DASHBOARD_TOKEN` enables a bearer-token middleware on every `/api/*`
+- `rtrt setup --agent <name>` writes the MCP config for Claude / Cursor / Codex / Windsurf / opencode, and v0.2.4+ extends it to OmO native (see [docs/OMO_NATIVE.md](docs/OMO_NATIVE.md))
+- Versioned prompt registry under `~/.rtrt/prompts/<name>/<NNNN>.toml` (`rtrt prompt {save,get,list,versions}`)
+- [Details →](docs/FEATURES.md#mcp-and-dashboard)
+
+</td></tr>
+</table>
+
+See [docs/FEATURES.md](docs/FEATURES.md) for deep dives, including the rule-protection pipeline and the FTS5 recall query plan.
+
+## Documentation
+
+| Document | What's inside |
+|----------|---------------|
+| [INSTALL.md](docs/INSTALL.md) | Install paths — source, pre-built GitHub Release binary, Homebrew tap, and uninstall |
+| [USAGE.md](docs/USAGE.md) | CLI reference, MCP tools, dashboard tour, configuration file |
+| [OMO_NATIVE.md](docs/OMO_NATIVE.md) | OmO native extension API integration (v0.2.4+ `setup --agent omo`) |
+| [FEATURES.md](docs/FEATURES.md) | Compression rules, filter strategy, memory schema, multi-provider routing, templates |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Workspace layout, crate boundaries, data flows |
+| [COMPARISON.md](docs/COMPARISON.md) | RTRT vs caveman / agentmemory / rtk / codex-plugin-cc |
+| [INSPIRATION.md](docs/INSPIRATION.md) | Idea backlog from 15+ AI-tooling projects, mapped to RTRT crates |
+| [CHANGELOG.md](CHANGELOG.md) | Full version history |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup and workflow |
+| [SECURITY.md](SECURITY.md) | Security disclosure process |
+
+## Crates
+
+| Crate | Role |
+|-------|------|
+| `rtrt-core` | Shared types, plugin trait, errors, config |
+| `rtrt-compress` | Rule rewriter + secret redactor + tree-sitter signature extractor + LLM compression mode |
+| `rtrt-proxy` | Command-output filter (rtk-style) |
+| `rtrt-memory` | SQLite + FTS5 BM25 + vector + graph + HNSW + LLM-driven extract/compress |
+| `rtrt-providers` | Multi-provider chat trait + Gateway + Budget + usage ledger / headroom router + invoke bridge + Context7 doc fetcher |
+| `rtrt-templates` | Built-in + custom scaffolds + handlebars rendering + `PromptRegistry` |
+| `rtrt-security` | Profile-driven security & license scanning (secrets / licenses / deps / patterns / ai engines, standards-mapped profiles) |
+| `rtrt-eval` | Opt-in evaluation harness — recall R@K / MRR + compression ratio + BERTScore (feature-gated) |
+| `rtrt-mcp` | rmcp 1.x MCP server — stdio + Streamable HTTP, 23 tools, bearer-token guard |
+| `rtrt-dashboard` | Axum web dashboard + REST API (`/api/{chat,metrics,templates,stats}`) |
+| `rtrt-cli` | `rtrt` command-line entry point |
+
+## Testing
+
+```bash
+# From repo root
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+```
+
+CI runs the same three gates on every push and pull request to `main`.
+
+## Roadmap
+
+- [x] Workspace scaffold (11 crates, edition 2024)
+- [x] `rtrt-compress` rule engine + extreme level + secret redactor + tree-sitter signatures + LLM mode
+- [x] `rtrt-proxy` filters for git + cargo
+- [x] `rtrt-memory` SQLite + FTS5 BM25 + dense-vector + RRF hybrid + edges graph + HNSW + memory tiers
+- [x] `rtrt-memory` LLM-driven extract / compress / archival via any provider (local Ollama OK)
+- [x] `rtrt-templates` 4 built-ins + custom loader + handlebars + versioned `PromptRegistry`
+- [x] `rtrt-providers` real Anthropic / OpenAI / OpenAI-compatible HTTP + streaming + Gateway + Budget + Context7 docs
+- [x] `rtrt-mcp` rmcp stdio + Streamable HTTP transport, 23 tools (compress / compress_ml / proxy / repo_map / memory_* / templates_* / provider_chat / agent_* / security_scan / permission_prompt), bearer-token + RFC 6454 Origin guards
+- [x] `rtrt-dashboard` axum UI — Project and Tools navigation, including scoped Failover policy editing; dark/light toggle; `RTRT_DASHBOARD_TOKEN` bearer guard
+- [x] `install.sh` + `install.ps1` one-liners + `release.yml` 5-target build matrix
+- [x] `rtrt setup --agent <name>` wires RTRT into Claude / Cursor / Codex / Windsurf / opencode
+- [x] `rtrt setup --agent omo` ships as the v0.2.4 setup target for the OmO native extension API (factory MCP discovery, codemode bash filtering, per-call provenance); see [docs/OMO_NATIVE.md](docs/OMO_NATIVE.md)
+- [x] criterion benchmark harness + per-fixture savings table + `rtrt benchmark` wrapper
+- [x] qdrant-style payload filter DSL (`source=claude,topic~^auth`) on `recall_bm25_with_filter`
+- [x] LLMLingua-style `MlCompressor` scaffold (heuristic backend; ONNX backend deferred)
+- [x] `recall_via_graph` driven by LLM entity extraction (mem0 entity linking)
+- [x] Helicone-style retry / fallback routing across providers
+- [x] Provider usage ledger + windowed headroom + headroom-weighted `rtrt route` with automatic failover (`rtrt usage` / `/api/usage` / `/api/route/preview`)
+- [x] `rtrt-security` profile-driven security & license scanning (5 engines, 6 standards-mapped profiles, CI `gate`)
+- [x] Two-tier config (global base kernel + per-project `.rtrt/config.toml` overrides) + `rtrt migrate` / `rtrt project refresh`
+- [x] `rtrt-eval` opt-in crate — `R@K` / `MRR` over a labelled fixture + `compress` ratio per level + JSON output
+- [x] LLM auto-compress background daemon (opt-in via `RTRT_AUTO_COMPRESS_LLM=1`)
+- [x] `scripts/smoke.sh` — live-key smoke harness, the pre-tag gate
+- [x] Real ONNX token-importance backend behind `MlCompressor` (opt-in `--features onnx`; user-supplied model + tokenizer)
+- [x] BERTScore evaluator in `rtrt-eval` (opt-in `--features bertscore`; user-supplied encoder + tokenizer)
+- [x] MCP Prompts + Resources — `prompts/list` / `prompts/get` (with handlebars args) over the local PromptRegistry; `resources/list` / `resources/read` over project timelines + Letta blocks
+- [x] Multi-agent coordination delegated to external agent runtimes; RTRT keeps no native orchestration surface
+- [x] Paired-tag release automation for v0.1.1: the `vX.Y.Z` tag run validates and builds the Rust binaries, publishing them only as Actions artifacts; the `REL-vX.Y.Z` tag run rebuilds, publishes `rtrt-agent` to npm via trusted publishing, then creates/updates the GitHub Release under `vX.Y.Z` and attaches the five per-platform binary archives plus their checksums. GitHub auto-generates the source archive from the `vX.Y.Z` tag. Workspace crates are not published to crates.io.
+
+## Inspired by
+
+RTRT borrows ideas from many other projects. See [docs/INSPIRATION.md](docs/INSPIRATION.md) for the full source list — per-project ideas, the RTRT crate they fit, and priority. Legal attribution lives in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md#reference-projects-inspiration-only-no-code-redistributed). When an idea ships in a release, the CHANGELOG entry credits the source inline.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, branch naming, commit conventions, and CI expectations.
+
+## Security
+
+For security issues, follow the process in [SECURITY.md](SECURITY.md).
+
+## Star History
+
+<a href="https://star-history.com/#kernalix7/rtrt&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kernalix7/rtrt&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kernalix7/rtrt&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kernalix7/rtrt&type=Date" />
+  </picture>
+</a>
+
+## Support
+
+If RTRT saves you a few thousand tokens:
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?logo=ko-fi&logoColor=white&style=for-the-badge)](https://ko-fi.com/kernalix7)
+[![Fairy](https://img.shields.io/badge/🧚_Fairy-EE6E73?style=for-the-badge&logoColor=white)](https://fairy.hada.io/@kernalix7)
+
+Ko-fi handles international cards and PayPal; fairy.hada.io is a Korean tipping platform. Bug reports, PRs, and stars are equally appreciated and free.
+
+## License
+
+[MIT](LICENSE) — Kim DaeHyun (kernalix7@kodenet.io)
+
+Bundled components retain their own licenses. See [Third-Party Licenses](THIRD_PARTY_LICENSES.md)
+for the default release notices and the scope of optional features, models, npm
+dependencies, and Docker images.

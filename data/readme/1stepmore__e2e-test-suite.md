@@ -1,0 +1,383 @@
+# E2E Test Suite
+
+[![CI (1StepMore)](https://github.com/1StepMore/e2e-test-suite/actions/workflows/validation.yml/badge.svg)](https://github.com/1StepMore/e2e-test-suite/actions/workflows/validation.yml)
+[![PyPI - omni-pre-processor](https://img.shields.io/pypi/v/omni-pre-processor.svg)](https://pypi.org/project/omni-pre-processor/)
+[![PyPI - omni-localizer](https://img.shields.io/pypi/v/omni-localizer.svg)](https://pypi.org/project/omni-localizer/)
+[![PyPI - omni-re-formatter](https://img.shields.io/pypi/v/omni-re-formatter.svg)](https://pypi.org/project/omni-re-formatter/)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/release/python-3130/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+OPP → OL → ORF 全链路集成测试环境，含全自动 bug 发现 → OpenCode 修复 → 验证闭环。
+
+---
+
+## Test status（2026-11-06）
+
+CI 已在 upstream（1StepMore）恢复并运行，徽章为实时状态（对应 `.github/workflows/validation.yml`）；backup 镜像（renanzai40/OmniSuite_BackUp）仍不触发 GitHub Actions。以下为本地可复现 CI 的验证命令。最新全库基线：`validation-runs/20261106-061539/report.md`（gitignored 本地产物，交付 zip 内含同源 report）（`latest-full.txt` 锚定；127 passed / 0 failed，per-repo report card 全锚定，见 [PROJECT_STATUS.md](PROJECT_STATUS.md)）。
+
+```bash
+source .venv_ol/bin/activate
+python scripts/validation/run_validation.py --tier 1          # hermetic scenario library (no LLM keys)
+python scripts/validation/run_validation.py --check           # contract-lint the scenario library
+pytest tests/ -q -m "not nightly"                             # suite tests, EXCLUDING nightly
+```
+
+> **为何排除 `nightly`（`-m "not nightly"`）**：`nightly` marker 已在 pyproject + tests/pytest.ini 注册，但 suite conftest 预置了 dummy API keys —— 若不排除，nightly 测试会真的发起 real LLM 调用或挂起，不适合作为 end-user 验证门禁。CI 本身同样使用 `-m "not nightly"`（见 .github/workflows/e2e-tests.yml:127/137/155）。
+
+---
+
+## 目录结构
+
+```
+.
+├── Omni_Pre_Processor/   # OPP — 文档提取（独立 git repo）
+├── Omni_Localizer/       # OL — 文档翻译（独立 git repo）
+├── Omni_Re_Formatter/    # ORF — 文档回写（独立 git repo）
+│
+├── tests/                # E2E 测试套件（30+ 测试文件）
+│   ├── conftest.py       # 共享 fixtures
+│   ├── pytest.ini        # pytest 配置
+│   ├── test_e2e_real_llm.py  # 24 个 nightly 测试
+│   └── ...
+│
+├── scripts/
+│   └── setup_dev.sh      # 一键安装脚本
+│
+├── docs/                 # Suite-level 文档
+│   ├── ARCHITECTURE.md
+│   ├── API_STABILITY.md
+│   └── ...
+│
+├── reports/
+│   ├── TEMPLATE-Bug-Report.md
+│   ├── TEMPLATE-Comparison-Report.md
+│   └── E2E-*.md
+│
+├── .venv_ol/             # ✅ Python 3.13 统一 venv
+│
+├── .gitignore
+├── AGENTS.md             # Agent 工作说明（index + invariants）
+├── pyproject.toml        # 根 workspace
+├── VERSION               # Suite 版本
+├── COMPATIBILITY.md      # 版本兼容矩阵
+├── uv.lock               # 根 lock 文件
+└── README.md
+```
+
+---
+
+## 前置条件：Python 3.13
+
+所有组件（OPP/OL/ORF/Suite）均要求 **Python >= 3.13**。系统默认 Python 通常为 3.10–3.12，需先安装 3.13：
+
+```bash
+# 方式 A：使用 uv（推荐 — 速度快，自带 venv 管理）
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv python install 3.13
+
+# 方式 B：使用 pyenv（适合需要多版本切换的开发者）
+pyenv install 3.13.3
+pyenv local 3.13.3
+
+# 验证
+python3 --version   # 必须 >= 3.13
+```
+
+> 如果系统已有 3.13，可直接跳到下一节。
+
+---
+
+## 快速上手
+
+```bash
+# 1. Sub-repos are independent — pull updates inside each directory
+#    cd Omni_Pre_Processor && git pull origin main
+
+# 2. 安装（root workspace，Phase C1）
+bash scripts/setup_dev.sh
+
+# 3. 跑测试（pytest）
+source .venv_ol/bin/activate
+pytest tests/observability/ -q   # 61 observability tests
+pytest tests/security/ -q        # 173 security tests（含 path-policy parity 一致性不变量）
+pytest tests/ -q                 # all suite-level tests
+
+# 4. 查看版本
+omni-suite --version
+omni-suite --compatibility       # version matrix
+
+# 5. 一键跑整条 OPP→OL→ORF pipeline（支持 --dry-run / --gates-only / --keep-intermediate，见 AGENTS.md → Common Tasks）
+#    真实执行需至少一个 LLM provider key（AMD_API_KEY 或 ZHIPU_API_KEY）——设一个即可，未设为 fallback 会被跳过
+omni-suite pipeline document.docx --dry-run    # 只打印将执行的 3 步命令，不真正执行（无需 LLM keys）
+omni-suite pipeline document.docx --gates-only # OPP + OL（8 项质量门）+ ol extract-warnings，跳过 ORF 回写
+omni-suite pipeline document.docx --keep-intermediate # 保留 /tmp/omni-suite-pipeline/<stem>/ 中间产物（全流程后）
+```
+
+> **Windows（原生 PowerShell，非 WSL）**：`.venv_ol/` 是 Linux venv（`bin/` 布局 + ELF
+> 解释器），在原生 Windows 上无法创建或激活。改用
+> `powershell -ExecutionPolicy Bypass -File scripts/setup_dev.ps1` —— 它在 `.venv_win/`
+> 建独立原生 venv、editable 安装根工程 + OPP/OL/ORF，并跑 C-3 契约冒烟门禁；
+> 加 `-CheckOnly` 只做校验不安装。详见 §工程规范 risk #5（`docs/project-health-report-2026-09-17.md`）。
+
+> **Git Bash（MINGW64）下的两点设计行为**（issue #177 §4 的「维持现状 + 文档注明」处置）：
+> ① `bash scripts/setup_dev.sh --check-only` 在 Git Bash 下**按设计 fail-closed**——检测到 MINGW 即以
+> rc1 退出并指向 `setup_dev.ps1` / WSL（`.venv_ol/` 是 Linux venv，无法复用）；
+> ② 子仓 `check-secrets` 钩子的解释器包装 `scripts/pre_commit_python.sh` 在「venv 目录存在、但其中
+> 没有本平台可执行的解释器」时 **fail-loud**（rc1，绝不静默跳过）——OL 根目录的 Linux 布局 `.venv/`
+> 会触发此保护；OPP/ORF 无该目录，回落系统 python 正常。二者皆为刻意设计（非缺陷）；判定依据见
+> §21.4（`docs/project-health-report-2026-09-17.md`）。
+
+
+## Cross-Format Production-Readiness
+
+OPP accepts 16 input formats (DOCX, PPTX, PDF, XLSX, CSV, JSON, XML, HTML,
+EPUB, EML, MSG, images/OCR, Audio, Video, IPYNB, plus `.url` auto-detect
+for YouTube); ORF `apply-md` writes 16 output formats. Verified OPP→OL→ORF
+paths (W1–W3 verified 2026-06-23; the EML XLIFF row re-verified 2026-10-27;
+the 2026-11-06 full-library regression run `20261106-061539` — 0 failed —
+continuously re-exercises these paths, and the EPUB production link is
+byte-deterministic as of 2026-11-06, `Omni_Re_Formatter` #78):
+
+| From | Via | To | Engine / Note |
+|------|-----|----|---------------|
+| HTML / CSV / JSON | OPP → MD → OL → MD | (any MD consumer) | W1.2 — proper markdown extraction |
+| (any MD) | ORF pure-Python | HTML, PDF | W1.3 — `markdown` + WeasyPrint, no pandoc |
+| (any MD) | ORF pandoc | DOCX, ODT, EPUB, RTF, ICML | W1.1 — `pypandoc-binary` (auto-installed) |
+| EML (email) | OPP → MD → OL → ORF | MSG | W2.1 — graceful fallback on missing headers |
+| EML (email) | OPP → XLIFF → OL → ORF | EML | W2.3 — skeleton round trip, header block byte-identical (verified 2026-10-27) |
+| (any XLIFF) | ORF `apply-xliff` | cross-format | W2.2 — refused, not converted (format-preserving; `--force` is inert) |
+| `.url` (YouTube) | OPP auto-detect | MD | W3.1 — `markitdown[youtube-transcription]` |
+| PDF → XLIFF | OPP guard | (blocked) | W3.2 — correctly blocked (case-insensitive guard) |
+
+Dependency notes: [ORF README](Omni_Re_Formatter/README.md) · [OPP README](Omni_Pre_Processor/README.md).
+
+Structure preservation measured against pandoc direct: [Format-fidelity benchmark](benchmarks/format-fidelity/BENCHMARK.md).
+
+---
+
+## Pipeline Selection Strategy
+
+The Omni Suite supports two pipeline paths depending on your goal.
+Choose wisely — the path determines which OPP output format, which
+OL translation tool, and which ORF backfill tool you should use.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│            Which pipeline path should I use?                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Do you need to preserve the ORIGINAL DOCUMENT LAYOUT?            │
+│  (fonts, styles, exact paragraph positions, floating images)      │
+│                           │                                       │
+│          ┌────────────────┴────────────────┐                      │
+│          ▼                                 ▼                       │
+│   ╔══════════════════╗          ╔═════════════════════╗            │
+│   ║  XLIFF PATH      ║          ║  MD PATH            ║            │
+│   ║  (layout-faithful)║          ║  (text-first)       ║            │
+│   ╚══════════════════╝          ╚═════════════════════╝            │
+│          │                                 │                        │
+│   OPP --target-format xlf       OPP --target-format md              │
+│        or both                         or both                      │
+│          ▼                                 ▼                        │
+│   OL translate-xliff            OL translate-md                     │
+│          ▼                                 ▼                        │
+│   ORF apply-xliff               ORF apply-md                        │
+│   (needs skeleton.zip)          (16 output formats)                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**MD Path** — Use when:
+- Text quality and speed matter more than pixel-perfect layout
+- You're targeting web, e-book, or plain-text outputs
+- You want to convert to a different format than the source (e.g. DOCX → EPUB)
+- Image placement can be approximate
+
+**XLIFF Path** — Use when:
+- The output must look exactly like the source (contracts, branded docs)
+- You have a skeleton.zip from OPP (produced alongside XLIFF)
+- You're staying in the same format (DOCX → DOCX, PPTX → PPTX)
+- Floating images, custom styles, and exact fonts must be preserved
+
+**Format Support by Path**
+
+| Input Format | MD Path | XLIFF Path | Notes |
+|-------------|---------|------------|-------|
+| DOCX | ✅ | ✅ | Preferred path for both |
+| PPTX | ✅ | ✅ | XLIFF preserves slide masters |
+| XLSX | ✅ | ✅ | Skeleton = original workbook + `xliff_map.json` sidecar |
+| EPUB | ✅ | ✅ | XLIFF preserves CSS layout |
+| PDF | ✅ | ❌ | PDF→XLIFF intentionally blocked |
+| HTML | ✅ | ✅ | Skeleton = synthesized `index.html` with `data-trans-unit-id` |
+| CSV / JSON / XML | ✅ | ❌ | Data formats, no layout |
+| EML | ✅ | ✅ | XLIFF preserves the original message + header block (skeleton = `message.eml` + `eml_map.json`) |
+| MSG | ✅ | ❌ | No MSG XLIFF skeleton producer |
+| Images (OCR) | ✅ | ❌ | Text extraction only |
+| Audio / Video | ✅ | ❌ | Transcription only |
+| YouTube URL | ✅ | ❌ | Transcription only |
+
+**When to use `--target-format both`**: If you're unsure, extract both.
+The extra disk space is negligible, and having both paths available
+means you can switch without re-extracting.
+
+**Related**: Per-repo decision trees in each AGENTS.md for deeper detail:
+- [OPP AGENTS.md](Omni_Pre_Processor/AGENTS.md) — `--target-format` decision tree
+- [OL AGENTS.md](Omni_Localizer/AGENTS.md) — `translate-md` vs `translate-xliff`
+- [ORF AGENTS.md](Omni_Re_Formatter/AGENTS.md) — `apply-md` vs `apply-xliff`
+
+---
+
+## Git Submodules
+
+> **As of 2026-06-24**: the `src/Omni_*/` git submodules have been removed.
+> OPP/OL/ORF are now regular top-level directories in this repo
+> (`Omni_Pre_Processor/`, `Omni_Localizer/`, `Omni_Re_Formatter/`), each
+> with its own `.git/` for tracking upstream changes. To pull upstream
+> updates, run `git pull` inside the directory:
+>
+> ```bash
+> cd Omni_Pre_Processor && git pull origin main
+> cd Omni_Localizer && git pull origin main
+> cd Omni_Re_Formatter && git pull origin main
+> ```
+>
+> `scripts/sync_shallow.sh` is now a deprecation stub (errors with a clear
+> message). The historical `src/Omni_*/` paths are no longer used.
+
+---
+
+> All bug fixes are tracked in [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## 环境说明
+
+| 组件 | 路径 | 版本 / SHA |
+|------|------|------|
+| OPP | `Omni_Pre_Processor/` | v0.10.0 |
+| OL | `Omni_Localizer/` | v0.7.1 |
+| ORF | `Omni_Re_Formatter/` | v0.5.0 |
+| Omni_Suite | `./` | v0.5.0 |
+| Python 3.13（统一 venv） | `.venv_ol/` | ✅ 当前唯一活跃 venv，所有组件共用 |
+| 旧 venv（已弃用） | `.venv/` | ⚠️ 未装 OL，勿再使用 |
+| OL MCP（console script） | `.venv_ol/bin/ol-mcp` | Python 3.13（入口 `ol_mcp.server:main`）|
+
+v0.10.0 · v0.7.1 · v0.5.0 · v0.5.0（last tested 2026-11-06，全库 run `20261106-061539`）。
+**Push state（2026-11-06）**: origin（1StepMore）已于 2026-10-06 恢复、推送正常；本地 `main` 与 `origin/main` 同步（2026-11-06 goal 批次四 PR 已合并：`Omni_Localizer`#170 / `Omni_Re_Formatter`#78 / `Omni_Pre_Processor`#115 / 本仓 #247）。
+
+---
+
+## OL MCP 说明
+
+OL MCP 服务由本仓 OL 包提供的 console script 启动（入口 `ol_mcp.server:main`，
+stdio transport），不需要单独的 venv 或 wrapper 脚本：
+
+```bash
+# 启动 OL MCP（stdio）
+.venv_ol/bin/ol-mcp
+
+# 同一入口的别名 console script
+.venv_ol/bin/ol-mcp-server
+```
+
+**测试 OL CLI**（与 MCP 共用 `.venv_ol`）：
+```bash
+.venv_ol/bin/ol translate-xliff input.xlf \
+  --source-lang zh --target-lang en --json -o output_dir/
+```
+
+---
+
+## Bug 报告结构（参考）
+
+每个 bug 报告包含：
+
+1. **Bug ID** + 标题
+2. **问题现象**（详细描述）
+3. **根因分析**（工具/文件/代码行/原因）
+4. **可复现**（触发命令 + 预期 vs 实际）
+5. **影响范围**（哪些路径受影响）
+6. **修复状态**（Checkbox）
+7. **修复验证**（验证命令）
+8. **附录**（相关日志）
+
+---
+
+## E2E Fix Records
+
+Historical E2E bug-fix records (E2E-03 / E2E-06 / E2E-07) moved to
+[`docs/archive/e2e-fix-records.md`](docs/archive/e2e-fix-records.md) during
+the doc-foundation gap-closure. The authoritative record is `CHANGELOG.md`
+and git history.
+
+---
+
+## Validation Master Plans
+
+The four prose validation master plans (OPP/OL/ORF/SUITE) were superseded by
+the executable, agent-agnostic validation framework — real scenarios against
+the shipped surface, no mocks, no FAKE_LLM as evidence. The plans are
+archived under [`docs/archive/`](docs/archive/).
+
+```bash
+# Enumerate the scenario library — no execution
+python scripts/validation/run_validation.py --list
+
+# Run one hermetic scenario (tier 1 = no LLM keys needed)
+python scripts/validation/run_validation.py --scenario <name> --tier 1
+```
+
+See the **Validation** section below for the full framework reference and
+`docs/dev/per-repo-validation-delivery.md` for per-repo scenario libraries.
+
+---
+
+## Validation
+
+The suite ships an executable, agent-agnostic
+validation framework: real scenarios against the shipped surface (no mocks,
+no FAKE_LLM as evidence), with the two families of standards defined in
+`scenarios/STANDARDS.md` (AGENT-SURFACE + HUMAN-QUALITY). Tier-1 scenarios
+are hermetic — no LLM keys needed.
+
+Tier-1 also needs **no manual path-allowlist exports**: when
+`MCP_ALLOWED_DIRECTORIES`, `OPP_MCP_ALLOWED_DIRS`, `ORF_MCP_ALLOWED_DIRS`,
+`OL_MCP_ALLOWED_DIRS`, or `OPP_ALLOWED_DIRECTORIES` are unset, the runner
+supplies a default sandbox of the suite root plus the system temp directory
+(`os.pathsep`-joined). An explicitly exported value always wins and is never
+overwritten. Both `os.pathsep` (`:` on POSIX, `;` on Windows) and comma are
+accepted as list separators by the module servers.
+
+```bash
+source .venv_ol/bin/activate
+python scripts/validation/run_validation.py --scenario tool- --tier 1   # 41 per-tool agent-surface scenarios
+```
+
+Each module also ships its own in-repo scenario library, runnable via
+`--repo {opp,ol,orf,suite,all}` (OPP 6 tier-1 extraction, OL 5 tier-2
+translation, ORF 6 tier-1 backfill). Runs persist a `run_meta` block
+(component versions + git SHAs); `--matrix` builds the per-repo report
+card, `--deliver` builds a human-review zip under
+`04-Output/artifacts/deliverables/omni-suite/`, and
+`validation_diff.py --against-version` gates four-class version
+regressions. Full reference:
+[docs/dev/per-repo-validation-delivery.md](docs/dev/per-repo-validation-delivery.md).
+
+`--matrix --artifacts <dir-or-zip> --module {opp,ol,orf,suite,all}` adds the
+artifact-assertion matrix: deterministic P0/P1 assertions (hard-security
+group + per-module structure groups) run on the actual produced files and
+write `artifact-report.json`; P0/P1 failures exit 1. `artifact_diff.py`
+classifies the four-class change between two artifact reports
+(new/regressed/fixed/existing-failing). Reference:
+[docs/dev/artifact-assertion-matrix.md](docs/dev/artifact-assertion-matrix.md).
+
+Key pointers:
+
+- **Standards**: `scenarios/STANDARDS.md` — the single citable bar, exact thresholds per anchor
+- **Engine + tooling**: `scripts/validation/` (`run_validation.py`, `coverage_audit.py`, `validation_report.py`, `validation_diff.py`, `artifact_matrix.py`, `artifact_diff.py`) + `omni_mcp/validation/`
+- **Human director loop**: `docs/dev/validation-director-loop.md` — 10-minute per-run checklist, two-role model
+
+---
+
+## Plans
+
+The `.omo/plans/` directory contains work plans generated during development. See the plan file for current tasks.

@@ -1,0 +1,182 @@
+# opencode-session-namer
+
+[![CI](https://github.com/maximtop/opencode-session-namer/actions/workflows/ci.yml/badge.svg)](https://github.com/maximtop/opencode-session-namer/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@maximtop/opencode-session-namer)](https://www.npmjs.com/package/@maximtop/opencode-session-namer)
+
+An [opencode](https://opencode.ai) plugin that gives sessions meaningful names, once, right after the first user message — and never touches them again.
+
+```
+[FiltersRegistry] Review pull/1226 Strips `version` and `timeUpdated` fields
+[compiler] AG-31699 Review pull/386 Add support for local download of…
+[browser-extension] AG-56603 Fixing the flaky test
+[browser-extension] Add dark mode toggle
+```
+
+## How it works
+
+- If the **first user message references a GitHub pull request**, the plugin fetches the PR title and branch via the [`gh`](https://cli.github.com) CLI and names the session after it: the repo name exactly as it appears in the URL, the PR number, the PR title. If the branch or title contains an issue key (e.g. `AG-123`), it is included. The link is detected anywhere in the message — a full URL with any suffix (`…/pull/N/changes`, `#diff…`, `?…`) or the short `owner/repo#N` form. Short forms are verified against `gh` and dropped when the repo can't be confirmed — `src/rename.ts#42` is a file reference, not a PR — so unlike full URLs (which degrade to URL-only naming) a short form without `gh` never names the session. When no link-shaped text is found and `prLinkLlm` is on, a small model is asked which PR the message references. Only `github.com` hosts are accepted — a host from an untrusted message is never forwarded to `gh` (see Security).
+- Otherwise, the current auto-title gets a project prefix. The label is the
+  project directory name exactly as written on disk (`AdGuardFiltersStats`,
+  not `ad guard filters stats`). A session anywhere inside a git checkout is
+  named by the checkout root — `repo/src` becomes `[repo]` — and issue keys
+  are picked up from the branch name. A directory with no `.git` up to the
+  home directory (or up to the filesystem root outside home) uses its own
+  name and gets no key. The home directory and the filesystem root are
+  never labeled. When the built-in
+  title has not settled yet (session title still "New session"), the
+  descriptive part is derived from the first line of the user message.
+- **Worktrees are detected generically**: a linked worktree has a `.git` *file* pointing into the main repo, so the project label is the main repo directory name and the issue key comes from the worktree branch — no configuration needed, works with any directory layout.
+- Sessions in scratch directories (temp dirs, OpenChamber chat workspaces) keep the plain auto-title; the project-naming path skips them. A first message that references a PR is still named by the PR.
+- Sub-agent sessions are skipped.
+
+## Safety rules
+
+- **Renames exactly once per session** (tracked in a state file, survives restarts). Later manual renames are never overridden.
+- **A manual/external title is never replaced.** The plugin tracks title-change events: the first title set right after the first user message is assumed to be opencode's auto-title and may be replaced; any other title marks the session as foreign.
+- The rename fires ~10s after the first user message (falling back to the first `session.idle` for sessions restored before the plugin saw them). If a title recorded as the built-in auto-title is written again over ours before the first idle, our title is re-applied exactly once; a change from any other source — including a manual rename — wins immediately and closes that correction window. After the first idle, later changes are never touched.
+- No LLM calls by default; naming is deterministic. Failures never break the session — the plugin just logs and moves on.
+
+On V2, a restored session may expose only history after compaction. When
+its original first user message is unavailable, the plugin leaves that old
+session unchanged and logs the reason. A summary or later message is never
+used as a substitute. New sessions retain normal automatic naming.
+
+Pending naming is cancelled when a session is deleted or the plugin is
+unloaded. A title whose auto-title provenance was not observed remains
+protected; the existing early-manual-title ambiguity is unchanged.
+
+Transient ownership and replay caches retain at most 1,024 recent sessions
+per plugin instance. Retained rename history still uses the existing state
+file and 30-day retention.
+
+## Install
+
+One package supports both host generations automatically. Verified with
+OpenCode V1 **1.18.27**, V1 **1.18.32** and V2 **2.0.14**. Existing V1 users
+can keep their host version, settings and registration; there is no
+compatibility-mode setting.
+
+### OpenCode V1
+
+From npm:
+
+```jsonc
+// ~/.config/opencode/opencode.json
+{
+  "plugin": ["@maximtop/opencode-session-namer"]
+}
+```
+
+Or from a local checkout:
+
+```sh
+git clone https://github.com/maximtop/opencode-session-namer
+cd opencode-session-namer
+pnpm install
+ln -s "$PWD/src/index.ts" ~/.config/opencode/plugins/session-namer.ts
+```
+
+Restart opencode / OpenChamber to load the plugin.
+
+### OpenCode V2
+
+Use V2's native `plugins` setting:
+
+```json
+{
+  "plugins": ["@maximtop/opencode-session-namer"]
+}
+```
+
+For a local checkout, run `pnpm install` there and register the absolute
+**directory** containing the server entry, for example:
+
+```json
+{
+  "plugins": ["/absolute/path/opencode-session-namer/src"]
+}
+```
+
+V2 selects `server.ts` inside that directory. It requires a directory in
+this setting, not the path to an individual TypeScript file. Keep only one
+registration: either the package or the checkout.
+
+Restart V2 and let it finish installing/loading configured plugins before
+starting a new chat. The V1 and V2 configuration keys are host conventions;
+the package itself selects the correct integration automatically.
+
+## Configuration
+
+All optional; create `~/.config/opencode/session-namer.json` to override:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `template` | `[{project}] {agKey} {title}` | Name shape. Slots: `{project}`, `{agKey}`, `{title}`. Empty slots collapse. An empty string falls back to the default. |
+| `prPrefix` | `Review pull/{number} ` | Prepended to `{title}` for PR sessions. `{number}` is the PR number. Empty string disables the prefix. |
+| `agKeyPattern` | `[A-Z][A-Z0-9]{1,9}-\d+` | Regex for the issue key; an optional capture group selects the key. An empty string falls back to the default. |
+| `maxLength` | `90` | Titles longer than this get shortened. |
+| `smartShorten` | `false` | Shorten overlong titles with an LLM instead of a hard word-cut. |
+| `smartShortenModel` | `null` | `provider/model` for both model helpers; otherwise V1 uses `small_model`/host default and V2 uses the host default. |
+| `prLinkLlm` | `false` | When no PR link is found in the first message, ask a tool-free model helper which GitHub PR it references; the reply is validated before use. |
+| `renameDelayMs` | `10000` | Delay after the first user message (or first idle) before renaming. |
+
+### Environment overrides
+
+| Variable | Meaning |
+| --- | --- |
+| `SESSION_NAMER_CONFIG` | Config file path instead of `~/.config/opencode/session-namer.json`. |
+| `SESSION_NAMER_STATE` | State file path (rename-once bookkeeping). Entries older than 30 days are pruned on every write. |
+| `SESSION_NAMER_DELAY_MS` | Overrides `renameDelayMs` (positive integer of milliseconds; `0`, negatives and non-integers fall back to the default). |
+
+### smartShorten
+
+When enabled, only an overlong descriptive part is shortened; the structural
+prefix (`[project] AG-123 Review pull/N`) stays intact. On failure, the plugin
+falls back to word truncation.
+
+Both optional helpers (`smartShorten`, `prLinkLlm`) respect an explicit
+`smartShortenModel`. Otherwise V1 uses its configured `small_model`, falling
+back to the host default, and V2 uses the host default. V1 creates a temporary
+child session with tools disabled and attempts deletion after success or
+failure. V2 uses standalone text generation without tools or a persistent
+helper session. Default naming makes no plugin-initiated model calls.
+
+If V1 cannot read its model configuration, helpers use the host default.
+Task instructions remain outside the encoded source text on both hosts.
+
+## Security
+
+- PR-like URLs on other hosts are ignored by both deterministic parsing and
+  model-assisted extraction.
+- Only `github.com` PR links are fetched. Hosts from untrusted messages are
+  never passed to `gh`: `gh` forwards GitHub Enterprise tokens to whatever
+  host `GH_HOST` names, so doing so would have exfiltrated the user's tokens
+  to an attacker-controlled host. Enterprise hosts are simply not supported.
+- Titles are sanitized of C0/C1 control characters and Unicode format
+  characters (bidi overrides, zero-width) before `session.update`, so a
+  crafted PR title or model reply can neither inject terminal sequences nor
+  spoof how the title displays.
+- Model helpers have no tools: V1 uses a tool-disabled child session, while
+  V2 uses standalone text generation. Fixed instructions treat source text
+  as data; V2 encodes that text as a JSON string in the prompt. Inferred PR
+  links are accepted only for `github.com`.
+- The plugin never logs tokens or other secrets.
+
+## Requirements
+
+- PR titles require the `gh` CLI, authenticated (`gh auth login`). Without it, PR sessions are named from the URL alone: `[compiler] Review pull/386`.
+- Everything else works with no external tools.
+
+## Development
+
+```sh
+pnpm install
+make check   # lint + type-check + tests
+```
+
+The Vitest suite exercises both host adapters and the shared lifecycle;
+PR cases make real `gh` calls and need `gh auth login`. Package compatibility
+also requires isolated real-host acceptance runs; see DEPLOYMENT.md. Never
+replace a working V1 installation with V2 just to test the plugin.
+
+See also: [CHANGELOG.md](https://github.com/maximtop/opencode-session-namer/blob/master/CHANGELOG.md), [AGENTS.md](https://github.com/maximtop/opencode-session-namer/blob/master/AGENTS.md), [DEPLOYMENT.md](https://github.com/maximtop/opencode-session-namer/blob/master/DEPLOYMENT.md).

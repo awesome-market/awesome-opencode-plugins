@@ -1,0 +1,169 @@
+# Clean Up Crew
+
+[![Tests](https://github.com/peterhany4/clean-up-crew/actions/workflows/test.yml/badge.svg)](https://github.com/peterhany4/clean-up-crew/actions/workflows/test.yml)
+
+A crew of agent skills for Windows disk cleanup and safe maintenance.
+
+The first skill, **`clean-up-crew`**, audits disk usage across the Windows system drive, builds a cleanup plan, and deletes only after you approve that exact plan. It covers developer and browser caches, temp files, crash dumps, Windows Update caches, and the Recycle Bin. An optional deep scan shows the largest files and old installers outside Windows and Program Files, but never deletes them. It never force-kills processes and never works around administrator requirements.
+
+## Requirements
+
+- Windows 10 or 11
+- PowerShell 5.1+ (included with Windows)
+- An agent that supports the [Agent Skills](https://agentskills.io) standard, such as OpenCode, Antigravity, Claude Code, Codex, Cursor, or Gemini CLI
+- Optional: Node.js 18+ if you want to install with `npx skills`
+
+## Install
+
+The skill follows the open [Agent Skills](https://agentskills.io) standard, so the same folder works in any compatible agent. Pick one install path per agent.
+
+| Agent | Install | `/clean-up-crew` |
+|---|---|---|
+| OpenCode | `npx skills` with `-a opencode` | copy `command.md` |
+| Antigravity App or IDE | skill folder in `~/.gemini/config/skills` | automatic |
+| Antigravity CLI | `agy plugin install <repo>` | automatic |
+| Other agents | `npx skills` with `-a <agent>` | varies by agent |
+
+### OpenCode
+
+```powershell
+npx skills add peterhany4/clean-up-crew --skill clean-up-crew -g -a opencode -y --copy
+```
+
+The skills CLI installs skills, not slash commands. The command template ships inside the installed skill. This finds it whether the skill was installed globally by the CLI or copied manually:
+
+```powershell
+$skillDir = @(
+    "$env:USERPROFILE\.agents\skills\clean-up-crew",
+    "$env:USERPROFILE\.config\opencode\skills\clean-up-crew"
+) | Where-Object { Test-Path -LiteralPath (Join-Path $_ 'command.md') } | Select-Object -First 1
+if (-not $skillDir) { throw 'clean-up-crew skill not found. Run the install step first.' }
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\commands" | Out-Null
+Copy-Item -LiteralPath (Join-Path $skillDir 'command.md') "$env:USERPROFILE\.config\opencode\commands\clean-up-crew.md" -Force
+```
+
+Restart OpenCode if needed, then run `/clean-up-crew` or ask it to "check C drive".
+
+### Antigravity
+
+The repository root is also a valid Antigravity plugin (`plugin.json` with `skills/clean-up-crew` inside). The CLI installs it, including the skill:
+
+```powershell
+agy plugin install https://github.com/peterhany4/clean-up-crew
+```
+
+For the Antigravity App or IDE, copy the skill folder into the global skills directory:
+
+```powershell
+$dest = "$env:USERPROFILE\.gemini\config\skills\clean-up-crew"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.gemini\config\skills" | Out-Null
+if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+Copy-Item -LiteralPath .\skills\clean-up-crew -Destination $dest -Recurse -Force
+```
+
+Or use the skills CLI, which writes to the Antigravity CLI path:
+
+```powershell
+npx skills add peterhany4/clean-up-crew --skill clean-up-crew -g -a antigravity-cli -y --copy
+```
+
+Antigravity turns the skill into `/clean-up-crew` automatically. The `clean`, `deep`, and `plan` argument routing in `command.md` is OpenCode-only; on Antigravity, ask in plain language, for example "build the recommended cleanup plan".
+
+### Other agents
+
+```powershell
+npx skills add peterhany4/clean-up-crew --skill clean-up-crew -g -a claude-code -y --copy
+```
+
+Swap `claude-code` for `codex`, `cursor`, `gemini-cli`, `windsurf`, or run with `--agent '*'`. Run `npx skills add peterhany4/clean-up-crew --list` to browse before installing.
+
+### Update later
+
+```powershell
+npx skills update clean-up-crew -g
+```
+
+For an Antigravity plugin install, run `agy plugin uninstall clean-up-crew` and install it again.
+
+## What it does
+
+- Reports free space, 30 cleanup target sizes, top `LocalAppData` folders, top global npm packages, and growth trend.
+- Covers developer caches (npm, pnpm, Yarn, pip, uv, Bun, Deno, Cargo, Gradle, Maven, NuGet, and more), browser caches (Chrome, Edge, Firefox, Brave), temp folders, crash dumps, error reports, and Windows Update caches.
+- Builds a JSON plan for the target IDs you approve, or a general plan with `-Preset recommended` (all tier-1 targets except the Recycle Bin).
+- Applies only that plan, re-checking paths and blocked processes at apply time.
+- `-DeepScan` adds a review-only map of the drive: top folders, files of 250 MB or more outside Windows, Program Files, and protected system folders, and installers older than 90 days at the top level of Downloads and Desktop. Nothing in that list is deleted.
+- Handles blocked browser caches and admin-only targets without force-killing or escalating.
+- Treats hibernation, pagefile changes, and app uninstalls as recommendations only (Tier 3).
+
+## Safety model
+
+- **Report** is read-only. With `-SaveHistory` it adds one local history record. `-DeepScan` is also read-only and only lists review candidates.
+- **Plan** changes nothing. It records target IDs, current sizes, and blocked status. `-Preset recommended` excludes the irreversible Recycle Bin.
+- **Apply** requires explicit approval of the exact plan. The scripts re-expand paths from `references/targets.json`, re-check the path guard and blocked processes, and skip blocked items.
+- The scripts never force-kill processes or work around administrator requirements.
+- Deep-scan large files and old installers are never treated as targets. The user must review and remove them manually.
+- History lives at `%LOCALAPPDATA%\opencode-disk-cleanup\history.jsonl`. It is personal data and is not included in this repository.
+
+## Manual install (OpenCode)
+
+If you do not want to use the skills CLI, download or clone this repository and run the following from the repository root:
+
+```powershell
+$dest = "$env:USERPROFILE\.config\opencode\skills\clean-up-crew"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\skills" | Out-Null
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.config\opencode\commands" | Out-Null
+if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+Copy-Item -LiteralPath .\skills\clean-up-crew -Destination $dest -Recurse -Force
+Copy-Item -LiteralPath .\skills\clean-up-crew\command.md -Destination "$env:USERPROFILE\.config\opencode\commands\clean-up-crew.md" -Force
+```
+
+If the repository was downloaded as a zip, unblock it first:
+
+```powershell
+Get-ChildItem -LiteralPath . -Recurse -File | Unblock-File
+```
+
+Or right-click the zip, open Properties, select **Unblock**, then extract it.
+
+## Verify
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\skills\clean-up-crew\tests\Test-Guardrails.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\skills\clean-up-crew\tests\Test-Apply.ps1
+```
+
+Expected: 20 guardrail passes and 18 apply passes. The apply test uses temporary fixtures and restores `targets.json` and the local history file.
+
+## Repository layout
+
+- `plugin.json` - Antigravity plugin manifest; makes the repository installable with `agy plugin install`.
+- `assets/logo.svg` - plugin icon.
+- `skills/clean-up-crew/SKILL.md` - workflow and safety rules.
+- `skills/clean-up-crew/command.md` - `/clean-up-crew` slash command template for OpenCode.
+- `skills/clean-up-crew/references/targets.json` - allowlisted cleanup targets.
+- `skills/clean-up-crew/scripts/` - report, plan, apply, and trend scripts.
+- `skills/clean-up-crew/tests/` - guardrail and end-to-end tests.
+
+## Customizing
+
+Add or remove targets in `skills/clean-up-crew/references/targets.json`. Keep the required fields and run both tests after edits. Wildcards are supported in `contents` and `files` paths; each match is guarded at apply time.
+
+The skill targets the Windows system drive and uses `%SystemRoot%`, `%LOCALAPPDATA%`, and `%SystemDrive%`, so it adapts to the system drive letter. The deep scan follows the same system drive.
+
+### Target types
+
+| Type | Behavior |
+|---|---|
+| `contents` | Deletes the children of each directory; keeps the directory itself. |
+| `files` | Deletes each exact file or wildcard match. Never recurses into a directory. |
+| `profile-caches` | Expands browser profile directories and deletes the listed cache subfolders. |
+| `recyclebin` | Clears the Recycle Bin for the system drive. Irreversible. |
+| `dism` | Runs `DISM /Online /Cleanup-Image /StartComponentCleanup`. |
+
+## More skills
+
+The `clean-up-crew` skill is the first member of the crew. New Windows maintenance skills can live under `skills/` without changing the install command for existing skills.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

@@ -1,0 +1,511 @@
+# Harness Loop Plugin
+
+Autonomous gate-driven development workflow plugin for OpenCode.
+
+## What It Does
+
+The harness loop plugin automates your development workflow by driving your project through configured gates (build, test, lint, etc.) until all pass or a hard-stop condition triggers. It hooks into OpenCode's `session.idle` event to continuously re-check gates and inject continuation prompts when fixes are needed.
+
+## Quick Start
+
+```bash
+# 1. Install the package
+npm install @nano-step/oh-my-harness@latest
+
+# 2. Register in .opencode/opencode.json
+mkdir -p .opencode
+echo '{"plugin":["@nano-step/oh-my-harness@latest"]}' > .opencode/opencode.json
+```
+
+Then **restart OpenCode** (so the slash-command shims are loaded) and run:
+
+```
+/harness-init
+```
+
+> **AI Agent?** Copy [docs/SETUP_INSTRUCTIONS_FOR_AGENT.md](docs/SETUP_INSTRUCTIONS_FOR_AGENT.md) into your context for step-by-step install + registration instructions.
+
+That single command bootstraps everything:
+- `.opencode/harness.config.json` (5-gate skeleton)
+- `scripts/harness-check.sh` (no-op runner stub)
+- `docs/harness/gates/*.md` (5 placeholder gate docs)
+- `.gitignore` entries for runtime state files
+
+Then:
+
+```
+/harness-on           # start the loop
+/harness-check pre-merge   # manually run a gate (read-only)
+/harness-off          # stop the loop (preserves state for --resume)
+```
+
+**Full walkthrough with troubleshooting:** [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
+
+The templates ship with a **no-op stub runner** (every gate returns PASS). Edit `scripts/harness-check.sh` and `docs/harness/gates/*.md` to wire your real checks (tsc, vitest, lint, etc.).
+
+## What's New in v1.1.0
+
+In v1.0 the package drove work through quality gates. In v1.1 it also designs the team that does the work.
+
+The new `/harness-team` command turns a plain-English domain description into a runnable agent team: agent definitions, the skills those agents use, an orchestrator to coordinate them, and a pointer in `AGENTS.md` so the team auto-triggers in future sessions. Six architecture patterns are baked in (Pipeline, Fan-out/Fan-in, Expert Pool, Producer-Reviewer, Supervisor, Hierarchical Delegation) — the skill picks the one that fits the work, and a follow-up `/harness-team` invocation extends an existing team without rebuilding from scratch.
+
+`/harness-team` and `/harness-on` are complementary, not nested. Use the factory to design who runs the work. Use the gate loop to hold their output to a quality bar.
+
+Adapted from [revfactory/harness](https://github.com/revfactory/harness) v1.2.0 (Apache-2.0). All shipped docs are English-only. See [Team Architecture Factory](#team-architecture-factory-harness-team) below for the full walkthrough.
+
+## Team Architecture Factory (`/harness-team`)
+
+In addition to the gate-loop feature, `@nano-step/oh-my-harness` ships a
+**team architecture factory** skill ported from [revfactory/harness](https://github.com/revfactory/harness)
+(Apache-2.0). It turns a domain description into a complete agent team
++ skill scaffolding in your project.
+
+### Usage
+
+```
+/harness-team           # Generate a new team
+/harness-team --audit   # Audit existing .opencode/agents/ and .opencode/skills/
+```
+
+### What it generates
+
+- `.opencode/agents/{name}.md` — individual agent definitions
+- `.opencode/skills/{name}/` — domain-specific skills with references
+- `.opencode/skills/{orchestrator}/SKILL.md` — workflow orchestrator
+- `AGENTS.md` — appended pointer section
+
+### Architectural patterns supported
+
+1. **Pipeline** — sequential stages
+2. **Fan-out/Fan-in** — parallel perspectives
+3. **Expert Pool** — context-routed specialists
+4. **Producer-Reviewer** — generation + quality gate
+5. **Supervisor** — dynamic task dispatch
+6. **Hierarchical Delegation** — top-down decomposition (max depth 2)
+
+### NOT for gate-loop operation
+
+`/harness-team` is orthogonal to `/harness-on`. They share no state. Use the
+gate-loop for quality gates on PRs; use the factory to design who runs the work.
+
+### Attribution
+
+This feature is adapted from [revfactory/harness](https://github.com/revfactory/harness)
+v1.2.0. See `skills/team-architecture-factory/assets/LICENSE-UPSTREAM` and `NOTICE`.
+
+## Slash Commands (auto-installed)
+
+When you `npm install @nano-step/oh-my-harness` in a project, a `postinstall` script automatically creates the OpenCode slash-command shims:
+
+- `.opencode/commands/harness-on.md`
+- `.opencode/commands/harness-off.md`
+- `.opencode/commands/harness-init.md`
+- `.opencode/commands/harness-check.md`
+- `.opencode/commands/harness-team.md`
+
+These shims make the 5 commands appear in OpenCode's autocomplete. The plugin intercepts the commands at runtime via the `command.execute.before` hook.
+
+**The postinstall:**
+- Never overwrites existing files — if you customize the shims, they're preserved.
+- Fails silently — install never breaks even if shim creation errors.
+- Can be disabled: set `OH_MY_HARNESS_SKIP_POSTINSTALL=1` before installing.
+
+If you skip the postinstall (or it failed), create the shims manually:
+
+```bash
+mkdir -p .opencode/commands
+cat > .opencode/commands/harness-on.md <<'EOF'
+---
+description: Start the harness gate loop for the current feature
+---
+
+$ARGUMENTS
+EOF
+
+cat > .opencode/commands/harness-off.md <<'EOF'
+---
+description: Cancel the active harness gate loop
+---
+EOF
+```
+
+Then restart OpenCode for the commands to appear in autocomplete.
+
+## Configuration Reference
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `runner_path` | string | **required** | Path to runner script (relative to project root) |
+| `gates` | string[] | **required** | Ordered list of gate names |
+| `fail_policy` | "auto" \| "hybrid" \| "ask" | "hybrid" | How to handle failures |
+| `rule_id_format` | string | `"{id}"` | Format string for rule IDs (e.g., `"R{id}"`, `"FP #{id}"`) |
+| `max_total_iterations` | number | 100 | Hard cap on total iterations across all gates |
+| `max_iterations_per_gate` | number | 10 | Max attempts per gate before escalating |
+| `auto_fix_attempts` | number | 3 | In hybrid mode, auto-fix N times before asking user |
+| `cache_ttl_minutes` | number | 30 | How long to cache PASS results |
+| `runner_timeout_seconds` | number | 300 | Runner subprocess timeout |
+| `completion_promise` | string | "HARNESS-COMPLETE" | Promise tag the agent emits to signal completion |
+| `ultrawork_verify_gates` | string[] | [] | Gates that require Oracle verification after PASS |
+| `state_file_path` | string | ".opencode/harness-loop.local.json" | Where to store loop state |
+| `gate_instructions` | object | {} | Per-gate doc paths and skill lists |
+
+### Gate Instructions
+
+Point each gate to project-specific documentation and skills:
+
+```json
+{
+  "gate_instructions": {
+    "pre-merge": {
+      "doc": "docs/harness/gates/pre-merge.md",
+      "skills": ["review-work"]
+    },
+    "smoke-e2e": {
+      "doc": "docs/harness/gates/smoke-e2e.md",
+      "skills": ["playwright"]
+    }
+  }
+}
+```
+
+If `doc` is omitted, the plugin tries `docs/harness/gates/<gate>.md` by convention.
+
+### Async Gates
+
+For gates that depend on external systems (CI, deploys, npm publish):
+
+```json
+{
+  "gate_instructions": {
+    "post-merge-npm-release": {
+      "doc": "docs/harness/gates/post-merge-npm-release.md",
+      "async": true,
+      "async_max_wait_seconds": 1800,
+      "async_poll_interval_seconds": 60
+    }
+  }
+}
+```
+
+## Runner Contract
+
+Your runner must:
+
+1. Accept `<gate-name> [--feature=<id>] [--force] [--json]` as arguments
+2. Output exactly one JSON object to stdout
+3. Exit with code matching status (0=PASS, 1=FAIL, 2=SKIP, 3=WAITING, 4=BLOCKED, 5=ERROR)
+
+### Output Schema
+
+```json
+{
+  "gate": "pre-work",
+  "status": "PASS | FAIL | SKIP | WAITING | BLOCKED | ERROR",
+  "checks": [
+    { "id": "1.1", "name": "Issue exists", "status": "PASS", "rule_id": "R89" }
+  ],
+  "next_gate": "in-progress",
+  "instructions_for_agent": "Required when status is FAIL or BLOCKED",
+  "wait_seconds": 60,
+  "rule_ids_violated": ["R29", "R31"]
+}
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/harness-init` | Bootstrap harness setup in the current project — copies templates (config, runner stub, gate docs, gitignore entries). Idempotent. |
+| `/harness-check <gate>` | Manually run a single gate via the configured runner. Read-only — does not modify loop state. |
+| `/harness-on` | Start the harness loop. If a loop is already active, emits an error telling you to use `--resume` or `--restart`. |
+| `/harness-on --feature=<id>` | Tag the loop with a feature/issue ID (e.g. `--feature=JIRA-42`). Shown in switching errors so you always know what's blocking. |
+| `/harness-on --resume` | Rebind an existing loop into the current session. Re-runs the current gate from iteration 0 (gates are idempotent). |
+| `/harness-on --restart` | Cancel the active loop and start fresh from the first gate. |
+| `/harness-on --feature=<id> --restart` | **Switch features**: cancel the active loop (any feature) and start a fresh loop for `<id>`. Use this to move to a new issue without running `/harness-off` first. |
+| `/harness-on --force` | Start fresh, ignoring cached gate results. |
+| `/harness-on --epic [path]` | Start epic mode. See [Epic Mode](#epic-mode-v306). |
+| `/harness-on --epic --resume` | Resume preserved epic at the current story. |
+| `/harness-off` | Stop the active loop. Preserves epic state for `--resume`. |
+| `/harness-off --clean` | Stop and wipe all state, including epic. |
+| `/harness-team` | Team Architecture Factory — generate agent team + skills from a domain description. See [Team Architecture Factory](#team-architecture-factory-harness-team). |
+| `/harness-team --audit` | Audit existing `.opencode/agents/` and `.opencode/skills/` inventory; report only, no file changes. |
+
+## How to Adopt in Your Project
+
+1. **Copy the plugin directory** into your project:
+   ```bash
+   cp -r .opencode/plugin/harness-loop <your-project>/.opencode/plugin/
+   ```
+
+2. **Install and build:**
+   ```bash
+   cd <your-project>/.opencode/plugin/harness-loop
+   npm install && npm run build
+   cd ../../..
+   ```
+
+3. **Create `.opencode/harness.config.json`** (minimal example):
+   ```json
+   {
+     "runner_path": "./scripts/harness-check.sh",
+     "gates": ["pre-work", "in-progress", "pre-merge"],
+     "fail_policy": "hybrid"
+   }
+   ```
+
+4. **Write or adapt a runner script** that accepts `<gate> [--json]` and outputs the runner contract JSON.
+
+5. **Start the loop:**
+   ```
+   /harness-on
+   ```
+
+## Override Mechanism
+
+Two mechanisms let you pause the loop when automatic fixing isn't possible:
+
+**Agent token** — add this anywhere in the agent's reply:
+```
+[HARNESS-OVERRIDE]: <reason for human intervention>
+```
+The loop pauses and waits for user approval before continuing.
+
+**File override** — create `.opencode/harness.override.json` before running `/harness-on`:
+```json
+{
+  "max_iterations_per_gate": 20,
+  "skip_gates": ["e2e"]
+}
+```
+The config is merged once at loop start and the file is auto-deleted when the loop ends.
+
+## Epic Mode (v306+)
+
+Drive every story in a multi-story backlog through the gate cycle with a single `/harness-on --epic` invocation. The plugin advances stories automatically, pauses on failure for operator input (`ask` policy), and persists progress for `--resume`.
+
+### Backlog file schema
+
+`.opencode/harness.epic.json`:
+
+```json
+{
+  "epic_id": "EPIC-24",
+  "title": "Postgres migration",
+  "stories": [
+    {
+      "id": "STORY-24-0",
+      "title": "PG governance setup",
+      "feature_id": "feat/24-0-pg-governance",
+      "issue_number": 240,
+      "story": "Set up governance for the Postgres migration ...",
+      "depends_on": []
+    },
+    {
+      "id": "STORY-24-1",
+      "title": "PG Alembic baseline",
+      "feature_id": "feat/24-1-pg-alembic-baseline",
+      "depends_on": ["STORY-24-0"]
+    }
+  ]
+}
+```
+
+Required fields: `id`, `title`. Optional: `feature_id`, `issue_number`, `story`, `depends_on` (defaults to `[]`).
+
+### Config
+
+Add to `harness.config.json`:
+
+```json
+{
+  "epic": {
+    "backlog_source": "file",
+    "backlog_file": ".opencode/harness.epic.json",
+    "failure_policy": "ask",
+    "max_iterations_per_epic": 500
+  }
+}
+```
+
+The `epic` block is **optional**. Without it, single-story mode works exactly as v305.
+
+### Usage
+
+| Command | Behavior |
+|---------|----------|
+| `/harness-on` | Single-story mode (unchanged) |
+| `/harness-on --epic` | Epic mode, default backlog from config |
+| `/harness-on --epic=<path>` | Epic mode, custom backlog file |
+| `/harness-on --epic --resume` | Resume from preserved epic state |
+| `/harness-off` | Preserve epic state (resume-able) |
+| `/harness-off --clean` | Full wipe (legacy v305 behavior) |
+
+### Story dependencies
+
+`depends_on` is an array of story IDs that must complete before this story is eligible. The plugin topo-sorts at start; cycles and missing references fail loud.
+
+### Failure handling
+
+Phase 1 supports only `failure_policy: "ask"` — when any story exhausts `max_iterations_per_gate`, the epic pauses and waits for `/harness-on --epic --resume`.
+
+Phase 2 will add `"skip"` and `"abort"`.
+
+### Observability
+
+Per-story toasts:
+
+```
+🚀 Epic "EPIC-24" started: 5 stories. First: "STORY-24-0".
+✅ Story "STORY-24-2" done → next "STORY-24-3" (3/5)
+⏸️ Story "STORY-24-2" PAUSED at gate "pre-merge". Use /harness-on --epic --resume after fix.
+🏆 Epic "EPIC-24" complete! 5/5 stories done.
+```
+
+Full audit trail in `state.loop.epic.story_progress` array (state file).
+
+## Gate Instructions Config
+
+The `gate_instructions` field maps each gate name to a doc path and optional skill list. The plugin reads the doc at loop start and prepends it to the agent's context for that gate.
+
+```json
+{
+  "gate_instructions": {
+    "pre-merge": {
+      "doc": "docs/harness/gates/pre-merge.md",
+      "skills": ["review-work", "code-review"]
+    },
+    "smoke-e2e": {
+      "doc": "docs/harness/gates/smoke-e2e.md"
+    },
+    "post-merge": {
+      "skills": ["git-master"]
+    }
+  }
+}
+```
+
+- **`doc` + `skills`** — explicit doc injected, plus named skills loaded.
+- **`doc` only** — doc injected; no extra skills.
+- **`skills` only (no `doc`)** — skills loaded; plugin falls back to `docs/harness/gates/<gate>.md` by convention. A warning is logged if that file doesn't exist.
+
+When `doc` is omitted entirely, the convention path is tried silently.
+
+## Authoring Gate Instruction Docs
+
+Gate instruction docs tell the agent exactly what to do for each gate. Use this structure:
+
+```markdown
+## Hard Rules
+- <rule that must never be violated>
+
+## Step-by-Step Procedure
+1. <first action>
+2. <second action>
+
+## Evidence Requirements
+- Paste output of: <command>
+
+## FAIL Conditions
+- <condition that causes an automatic FAIL>
+```
+
+Example (`docs/harness/gates/smoke-e2e.md`):
+
+```markdown
+## Hard Rules
+- Never claim smoke:e2e passes without showing actual curl output.
+
+## Step-by-Step Procedure
+1. Build: `go build -o ./bin/nano-brain ./cmd/nano-brain/`
+2. Start server on port 3199
+3. Wait for GET /health → `{"ready":true}`
+4. Exercise changed endpoints with curl
+5. Kill the server
+
+## Evidence Requirements
+- Paste all curl commands and responses in the PR description.
+
+## FAIL Conditions
+- Server fails to start
+- Any curl returns non-2xx
+- Response JSON is missing required fields
+```
+
+## Strict vs Flexible Mode
+
+Set `strict_instructions: true` in `harness.config.json` to require every gate to have an instruction doc before the loop starts:
+
+```json
+{
+  "strict_instructions": true
+}
+```
+
+With `strict_instructions: true`, `/harness-on` refuses to start and prints a list of gates missing docs. Fix by adding a `doc` path to `gate_instructions` or creating the convention path file.
+
+The default (`false`) warns about missing docs but continues. Useful when adopting the plugin incrementally.
+
+## Async Gate Semantics
+
+Use `async: true` for gates that depend on external systems where the result isn't available immediately (CI pipelines, npm publish, deploy health checks).
+
+```json
+{
+  "gate_instructions": {
+    "post-merge-release": {
+      "doc": "docs/harness/gates/post-merge-release.md",
+      "async": true,
+      "async_max_wait_seconds": 1800,
+      "async_poll_interval_seconds": 60,
+      "async_subagent_type": "explore"
+    }
+  }
+}
+```
+
+**`async_max_wait_seconds`** — size this at 2-3x your expected CI or deploy time. A release workflow that normally takes 8 minutes should get at least 1800 seconds (30 min) to account for queue delays.
+
+**`async_subagent_type`** — controls which subagent polls the external system. Use `"explore"` for read-only checks (gh CLI, curl). Use `"hephaestus"` when the polling subagent may need to take corrective action.
+
+**Heartbeat toasts** — while waiting, the plugin emits a toast every `async_poll_interval_seconds`: `"⏳ Waiting for post-merge-release (elapsed: 2m30s / max: 30m)"`. These are visible in the OpenCode status bar.
+
+When `async_max_wait_seconds` expires without a terminal result, the gate emits `FAIL` with `instructions_for_agent` set to the timeout message.
+
+## Writing an Async-Aware Runner
+
+For async gates, your runner returns `WAITING` when the external system hasn't settled yet. The plugin re-polls after `wait_seconds`.
+
+```bash
+#!/bin/bash
+# scripts/harness-check.sh post-merge-release --json
+
+status=$(gh run list --workflow=release.yml --limit 1 --json status --jq '.[0].status')
+
+if [[ "$status" == "in_progress" || "$status" == "queued" ]]; then
+  # Not done yet — tell the plugin to wait 60 seconds and re-poll
+  echo '{"gate":"post-merge-release","status":"WAITING","checks":[],"wait_seconds":60}'
+  exit 3
+fi
+
+conclusion=$(gh run list --workflow=release.yml --limit 1 --json conclusion --jq '.[0].conclusion')
+
+if [[ "$conclusion" == "success" ]]; then
+  echo '{"gate":"post-merge-release","status":"PASS","checks":[],"next_gate":null}'
+  exit 0
+else
+  echo "{\"gate\":\"post-merge-release\",\"status\":\"FAIL\",\"checks\":[],\"instructions_for_agent\":\"Release workflow failed with conclusion: $conclusion. Check the workflow logs.\"}"
+  exit 1
+fi
+```
+
+Key points:
+- Exit code `3` signals `WAITING` to the plugin.
+- `wait_seconds` in the JSON body overrides `async_poll_interval_seconds` for that specific poll cycle.
+- Terminal statuses (`PASS`, `FAIL`, `SKIP`, `BLOCKED`, `ERROR`) use exit codes 0, 1, 2, 4, 5 respectively.
+
+## License
+
+MIT
+
+
+

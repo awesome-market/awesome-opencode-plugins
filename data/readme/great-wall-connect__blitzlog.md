@@ -1,0 +1,1302 @@
+<img src="assets/blitzlog-mark.svg" alt="Blitzlog" width="120" />
+
+# Blitzlog
+
+**Pin, blitz, merge.**
+*From issue to PR. With a trail.*
+
+[![License: MIT](https://img.shields.io/github/license/great-wall-connect/blitzlog?style=flat&color=f5d90a)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/great-wall-connect/blitzlog?style=social)](https://github.com/great-wall-connect/blitzlog/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/great-wall-connect/blitzlog)](https://github.com/great-wall-connect/blitzlog/issues)
+[![Last commit](https://img.shields.io/github/last-commit/great-wall-connect/blitzlog)](https://github.com/great-wall-connect/blitzlog/commits/main)
+[![Open Source](https://img.shields.io/badge/open_source-✓-f5d90a)](#license)
+
+Blitzlog is an **open-source autonomous coding agent** for **GitHub**: label an issue, and it spins up an **AWS EC2 spot instance**, runs an **OpenCode agent** on your repo, opens a **pull request**, and shuts itself down. Two modes — fully **autonomous** end-to-end, or **assisted** via a chat bot — both self-hosted and AWS-native, with no SaaS lock-in.
+
+![Blitzlog demo — issue to PR end-to-end](assets/blitzlog-demo.gif)
+
+---
+
+## What it does
+
+```
+GitHub issue (labeled "autonomous")
+  → GitHub webhook
+  → API Gateway HTTP API
+  → AWS Lambda
+    → Verifies HMAC-SHA256 signature
+    → Authenticates via GitHub App
+    → Checks for the trigger label
+    → Generates a repo-scoped GitHub token (~8h)
+    → Launches an EC2 spot instance
+  → EC2 spot instance
+    → cloud-init: clones the repo, installs OpenCode
+    → OpenCode agent reads the issue, branches, implements, tests
+    → pushes a PR branch
+    → exits
+  → watchdog (2-hour timeout)
+  → post-exit: self-terminate via IMDSv2
+  → PR lands in your repo, ready for human review
+```
+
+Two modes:
+
+- **Autonomous** — full-auto: the agent closes the issue end-to-end.
+- **Assisted** — interactive via a chat bot, with the same underlying pipeline but the human stays in the loop. Currently Telegram; Slack and other enterprise platforms are being evaluated (see [docs/CHAT_PLATFORMS.md](docs/CHAT_PLATFORMS.md)).
+
+---
+
+## Architecture
+
+| Component | Description |
+|---|---|
+| `lambda/handler.py` | Python Lambda: webhook verification, GitHub App auth, EC2 spot launch |
+| `infra/aws/modules/core/` | Reusable Terraform module containing all AWS-shaped blitzlog resources, parameterized by `var.environment` (prod / dev) |
+| `infra/aws/modules/core/scrummaster.tf` | The always-on Scrummaster advisor host (t4g.nano + one ZeroClaw container per user-pool user), folded into the core module so one plan/apply owns the whole system. Env-scoped like the rest of core — each env gets its own host, IAM objects and AMI (`/blitzlog/<env>/agent-ami-id-zeroclaw-docker-ubuntu`). Gated off by `enable_scrummaster`; epic #134. Assets in `infra/aws/modules/core/scrummaster/`. |
+| `infra/aws/prod/` | Thin Terraform wrapper that deploys the AWS core module with `environment = "prod"` |
+| `infra/aws/dev/` | Thin Terraform wrapper that deploys the AWS core module with `environment = "dev"`. Also the only env that may set `enable_scrummaster` — the scrummaster's resources are env-independent, so a prod copy would collide. |
+| `infra/aws/bootstrap/` | One-time AWS bootstrap stack: shared S3 buckets (agent logs + STT models), OIDC IAM roles for Packer + deploy + integration-test workflows, per-env SSM parameters |
+| `infra/aws/packer/` | Packer AMI builds (AWS-only, arm64 Ubuntu). `agent-docker-ubuntu.pkr.hcl` bakes the blitzlog-agent container; `scrummaster-zeroclaw-docker-ubuntu.pkr.hcl` bakes the ZeroClaw image + systemd units for the Scrummaster host. Both run in `release.yml` in parallel jobs sharing one ref-gate action, and publish their AMI id to `/blitzlog/<env>/agent-ami-id-*`. |
+| `infra/alicloud/modules/core/` | Reusable Terraform module containing all Alicloud-shaped blitzlog resources (Function Compute + ECS + RAM + API Gateway + OSS + MNS + KMS). Issue #126. |
+| `infra/alicloud/{dev,prod}/` | Thin Terraform wrappers that deploy the Alicloud core module with `environment = "dev"` / `"prod"`. The release workflow picks the tree based on `vars.BLITZLOG_PROVIDER`. |
+| `infra/alicloud/bootstrap/` | One-time Alicloud bootstrap stack: shared OSS buckets (agent logs + STT models) |
+| `infra/user-pool/` | Per-user Terraform sub-module (local state) that provisions that user's Telegram bot pool and per-user local LLM config into SSM Parameter Store. **Shared across envs** — params live at `/blitzlog/users/<login>/...` (no env prefix). |
+| `packages/whisper-stt-shim/` | Local Node.js shim exposing a Whisper-compatible `/v1/audio/transcriptions` endpoint that wraps `whisper.cpp` for the agent's voice-note STT |
+| `AGENTS.md` | Conventions the agent follows and contributors match: branch naming, commits, testing, PR process |
+| `.opencode/skills/` | OpenCode skills bundled with the agent (e.g. `resume-aborted-session`) |
+
+---
+
+## Prerequisites
+
+- Terraform >= 1.0
+- AWS provider ~> 6.0
+- An AWS account
+- An existing VPC and subnet (Blitzlog needs to launch into one)
+- An S3 bucket for Terraform state
+- A GitHub App installed on the target repo
+- **Python 3.12 on the deploy host.** `terraform apply` runs `python3 -m venv` and `pip install -r lambda/requirements.txt` in a `local-exec` provisioner (`infra/aws/modules/core/lambda.tf`). The lambda runtime is `python3.12`. The local-exec resolves Python 3.12 from the first available source: `command -v python3.12` first (macOS's `python3.12` works), then `~/.local/share/mise/installs/python/3.12.*/bin/python3` (the project's `mise.toml` pins `python = "3.12"`; `mise install` puts it there). If your deploy host has a different `python3` default (e.g., Ubuntu Desktop's `python3.14`), the local-exec still picks the mise install — as long as `mise install` has been run once. If neither Python 3.12 source exists, the local-exec fails loudly with instructions to install it.
+
+---
+
+## Setup
+
+Blitzlog deploys into a single AWS account but supports multiple **environments** (`prod`, `dev`, ...) so the maintainer can iterate on Terraform changes from unstable branches without touching production. See [Environments (prod / dev)](#environments-prod--dev) for the full overview.
+
+### 1. Bootstrap the shared S3 buckets (one-time)
+
+Both `prod` and `dev` reference the same shared S3 buckets (`agent_logs` and `stt_models`) via data sources. Those buckets are owned by a separate one-time stack at `infra/aws/bootstrap/`. Apply it once before any env:
+
+```bash
+cd infra/bootstrap
+cp terraform.tfvars.example terraform.tfvars
+# fill in: aws_region, agent_logs_bucket_name, stt_models_bucket_name
+terraform init -backend-config=bootstrap-backend.hcl
+terraform plan
+terraform apply
+```
+
+This creates the two buckets and configures encryption, versioning, public-access-block, and lifecycle rules on them. Per-env stacks never mutate the buckets — they only read/write keys under them, scoped by IAM to the env-specific key prefix (`s3://<bucket>/prod/...` vs `s3://<bucket>/dev/...`).
+
+After the bootstrap apply, copy the bucket names into both `infra/aws/prod/terraform.tfvars` and `infra/aws/dev/terraform.tfvars` (`agent_logs_bucket_name` and `stt_models_bucket_name` — they MUST match).
+
+### 2. Provide the required variables
+
+Copy and edit the production tfvars:
+
+```bash
+cp infra/aws/prod/terraform.tfvars.example infra/aws/prod/terraform.tfvars
+```
+
+Open `infra/aws/prod/terraform.tfvars` (the file is gitignored — never commit it) and fill in the required fields. See the example file for the full list, including the optional STT and alerting knobs.
+
+The state backend (`backend "s3"`) in `infra/aws/prod/main.tf` is generic — the `bucket` and `key` fields are intentionally empty. Supply them via the shipped `-backend.hcl` file:
+
+```hcl
+# infra/aws/prod/prod-backend.hcl
+bucket = "<your-tf-state-bucket>"
+key    = "prod/blitzlog.tfstate"
+region = "ap-east-1"
+```
+
+Override the bucket if your state bucket is not `gwc-infra-tf-state`.
+
+### 3. Deploy production
+
+The canonical deploy path is via the GitHub Actions `release`
+workflow — see [Applying from GitHub Actions](#applying-from-github-actions)
+for the full mechanism. For the first deploy (and as a fallback),
+the local path still works:
+
+```bash
+cd infra/prod
+terraform init -backend-config=prod-backend.hcl
+terraform plan
+terraform apply
+```
+
+GitHub App secrets are pushed into SSM `SecureString` parameters automatically; the Lambda reads them at runtime.
+
+### 4. Register the GitHub webhook
+
+After deployment, copy the webhook URL from `terraform output`:
+
+```bash
+terraform output webhook_url
+# → https://xxx.execute-api.<region>.amazonaws.com/
+```
+
+Register in your GitHub repo → **Settings → Webhooks**:
+
+- **Payload URL**: the webhook URL
+- **Content type**: `application/json`
+- **Secret**: same value as `github_webhook_secret`
+- **Events**: `Issues`
+
+### 5. Label an issue
+
+Label any issue with **`autonomous`** to trigger the autonomous pipeline, or **`assisted`** (with a configured Telegram bot pool) to start an interactive session.
+
+> **Note for automated agents** (e.g. blitzlog itself, OpenCode sessions, or any other CI agent): applying `autonomous` or `assisted` to an issue on this repo spawns a new EC2 instance that runs the very agent that applied the label. **Don't apply these labels** — even `bug, autonomous` will. Use `bug`, `enhancement`, `dependencies`, or another non-trigger label, and let a human maintainer apply the trigger label if they want a follow-up run. The same rule is documented in [AGENTS.md](AGENTS.md#trigger-labels).
+
+---
+
+## Environments (prod / dev)
+
+Blitzlog runs in two isolated environments inside the same AWS account:
+
+| Env | Audience | Triggered by | Webhook | Lambda | SSM root | State key |
+|---|---|---|---|---|---|---|
+| `prod` | All real users + repos | Merges to `main` (manual apply) | `terraform output -chdir=infra/prod webhook_url` | `blitzlog-prod-handler` | `/blitzlog/prod` | `s3://<bucket>/prod/blitzlog.tfstate` |
+| `dev` | Maintainer + a sandbox repo | Any unstable branch (manual apply) | `terraform output -chdir=infra/dev webhook_url` | `blitzlog-dev-handler` | `/blitzlog/dev` | `s3://<bucket>/dev/blitzlog.tfstate` |
+
+Each env has:
+
+- its own **state file** (separate `prod/` and `dev/` keys in the same S3 bucket) — concurrent applies don't contend on a DynamoDB lock
+- its own **resource names** (`blitzlog-prod-handler` vs `blitzlog-dev-handler`, `blitzlog-prod-webhook-api` vs `blitzlog-dev-webhook-api`, etc.) — no name collisions
+- its own **SSM namespace** (`/blitzlog/prod/*` vs `/blitzlog/dev/*`) — bot tokens, GitHub App creds, and ephemeral scratch space never leak between envs
+- its own **IAM roles** with policies **scoped to its own SSM prefix** — the prod Lambda role literally cannot read `/blitzlog/dev/*` and the dev Lambda role cannot read `/blitzlog/prod/*`
+- its own **GitHub App** — the prod App is installed on your real repos, the dev App is installed on a throwaway sandbox repo only
+
+### Directory layout
+
+Issue #126 moved every cloud-specific path under `infra/<cloud>/`.
+The `infra/user-pool/` module is the only top-level per-user stack
+(Phase 5 will split it per-cloud as well).
+
+```
+infra/
+├── aws/                        # AWS-shaped tree (default; `BLITZLOG_PROVIDER=aws`)
+│   ├── bootstrap/              # ONE-TIME: shared S3 buckets + OIDC IAM roles
+│   │   ├── main.tf             # (agent_logs + stt_models, encryption, versioning, PAB, lifecycle)
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── secrets.tf          # per-env SSM parameter map (the per-leaf defaults)
+│   │   ├── deploy-role.tf      # GHA deploy OIDC role
+│   │   ├── packer-role.tf      # GHA Packer OIDC role
+│   │   ├── integration-test-role.tf
+│   │   ├── github-oidc-provider.tf
+│   │   ├── data-sources.tf
+│   │   └── terraform.tfvars.example
+│   ├── modules/
+│   │   └── core/               # all AWS resources, parameterized by var.environment
+│   │       ├── main.tf
+│   │       ├── variables.tf    # environment (required, validated)
+│   │       ├── outputs.tf
+│   │       ├── lambda.tf
+│   │       ├── iam.tf
+│   │       ├── ec2.tf
+│   │       ├── apigateway.tf
+│   │       ├── alerting.tf
+│   │       ├── storage.tf      # data "aws_s3_bucket" X 2 — references bootstrap-owned buckets
+│   │       ├── scheduler.tf    # EventBridge Scheduler role for #145 token-refresh chain
+│   │       └── locals.tf
+│   ├── prod/                   # prod wrapper: `module "core" { environment = "prod", ... }`
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── prod-backend.hcl.example
+│   │   ├── aws.tfvars.example  # operator copies to aws.tfvars
+│   │   └── .terraform.lock.hcl
+│   ├── dev/                    # dev wrapper: `module "core" { environment = "dev", ... }`
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── dev-backend.hcl.example
+│   │   ├── aws.tfvars.example
+│   │   └── .terraform.lock.hcl
+│   └── packer/                 # Packer AMI build (AWS-only; baked by release workflow)
+├── alicloud/                   # Alicloud-shaped tree (`BLITZLOG_PROVIDER=alicloud`)
+│   ├── bootstrap/              # ONE-TIME: shared OSS buckets
+│   │   ├── main.tf             # (agent_logs + stt_models, encryption, versioning, PAB)
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   └── terraform.tfvars.example
+│   ├── modules/
+│   │   └── core/               # all Alicloud resources (Function Compute + ECS + RAM + ...)
+│   │       ├── main.tf
+│   │       ├── variables.tf
+│   │       ├── outputs.tf
+│   │       ├── function_compute.tf   # alicloud_fc_service + alicloud_fc_function
+│   │       ├── ram.tf                # alicloud_ram_role / alicloud_ram_policy (IAM analogue)
+│   │       ├── ecs.tf                # alicloud_vpc + alicloud_vswitch + SG
+│   │       ├── apigateway.tf
+│   │       ├── oss.tf                # data sources — buckets owned by alicloud/bootstrap
+│   │       ├── mns.tf                # alicloud_mns_queue (SQS analogue)
+│   │       ├── kms.tf                # CMK
+│   │       ├── secrets.tf            # alicloud_kms_secret (SSM analogue)
+│   │       └── locals.tf
+│   ├── prod/                   # prod wrapper, alicloud-shaped
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── prod-backend.hcl.example  # `oss` backend
+│   │   └── alicloud.tfvars.example
+│   └── dev/                    # dev wrapper, alicloud-shaped
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       ├── dev-backend.hcl.example
+│       └── alicloud.tfvars.example
+└── user-pool/                  # per-user Telegram bot pool + per-user local LLM config.
+                               # Each user runs this LOCALLY (no shared S3 backend).
+                               # Params land under /blitzlog/users/<login>/... — shared
+                               # across envs, no `environment` variable needed.
+                               # Phase 5 follow-up moves it to infra/{aws,alicloud}/user-pool/.
+```
+
+### User-data scripts (per-cloud split, issue #126)
+
+The user-data scripts that the function (FC) hands to `RunInstances`
+at launch live in `lambda/scripts/`, split per-cloud. The
+`lambda/scripts/__init__.py` dispatcher reads `BLITZLOG_PROVIDER`
+at function cold start and re-exports the right cloud's
+`build_autonomous_user_data` / `build_assisted_user_data` so
+`lambda/handler.py` doesn't need to branch on the cloud.
+
+```
+lambda/
+└── scripts/
+    ├── __init__.py            # dispatcher on BLITZLOG_PROVIDER
+    ├── aws/                   # AWS-shaped user-data (default)
+    │   ├── __init__.py
+    │   ├── _common.py         # prologue (Packer-baked blitzlog_s3_* +
+    │   │                      # `aws ssm get-parameter` for secrets)
+    │   ├── autonomous.py
+    │   └── assisted.py
+    └── alicloud/              # Alicloud-shaped user-data
+        ├── __init__.py
+        ├── _common.py         # prologue (installs ossutil + aliyun CLI,
+        │                      # inlines blitzlog_oss_* + `aliyun kms
+        │                      # GetSecretValue` for secrets)
+        ├── autonomous.py
+        └── assisted.py
+```
+
+The two trees are byte-for-byte parallel in the public API
+(`build_autonomous_user_data(repo, issue_number, ...)`,
+`build_assisted_user_data(repo, issue_number, bot_token, ...)`);
+the only difference is the prologue in `_common.py` and the
+bucket env-var names (`OSS_*` vs `S3_*`). The Packer image is
+still AWS-only; the Alicloud user-data installs `ossutil` and
+`aliyun` CLI on first boot (Phase 5 brings a per-cloud Packer
+image). The watchdog's log upload remains hard-coded to
+`blitzlog_s3_*`; on the Alicloud path it fails silently (`|| true`
+swallow) — the MNS DLQ + FC dead-letter config catch the failure.
+
+### Spinning up a fresh dev environment
+
+1. **Create a dedicated `Blitzlog Dev` GitHub App.** Use a distinct name and identifier from your prod App so the two are visually distinguishable in GitHub. Note its ID, installation ID, private key, and a fresh webhook secret.
+
+2. **Create a sandbox repo** to install the dev App on (e.g. `great-wall-connect/blitzlog-dev-sandbox`). Real production users' repos must not have the dev App installed.
+
+3. **Provision dev tfvars:**
+   ```bash
+   cp infra/aws/dev/terraform.tfvars.example infra/aws/dev/terraform.tfvars
+   # fill in the dev App credentials, sandbox repo installation ID, etc.
+   ```
+
+4. **Apply:**
+   ```bash
+   cd infra/dev
+   terraform init -backend-config=dev-backend.hcl
+   terraform plan
+   terraform apply
+   ```
+
+5. **Wire the sandbox webhook.** After apply:
+   ```bash
+   terraform output webhook_url
+   ```
+   Paste that URL into the sandbox repo's GitHub webhook configuration (Settings → Webhooks) with the dev App's webhook secret.
+
+6. **Open an issue on the sandbox repo** labeled `autonomous`. The dev Lambda handles it end-to-end. The prod Lambda is untouched.
+
+### Cloud provider selection (Alicloud, issue #126)
+
+Blitzlog can target AWS (default) or Alicloud. Each per-env stack
+lives under `infra/<provider>/<env>/`, and the release workflow
+picks the tree based on the `BLITZLOG_PROVIDER` repo variable
+(default `aws`):
+
+| `vars.BLITZLOG_PROVIDER` | Per-env stack | Backend | Per-provider tfvars |
+|---|---|---|---|
+| `aws` (default) | `infra/aws/{dev,prod}/` | `s3` (ap-east-1) | `aws.tfvars` |
+| `alicloud` | `infra/alicloud/{dev,prod}/` | `oss` (cn-hangzhou) | `alicloud.tfvars` |
+
+The `terraform init` step switches backends, the `terraform plan`
+step passes the per-provider tfvars file, and the Lambda's
+`BLITZLOG_PROVIDER` env var is set by Terraform from the chosen
+module. The `BLITZLOG_PROVIDER=alicloud` path is a **runtime path
+only** for now: the Packer AMI build is AWS-only (Phase 5 adds
+the Aliyun image builder), and the release workflow fails fast
+with a clear error if `BLITZLOG_PROVIDER=alicloud` is set until
+Phase 5 lands.
+
+The function-side user-data script is also provider-dispatched:
+`lambda/scripts/__init__.py` re-exports `build_assisted_user_data`
+and `build_autonomous_user_data` from
+`scripts.aws.*` or `scripts.alicloud.*` based on `BLITZLOG_PROVIDER`.
+The Alicloud user-data installs `ossutil` + `aliyun` CLI on first
+boot (the Packer image is still AWS-only) and inlines a
+`blitzlog_oss_*` bash library (parallel to the AWS-side
+`blitzlog_s3_*`). The Aliyun IMDS at 100.100.100.200 replaces
+AWS IMDSv2; `aliyun kms GetSecretValue` replaces
+`aws ssm get-parameter`. The bucket env-var names are
+`OSS_LOGS_BUCKET` / `OSS_LOG_PREFIX` (vs the AWS-side
+`S3_*` prefix). The runtime half of the dispatch is the
+`lambda/scripts/alicloud/` tree.
+
+To deploy an Alicloud env manually:
+
+```bash
+cd infra/alicloud/bootstrap   # ONE-TIME: creates the shared OSS buckets
+terraform init -backend-config=bootstrap-backend.hcl
+terraform apply
+
+cd ../dev
+cp alicloud.tfvars.example alicloud.tfvars  # fill in your values
+terraform init -backend-config=dev-backend.hcl
+terraform plan -var-file=alicloud.tfvars
+terraform apply
+```
+
+The Lambda-side provider factory (`lambda/provider/__init__.py`)
+dispatches on `BLITZLOG_PROVIDER` at cold start; no code change
+is needed when switching clouds.
+
+### Day-to-day workflow
+
+| You want to... | You run... |
+|---|---|
+| Ship a fix to prod | Trigger **Actions → release → Run workflow** against `main` (or merge to `main` and trigger) |
+| Test an unstable branch | Trigger **Actions → terraform-apply-dev → Run workflow** with `ref=my-branch` |
+| Verify prod is unchanged after a dev change | Trigger **Actions → release → Run workflow** against the dev ref; the prod apply is the prod step's plan in the run summary |
+| Inspect current state of either env | `cd infra/prod` or `cd infra/dev` and `terraform output` (local apply still works as a fallback — see *Local applies* below) |
+| Add/rotate a bot token | `cd infra/user-pool && terraform apply` (per-user stack stays local — see [Per-user bot pool setup](#per-user-bot-pool-setup-assisted-mode)) |
+
+### Applying from GitHub Actions
+
+Issue [#92](https://github.com/great-wall-connect/blitzlog/issues/92) moved the
+`terraform apply` path for `infra/dev` and `infra/prod` into GitHub Actions.
+The local `cd infra/<env> && terraform apply` workflow is still supported
+(see *Local applies* below) but is no longer the default; the canonical
+path is via two workflows:
+
+#### `release.yml` (canonical, after image bake)
+
+The `release` workflow already builds and bakes the agent image/AMI
+(`.github/workflows/release.yml`; see [CONTRIBUTING.md](CONTRIBUTING.md)
+for the release-cycle conventions). After the bake succeeds, the
+new `deploy` job runs `terraform apply` against the env implied by
+the release mode:
+
+- **`pr-test` mode** (open PR on the dispatched ref) — applies `infra/dev`.
+- **`release` mode** (no open PR, e.g. `main`) — applies `infra/prod` and
+  gates on the `production` GitHub Environment. Required reviewers
+  (= CODEOWNERS) must approve before the apply runs.
+
+The OIDC role `blitzlog-deploy-role` is provisioned by
+[`infra/aws/bootstrap/deploy-role.tf`](infra/aws/bootstrap/deploy-role.tf) and
+assumes the same trust surface as the Packer role
+(`blitzlog-packer-build-role`): any branch of `great-wall-connect/blitzlog`
+can assume it, plus the admin-SSO escape hatch for local applies.
+
+#### `terraform-apply-dev.yml` (manual, fast)
+
+A separate `terraform-apply-dev` workflow is the fast-feedback path
+for dev work — it skips the image build and Packer bake and runs
+just the terraform plan + apply, so a typical run is ~3-5 min rather
+than ~35 min. Trigger via **Actions → terraform-apply-dev → Run workflow**,
+optionally setting `ref` to a feature branch (default: the workflow's
+`github.ref_name`). Always applies `infra/dev`; the prod path lives
+exclusively in the release cycle.
+
+#### Per-env concurrency
+
+Both deploy paths serialize per-env via a GitHub Actions
+[concurrency group](https://docs.github.com/en/actions/using-jobs/using-concurrency)
+(`terraform-dev` and `terraform-prod`, `cancel-in-progress: false`).
+A long apply blocks the next one rather than racing it. Local-vs-CI
+races remain possible (the project chose no DynamoDB lock table
+deliberately — see [State file layout](#state-file-layout)).
+
+#### Local applies
+
+The local path is still supported as a fallback. To run from a
+laptop with AdministratorAccess:
+
+```bash
+cd infra/dev   # or infra/prod
+terraform init -backend-config=dev-backend.hcl
+terraform plan
+terraform apply
+```
+
+The admin-SSO principal in `deploy-role.tf` is the trust-policy
+half of the local-apply path; the OIDC role is the CI half. The
+two are intentionally separated so a leaked CI token can't be
+used from a local laptop without AdministratorAccess.
+
+#### One-time operator setup for the deploy workflows
+
+The deploy workflows read per-env config + secrets from AWS SSM
+Parameter Store (under `/blitzlog/<env>/<leaf>`). The values come
+directly from your per-env `terraform.tfvars` files; the bootstrap
+apply is what writes them to SSM. The workflows use two repo
+variables (`AWS_ACCOUNT_ID` for OIDC and `TF_BACKEND_BUCKET` for
+the state bucket). The setup is one-time per repo:
+
+1. **Repo variables** (Settings → Variables → Actions → New variable):
+   - `AWS_ACCOUNT_ID` = your AWS account id (used by both the Packer
+     and deploy OIDC roles).
+   - `TF_BACKEND_BUCKET` = the S3 bucket holding terraform state
+     (default `gwc-infra-tf-state`; the variable exists for
+     non-default state buckets). **Not a secret** — bucket names
+     are world-readable once any state is published from them.
+   - `OWNER_LOGIN` = the GitHub login that owns this blitzlog
+     deployment. The release Bump step reads the operator's
+     git-author identity from
+     `/blitzlog/users/${OWNER_LOGIN}/git-author/{name,email}` in
+     SSM (see [Agent commit attribution](#agent-commit-attribution-issue-119)
+     below). Set with:
+     ```bash
+     gh variable set OWNER_LOGIN --body 'your-github-username' --repo great-wall-connect/blitzlog
+     ```
+
+2. **Repo Settings → Environments → `production` → Required reviewers**
+   = CODEOWNERS (gates the prod apply).
+
+3. **Apply bootstrap locally** with the per-env values in scope.
+   The bootstrap reads two env-scoped tfvars files (one per env)
+   and writes the S3 buckets + 44 SSM parameters
+   (22 leaves × `dev`/`prod`) in a single pass:
+
+   ```bash
+   # 1. Copy the example templates to the (gitignored) real files
+   #    and edit them with your real values. The `*.auto.tfvars`
+   #    suffix means terraform auto-loads them — no `-var-file`
+   #    flag needed at apply time.
+   cd infra/bootstrap
+   cp terraform.dev.auto.tfvars.example terraform.dev.auto.tfvars
+   cp terraform.prod.auto.tfvars.example terraform.prod.auto.tfvars
+   $EDITOR terraform.dev.auto.tfvars terraform.prod.auto.tfvars
+
+   # 2. Apply bootstrap (provisions S3 buckets + SSM parameters)
+   terraform init -backend-config=bootstrap-backend.hcl
+   terraform apply
+   ```
+
+   Each bootstrap tfvars is a single `var.<env>` map. For
+   example, `terraform.dev.auto.tfvars` looks like:
+
+   ```hcl
+   dev = {
+     aws-region               = "ap-east-1"
+     vpc-id                   = "vpc-0123456789abcdef0"
+     github-app-private-key   = <<EOT
+   -----BEGIN RSA PRIVATE KEY-----
+   ...
+   -----END RSA PRIVATE KEY-----
+   EOT
+     github-webhook-secret    = "..."
+     opencode-api-key         = "sk-cp-..."
+     ...
+   }
+   ```
+
+   The map keys match the SSM leaf names (kebab-case). The
+   bootstrap writes each value to `/blitzlog/<env>/<key>`. Missing
+   keys fall back to per-leaf defaults declared in
+   `infra/aws/bootstrap/secrets.tf`'s `local.leaf_defaults`. The five
+   required keys (`github-app-id`, `github-app-private-key`,
+   `github-app-installation-id`, `github-webhook-secret`,
+   `opencode-api-key`) have no default — the apply fails fast
+   at plan time (via the `lifecycle.precondition` on the SSM
+   resources) if the operator omits any of them.
+
+   The `.example` templates are tracked in git; the
+   `.auto.tfvars` files you create from them are **gitignored**
+   (`.gitignore: *.tfvars, *.auto.tfvars`).
+
+4. **No `aws ssm put-parameter` step is required.** The bootstrap
+   apply writes the values directly to SSM in the same run. The
+   deploy workflows then fetch them via
+   `aws ssm get-parameters-by-path --path /blitzlog/<env>/` and
+   feed them into terraform as `TF_VAR_<name>` env vars.
+
+   The full set of parameters provisioned (22 leaves × 2 envs =
+   44 total) is declared in `infra/aws/bootstrap/secrets.tf`'s
+   `deploy_parameter_types` local. The 4 SecureString leaves are
+   `github-app-private-key`, `github-webhook-secret`,
+   `opencode-api-key`, and `stt-api-key`; the other 18 are
+   `String`.
+
+   > **Public repo note.** Storing these in SSM (not in GitHub
+   > Actions secrets) keeps both the *values* and the *names* of
+   > the secrets off this public repo's metadata. PRs from forks
+   > can't read them, and the secret *list* is not visible to
+   > anyone with read access to the repo.
+
+   > **Rotation.** Edit the relevant bootstrap tfvars
+   > (`terraform.dev.auto.tfvars` or `terraform.prod.auto.tfvars`)
+   > with the new value, save, and re-run
+   > `cd infra/bootstrap && terraform apply`. The bootstrap
+   > writes the new value to SSM in place; the next deploy picks
+   > it up. Automated rotation is tracked in issue #120.
+
+The deploy workflows hard-code the state keys to `dev/blitzlog.tfstate`
+and `prod/blitzlog.tfstate` to match the existing layout in
+[State file layout](#state-file-layout).
+
+### Migrating an existing single-env deployment to the new layout
+
+If you are upgrading from a pre-issue-#50 deploy where everything lived under `infra/` and the state was at `s3://<bucket>/blitzlog.tfstate`:
+
+```bash
+cd infra/prod
+terraform init -migrate-state -backend-config=prod-backend.hcl
+terraform plan    # review — every blitzlog-* resource will be replaced because names are now prefixed
+terraform apply
+```
+
+The first apply recreates every resource (Lambda, API Gateway, IAM roles, etc.) under the new `blitzlog-prod-*` names. Brief API Gateway outage is expected; the SQS DLQ absorbs in-flight requests. After migration, subsequent `terraform plan` against `infra/aws/prod/` should be empty.
+
+### Migrating S3 buckets out of the prod stack into the bootstrap stack
+
+If the existing prod deployment managed the `agent_logs` and `stt_models` buckets (i.e. they were created by Terraform before the bootstrap stack existed), refactor them out with `terraform state rm` + `terraform import`. Apply the bootstrap stack first so the buckets exist:
+
+```bash
+# 1. Apply the bootstrap stack so the buckets are owned by infra/aws/bootstrap/.
+cd infra/bootstrap
+terraform init -backend-config=bootstrap-backend.hcl
+terraform plan
+terraform apply
+
+# 2. Remove the bucket resources from prod's state.
+cd ../prod
+terraform state rm module.core.aws_s3_bucket.agent_logs
+terraform state rm module.core.aws_s3_bucket_server_side_encryption_configuration.agent_logs
+terraform state rm module.core.aws_s3_bucket.stt_models
+terraform state rm module.core.aws_s3_bucket_versioning.stt_models
+terraform state rm module.core.aws_s3_bucket_public_access_block.stt_models
+terraform state rm module.core.aws_s3_bucket_server_side_encryption_configuration.stt_models
+terraform state rm module.core.aws_s3_bucket_lifecycle_configuration.stt_models
+
+# 3. Import the buckets as data sources in the prod state.
+terraform import module.core.data.aws_s3_bucket.agent_logs gwc-blitzlog-agent-logs
+terraform import module.core.data.aws_s3_bucket.stt_models gwc-blitzlog-stt-models
+
+# 4. Verify.
+terraform plan    # must be empty (no diff)
+```
+
+After this, both buckets are owned by `infra/aws/bootstrap/`. `infra/aws/prod/` and `infra/aws/dev/` reference them by name. Subsequent dev `apply` does not collide on bucket creation.
+
+### State file layout
+
+All stacks share the same S3 state bucket, separated by key prefix:
+
+```
+s3://gwc-infra-tf-state/
+├── bootstrap/blitzlog-bootstrap.tfstate   # infra/bootstrap — one-time bucket creation
+├── prod/blitzlog.tfstate                  # infra/prod
+└── dev/blitzlog.tfstate                   # infra/dev
+```
+
+The bucket name is configurable in each stack's `-backend.hcl` file. Each stack has its own DynamoDB-free local-state-only setup; you can also point them at separate buckets if you prefer.
+
+> **CI concurrency.** The deploy workflows (`.github/workflows/release.yml`'s
+> `deploy` job and `.github/workflows/terraform-apply-dev.yml`) serialize
+> applies per-env via a GitHub Actions concurrency group
+> (`cancel-in-progress: false`), so two concurrent CI dispatches queue
+> rather than race. **Local-vs-CI races remain possible** — the project
+> chose no DynamoDB lock table deliberately. If you need to apply locally
+> while a CI run is in flight, either let the CI run finish or cancel it
+> first.
+
+---
+
+## Per-user bot pool setup (assisted mode)
+
+> **Platform support is being evaluated.** Telegram is currently the only chat
+> platform, and it is hard-coded across the Lambda, bootstrap, container, and
+> Terraform. Support for Slack and other enterprise platforms is being
+> evaluated in [#189](https://github.com/great-wall-connect/blitzlog/issues/189);
+> see **[docs/CHAT_PLATFORMS.md](docs/CHAT_PLATFORMS.md)** for the current
+> analysis, recommendation, and roadmap. The setup below describes the
+> existing Telegram-only path.
+
+The shared Lambda has no Telegram bot tokens or allowed user IDs baked in. Each assisted-mode user provisions their own pool by running `infra/user-pool/` **locally** — there is no shared Terraform state, no shared S3 backend, and no DynamoDB lock table. Your `terraform.tfvars` file is the working source of truth; `terraform.tfstate` is a local cache of resolved SSM ARNs that you can always regenerate by re-running `terraform apply`.
+
+> **Shared across envs.** Per-user bot tokens are stored under `/blitzlog/users/<login>/...` with **no env prefix** — both prod and dev Lambdas read from this single namespace. A user configures their bot pool once. The same applies to per-user local LLM config (`/blitzlog/users/<login>/local-llm/...`).
+
+### Prerequisites
+
+- Terraform >= 1.0.
+- AWS credentials for an IAM principal with permissions scoped to **your own** user namespace under `/blitzlog/users/<your-github-login>/`:
+  ```json
+  {
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Sid": "BlitzlogUserPoolSelfService",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:PutParameter",
+        "ssm:DeleteParameter",
+        "ssm:GetParametersByPath",
+        "ssm:DescribeParameters"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/blitzlog/users/${aws:username}/*"
+    }]
+  }
+  ```
+  The `${aws:username}` placeholder resolves to your IAM user/role session name, which must match (or be mapped to) your GitHub login. If you log in with a different IAM principal name, either rename it or expand the resource pattern. The shared infra owner may also grant broader SSM access under `arn:aws:ssm:*:*:parameter/blitzlog/users/*` if self-service scoping is too restrictive.
+
+### Step 1 — Create your tfvars
+
+From the repository root:
+
+```bash
+cp infra/user-pool/terraform.tfvars.example \
+   infra/user-pool/terraform.tfvars
+```
+
+Open `infra/user-pool/terraform.tfvars` (the file is gitignored — never commit it) and fill in:
+
+```hcl
+owner_login              = "your-github-username"   # exactly as it appears in the issue sender
+telegram_allowed_user_id = "12345678"               # your Telegram numeric user ID
+
+telegram_bot_tokens = {
+  bot1 = "<bot-token-from-botfather>"
+  bot2 = "<another-bot-token>"
+}
+```
+
+- `owner_login` must match the `sender.login` field on the issues you'll trigger, because the Lambda routes bots by sender (`list_bot_pool` in `lambda/handler.py:51`).
+- `telegram_allowed_user_id` is the single Telegram user ID permitted to interact with any bot in your pool. The Lambda refuses to acquire a bot if this parameter is missing (see `lambda/handler.py:65`).
+- `telegram_bot_tokens` is a map of friendly bot names to BotFather tokens. Each entry becomes one `SecureString` SSM parameter under `/blitzlog/users/<owner_login>/telegram/pool/<key>`; the map's keys are the bot names the EC2 user-data script receives.
+
+### Step 2 — Apply
+
+```bash
+cd infra/user-pool
+terraform init
+terraform plan    # reviews the SSM parameters that will be created
+terraform apply   # type 'yes' to confirm
+```
+
+What gets created in AWS (all under `/blitzlog/users/<owner_login>/` — no env prefix; both prod and dev Lambdas read from here):
+
+| Parameter name                                | Type        |
+|-----------------------------------------------|-------------|
+| `telegram/allowed-user-id`                    | `String`    |
+| `telegram/pool/<each key of telegram_bot_tokens>` | `SecureString` |
+| `git-author/name`                             | `String`    |
+| `git-author/email`                            | `String`    |
+
+The two `git-author/*` parameters carry the operator-configured commit identity (see [Agent commit attribution](#agent-commit-attribution-issue-119) below). Defaults derive from `owner_login` when `git_author_name` / `git_author_email` are unset in `terraform.tfvars`.
+
+### Step 3 — Verify
+
+```bash
+aws ssm get-parameters-by-path \
+  --path "/blitzlog/users/<owner_login>/telegram/" \
+  --recursive --with-decryption \
+  --query "Parameters[].Name"
+```
+
+You should see your `allowed-user-id` parameter and one `pool/<bot>` parameter per bot.
+
+### Rotate, add, or remove bots
+
+1. Edit `infra/user-pool/terraform.tfvars`.
+2. `terraform plan` — review the diff.
+3. `terraform apply` — adds are created, renames move parameters, deletions remove them.
+
+To add a bot, add a new key/token pair. To remove one, delete the line. To rotate (leaked) tokens, replace the value of an existing key.
+
+### Tear down
+
+```bash
+cd infra/user-pool
+terraform destroy
+```
+
+Removes all SSM parameters under `/blitzlog/users/<owner_login>/`. The local `terraform.tfstate` is then safe to delete.
+
+### Migrating from a prior S3-backed state
+
+If you have a stale remote state file from an earlier version of this module, migrate it on the next `terraform init`:
+
+```bash
+terraform init -migrate-state
+```
+
+Or, since the resolution is deterministic from `terraform.tfvars`, simply delete the local `.terraform/`, `terraform.tfstate`, and `terraform.tfstate.backup`, then re-run `terraform init && terraform apply` to recreate the local cache.
+
+---
+
+## Agent commit attribution (issue #119)
+
+Every commit the agent makes — on the EC2 host (assisted + autonomous) and on the GHA worker (the release Bump step) — is attributed to the **operator of this blitzlog deployment**, not the webhook `sender_login`, not `root@<hostname>`, not the runner hostname. The identity is a single operator-managed value living in your `infra/user-pool/terraform.tfvars` and surfaced through two non-secret String parameters in SSM:
+
+- `/blitzlog/users/<owner_login>/git-author/name`
+- `/blitzlog/users/<owner_login>/git-author/email`
+
+The defaults derive from `var.owner_login` (`git_author_name = owner_login`, `git_author_email = "<owner_login>@users.noreply.github.com"`), so an operator who only sets `owner_login` gets a working identity. Override either field in your `terraform.tfvars` when you need a different attribution — e.g. the canonical `[skip ci]` `release-bot` carve-out:
+
+```hcl
+# infra/user-pool/terraform.tfvars
+owner_login     = "release-bot"
+git_author_name = "release-bot"                                       # optional (defaults to owner_login)
+git_author_email = "release-bot@users.noreply.github.com"              # optional (defaults to "<owner_login>@users.noreply.github.com")
+```
+
+For a human operator, the audit-friendly `<id>+<login>@users.noreply.github.com` form works too (find the id with `gh api /users/<login> --jq .id`):
+
+```hcl
+owner_login      = "your-github-username"
+git_author_name  = "your-github-username"
+git_author_email = "12345678+your-github-username@users.noreply.github.com"
+```
+
+After editing `terraform.tfvars`, run `terraform apply` in `infra/user-pool/` to push the new values to SSM. The agent and the GHA worker read them on every run.
+
+The audit-friendly URL form requires the GitHub numeric user id; the public-facing `<login>@users.noreply.github.com` form (the default) does not.
+
+---
+
+## Local LLMs (route agents to a model you control)
+
+You can configure blitzlog to point this user's agents at a local LLM you run yourself — e.g. Ollama, LM Studio, or llama.cpp on a Mac mini at home — instead of (or, in assisted mode, as a fallback to) the shared cloud provider. Configuration is per-user and lives in the same `infra/user-pool/` module that owns your Telegram bot pool.
+
+> **Endpoints must not be publicly addressable.** blitzlog rejects any endpoint that resolves to a public IP, with no opt-in. All supported transports keep the endpoint on a private network (VPN, mesh, or VPC-internal). The endpoint URL is stored as a `SecureString` SSM parameter because it can reveal home-network topology.
+
+> **Auth on `/health`.** The preflight probe hits `/health` and falls back to `/v1/models`. Some OpenAI-compatible servers (LiteLLM, vLLM behind an auth proxy, etc.) require auth on `/health` too. The probe sends `Authorization: Bearer ${LOCAL_LLM_API_KEY}` when the key is non-empty — set `local_llm_api_key` to the same token the agent will use at runtime, otherwise the probe will see 401 and the run will abort (autonomous) or prompt `[Retry]/[Abort]` (assisted) after 5 minutes.
+
+### Configuration
+
+Add the following block to your `infra/user-pool/terraform.tfvars`:
+
+```hcl
+# Endpoint must resolve to a private IP. Allowed private ranges:
+#   RFC1918: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+#   ULA:      fc00::/7
+#   Tailscale CGNAT: 100.64.0.0/10
+# Anything else (including public IPs and public DNS that resolves to public IPs)
+# is hard-rejected at the Lambda.
+local_llm_endpoint                       = "http://100.x.y.z:11434"
+# Pass the model id through verbatim. The bootstrap does NOT prefix it
+# with the provider name — opencode infers the (sole) `local` provider
+# automatically. If your server's model ids contain `/` (e.g.
+# `qwen/qwen3.8-27b` from a LiteLLM-style proxy), pass them through as-is:
+# the slash is part of the model id, not a provider separator. The bootstrap
+# also registers the model under provider.local.models in opencode.json
+# so opencode can resolve it when the bot invokes `local/<model>`.
+local_llm_model                          = "qwen2.5-coder:32b"
+local_llm_api_key                        = ""        # empty for no-auth endpoints (Ollama default)
+local_llm_endpoint_allow_private_cidrs   = true      # required for any private-IP endpoint
+local_llm_fallback                       = "closed"  # or "cloud" (assisted mode only — see Resilience)
+
+# Optional: per-run EC2 enrollment in your Tailscale Tailnet (see "Transports"
+# below for the auth-key flags). Required when the EC2 has no static route to
+# your Tailnet (subnet router, AWS Client VPN endpoint, etc.). Leave empty if
+# the LLM is already reachable from the dev VPC via another transport.
+tailscale_auth_key                       = "tskey-auth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+After `terraform apply`, three new SSM parameters exist under `/blitzlog/users/<owner_login>/local-llm/`: `endpoint`, `model`, `api-key` (all `SecureString`); plus `allow-private-cidrs` and `fallback` (both `String`). The agent's `opencode.json` on the EC2 instance is then written with a single `local` provider block. The model id comes from `local_llm_model` in your `terraform.tfvars` — substituted at Lambda invocation time in `_write_opencode_config_script()` (Python f-string interpolation against `local_provider["model"]` from `get_local_llm_config()`), so what's shown below is the SHAPE of the rendered file, not a template with placeholders. The `100.x.y.z:11434` and `<your local LLM API key, if any>` are likewise illustrative; the runtime values come from your SSM parameters.
+
+Concrete example for a user whose `local_llm_model = "qwen/qwen3.8-27b"`:
+
+```json
+"provider": {
+  "local": {
+    "options": {
+      "baseURL": "http://100.x.y.z:11434",
+      "apiKey": "<your local LLM API key, if any>"
+    },
+    "models": {
+      "qwen/qwen3.8-27b": {}
+    }
+  }
+}
+```
+
+The `OPENCODE_MODEL` is the model id verbatim (no `local/` prefix) — opencode infers the sole `local` provider. The bot reads `OPENCODE_MODEL_PROVIDER=local` + `OPENCODE_MODEL_ID=qwen/qwen3.8-27b` from the bot env and constructs `local/qwen/qwen3.8-27b` per the opencode convention; opencode parses the first slash as the separator, looks the model up under `provider.local.models`, and uses the registered id when calling the upstream API. **The `models` map is required for any custom (non-built-in) provider** — without it, opencode has no catalog of valid keys for the provider and emits `Model not found: local/<id>` even when the server is reachable and the model exists. The cloud provider block is **omitted** entirely so the agent has no cloud credentials to address even if a prompt-injection attempt tries to redirect it.
+
+### Credential stripping
+
+When local is configured, the bootstrap script:
+
+- **Does not** export `OPENCODE_API_KEY` to the agent's environment. The cloud API key is read on demand only if the user explicitly clicks `[Use cloud fallback]` in assisted mode.
+- **Does not** render the `minimax-coding-plan` provider block in `opencode.json`. There is no cloud provider to address.
+- **Defensively** unsets `OPENCODE_API_KEY`, `HTTPS_PROXY`, and `HTTP_PROXY` at startup. A root-level agent can re-introduce these, but the path of least resistance is closed.
+
+> **Residual risk**: an agent could rewrite its own `opencode.json` and re-introduce a cloud provider block. Since issue #164 the container's capability set is empty (`--cap-drop=ALL`), so the agent cannot mount, bypass file permissions, make raw sockets or escalate — but it does run as uid 0 with a writable rootfs, because `dpkg` needs both to install a project's build dependencies (issue #174). The remaining network path is closed separately by the `nftables` egress lockdown tracked in [#38](https://github.com/great-wall-connect/blitzlog/issues/38), and the container cannot reach the instance metadata service (see `docs/DOCKER.md` → *Runtime hardening*).
+
+### Transports — keep the tunnel up all the time
+
+The tunnel between your local LLM and the EC2 instance should be **always-on from Ollama startup**, not set up per agent run. The EC2 spot instance is ephemeral and gets a fresh IP on every launch, so per-run tunnels can't target it directly. Set up the tunnel once on the Mac mini (or wherever the LLM runs) and leave it running.
+
+#### Tailscale (recommended default)
+
+Tailscale is purpose-built for "always-on private mesh between your machines." Set up once on the LLM host and it stays reachable at a stable `100.x.y.z` Tailnet IP. blitzlog enrolls each EC2 instance into your Tailnet per-run with an ephemeral auth key, so the EC2 can reach the LLM without you standing up a subnet router or VPN endpoint in your VPC.
+
+**One-time LLM host setup** (Mac mini, or whatever runs Ollama):
+
+```bash
+brew install tailscale
+sudo tailscale up
+# Verify with: tailscale status
+```
+
+**Per-user Tailscale auth key** (once, in your `infra/user-pool/terraform.tfvars`):
+
+Generate at https://login.tailscale.com/admin/settings/keys with these flags:
+
+- **Ephemeral**: enabled — the EC2 node auto-removes when the spot instance terminates, no manual cleanup
+- **Reusable**: enabled — one key works across many runs; rotate by editing `terraform.tfvars` and re-running `terraform apply`
+- **Tags**: `tag:blitzlog-agent` — your Tailnet ACL grants this tag scoped access to the LLM endpoint
+- **Expiration**: none
+
+Then in `infra/user-pool/terraform.tfvars`:
+
+```hcl
+local_llm_endpoint                       = "http://100.x.y.z:11434"   # your Mac mini's Tailnet IP
+local_llm_model                          = "qwen2.5-coder:32b"
+local_llm_endpoint_allow_private_cidrs   = true
+tailscale_auth_key                       = "tskey-auth-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+Your Tailnet ACL must grant `tag:blitzlog-agent` access to the LLM endpoint's IP (`100.x.y.z`). Without that ACL rule the per-run EC2 nodes can authenticate but cannot reach `http://100.x.y.z:11434` and the `preflight_local_llm()` probe will fail. blitzlog does not auto-apply ACL changes — that decision is yours to make.
+
+If you'd rather not enroll the EC2 per run, see the [WireGuard](#wireguard) or [AWS Client VPN](#aws-client-vpn-fully-aws-managed) alternatives below — both keep the tunnel out of blitzlog entirely.
+
+#### WireGuard
+
+WireGuard is a peer-to-peer VPN. Set up the tunnel on the Mac mini with a LaunchAgent that runs `wg-quick up` at login.
+
+```bash
+# Mac mini, one-time — generate keys
+wg genkey | tee /tmp/privatekey | wg pubkey > /tmp/publickey
+```
+
+Create `~/wg-llm.conf`:
+
+```ini
+[Interface]
+PrivateKey = <contents of /tmp/privatekey>
+Address = 10.0.0.5/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = <peer public key (e.g. another WireGuard host that bridges to the EC2 network)>
+AllowedIPs = 10.0.0.0/24
+Endpoint = <peer public IP>:51820
+```
+
+Create `~/Library/LaunchAgents/com.blitzlog.wg-llm.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.blitzlog.wg-llm</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/wg-quick</string>
+    <string>up</string>
+    <string>/Users/<you>/wg-llm.conf</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+</dict>
+</plist>
+```
+
+```bash
+launchctl load ~/Library/LaunchAgents/com.blitzlog.wg-llm.plist
+```
+
+Set `local_llm_endpoint = "http://10.0.0.5:11434"` and `local_llm_endpoint_allow_private_cidrs = true`.
+
+> The peer endpoint's public IP and UDP port are reachable from the internet, but the WireGuard traffic is encrypted and the LLM API behind it is not — that's the right balance.
+
+#### AWS Client VPN (fully AWS-managed)
+
+If you specifically want no third-party dependency in the tunnel path, AWS Client VPN is the AWS-native option. Provision a Client VPN endpoint in your VPC with mutual-TLS auth (per-user client certs in ACM Private CA); install the AWS VPN client on the Mac mini; the LLM becomes reachable at a VPC-internal `10.100.0.x` IP.
+
+```hcl
+local_llm_endpoint = "http://10.100.0.42:11434"
+local_llm_endpoint_allow_private_cidrs = true
+```
+
+Setup involves ACM Private CA, Client VPN endpoint, target network association, and an authorization rule — meaningfully more Terraform + Mac-side config than Tailscale or WireGuard. Worth it only if "no third-party dep" is a hard requirement. Cost: ~$40–50/month for an always-on endpoint.
+
+### Resilience per mode
+
+When the local LLM is unreachable, blitzlog follows a per-mode policy.
+
+#### Autonomous mode
+
+The bootstrap probes `GET <endpoint>/health` (or `/v1/models` as a fallback) ten times at 30-second intervals (~5 minutes total). On success, the run proceeds. On exhaustion, the run aborts with an `ACTIONABLE` log line and the EC2 instance terminates. **No silent fallback to the cloud** — that would defeat the privacy reason you opted into a local LLM. Re-trigger the run when your local setup is back online.
+
+#### Assisted mode
+
+Same 5-minute probe. On exhaustion, blitzlog sends a Telegram message with an inline keyboard:
+
+- `local_llm_fallback = closed` (default): `[ Retry ] [ Abort ]`
+- `local_llm_fallback = cloud`: `[ Use cloud fallback ] [ Retry ] [ Abort ]` (the cloud button is omitted if no `OPENCODE_API_KEY` is configured in shared SSM)
+
+The user has up to 10 minutes to reply.
+
+- **Retry** runs another 5-minute probe cycle, up to 5 retries total.
+- **Use cloud fallback** reads `OPENCODE_API_KEY` from SSM on demand, re-emits `opencode.json` with the cloud provider, exports the key, and restarts `opencode serve`. A Telegram notification confirms the switch. Inference continues against the cloud model for the rest of the run.
+- **Abort** triggers the existing `assisted-shutdown.sh` flow.
+- No reply within 10 minutes → abort (safer default; preserves the local LLM intent).
+
+---
+
+## Instance lifecycle
+
+1. **Launch** — Lambda spawns a `t4g.medium` (or `t4g.large` / `t4g.xlarge`) spot instance from a Packer-built AMI. The AMI ships with `dockerd` and a pre-baked `ghcr.io/great-wall-connect/blitzlog-agent` container image. Cold start: ~22-60s. See [`docs/DOCKER.md`](docs/DOCKER.md).
+2. **Setup** — user-data reads SSM secrets, downloads the whisper model from S3, configures git credentials, and `docker run`s the agent container.
+3. **Agent run** — Inside the container, OpenCode reads the issue, creates a `feat/issue-{N}-{slug}` branch, implements, tests, lints, commits, pushes.
+4. **Watchdog** — host polls IMDS every 5s for spot interruption; on detection sends SIGTERM via `docker stop --time=120`. The 2-hour `timeout` forces termination if the agent hangs.
+5. **Shutdown** — post-exit script calls `ec2:TerminateInstances` via IMDSv2.
+6. **Cleanup** — git credentials are deleted after `git clone`; the GitHub installation token is repo-scoped with up to 8h lifetime (longer than the watchdog, intentionally).
+
+> ⚠️ Don't add `node = "..."` to `[tools]` in `mise.toml`. The bootstrap
+> already installs Node v24 via dnf; a `node = "..."` entry makes
+> `mise install` overwrite it, and the bot (which requires Node.js
+> ≥ 22.14) refuses to start.
+
+---
+
+## Manual instance management
+
+```bash
+# List running agent instances
+aws ec2 describe-instances \
+  --filters "Name=tag:Purpose,Values=blitzlog" "Name=instance-state-name,Values=running" \
+  --query "Reservations[].Instances[].[InstanceId, Tags[?Key=='Issue'].value|[0], Tags[?Key=='Mode'].value|[0]]" \
+  --output table --region <your-region>
+
+# Terminate
+aws ec2 terminate-instances --instance-ids <instance-id> --region <your-region>
+
+# Or via SSM
+aws ssm send-command \
+  --instance-ids <instance-id> \
+  --document-name "AWS-RunShellScript" \
+  --parameters commands=["shutdown -h now"] \
+  --region <your-region>
+```
+
+---
+
+## Security
+
+- **GitHub App** (not PAT) — per-repo scope, ~8h token lifetime.
+- **HMAC-SHA256** webhook signature verification prevents spoofed events.
+- **IMDSv2 only** — no IMDSv1 fallback; token-based metadata access.
+- **SSM `SecureString`** for all credentials; never logged in plaintext.
+- **Repo-scoped tokens** written to a file (not env var), deleted after `git clone`.
+- **Tag-conditioned `ec2:TerminateInstances`** — only instances tagged `Purpose=blitzlog` can be terminated by the agent role.
+- **SSH ingress disabled by default** — opt in via `ssh_allowed_cidrs`.
+
+For vulnerability disclosure, see [SECURITY.md](SECURITY.md).
+
+---
+
+## Troubleshooting
+
+Symptom → diagnostic step → fix for the failure modes operators hit most often.
+
+### HMAC signature mismatch
+
+**Symptom:** Webhook deliveries fail with HTTP `401` and Lambda returns `{"error": "Invalid signature"}`.
+
+**Diagnose:** Compare the secret configured on the GitHub webhook with the value stored in SSM:
+
+```bash
+# GitHub: repo → Settings → Webhooks → your webhook → Secret
+# SSM:
+aws ssm get-parameter \
+  --name "/blitzlog/prod/github-webhook/secret" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output text
+```
+
+In CloudWatch (`/aws/lambda/blitzlog-prod-handler`), look for `Signature present: True` followed by the invalid-signature path.
+
+**Fix:** Set both sides to the same value (`github_webhook_secret` in `infra/aws/prod/terraform.tfvars` and the GitHub webhook **Secret** field), then rotate by updating tfvars and re-running `terraform apply` in `infra/aws/prod/`, and pasting the new secret into GitHub.
+
+### Label added but no instance launched
+
+**Symptom:** You labeled an issue and nothing happens — no EC2 instance, no PR branch.
+
+**Diagnose:** Confirm the label is exactly `autonomous` or `assisted` (case-sensitive). In CloudWatch Logs Insights / log filter, search for `No relevant label` — the Lambda returns HTTP `200` with that body when the issue event has no trigger label (see `lambda/handler.py`).
+
+**Fix:** Remove and re-add the correct label, or use the exact names above. If the label is correct but still no launch, check later log lines for bot-pool or spot-capacity errors.
+
+### `No bot pool configured for user X`
+
+**Symptom:** Assisted mode fails; Lambda logs `No bot pool configured for user <login>` (and the API body reports the same).
+
+**Diagnose:** `owner_login` in `infra/user-pool/terraform.tfvars` must match the issue `sender.login` exactly. Verify SSM under that login:
+
+```bash
+aws ssm get-parameters-by-path \
+  --path "/blitzlog/users/<owner_login>/telegram/" \
+  --recursive --with-decryption \
+  --query "Parameters[].Name"
+```
+
+You should see `.../telegram/allowed-user-id` and at least one `.../telegram/pool/<bot>`.
+
+**Fix:** Set `owner_login` to the GitHub login that opens/labels the issue, re-run `terraform apply` in `infra/user-pool/`, and confirm the path above exists. The bot pool is shared across envs — both prod and dev Lambdas read from this same namespace.
+
+### All bot pool bots locked
+
+**Symptom:** Assisted launches fail because every bot in the pool is held; logs show bots locked or `All bots in pool for user … are locked`.
+
+**Diagnose:** Locks live in the agent logs bucket under `bot-pool-locks/<sender_login>/<bot_name>.json`. Locks older than `BOT_POOL_LOCK_TTL_HOURS=4` (`lambda/handler.py:26`) are treated as stale and ignored; younger locks block acquisition.
+
+**Fix:** Wait for TTL expiry, or clear a stuck lock manually:
+
+```bash
+aws s3 rm \
+  "s3://<agent_logs_bucket>/bot-pool-locks/<sender_login>/<bot_name>.json" \
+  --region <your-region>
+```
+
+List locks first with `aws s3 ls s3://<agent_logs_bucket>/bot-pool-locks/ --recursive` if you are unsure which key is stuck.
+
+### `DescribeSpotPriceHistory` empty / capacity errors
+
+**Symptom:** Spot price lookup returns nothing, or every spot launch attempt fails; capacity / availability errors in Lambda logs.
+
+**Diagnose:** Blitzlog defaults to spot types `t4g.medium`, `t4g.large`, and `t4g.xlarge` (the `spot_instance_types` Terraform variable in `infra/aws/modules/core/variables.tf`, plumbed to the `infra/aws/prod/` and `infra/aws/dev/` layers). Some regions have little or no spot capacity for `t4g.*`.
+
+**Fix:** Switch `aws_region` in `infra/aws/prod/terraform.tfvars` (or `infra/aws/dev/terraform.tfvars`) to a region with Arm spot inventory, or override `spot_instance_types` in the same tfvars file with families that have inventory in your region, then re-run `terraform apply`. The list is passed to the Lambda as the `SPOT_INSTANCE_TYPES_JSON` env var, so no Lambda rebuild is needed.
+
+### `ec2:TerminateInstances` `UnauthorizedOperation` from the agent watchdog
+
+**Symptom:** CloudWatch logs show
+```
+An error occurred (UnauthorizedOperation) when calling the TerminateInstances operation: ...
+no identity-based policy allows the ec2:TerminateInstances action
+```
+The EC2 instance then sits idle for the full 2-hour EC2 lifecycle before self-terminating. (The `aws ec2 terminate-instances` line in the watchdog wraps the call in `|| true`, so the failure is silent in the bootstrap log.)
+
+**Diagnose:** The EC2 agent role's `ec2:TerminateInstances` grant in `infra/aws/modules/core/iam.tf` is gated on the instance carrying the matching `ec2:ResourceTag/Environment` tag. If the launch path missed that tag, the IAM condition never matches and the call is denied. Inspect the instance's tags from the EC2 console or `aws ec2 describe-instances --instance-ids <id> --query 'Reservations[].Instances[].Tags'`.
+
+**Fix:** Confirm `lambda/ec2.py:launch_ec2_spot_instance` emits an `Environment` tag whose value equals `BLITZLOG_ENV` (set by `infra/aws/modules/core/lambda.tf`). Re-deploy the Lambda zip (`mise run build`) and terminate any orphaned instances manually with an admin role.
+
+### Log upload silently failing (`AccessDenied` on `s3:PutObject`)
+
+**Symptom:** No run logs appear at `s3://<agent_logs_bucket>/<repo>/issue/<n>/logs/...` after an agent run, even though the bootstrap log contains a `[…] Logs uploaded to S3` line. (The `aws s3 cp …` line wraps the upload in `|| true`, so the failure is silent.)
+
+**Diagnose:** The EC2 agent role grants `s3:PutObject` only on `${var.environment}/*` keys (`infra/aws/modules/core/iam.tf:191-200`). The bootstrap user-data (`lambda/scripts/autonomous.py:_upload_logs_and_terminate_script`, `lambda/scripts/assisted.py:362`) must therefore prefix log-upload keys with `$BLITZLOG_ENV/`. If the prefix is missing, the destination falls outside the IAM grant and the call is denied. Check the watchdog's `aws s3 cp` invocation in `/var/log/backend-bootstrap.log` and look for `LOG_KEY="$BLITZLOG_ENV/…` — not `LOG_KEY="<repo>/…`.
+
+**Fix:** Re-deploy the Lambda zip with the env-prefixed `LOG_KEY` (`mise run build`) and `terraform apply` so the IAM is current. Already-orphaned log lines are not recoverable.
+
+### Voice notes not transcribing
+
+**Symptom:** Voice notes are silently ignored by the bot, or the bot replies "couldn't transcribe audio, please type your message."
+
+**Diagnose:** On the EC2 instance:
+
+```bash
+sudo systemctl status whisper-stt-shim.service
+curl -sf http://127.0.0.1:7878/healthz
+sudo tail -50 /var/log/whisper-stt-shim.log
+ls -lh /opt/whisper-stt/models/
+ls -lh /opt/whisper-stt/bin/
+```
+
+The model file must exist at `/opt/whisper-stt/models/ggml-<stt_model>.bin` and match the `stt_model` tfvar. The bucket name must also match `stt_models_bucket` SSM parameter; re-apply Terraform if you changed it.
+
+**Fix:**
+- **Model missing**: `aws s3 cp s3://$(terraform output -raw stt_models_bucket)/models/ggml-<name>.bin /opt/whisper-stt/models/` (after uploading to S3).
+- **Service won't start**: check `journalctl -u whisper-stt-shim.service` and `/var/log/whisper-stt-shim.log`. Common cause: `whisper-cli` binary failed to download or compile (build-from-source fallback usually takes 2-3 minutes on `t4g.medium`).
+- **Wrong model name**: `stt_model` in `terraform.tfvars` must match the S3 key suffix (`ggml-<name>.bin`).
+
+### OpenCode provider 401 / 1008 / 429
+
+**Symptom:** The EC2 agent starts but the LLM call fails; no useful PR.
+
+**Diagnose:** Bootstrap already emits searchable `ACTIONABLE:` lines via `_decode_api_errors_script` in `lambda/handler.py`. Grep agent logs (CloudWatch on the instance trail, or `s3://<agent_logs_bucket>/<repo>/issue/<N>/logs/...`) for:
+
+| Code | Meaning |
+|---|---|
+| `401` | Unauthorized / invalid API key |
+| `1008` | Insufficient balance / zero credits |
+| `429` | Rate limit / quota exceeded |
+
+**Fix:** Follow the matching `ACTIONABLE:` lines — rotate `/blitzlog/<env>/opencode/api-key` in SSM and re-apply Terraform for `401`; top up the provider plan for `1008`; wait or upgrade for `429`.
+
+### Lambda timeouts
+
+**Symptom:** Invocations fail after ~3 minutes; messages appear on the SQS DLQ `blitzlog-prod-lambda-dlq` (or `blitzlog-dev-lambda-dlq` for the dev env).
+
+**Diagnose:** Lambda `timeout = 180` in `infra/aws/modules/core/lambda.tf`. Work that runs longer than that (slow GitHub App auth, SSM, or especially EC2 spot launch retries across AZs) will time out. Check CloudWatch `/aws/lambda/blitzlog-prod-handler` (or `blitzlog-dev-handler` for the dev env) for the truncated request, then inspect DLQ:
+
+```bash
+aws sqs receive-message \
+  --queue-url "$(aws sqs get-queue-url --queue-name blitzlog-prod-lambda-dlq --query QueueUrl --output text)" \
+  --max-number-of-messages 5
+```
+
+**Fix:** Address the underlying hang (spot capacity, SSM/GitHub connectivity). Raising the timeout is a last resort and should stay aligned with how long a single webhook handler is expected to block before returning.
+
+---
+
+## Monitoring
+
+- Lambda errors trigger a CloudWatch alarm → SNS → email (via `alert_email`).
+- Failed Lambda invocations go to SQS DLQ (`blitzlog-prod-lambda-dlq` for prod, `blitzlog-dev-lambda-dlq` for dev).
+- Lambda logs: CloudWatch log group `/aws/lambda/blitzlog-prod-handler` (or `/aws/lambda/blitzlog-dev-handler` for dev) — 14-day retention.
+- Agent run logs (per-issue): uploaded to `s3://<agent_logs_bucket>/<env>/<repo>/issue/<N>/logs/...` (env prefix keeps prod and dev logs separated).
+- OpenCode session exports (audit trail): `s3://<agent_logs_bucket>/<env>/<repo>/issue/<N>/sessions/...`.
+- **Per-session step ceiling**: the opencode CLI stops a session after `opencode_agent_max_steps` agentic iterations and forces a summarization (the "Maximum steps reached" message in `/var/log/backend-bootstrap.log`). Default 500 — sized well above a typical multi-file task but a safety net against runaway loops. Tune per env via the Terraform variable (see `infra/{dev,prod}/terraform.tfvars.example`).
+
+---
+
+## Cost envelope
+
+| Component | Approx. cost |
+|---|---|
+| Lambda | ~$0.20 per 1M requests (stateless, < 1s) |
+| `t4g.medium` spot | ~$0.01/hr (varies by region) |
+| API Gateway HTTP API | ~$1.00 per 1M requests |
+| SQS / SNS | negligible |
+
+A 30-minute autonomous run costs roughly the same as a large coffee.
+
+---
+
+## Voice note prompts (STT)
+
+Assisted-mode agents can accept Telegram voice notes, transcribe them with a self-hosted `whisper.cpp` instance on the same EC2 box, and forward the transcript to the agent as a normal prompt. The upstream Telegram bot already speaks the OpenAI Whisper HTTP format natively — blitzlog just provides a tiny Node.js shim (`packages/whisper-stt-shim/`) that wraps `whisper-cli` and an S3-hosted model file.
+
+### How it works
+
+1. User sends a voice note to the bot.
+2. Bot downloads the OGG Opus file from Telegram and POSTs it to `STT_API_URL/v1/audio/transcriptions` (a Whisper-compatible endpoint).
+3. The blitzlog shim converts the audio to 16 kHz mono WAV via `ffmpeg-static`, invokes `whisper-cli -m <model> -f <wav> --output-json`, parses the JSON, and returns `{"text": "..."}`.
+4. Bot shows the transcript in chat, then forwards the text to OpenCode as a normal prompt.
+
+### Setup
+
+Two ways to populate the model in the shared STT models bucket (`s3://<stt_models_bucket>/models/`, where `<stt_models_bucket>` is the name you set in `infra/aws/bootstrap/terraform.tfvars` — both prod and dev use the same bucket):
+
+1. **Manual upload** (default). One-time, after `terraform apply`:
+
+   ```bash
+   curl -L https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin \
+     -o /tmp/ggml-base.en.bin
+   aws s3 cp /tmp/ggml-base.en.bin \
+     "s3://$(terraform output -raw stt_models_bucket)/models/ggml-base.en.bin"
+   ```
+
+   For multilingual support, download `ggml-base.bin`, `ggml-small.bin`, `ggml-large-v3.bin`, etc. from the same HuggingFace mirror and upload under the same `models/` prefix. Update `stt_model` in `infra/aws/prod/terraform.tfvars` (or `infra/aws/dev/terraform.tfvars`) to match (`base`, `small`, `large-v3`, etc.).
+
+2. **Auto-upload via Terraform** (opt-in). Set `upload_stt_model = true` in `infra/aws/prod/terraform.tfvars` (or `infra/aws/dev/terraform.tfvars`) and re-apply. The `terraform_data.stt_model_upload` provisioner runs on the Terraform host (CI or dev machine), downloads `ggml-${stt_model}.bin` from `stt_model_source_url`, and uploads it to S3. Skipped automatically if the object already exists. Requires:
+   - Outbound HTTPS from the Terraform host to the source URL.
+   - `s3:PutObject` on `arn:aws:s3:::blitzlog-<env>-stt-models/models/*` from the Terraform host's credentials (the EC2 instance role only has `s3:GetObject` — the Terraform host needs its own write perm).
+
+3. Configure the STT vars in `infra/aws/prod/terraform.tfvars` (or `infra/aws/dev/terraform.tfvars`). Defaults work out of the box for `base.en` + English. Re-run `terraform apply`.
+
+4. The EC2 instance picks everything up automatically on the next assisted-mode launch — no per-user config required. Per-user STT preferences (model, voice) live in the bot's own `/settings` menu, not in blitzlog.
+
+### Latency
+
+| Step | Time on `t4g.medium` |
+|---|---|
+| Bot downloads voice note from Telegram | ~200 ms for a 10 s OGG |
+| Shim ffmpeg → WAV conversion | ~50 ms |
+| `whisper-cli` inference, `base.en`, 5 s clip | ~2–3 s |
+| Total round-trip for a 5 s voice note | ~2.5–3.5 s |
+
+For longer clips, transcription scales roughly linearly. If latency becomes a problem, drop to `tiny.en` (~75 MB, ~2× faster, lower accuracy).
+
+### Failure handling
+
+Per the upstream bot's behavior: if the STT endpoint errors or times out, the bot sends a one-line "couldn't transcribe audio, please type your message" notice and the agent loop continues with a text prompt. The blitzlog shim logs to `/var/log/whisper-stt-shim.log` on the EC2 instance.
+
+If the shim service is down, the bot also falls back gracefully (it simply ignores voice notes). Check service status on the instance:
+
+```bash
+ssh ec2-user@<instance>
+sudo systemctl status whisper-stt-shim.service
+sudo tail -50 /var/log/whisper-stt-shim.log
+```
+
+---
+
+## OpenCode configuration
+
+The agent writes an `opencode.json` to `$HOME/.config/opencode/opencode.json` inside the container (`$HOME` is `/home/blitzlog` — the agent runs as an unprivileged user, see `docs/DOCKER.md`), configuring the inference provider and model. Supply via `terraform.tfvars`:
+
+```hcl
+opencode_model   = "<provider>/<model>"
+opencode_api_key = "<your-api-key>"
+```
+
+The default model is `minimax-coding-plan/MiniMax-M3`. Override for any provider that the [OpenCode CLI](https://opencode.ai) supports.
+
+---
+
+## Example
+
+A worked example — labelled issue → PR — lives in a separate repo:
+
+👉 **[blitzlog-example](https://github.com/great-wall-connect/blitzlog-example)** — a small Rust service (`taskforge`) with four demo issues that exercise the pipeline end-to-end.
+
+---
+
+## Conventions
+
+This project follows the conventions in [AGENTS.md](AGENTS.md). The autonomous agent uses the same conventions; if you're contributing code, follow them too.
+
+- **Branch naming**: `feat/issue-{N}-{slug}` / `fix/issue-{N}-{slug}`.
+- **Commits**: [Conventional Commits](https://www.conventionalcommits.org/).
+- **Tests required** for all new functionality.
+- **No breaking changes** without an issue discussion.
+- **Trigger labels are for humans, not agents**: the labels `autonomous` and `assisted` cause blitzlog to launch an EC2 agent for the labeled issue, so an automated agent must never apply them.
+
+---
+
+## Licence
+
+[MIT](LICENSE) © 2026 Great Wall Connect Limited.
+
+Maintained by Great Wall Connect Limited — `admin@greatwallconnect.com`.

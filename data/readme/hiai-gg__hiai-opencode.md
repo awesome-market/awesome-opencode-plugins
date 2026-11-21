@@ -1,0 +1,307 @@
+# HiAi-Opencode
+
+> **Archived — frozen on 2026-10-17.** [OpenCode 2.0](https://opencode.ai/changelog) (12 October 2026) replaced the 1.x plugin API. [V1 plugins do not run on OpenCode 2](https://opencode.ai/v2/docs/migrate-v1/): entrypoints, hooks, tools, and the server client have to be ported to [`@opencode/plugin`](https://opencode.ai/v2/docs/build/plugins/). **hiai-opencode 0.6.6** targets OpenCode 1 (`@opencode-ai/plugin` ^1.18.21) and is not being ported. This repository stays public and read-only. The last npm release, `@hiai-gg/hiai-opencode@0.6.6`, is for OpenCode 1.x only. No further issues, pull requests, or releases.
+
+[![CI](https://github.com/HiAi-gg/hiai-opencode/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/HiAi-gg/hiai-opencode/actions/workflows/ci.yml?query=branch%3Amain)
+[![Release](https://img.shields.io/github/v/release/HiAi-gg/hiai-opencode?style=flat-square&logo=github)](https://github.com/HiAi-gg/hiai-opencode/releases/latest)
+[![npm](https://img.shields.io/npm/v/@hiai-gg/hiai-opencode?style=flat-square&logo=npm)](https://www.npmjs.com/package/@hiai-gg/hiai-opencode)
+[![npm downloads](https://img.shields.io/npm/dm/@hiai-gg/hiai-opencode?style=flat-square)](https://www.npmjs.com/package/@hiai-gg/hiai-opencode)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE.md)
+[![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?style=flat-square&logo=bun)](https://bun.sh)
+[![OpenCode](https://img.shields.io/badge/host-OpenCode-blue?style=flat-square)](https://opencode.ai)
+
+> A multi-agent engineering team that lives inside your editor. One plugin gives [OpenCode](https://opencode.ai) an orchestrator, a planner, senior engineers, a critic, a designer, a researcher, and a browser operator — all coordinating autonomously, with enforced review gates and live diagnostics.
+
+**hiai-opencode** is an OpenCode plugin that turns a single AI session into a self-directing team. Instead of one model doing everything, Bob (the orchestrator) writes a plan **once**, dispatches parallel waves, and runs a **single** Critic at delivery. Explore researches, Build implements, Vision verifies UIs. The plan-lifecycle gate and completion controller enforce that — not prompt theater.
+
+---
+
+## Why
+
+Most AI coding tools drop you into one big context window and hope the model self-manages. The result is predictable: the model edits a file, declares victory, and moves on — no review, no diagnostics run, no verification that the tests pass. **hiai-opencode fixes the loop:**
+
+- 🛡️ **Code never ships unreviewed.** After a frozen plan's waves finish, a dedicated Critic must return `APPROVED` once. The completion controller and plan-lifecycle gate enforce it — not per-todo prompt theater.
+- 🔍 **Diagnostics are mandatory, not optional.** Edit a file and the completion gate blocks until `lsp_diagnostics` has run clean and any failing `test` / `lint` / `typecheck` passes.
+- 🧠 **A real team, not a monologue.** Bob routes by category — quick work to a cheap executor, hard implementation to a Senior Engineer, architecture to a Principal Architect, UI to a Designer, docs to a Writer.
+- 🗜️ **Context that survives compaction.** Long sessions compact gracefully — in-memory gate state (failed quality check, pending diagnostics, unreviewed changes) is re-injected into the compaction context so the post-compaction agent still knows what blocks completion.
+- ⚡ **Local-first runtime.** Memory, LSP, and browser execution stay local. Model prompts are sent to the providers you connect, while optional `grep_app` and Firecrawl features call their documented remote services.
+- 🪝 **One line to install.** No separate MCP server config, no manual wiring — `opencode plugin @hiai-gg/hiai-opencode@latest --global`.
+
+---
+
+## Install
+
+Last release, **OpenCode 1.x only**. OpenCode 2 does not load this plugin.
+
+### 1. Install the plugin
+
+```bash
+opencode plugin @hiai-gg/hiai-opencode@latest --global
+```
+
+That's the whole setup. The plugin self-registers its agents, hooks, tools, and MCP servers.
+
+### 2. Connect your model providers
+
+In OpenCode, connect your providers (Anthropic, OpenAI, OpenRouter, etc.) and run:
+
+```bash
+opencode models
+```
+
+Copy the exact `provider/model-id` strings into your `bob.json` override (see [Configuration](#configuration)).
+
+### 3. (Optional) Set API keys for CLI skills
+
+```bash
+cp bob.env.example bob.env
+# Edit bob.env — add FIRECRAWL_API_KEY for web scraping (optional)
+```
+
+### 4. (Optional) Install browser automation
+
+Vision's browser tools talk to a local engine over CDP. Engine selection is automatic: **Lightpanda** when its binary is on your PATH; otherwise upstream `agent-browser` uses its own default engine (**Chrome**).
+
+Install the CLI:
+
+```bash
+bun add -g agent-browser
+```
+
+**Lightpanda** ([lightpanda.io](https://lightpanda.io)) — preferred when installed, headless-only. Separate user-level install via the official installer, not `cargo`:
+
+```bash
+curl -fsSL https://pkg.lightpanda.io/install.sh | bash
+```
+
+**Upstream-host option:** on machines that use Chrome, `agent-browser install` provisions that fallback engine. It does **not** install Lightpanda. Headed mode (`AGENT_BROWSER_HEADED=1`) works only with Chrome. Lightpanda does not support headed windows, extensions, profiles, persistent auth state, or local `file://` access.
+
+Force an engine per session with `AGENT_BROWSER_ENGINE=chrome|lightpanda`, or per run with `agent-browser --engine chrome|lightpanda open <url>`.
+
+### 5. Verify
+
+```bash
+opencode debug config
+hiai-opencode doctor      # now a real executable since v0.3.6
+hiai-opencode mcp-status
+```
+
+`doctor` exits non-zero on hard failures, so you can use it as a CI gate.
+
+### Want OpenCode to finish setup for you?
+
+Paste this into a fresh session:
+
+```text
+Read AGENTS.md and finish hiai-opencode setup for this workspace.
+Check that @hiai-gg/hiai-opencode is registered, enable MCP services that can run here
+(sequential-thinking: node/npx; grep_app: no key), verify with opencode debug config
+and hiai-opencode doctor.
+Install and configure browser automation for Vision as documented in AGENTS.md
+(this workstation: Lightpanda only; do not run agent-browser install).
+Verify with agent-browser --version and lightpanda version, then run
+hiai-opencode doctor again.
+Report missing keys without printing secret values.
+```
+
+---
+
+## How a task runs (v0.6.3+)
+
+```
+trivial (1–2 files)     → general                     → (Critic only if high-risk)
+non-trivial             → Plan once → freeze
+                        → parallel task() waves
+                        → one Critic at delivery
+                          (Vision if UI) → you
+```
+
+Plan is not rewritten until it is done or you change scope (`INVALIDATE_PLAN`). Critic is not called after each checkbox. Independent steps of a phase must be dispatched as **several `task()` calls in the same assistant turn**.
+
+### Agents — a specialist team
+
+Bob routes work; the rest execute. Three are visible in the picker (you can invoke them directly); the rest are invoked by Bob or auto-triggered.
+
+| Agent | Role | When it kicks in |
+|-------|------|------------------|
+| **Bob** (orchestrator) | Routes work, freezes the plan, dispatches waves. Never writes code. | Always — your entry point |
+| **Plan** (Strategist) | Deep planning, architecture, read-only. Writes `.bob/plans/`. | Once, at the start of non-trivial work (or user-invoked) |
+| **Build** (Senior Engineer) | Multi-file implementation of a frozen plan step | `deep` category — the workhorse |
+| **General** | Fast bounded executor | `quick` category (1–2 files) |
+| **Explore** (Researcher) | Codebase grep, web search (Firecrawl/grep_app), library docs | Discovery inside Plan, or a Bob research route |
+| **Critic** | Binary delivery gate — `APPROVED` or `REJECTED` | Once, after all waves (not per step) |
+| **Designer** | UI/visual direction, design systems, component specs | `visual-engineering` |
+| **Writer** | Copy, positioning, SEO, docs | `writing` |
+| **Vision** | Browser operator, multimodal analysis, screenshots | UI verification, usually via delivery Critic |
+| **Manager** | Large-phase coordinator (many workers). One Critic at phase close. Not for 1–2 file work. | One large phase (≥5 worker steps) |
+
+### Tools — 35 registered
+
+- **LSP (6)** — `lsp_diagnostics`, `lsp_goto_definition`, `lsp_find_references`, `lsp_symbols`, `lsp_prepare_rename`, `lsp_rename`. TypeScript, Svelte, ESLint, Python, Bash.
+- **Agent Browser (14)** — Navigate, snapshot, click, fill, screenshot, eval, console, and more. CDP via Lightpanda (preferred when installed) or Chrome (fallback) — no Playwright. Restricted to Vision/General agents.
+- **Memory (1)** — `hiai_memory_search`: BM25-ranked SQLite FTS5 search over MEMORY.md, checkpoints, notes, and task progress.
+- **Session Manager (4)** — List, read, search, and inspect sessions.
+- **Worktree (4)** — `hiai_worktree_create`/`_list`/`_remove`/`_status` for isolated parallel work.
+- **Skills (1)** — `skill("build/shadcn-ui")`, `skill("explore/context7")`, etc.
+- **Firecrawl (3)** — Web scrape, search, sitemap (CLI skill, requires `FIRECRAWL_API_KEY`).
+
+**Browser engines (auto-selected):** the runtime prefers **Lightpanda** ([lightpanda.io](https://lightpanda.io); headless-only) when its binary is on your PATH and `AGENT_BROWSER_ENGINE` is unset. **Chrome** is upstream `agent-browser`'s own fallback, provisioned only if you run `agent-browser install` on that host — not a HiAi workstation requirement. Override per session with `AGENT_BROWSER_ENGINE=chrome|lightpanda`, or per run with `agent-browser --engine chrome|lightpanda open <url>`. Headed mode (`AGENT_BROWSER_HEADED=1`) is Chrome-only. Lightpanda installs separately via its official installer (not `cargo`) — neither the npm plugin nor `agent-browser install` downloads it. See [Install](#install).
+
+### MCP servers — 2, zero-config
+
+| Server | Type | Use |
+|--------|------|-----|
+| `sequential-thinking` | local (npx) | Optional extra reasoning. Plan uses native model thinking by default. |
+| `grep_app` | remote | GitHub OSS code search — no key required |
+
+The plugin auto-exports `.opencode/.mcp.json` at startup so `opencode mcp list` sees these servers. Control it via `HIAI_OPENCODE_AUTO_EXPORT_MCP` (`if-missing` / `always` / `off`).
+
+### Execution gates — enforced, not suggested
+
+| Gate | What it enforces |
+|------|-----------------|
+| **Plan freeze** | After Plan returns `Status: done`, a second Plan spawn is denied until the plan is done or `INVALIDATE_PLAN` |
+| **Delivery Critic** | Changed files on a finished plan need one `APPROVED` verdict — not a review after every specialist |
+| **Quality gate** | Failed `test`/`lint`/`typecheck` blocks completion until it passes |
+| **LSP gate** | Edits block completion until `lsp_diagnostics` runs clean |
+| **Legal gate** | Hard-blocks browser-automation abuse, malicious tool use (throws) |
+| **Circuit breaker** | Aborts sessions stuck in loops (20+ identical calls, or 4000+ total) |
+| **Closure protocol** | Every agent response must carry a valid `<CLOSURE>` block |
+
+### Hooks — 30, categorized (includes `plan-lifecycle-gate`)
+
+Safety · Quality · Recovery · System · Lifecycle. All chainable, all disable-able via `hooks.disabled` in config. See [AGENTS.md](AGENTS.md) for the full list.
+
+### Memory systems — two complementary backends
+
+- **Native `memory`** (OpenCode built-in) — full-text indexed curated MD files for durable knowledge.
+- **`hiai_memory_search`** (plugin) — SQLite FTS5 BM25 over session transcripts and tool outputs for forensic cross-session recall.
+
+Plus **Dream** (7-day) and **Distill** (30-day) auto-consolidation that promotes durable knowledge into MEMORY.md and packages repeated workflows into new skills.
+
+---
+
+## CLI — `hiai-opencode`
+
+The package ships a `hiai-opencode` binary (also the OpenCode plugin name). It wraps diagnostics **and** stack management for the OpenCode server + web UI.
+
+### Run the server + web UI
+
+```bash
+hiai-opencode              # same as `up` — launches the stack
+hiai-opencode up            # opencode serve (headless) + opencode web (frontend)
+hiai-opencode down          # stop the stack
+hiai-opencode restart       # down, then up
+hiai-opencode status        # show running serve/web PIDs + ports
+```
+
+- **Server** runs `opencode serve` (headless API) on port `4096` by default.
+- **Frontend** runs `opencode web` (built-in web UI) on port `4097` by default.
+- PIDs and ports are tracked in `~/.hiai-opencode/run/opencode-stack.json` so `down` / `status` can manage the spawned processes.
+
+Override ports or host:
+
+```bash
+hiai-opencode up --serve-port 5000 --web-port 5001 --host 0.0.0.0
+# or via env
+HIAI_OPENCODE_SERVE_PORT=5000 HIAI_OPENCODE_WEB_PORT=5001 hiai-opencode
+```
+
+> **Cline bridge** is an OpenCode *provider* entry (configured in `opencode.jsonc` / `bob.json`), **not** a separate process. `up` does not start any bridge — it only ensures the plugin is registered and launches `serve` + `web`.
+
+### Diagnostics
+
+```bash
+hiai-opencode doctor        # full install/runtime diagnostic (exits non-zero on hard failures)
+hiai-opencode mcp-status    # MCP server config + tool probes
+hiai-opencode export-mcp [path]   # write static .mcp.json for hosts that ignore plugin MCP
+hiai-opencode diagnose [path]    # collect diagnostic bundle (local only)
+```
+
+`doctor` checks: plugin registration, MCP servers, LSP runtimes (TypeScript/Svelte/ESLint/Bash/Pyright), CLI skills (Firecrawl / Context7 / agent-browser), model-slot assignment from `bob.json`, and the static `.mcp.json` freshness. Use it as a CI gate.
+
+---
+
+## Configuration
+
+The plugin ships sane defaults in [bob.json](bob.json). To customize, drop a `bob.json` in your project root (or `.opencode/`) — it merges over the bundled defaults.
+
+### `bob.json` — models & behaviour
+
+The 10 model slots: `bob`, `build`, `plan`, `manager`, `critic`, `designer`, `explore`, `writer`, `vision`, `general`. Defaults ship in the plugin; override only what you want to change:
+
+```jsonc
+{
+  "models": {
+    "bob": { "model": "openai/gpt-5.5" },
+    "build": { "model": "opencode-go/deepseek-v4-pro" },
+    "plan": { "model": "opencode-go/deepseek-v4-pro" },
+    "manager": { "model": "opencode-go/deepseek-v4-flash" },
+    "critic": { "model": "opencode-go/mimo-v2.5-pro" },
+    "designer": { "model": "opencode-go/kimi-k2.7-code" },
+    "explore": { "model": "opencode-go/deepseek-v4-flash" },
+    "writer": { "model": "opencode-go/deepseek-v4-flash" },
+    "vision": { "model": "opencode-go/mimo-v2.5" },
+    "general": { "model": "opencode-go/deepseek-v4-flash" }
+  },
+  "mcp": {
+    "sequential-thinking": { "enabled": true },
+    "grep_app": { "enabled": true }
+  }
+}
+```
+
+Connect providers in OpenCode, run `opencode models`, and copy exact `provider/model-id` strings — don't invent prefixes. Model provider credentials live in OpenCode Connect, not in `bob.json`.
+
+**One file:** `bob.json` (or `bob.jsonc`). First found wins, walking **up** from the directory OpenCode was started in: `bob.json` → `.opencode/bob.json` → jsonc variants, each parent until the filesystem root, then `~/.config/hiai-opencode/bob.json`. Bundled defaults are the baseline, not a competing file. `loop.enabled` (default true) continues Bob on idle until the plan and todos are done.
+
+### `bob.env` — service keys (git-ignored)
+
+```bash
+cp bob.env.example bob.env
+# FIRECRAWL_API_KEY=fc-...   (optional — web scraping skill)
+# CONTEXT7_API_KEY=ctx7-...  (optional — on-demand library docs)
+```
+
+Never put raw keys in JSON — use `{env:VAR_NAME}` placeholders. Never commit `bob.env`.
+
+---
+
+## Quick start for contributors
+
+Development stopped with the OpenCode 2.0 release. The commands below build the last OpenCode 1.x source.
+
+```bash
+git clone https://github.com/HiAi-gg/hiai-opencode.git
+cd hiai-opencode
+bun install
+bun run build          # typecheck + tests run in prepublishOnly
+bun test               # current suite; do not hard-code a count here
+```
+
+---
+
+## Documentation
+
+- **[AGENTS.md](AGENTS.md)** — operator reference: bootstrap checklist, change map, troubleshooting, full hook list
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — internal wiring, prompting layers, where to change each subsystem
+- **[CHANGELOG.md](CHANGELOG.md)** — version history
+- **[LICENSE.md](LICENSE.md)** — MIT
+
+---
+
+## Roadmap
+
+Product direction through 0.6.6 lives in [ROADMAP.md](ROADMAP.md). That file is historical. Nothing on it is scheduled.
+
+---
+
+## Contributors
+
+- [HiAi](https://github.com/HiAi-gg)
+
+---
+
+## License
+
+MIT © [HiAi](https://github.com/HiAi-gg). See [LICENSE.md](LICENSE.md).

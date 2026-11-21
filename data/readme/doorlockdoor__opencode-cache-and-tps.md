@@ -1,0 +1,99 @@
+## 介绍
+
+Fork自[opencode-visual-cache](https://github.com/Hotakus/opencode-visual-cache)，统一显示缓存命中（Cache）、生成速度（TPS）、首字延迟（TTFT）等信息，支持实时刷新。
+> ✅已更新兼容opencode v2。
+
+<img src="https://raw.githubusercontent.com/doorlockdoor/opencode-cache-and-tps/master/assets/screen_shot_01.png" width="100%"></img>
+
+**插件设置**：
+- `/cache-style`，设置底部信息样式，包括默认、DSH、极简。
+- `/cache-tps`，设置TPS计算方式，默认显示输出速度，可选体感速度（opencode计算方式）。
+- `/cache-bar`，设置底部信息开关，默认显示命中率+速度+工具（仅在调用工具时显示），全部选项包括：命中率/Tokens/余额/首字/速度/延迟/工具。
+- `/cache-lang`，设置显示语言，包括中、英、日、韩。
+- `/cache-section`，设置插件信息开关，包含侧边栏、底部信息栏、实时信息等等。
+
+**信息包含**：
+- 原插件：缓存命中，token用量，余额，侧边栏等。
+- 新增：首字延迟，生成速度，生成耗时，工具调用时间。
+- 忽略opencode自动压缩造成的误差，忽略工具暂停（例如提问）时的计数。
+> 与opencode客户端tps的差异：客户端tps包含ttft，为发出请求到生成完毕的体感时间，加权平均，天然偏小；本插件的tps为供应商token数除以生成时间，取中位数，偏输出速度。
+
+## TUI插件冲突
+
+在opencode v1版本中，多个TUI插件重复修改输入框可能会导致冲突。opencode v2无此问题。
+
+你可以在以下操作中选择一个：
+1. 升级至opencode v2版本，推荐。
+2. 使用`/cache-section`关闭“底部信息栏”，释放本插件对输入框底部的修改。
+3. 本地下载插件源码进行定制。
+
+## 安装
+
+V2版本，编辑`~/.config/opencode/cli.json`，添加包名。
+
+> 不要使用 `opencode plugin add`，理由详见上游。
+
+```jsonc
+{
+  "plugins": [
+    {
+      "package": "opencode-cache-and-tps@latest",
+      "options": {
+        "enabled": true
+      }
+    }
+  ]
+}
+```
+
+V1版本，编辑`~/.config/opencode/tui.json`，添加包名。
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": [
+    // ...
+    "opencode-cache-and-tps@latest"
+  ]
+}
+```
+
+强制更新：可删除缓存强制更新插件，V2缓存在`~/.cache/opencode/npm`，V1在`~/.cache/opencode/packages`。
+
+## 本地构建
+
+`npm run build`，然后复制目标文件到`~/.config/opencode/plugins`。
+
+```powershell
+npm run build; $dst = "~\.config\opencode\plugins\opencode-cache-and-tps"; New-Item -ItemType Directory -Force "$dst\dist" | Out-Null; Copy-Item tui.js "$dst\tui.js" -Force; Copy-Item dist\tui.js "$dst\dist\tui.js" -Force; Copy-Item dist\v2.js "$dst\dist\v2.js" -Force
+```
+
+编辑`~/.config/opencode/package.json`，添加依赖。
+
+```jsonc
+{
+  "type": "module",
+  "dependencies": {
+    // ...
+    "@opentui/solid": "^0.5.1"
+  }
+}
+```
+
+V1需要额外编辑`~/.config/opencode/tui.json`，添加本地TUI插件。
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": [
+    // ...
+    "./plugins/opencode-cache-and-tps/dist/tui.js"
+  ]
+}
+```
+
+V1需要重启opencode，V2自动重载。
+
+## License
+
+MIT @Hotakus

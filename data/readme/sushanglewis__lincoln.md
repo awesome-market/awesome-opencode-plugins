@@ -1,0 +1,275 @@
+# Lincoln — AI-Native 研发工作流与产研协作体系
+
+> 中文 | [English](README.en.md)
+
+**TL;DR** — Lincoln is an AI-Native R&D workflow system that brings stage-driven discipline, human gates, and repeatable SOPs to Claude Code, Codex, and OpenCode — from requirements to shipped knowledge.
+
+Lincoln 是一个贯穿 **IDE、Agent Harness、代码托管、知识管理、技能、插件与自动化程序** 的 AI-Native 研发工作流体系。它以**阶段**为节奏、以**门控**为质量保障、以**可重复 SOP** 为骨架，把需求澄清、产品设计、原型、TDD 计划、OpenSpec 提案、任务拆分、研发实现和知识库沉淀串成一条可人机协作的流水线。
+
+- **全流程，而非单点工具**：每个阶段都有明确的角色、技能与产物约定——Agent 在恰当的节点介入，而不是替代人的判断。
+- **规范化，但不繁琐**：阶段门控、human gate、分支卫生，以及「过程文档留分支、耐用知识入 vault」的双轨机制，让协作可追溯、可交接、可审计。
+- **低侵入、可插拔**：以 harness 插件的形态融入你的项目——技能、hooks、工作流模板与多 harness 适配沿同一元模型扩展，不要求你为它改造自己的项目。
+
+## 最新版本
+
+[![Release](https://img.shields.io/badge/release-v1.12.0-blue)](RELEASE.md)
+
+**v1.12.0** 已发布：高保真原型新增 Axure 式数字角标、页面说明抽屉和分步演示，完整覆盖页面结构、交互、状态、异常恢复与数据规则，并以 core-v2 门控防止信息缺口（#155）。
+
+查看完整发布说明：[RELEASE.md](RELEASE.md)
+
+## 快速开始
+
+打开仓库后，直接用自然语言告诉 Agent 你的目标即可。Lincoln 会自动进入对应的工作流：
+
+- **开始处理 issue 55** → 初始化 `issue-55` 分支与工作包，进入 `interview-to-knowledge` 团队工作流
+- **使用 existing-project-iteration 理解这个代码库** → 扫描源码并生成 `knowledge/` 功能知识库，再规划下一个迭代
+- **用 design-spike 探索这个想法** → 澄清需求并产出设计评审与可交互原型
+- **现在什么状态** → 汇报当前阶段、等待对象、推荐技能与下一步动作
+
+## 安装
+
+### 前置条件
+
+- Node.js ≥ 20
+- Python 3.10+（`lincoln install` 会自动探测 `python3.12 / 3.11 / 3.10` 并创建虚拟环境）
+- 已安装至少一个 agent harness：`Claude Code`、`Codex` 或 `OpenCode`
+
+### 安装 Lincoln
+
+```bash
+npm install -g @sushanglewis/lincoln
+```
+
+`npm install -g` 会把 CLI 和框架 payload 安装到 npm 全局目录；安装完成后会自动进入引导程序，让你选择要安装到的 agent harness（`Claude Code`、`Codex`、`OpenCode`）。
+
+如果你希望非交互式安装，可以直接运行：
+
+```bash
+lincoln install --yes
+```
+
+也可以只安装到指定的 harness：
+
+```bash
+lincoln install --yes --harnesses claude-code,opencode
+```
+
+> **注意**：**必须执行 `lincoln install`**，才会把 hooks、agents、skills、scripts 等完整运行时体系同步到 `~/.claude/`、`~/.codex/`、`~/.opencode/`。
+
+如果之前安装过旧版 `lincoln-install`，需要先卸载（旧包与新版 bin 名冲突）：
+
+```bash
+npm uninstall -g lincoln-install
+npm install -g @sushanglewis/lincoln
+lincoln install --yes
+```
+
+若要强制重装，可加上 `--force`：
+
+```bash
+npm install -g @sushanglewis/lincoln --force
+lincoln install --yes
+```
+
+### 验证安装
+
+```bash
+lincoln --version
+lincoln doctor --json
+```
+
+`lincoln doctor --json` 会输出 Node、Python、PyYAML、npm、全局 marker、payload hooks、venv、项目 marker 等检查项。
+
+### 在项目中启用
+
+Lincoln hooks 默认**不会**在空目录激活。进入项目后执行：
+
+```bash
+cd your-project
+lincoln init-project
+```
+
+这会在项目根目录创建 `.lincoln.yaml` 标记文件，之后在该目录打开 Claude Code 即可使用 `/lc-*` 命令。
+
+### 更新 Lincoln
+
+已安装过 Lincoln 的用户，一条命令即可升级——`lincoln update` 会自动拉取 npm 最新版本，重新把框架同步到各 harness，并按新版本中 pin 的版本刷新外部技能库（superpowers、gsd、oh-my-claudecode 等 `~/.claude/skills/` 下的 git 仓库，以及 openspec 等 npm 管理的 CLI）：
+
+```bash
+lincoln update            # 升级本体 + 同步框架 + 刷新外部技能库到最新 pin
+lincoln update --check    # 只检查是否有新版本，不安装
+```
+
+也可以直接用 npm 把本体升到最新再同步框架：
+
+```bash
+npm install -g @sushanglewis/lincoln@latest && lincoln update
+```
+
+技能库同步遵循 dependencies.yaml 的 pin 策略：本地有未提交修改的仓库会被跳过并警告（不会被强制覆盖），非 npm 管理的 CLI（如 gh）缺失时只提示安装命令。同步失败降级为警告，不会阻断升级。
+
+如果还是旧版安装（例如 bin 名是 `lincoln-install` 的时代），或更新时 npm 报 `EEXIST: file already exists`，说明有旧包残留的 bin 文件挡住了安装，先清理再重装：
+
+```bash
+npm uninstall -g lincoln lincoln-install              # 卸载旧包名（未安装会自动跳过）
+npm install -g @sushanglewis/lincoln@latest
+lincoln install --yes
+```
+
+> **EEXIST / command not found 残留软链**：如果安装报 `EEXIST: file already exists`（bin 位置已被占用），而运行 `lincoln` 却是 `command not found`，说明 bin 位置是旧包遗留的悬空软链。用 `ls -la "$(npm prefix -g)/bin/lincoln"` 确认它指向已卸载的旧包路径，删除后重试安装：
+>
+> ```bash
+> rm "$(npm prefix -g)/bin/lincoln"
+> npm install -g @sushanglewis/lincoln@latest && lincoln install --yes
+> ```
+
+### 从旧版 vendored 模式迁移
+
+如果你的项目之前是把 Lincoln 框架源码直接提交到仓库里的，可以用：
+
+```bash
+lincoln migrate-project --dry-run   # 先看看会删哪些文件
+lincoln migrate-project --yes       # 确认迁移
+```
+
+旧版 `npx lincoln-install` / `npx lincoln-update` 仍保留但已弃用，建议迁移到全局 CLI。
+
+第一次使用？阅读 [USAGE.md](USAGE.md) 获取完整安装与使用指南。
+
+## Lincoln 能做什么
+
+### 阶段驱动的工作流引擎
+
+每个阶段定义在 `.claude/stages/<stage-id>.yaml`，内含角色、可调用的技能、门控条件与产物要求。`workflow-stage.yaml` 作为运行时状态，由 Lincoln 的阶段加载器驱动阶段校验、产物记录与 gate 推进。`--render-stage` 批量渲染可一次生成某阶段声明的所有缺失文档页面。
+
+### 产物追溯
+
+Lincoln 为需求、页面、字段、文档等产物分配 `feature/*`、`page/*`、`field/*`、`doc/*` 稳定 ID。下游阶段按 ID 追溯上游产物，避免路径猜测带来的漂移。需要追溯时，直接对 Agent 说「查一下 doc/需求-001」即可。
+
+### 预设 SOP 工作流模板
+
+| 工作流 | 场景 | 模式 |
+|--------|------|------|
+| `interview-to-knowledge` | 从访谈录音到 GitHub Issues 再到 Obsidian 知识库沉淀 | team |
+| `existing-project-iteration` | 已有源码，先建知识库再迭代 | solo |
+| `bug-fix` | 明确 bug，轻量设计后快速修复 | solo |
+| `design-spike` | 需求尚不清晰，做方案预研或原型 | solo |
+| `oss-first-design` | 强依赖开源方案，先调研再设计 | solo |
+| `pm-research` | 体系化完成竞品/市场/用户/相关者研究 | solo |
+
+完整模板说明见 [`.claude/workflows/README.md`](.claude/workflows/README.md)。
+
+### 少即是多的制品生成纪律
+
+AI 生成的交接产物容易内容堆积、重点淹没。Lincoln 把「少即是多」固化为一条只在**制品生成**时生效的纪律（[`.claude/policies/less-is-more.md`](.claude/policies/less-is-more.md)）：生成前先明确读者、用途与读者要做的决定；写作遵循结论先行、一件制品回答一个问题、删除测试、结构优于段落、链接优于复制、三分钟可读六条原则。调研与深度研究阶段不受其约束，鼓励充分展开。
+
+该纪律由 session hook 在检测到活跃 issue 工作包时自动注入，无需任何手动操作。
+
+### Markdown-first Issue 工作包
+
+每个需求对应一个 GitHub issue 和一个 Lincoln feature 分支。工作包目录 `issue-<N>/` 包含：
+
+- `index.html` — 人读门户，聚合阶段状态、导航与产物
+- `workflow-stage.yaml` — 机器状态与 handoff 协议
+- `documents.yaml` — 产物索引与 human 确认状态
+- `pages/docs/` — 需求、PRD、设计、TDD 计划等页面，叙事类文档采用 Markdown-first，可直接用 Markdown 章节和 `mermaid` 流程图编写，渲染时自动加载本地 `mermaid.min.js` 运行时
+- `pages/prototype/` — 可交互原型 HTML 页面
+- `handoffs/` — 阶段交接文档
+
+### docsify 式门户与数字角标注解
+
+`index.html` 门户采用 docsify 风格的文档框架，生成时烘焙、运行时零外部请求，**file:// 双击即可浏览**，也可由流水线推到静态托管后直接分享链接（`#/pages/docs/prd.html` 支持深链定位）：
+
+- **目录**：分组折叠（状态记忆）、过滤框实时定位、一键收起/展开；文档与原型分组清晰
+- **Focus 模式**：阅读文档或验收原型时隐藏目录，原型获得全屏空间（Esc 退出）
+- **文档**：marked（MIT）完整渲染 Markdown——图片、表格、任务列表、mermaid 流程图，随门户明暗主题切换
+- **原型注解**：页面 YAML 声明 `hotspots` 后在元素上生成数字角标，hover 查看说明，解释不再占用屏内空间
+
+升级到本版本后执行 `lincoln update` 即同步最新门户模板与运行时。
+
+## 自然语言交互
+
+Lincoln 是 AI-Native 工作流——**你不需要在终端输入任何命令**。直接用自然语言描述意图，Agent 会自动翻译成对应脚本并代为执行。
+
+| 你说 | Agent 做 |
+|------|----------|
+| 开始处理 issue 55 | 初始化分支与工作包，进入 `interview-to-knowledge` |
+| 现在什么状态 | 汇报当前阶段、等待对象与下一步 |
+| 提交本阶段产物 | 记录产物并刷新 `documents.yaml` |
+| 确认通过 | 在人类 PM 显式确认后标记 gate 通过 |
+| 生成交接 | 生成 handoff 文档 |
+| 检查 Lincoln 环境 | 检测依赖并列出缺失项 |
+| 列出所有活跃分支 | 列出所有 issue 分支的阶段状态与等待对象 |
+| 运行 benchmark | 生成 Lincoln 会话基准评测报告 |
+| 启动 PM 研究工作流 | 进入 `pm-research` 研究链路 |
+| 查一下 doc/需求-001 | 调用 `lc-one-id` 按稳定 ID 追溯产物 |
+
+更多命令与用法见 [USAGE.md](USAGE.md)。
+
+## 两种使用方式
+
+### 轻量个人路径（vibe-coding / 独立 maker）
+
+适合本地项目、个人想法快速迭代。无需先建 GitHub issue，直接选择 workflow 模板即可开始。产物落在工作包目录下，可随时升级为团队流程。
+
+### 团队 issue 路径（产品 / 设计 / 研发 / QA）
+
+每个需求使用独立的 Lincoln feature 分支（命名约定 `issue-<N>`）。阶段状态随分支提交，下游角色 checkout 同一分支继续。过程文档不合并到 `main`，通过 PR 只合并最终代码产物。
+
+详细路径说明见 [USAGE.md](USAGE.md)。
+
+## 工具
+
+- `@sushanglewis/lincoln` — 全局 CLI：`lincoln install`、`lincoln update`、`lincoln use`、`lincoln doctor`、`lincoln init-project`、`lincoln migrate-project`、`lincoln record`
+- `tools/lincoln/` — 基于 Ink/React 的 TUI 录音前端（`lincoln-record` CLI）
+- `tools/lincoln-record/` — Rust 本地录音转写 CLI（whisper-rs + Metal 加速、说话人分离）
+- `tools/lincoln-installer/` — 旧版终端 TUI 安装器与更新器（已弃用，保留向后兼容）
+
+## 多 harness 支持（codex / opencode）
+
+Lincoln 的端到端逻辑（角色契约、阶段工作流、`lc-*` 命令）可适配到 codex 与 opencode。`.claude/` 是唯一事实源，各 harness 产物由适配器自动生成，**不要手改生成产物**。
+
+需要对 Agent 说「生成 codex 适配」或「生成 opencode 适配」。生成产物不入 git，CI 会校验 manifest 可生成、本地产物未漂移。
+
+## 扩展与贡献
+
+Lincoln 的 `.claude/` 是开放的系统提示层，欢迎基于同一套元模型贡献新的 Agent 角色、skills、hooks 或工作流模板。
+
+提交 PR 前请阅读：
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — 贡献者护栏、核心与领域包边界、测试分层与 eval 门禁规范
+- [CLAUDE.md](CLAUDE.md) — Agent 契约、人类门控规则与产物规范
+- [`.claude/workflows/README.md`](.claude/workflows/README.md) — 新增工作流模板的步骤
+
+## 了解更多
+
+- [USAGE.md](USAGE.md) — 完整用户手册
+- [CONTRIBUTING.md](CONTRIBUTING.md) — 贡献者指南
+- [RELEASE.md](RELEASE.md) — 发布说明与 Changelog
+- [`.claude/workflows/README.md`](.claude/workflows/README.md) — 工作流模板总览
+- [OpenSpec 文档](https://github.com/Fission-AI/openspec)
+- [Obsidian WikiLinks](https://help.obsidian.md/Linking+notes+and+files/Internal+links)
+
+## 版本记录
+
+| 版本 | 日期 | 关键能力 |
+|---|---|---|
+| v1.12.0 | 2026-11-02 | Axure 式原型标注、页面说明抽屉、分步演示、完整状态/异常/数据契约（#155） |
+| v1.11.0 | 2026-11-01 | PRD core-v2 内容质量、需求追溯、四方评审、原型/测试闭环与工作流产物模式（#142） |
+| v1.9.0 | 2026-10-12 | docsify 式 issue-package 门户：可折叠过滤目录、focus 模式、marked 完整 Markdown 渲染、driver.js 数字角标注解、hash 深链（#131） |
+| v1.8.4 | 2026-10-08 | PM 阶段 PRD 质量门控：需求六问自检、13 章递进骨架、PRD 内容卫生与交叉验证校验、原型最终样貌纪律（#129） |
+| v1.8.3 | 2026-10-08 | 少即是多制品生成纪律（hook 注入）；非 npm CLI 平台化安装提示；`lincoln update` 同步刷新外部技能库 |
+| v1.7.0 | 2026-09-05 | SecurityAnalyzer 安全门控；Trace 2.0 事件日志；摩擦学习/知识召回/Trace 浓缩/MR 挖掘；并行专家子代理委托；相关者分析模型 |
+| v1.6.3 | 2026-08-15 | Markdown-first issue-package 文档；`--render-stage` 批量渲染；Mermaid 图表本地渲染 |
+| v1.6.2 | 2026-08-12 | `lc-init-branch` 改读全局 Lincoln 模板 |
+| v1.6.1 | 2026-08-11 | `lc-one-id` 产物追溯 skill；portal 注解对齐 |
+| v1.6.0 | 2026-08-06 | 全局 npm 插件模型；`@sushanglewis/lincoln` CLI；release-on-merge 自动化 |
+
+完整发布说明见 [RELEASE.md](RELEASE.md)。
+
+## License
+
+Lincoln 本体以 [MIT License](LICENSE) 发布，Copyright (c) 2026 苏尚lewis (sushanglewis)。
+
+外部 skills、CLI 与插件的许可证声明见 [`.claude/skills/dependencies.yaml`](.claude/skills/dependencies.yaml) 与 [`.claude/agents/external/NOTICES.md`](.claude/agents/external/NOTICES.md)。

@@ -1,0 +1,401 @@
+# TermMate — Agentic Coding Assistant for Sublime Text
+
+[![Sublime Forum](https://img.shields.io/badge/Sublime_Forum-Discussion-FF9800?logo=sublimetext&logoColor=white)](https://forum.sublimetext.com/t/using-agentic-coding-in-st-with-codex-claude-cli/78323)
+[![Package Control](https://img.shields.io/badge/Package_Control-TermMate-389826?logo=sublimetext&logoColor=white)](https://packagecontrol.io/packages/TermMate)
+
+**Claude Code, OpenAI Codex, Google Antigravity, OpenCode, and Pi coding agent plugin for Sublime Text**
+
+![TermMate Screenshot](screenshot.png)
+
+TermMate is a professional AI coding agent for Sublime Text that supports multi-agent providers, including **Claude Code**, **Codex**, **[Google Antigravity](https://antigravity.google)**, **[OpenCode](https://opencode.ai)**, and **[Pi Agent](https://pi.dev)**. It builds a seamless native agentic interface directly within your editor for autonomous task execution, codebase exploration, and smart refactoring. Instead of using conventional webview, TermMate provides editor-native, REPL-inspired chat interface with modern editor features such as goto-navigation, auto-complete, folding, file links.
+
+See TermMate agentic coding features — **[live demo here →](https://termmate.app/sublime/)**
+
+TermMate's main agentic features include:
+
+- **autonomous coding workflow** - let agents explore your codebase, run commands, edit files, and complete tasks directly in Sublime Text.
+- **editor-native chat** - plan tasks, follow tool execution, approve agent actions, and review changes in an editor-native interface.
+- **workspace awareness** - reference files, line ranges, selections, and multi-level directory paths with cascading smart `@` completion and sidebar actions.
+- **multi-tab chat thread** - run multiple independent conversations in parallel tabs (e.g. Main Chat and Task Threads) with isolated agent states.
+- **session management** - start fresh, resume previous conversations, or rewind and branch from earlier prompt.
+
+## Getting Started
+
+### 1. TermMate Installation
+
+Install TermMate via [Package Control](https://packagecontrol.io/packages/TermMate):
+
+1. Open the Command Palette (`Cmd+Shift+P` on macOS, `Ctrl+Shift+P` on Windows/Linux).
+2. Type `Package Control: Install Package` and press `Enter`.
+3. Search for `TermMate` and press `Enter`.
+
+### 2. Install Agent CLI
+
+If the following agent is already installed and authenticated, **skip this step** — TermMate detects existing installations automatically.
+
+Otherwise, install directly within Sublime Text via the Command Palette (`TermMate: Install Agent`), which sets up the selected CLI (`~/.local/bin` on macOS/Linux, `%APPDATA%\npm` on Windows).
+
+Alternatively, you can also manually install an agent from your terminal:
+
+```shell
+# Claude Code
+curl -fsSL https://claude.ai/install.sh | bash
+
+# Codex (macOS/Linux)
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+# Codex (Windows PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
+
+# Google Antigravity (macOS/Linux)
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+# Google Antigravity (Windows PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://antigravity.google/cli/install.ps1 | iex"
+
+# OpenCode (macOS/Linux)
+curl -fsSL https://opencode.ai/install | bash
+# OpenCode (Windows)
+npm install -g opencode-ai
+
+# Pi Agent
+curl -fsSL https://pi.dev/install.sh | sh
+```
+
+> **Note:** TermMate automatically detects CLI installation paths across multiple environments, including **Homebrew**, **npm-global**, **Yarn**, and common local binary directories. You typically don't need to manually configure environment variables or search paths.
+
+
+### 3. Authentication
+
+Authenticate the agents via your terminal, or skip the CLI login by setting API keys directly in TermMate's settings — see [Custom Environment Variables](#custom-environment-variables).
+
+```bash
+# Claude Code
+/login
+
+# Codex
+codex login
+
+# Google Antigravity
+agy
+
+# OpenCode
+/connect
+
+# Pi Agent
+/login
+```
+
+Alternatively, you can use `env` settings to skip the CLI login. Open the settings file via **Preferences → Package Settings → TermMate → Settings** and add env:
+
+```json
+{
+    "env": {
+        "GEMINI_API_KEY": "your-gemini-api-key"
+    }
+}
+```
+
+The example above sets `GEMINI_API_KEY` for Pi Agent authentication.
+
+### 4. Start Chat
+
+- Open the command palette (`Cmd+Shift+P` on macOS, `Ctrl+Shift+P` on Windows/Linux).
+- Type `TermMate: Start Chat` and press `Enter`.
+- A new chat view will open for the TermMate chat.
+- Type your message and press `Cmd+Enter` (macOS) or `Ctrl+Enter` (Windows/Linux) to send. You can even edit prompts in Vim mode.
+
+You can stop a running conversation at any time. Use the shortcut `Cmd+Escape` (Mac) / `Shift+Escape` (Windows/Linux) in the chat window, or run `TermMate: Stop Conversation` from the command palette.
+
+For a detailed guide, see the [TermMate Documentation](https://termmate.app/docs/setup)
+
+Have questions or feedback, join the [Sublime Forum discussion](https://forum.sublimetext.com/t/using-agentic-coding-in-st-with-codex-claude-cli/78323)
+
+## Usage & Key Features
+
+**1. Chat with Agent about Current File or Selection**
+
+Right-click on any file or text selection and choose **Chat with Agent** or **Chat @This** to send it as context for your next prompt. This will:
+
+- Open the TermMate chat view (if not already open).
+- Insert a reference to the file (`@filename`) or selected line range (`@filename#L1-10`) into the message prompt.
+- Tagged files will be automatically sent as context to the active agent.
+
+**2. File Tags `@` Smart Completion**
+
+Tag files in your prompt to give the agent precise project context. Typing `@` in the chat input instantly opens a completion popup with multi-level directory drilling:
+
+- 📁 Subdirectories & cascading navigation — selecting a folder (e.g. `src/`) automatically cascades into its subdirectories and files without re-typing `@`
+- 📄 Workspace files — files in the active workspace root
+- 📦 Multi-root workspaces — drill into secondary workspace folders
+- 📂 Open files — files currently open in editor tabs
+
+A tag can point at a file (`@src/main.py`), a line or range (`@src/main.py#L42`, `@src/main.py#L10-25`), or a directory (`@src/`). Tagged files are sent to the agent as context along with your message. **Chat @This** and the sidebar context menu can also insert tags for you.
+
+**3. Set Working Directory**
+
+Right-click on any folder in the sidebar and select **Set Working Directory** to choose the agent's primary working directory (`cwd`). This is the default directory used when the agent runs commands or accesses relative paths. You can also use `TermMate: Set Working Directory` from the command palette.
+
+For sublime projects with multi-folder open in the same workspace, TermMate keeps the selected folder as the `cwd` and gives the agent access to the other folders as additional directories. This is equivalent to agent's `add-dir` option.
+
+**4. Multi-Tab Chat Thread (Parallel Conversations)**
+
+Run multiple independent agent sessions concurrently in Sublime Text tabs, complete with real-time status tracking and seamless switching:
+
+- **Main Chat vs Task Threads**:
+  - **Main Chat (`Chat View`)**: The primary conversation for global project architecture and ongoing development.
+  - **Task Threads (`TermChat`)**: Dedicated tabs for isolated tasks. Each thread runs in its own subprocess with its own history, plan mode, and approve mode.
+
+- **To Start a New Thread**:
+  - **Sidebar Context Menu**: Right-click a folder in the sidebar → **TermMate** → **New Chat Thread Here** to target that directory.
+  - **Editor Context Menu**: Right-click in the editor → **TermMate** → **New Chat Thread**.
+  - **Command Palette**: `TermMate: New Chat Thread` (prompts for an optional task title).
+
+**5. Quick Message**
+
+Run `TermMate: Quick Message` from the command palette to compose and send a message directly from the current tab. If text is selected, TermMate automatically includes its file and line range as context. The message is sent to the existing chat, or a new chat is started if needed.
+
+**6. Split Chat Window**
+
+You can use the command palette (`TermMate: Split Chat Window`) or right-click the chat view tab and select **TermMate: Split Chat Window** to split the editor layout and place the chat view into its own dedicated pane. By default, this pane is isolated so opening other files will not overwrite the chat view. This isolation behavior can be configured via the `dedicated_chat_pane` setting.
+
+## Agent Modes & Controls
+
+### Plan Mode
+
+Switch between two execution styles from the Command Palette: `TermMate: Plan Mode`
+
+| Mode | Behavior |
+| :--- | :--- |
+| **Fast** (default) | Agent acts immediately — no intermediate steps shown. |
+| **Planning** | Agent outlines a step-by-step plan before doing anything. Useful for large or risky changes. |
+
+### Approve Mode
+
+Control how much the agent can do without asking you first: `TermMate: Approve Mode`
+
+| Mode | Behavior |
+| :--- | :--- |
+| **Default** | Prompts you before every tool action. |
+| **Allow Edit** | Auto-approves safe read/edit operations; still prompts for shell commands. |
+| **Accept All** | Auto-approves everything, including shell execution. Maximum autonomy. |
+
+### Switch Agent
+
+Use `TermMate: Agent` to swap between Claude, Codex, Antigravity, OpenCode, and Pi Agent at any time.
+
+### Select Model
+
+Use `TermMate: Model` to pick a specific LLM model per agent (e.g. `claude-opus-4-5` vs `claude-sonnet-4-5`). For models supporting thinking or reasoning, TermMate will prompt you to select the effort level (or adjust it via `TermMate: Reasoning Effort`).
+
+## Artifacts
+
+TermMate artifact panel tracks generated files, diffs, and structured documents produced by agents, presenting them as interactive artifacts right inside the chat view.
+
+### 1. File Changes Artifacts
+
+When an agent creates or modifies files, TermMate displays a summary of affected files along with line addition and deletion:
+
+```
+▣ 2 files changed
+    src/foo.py  +12 -3
+    src/bar.py  +5 -1
+```
+
+Double-Click a file entry to jump directly to the file and review the unified diff in the editor. Artifacts are folded by default. Click the `▶` arrow in the gutter to expand and view the full diff inline.
+
+### 2. Plan & Walkthrough Artifacts (Antigravity)
+
+For Google Antigravity, planning documents and execution summaries are tracked as persistent artifacts:
+
+- Plan (`implementation_plan.md`): Step-by-step implementation plan. In Plan Mode, click the **`[Implement Plan]`** button in chat to approve and start execution.
+- Walkthrough (`walkthrough.md`): Post-task summary of modified files and verification results.
+
+Double-Click any artifact link in chat to open it in Sublime Text. Documents are preserved in the session directory (`~/.gemini/antigravity-cli/brain/`).
+
+## Session Management: Clear, Resume & Rewind
+
+**1. Clear Session**
+
+To reset the current conversation history and start a completely fresh context, open the command palette and run **`TermMate: Clear Session`**. This will reload the agent and clear its memory for the current workspace.
+
+**2. Resume Previous Conversation**
+
+Run **`TermMate: Resume Session`** from the command palette to continue a past conversation. A quick panel lists previous sessions for the current workspace, each showing a short summary and timestamp. Sessions are filtered by the current workspace folder, listing only conversations relevant to your active project. Select one and the agent picks up exactly where it left off.
+
+**3. Rewind Conversation**
+
+Hover over any gutter dot or click the `↩` button that appears at the prompt line to rewind the conversation to that point. A confirmation panel lets you confirm or cancel before the rewind takes effect.
+
+When confirmed, TermMate forks the session at the selected prompt, removes all subsequent messages from the chat view - letting you explore a different direction without losing the original context.
+
+## Shortcuts & Commands
+
+| Action | macOS | Windows/Linux | Command Palette |
+| :--- | :--- | :--- | :--- |
+| **Install Agent** | - | - | `TermMate: Install Agent` |
+| **Start New Chat** | - | - | `TermMate: Start Chat` |
+| **New Chat Thread** | - | - | `TermMate: New Chat Thread` |
+| **Rename Chat Thread** | - | - | `TermMate: Rename Chat Thread` |
+| **Quick Message** | - | - | `TermMate: Quick Message` |
+| **Split Chat Window** | - | - | `TermMate: Split Chat Window` |
+| **Send Message** | `Cmd+Enter` | `Ctrl+Enter` | - |
+| **Stop Conversation** | `Cmd+Escape` | `Shift+Escape` | `TermMate: Stop Conversation` |
+| **Navigate Input History** | `Up` / `Down` | `Up` / `Down` | - |
+| **Mention File** | `@` | `@` | - |
+| **Set Workspace** | - | - | `TermMate: Set Working Directory` |
+| **Switch Agent** | - | - | `TermMate: Agent` |
+| **Select Model** | - | - | `TermMate: Model` |
+| **Plan Mode** | - | - | `TermMate: Plan Mode` |
+| **Approve Mode** | - | - | `TermMate: Approve Mode` |
+| **Reasoning Effort** | - | - | `TermMate: Reasoning Effort` |
+
+## Configuration
+
+Customize TermMate by editing your settings: `Preferences -> Package Settings -> TermMate -> Settings`
+
+### Agent CLI Paths
+
+While TermMate automatically detects most agent CLI installation paths, you may need to configure them manually if:
+
+- You use a custom installation location not listed in the default paths.
+- You have multiple versions installed and want to pin a specific binary.
+- Automatic detection fails on your specific OS configuration.
+
+```json
+{
+    "claude_command": "/path/to/your/custom/claude",
+    "codex_command": "/path/to/your/custom/codex",
+    "opencode_command": "/path/to/your/custom/opencode",
+    "pi_command": "/path/to/your/custom/pi",
+    "antigravity_command": "/path/to/your/custom/agy"
+}
+```
+
+### Custom Environment Variables
+
+The `env` configuration allows you to inject custom environment variables directly into the process when starting an agent CLI command. This is useful for providing API keys, custom base URLs, or passing specific environment values without altering your global system configuration.
+
+**Example: OpenRouter for Claude**
+
+Set a custom base URL and auth token so Claude routes through OpenRouter (`ANTHROPIC_API_KEY` must be empty in this case):
+
+```json
+{
+    "env": {
+        "ANTHROPIC_BASE_URL": "https://openrouter.ai/api/v1",
+        "ANTHROPIC_AUTH_TOKEN": "sk-openrouter-token",
+        "ANTHROPIC_API_KEY": ""
+    }
+}
+```
+
+**Example: Azure AI Foundry for Codex**
+
+```
+model_provider = "azure"
+
+[model_providers.azure]
+name = "Azure OpenAI"
+base_url = "https://YOUR_RESOURCE_NAME.services.ai.azure.com/openai/v1"
+env_key = "AZURE_OPENAI_API_KEY"
+wire_api = "responses"
+```
+
+Replace `YOUR_RESOURCE_NAME` with your Azure Foundry resource and add the configuration above to `~/.codex/config.toml`, then set `AZURE_OPENAI_API_KEY` in TermMate settings:
+
+```json
+{
+    "env": {
+        "AZURE_OPENAI_API_KEY": "your-api-key"
+    }
+}
+```
+
+**Example: Gemini API key for OpenCode**
+
+OpenCode uses the `GOOGLE_GENERATIVE_AI_API_KEY` environment variable. Set it here to authenticate without modifying your system environment (you may need to remove existing local auth.json via delete `~/.local/share/opencode/auth.json` first):
+
+```json
+{
+    "env": {
+        "GOOGLE_GENERATIVE_AI_API_KEY": "your-gemini-api-key"
+    }
+}
+```
+
+### Custom Keybindings
+
+By default, TermMate does not register a shortcut for `TermMate: Start Chat` to avoid conflicts. You can manually add a shortcut (`Cmd+Option+G` on macOS, `Ctrl+Alt+G` on Windows/Linux) by navigating to `Preferences -> Key Bindings` and adding the following configuration:
+
+```json
+[
+    {
+        "keys": ["primary+alt+g"],
+        "command": "term_chat_cli",
+        "args": {},
+        "context":
+        [
+            { "key": "setting.is_widget", "operand": false }
+        ]
+    }
+]
+```
+
+To add the current file location or selected lines to **Chat with Agent**, configure `Cmd+Option+K` on macOS or `Ctrl+Alt+K` on Windows/Linux:
+
+```json
+[
+    {
+        "keys": ["primary+alt+k"],
+        "command": "term_chat_add_context",
+        "context":
+        [
+            { "key": "setting.is_widget", "operand": false }
+        ]
+    }
+]
+```
+
+### Additional Settings
+
+These settings can be added or changed in `Preferences → Package Settings → TermMate → Settings`:
+
+| Setting | Description | Values / default |
+| :--- | :--- | :--- |
+| `table_style` | Controls how Markdown tables are rendered in the Chat | `"bordered"`, `"markdown"`, or `"html"`; default: `"html"` |
+| `diff_fold_limit` | Automatically folds a diff when it contains more than this many diff lines  | default: `200` (to show complete diff much as possible); set to `0` to keep all diffs expanded |
+| `dedicated_chat_pane` | Keeps the Chat tab in a dedicated pane so files opened elsewhere do not replace it. | `true` or `false`; default: `true` |
+| `show_status_indicator` | Whether to display model indicator `claude(sonnet)` in status bar | `true` or `false`; default: `true` |
+
+## 💡 TermMate Agent Tips
+
+- **Selection as Context**: Select code before starting a chat to focus the agent's attention on specific logic.
+- **Iterative Refinement**: Use **Planning Mode** for large architectural changes to see the agent's proposed steps before they are applied.
+- **Preview Artifacts & Chat**: Use **[MarkdownPreviewOverlay](https://packagecontrol.io/packages/MarkdownPreviewOverlay)** to preview Markdown artifacts and chat messages in the active tab.
+- **Reviewing Changes with Sourcetree and Sublime Merge**: Use dedicated Git GUIs like [Sourcetree](https://www.sourcetreeapp.com/) or [Sublime Merge](https://www.sublimemerge.com/) to review file diffs after the agent makes edits. Instead of manually accepting or rejecting changes line by line, simply tell the agent what to adjust and let it refine the diff.
+
+## Privacy & Data Handling
+
+**TermMate does not send your entire workspace or file contents to any external servers.**
+
+Your data will only be sent to the respective LLM services used by Claude Code, Codex, OpenCode, or Pi under the following specific conditions:
+
+**What data is sent:**
+
+- Any text you manually type into the TermMate ChatView.
+- The contents of specific files you explicitly tag using the `@filename` syntax.
+- The outputs of shell commands, directory listings, or file contents that the agent explicitly requests to read.
+
+**How TermMate interacts with Agents:**
+
+- **Local Execution**: The core plugin logic runs entirely on your local machine. All communication happens locally via the official CLI tools (`claude`, `codex`, or `pi`) installed on your system.
+- **No Data Collection**: TermMate does not collect, store, or transmit any of your source code or usage telemetry to our servers. TermMate does not send data to any third-party middleman servers; data goes directly to Anthropic or OpenAI using your own configured authentication credentials.
+- Data is only sent when you actively hit command+enter(or ctrl+enter) in the ChatView, or when the agent executes a tool (if you have granted permission via your `Approve Mode` settings).
+
+
+## License
+
+TermMate is provided under the **Apache License, Version 2.0** with the **Commons Clause** condition.
+
+This means it's free to use, modify, and redistribute the code for personal or internal use. However, **commercial resale or providing a paid service is strictly prohibited**.
+
+For complete details, please see the [LICENSE](LICENSE) file.

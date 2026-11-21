@@ -1,0 +1,411 @@
+# Riprap
+
+## Getting Started
+
+### Prerequisites
+
+Install Podman, following the official podman installation [instructions](https://podman.io/docs/installation).
+
+Install [Copier](https://copier.readthedocs.io/en/stable/#installation).
+
+You'll also need access to Claude Code, Codex, or a model provider supported by OpenCode.
+
+### Creating a new repository
+
+This repository is a Copier template.
+To create a new project, you can do:
+
+```bash
+copier copy gh:MolSSI/riprap my-new-project
+```
+
+To pull the latest Riprap updates into your project, you can do:
+
+```bash
+copier update
+```
+
+### Template questions
+
+When you run `copier copy`, Copier asks the following questions.
+Every project is asked:
+
+| Question | Description |
+|---|---|
+| `project_name` | Human-readable name of the project (e.g. "My Project") |
+| `project_slug` | Short identifier used in image names, directory names, etc. Defaults to a lowercased, hyphenated form of `project_name`. |
+| `project_description` | One-sentence description of the project |
+| `base_image` | Base image used by the project.  This must be an Ubuntu- or Debian-derived image. Defaults to `ubuntu:24.04`. |
+| `language` | Primary programming language: `rust` (default) or `python` |
+| `author_name` / `author_email` | Author information, used in packaging metadata and generated files |
+| `open_source_license` | `MIT` (default), `BSD-3-Clause`, `LGPL-3.0-or-later`, or `Not Open Source`. |
+| `copyright_year` | Year used in the project copyright notice. Only asked when a license is selected. |
+
+Projects that select `rust` are additionally asked:
+
+| Question | Description |
+|---|---|
+| `include_rust_skeleton` | Whether to create skeletal Rust crate files: `Cargo.toml`, `src/lib.rs`, a `tests/` directory, and a CI workflow (`.github/workflows/CI.yaml`) that checks formatting, runs clippy, and runs the test suite with coverage. Defaults to yes; answer no when adding Riprap to an existing Rust project. |
+
+Projects that select `python` are additionally asked:
+
+| Question | Description |
+|---|---|
+| `package_name` | Python import name of the package (the directory under `src/`). Defaults to `project_slug` with hyphens replaced by underscores. |
+| `include_python_skeleton` | Whether to create skeletal Python package files: `pyproject.toml`, the `src/` package, a `tests/` directory, and a CI workflow (`.github/workflows/CI.yaml`). Defaults to yes; answer no when adding Riprap to an existing Python package. |
+| `first_module_name` | Name of the first module created inside the package. Defaults to `package_name`. Only asked when the skeleton is included. |
+| `include_docs` | Whether to create a Sphinx documentation skeleton in `docs/` with a ReadTheDocs configuration (`.readthedocs.yaml`). Defaults to yes. |
+| `dependency_source` | Where project dependencies come from: `Prefer conda-forge with pip fallback` (default), `Prefer default anaconda channel with pip fallback`, or `Dependencies from pip only (no conda)`. Conda-based choices generate a `devtools/conda-envs/test_env.yaml` environment and configure the CI workflow and documentation builds to use conda; the pip-only choice uses `pip` and `venv` throughout. |
+
+The Python scaffolding produced by these questions is adapted from the [MolSSI CMS Cookiecutter](https://github.com/MolSSI/cookiecutter-cms).
+Both languages also receive GitHub community files (`.github/CONTRIBUTING.md` and `.github/PULL_REQUEST_TEMPLATE.md`) and, when a skeleton is generated, a Codecov configuration (`.codecov.yml`).
+Both languages also receive a CodeQL security-scanning workflow (`.github/workflows/codeql.yaml`).
+All of the generated files listed above are *seeds*: they are created once when the project is generated, are yours to edit freely, and are never touched by `copier update`.
+Because the CodeQL workflow is a seed, keeping its `github/codeql-action` versions current is the project's responsibility, as GitHub retires older versions over time.
+
+### Developing with Riprap
+
+#### 1. Launch a development container
+
+All development **must** take place within a Podman container.
+The template includes checks that prevent Claude Code, Codex, and OpenCode from answering prompts unless you are running in a containerized environment.
+To launch a development environment, run `bash rr.sh` on Linux/Mac, or `rr.bat` on Windows.
+This builds a Podman image, launches it as a development environment, mounts the directory where the `rr.sh`/`rr.bat` scripts are located to a `/work` directory in the container, and drops you into an interactive bash shell in `/work`.
+
+Once in the interactive terminal session, you can run `claude` to start Claude Code, `codex` to start Codex, or `opencode` to start OpenCode.
+The first time you launch one of these tools in the session, you will be required to authenticate.
+Before using Codex for the first time in a project, authenticate from inside the container with `codex login --device-auth` and complete the login in your browser (you may run the browser from outside the container).
+If using Codex asks you to select an authentication method, select "device authentication" (for the purpose of logging in, the container counts as a separate device).
+For OpenCode, authenticate a provider with `opencode auth login`, then choose a model with `/models`; note that OpenCode also ships free built-in models that need no provider account.
+
+Each agent's authentication is stored in its own Podman named volume, scoped by the random UUID in `.riprap/state/project-id`, and the launchers never mount your host agent configuration directories.
+The UUID is non-secret project metadata and should be committed.
+To clear authentication, run `bash rr.sh --reset-agent-state claude`, `codex`, `opencode`, or `all` (use `rr.bat` on Windows).
+
+The container is built in three layers.
+The managed tooling definition at `.riprap/managed/podman/Containerfile` adds Copier, the language toolchain, and supporting utilities to the selected `base_image`.
+A separate managed agent layer installs Claude Code, Codex, and OpenCode.
+Finally, the user-owned `Containerfile` at the project root adds project-specific tools.
+Each project's local image names are scoped by its stable project UUID, so projects with different base images do not overwrite one another's images.
+
+Edit the root `Containerfile` to install additional system packages or tools your project needs; leave the managed definitions alone so that `copier update` can keep them in sync with upstream changes.
+
+#### Updating the agents
+
+The agents update themselves automatically, at most once a week, with no action from you.
+
+The agents will not auto-update *within* the container (such changes would only last as long as the container itself, and would need to be repeated every time you launch a new container).
+Instead, the launcher reinstalls them when the calendar week changes, so the agents are never more than a week behind their current releases.
+If a rebuild fails, the launcher will report the failure and carry on with the image you already have.
+
+##### Pinning a release
+
+If a new agent release turns out to be a bad one, you can pin your way out of it without waiting for an upstream fix.
+Create `.riprap/user/agent-pin.env`; for example:
+
+```
+CLAUDE_VERSION=2.1.205
+CODEX_VERSION=0.144.6
+OPENCODE_VERSION=1.15.11
+```
+
+Pinned agents are held at exactly those releases; any agent you leave out keeps tracking its current release.
+Only exact `x.y.z` versions are accepted; values such as `latest` will error.
+Delete the file to return to the weekly schedule described above.
+
+#### Running on a compute cluster
+
+Many clusters run [Apptainer](https://apptainer.org) rather than Podman, and often you cannot build an image on them at all.
+Riprap allows you to instead build the image on a machine where you do have Podman and subsequently run it on the cluster.
+
+First: on a machine with Podman, build the image and export it as a single Apptainer image (this step needs Apptainer installed alongside Podman):
+
+```
+bash rr.sh --export-sif
+```
+
+This writes `.riprap/state/apptainer/riprap-<uuid>-project.sif`.
+Copy the entire repository to the cluster with whatever you already use (e.g, `scp`, `rsync`, or a shared filesystem).
+Then, from the repository on the cluster:
+
+```
+bash rr.sh --run-sif
+```
+
+This drops you into an Apptainer container that works much the same way as the Podman containers.
+The launcher contains the invoking user's home directory and environment, so the container sees neither, and it presents the image read-only.
+Exporting and running are Unix-only; Windows does not support Apptainer.
+
+Note that `.sif` files can be quite large, and therefore should not be committed to the git repository.
+
+Agent authentication on the cluster is stored in directories under `.riprap/state/apptainer/credentials/`, created readable only by you.
+Note that cluster home and project filesystems are commonly shared, backed up, and readable by administrators, who could potentially view your agent credentials.
+
+#### 2. Create an initial file structure
+
+The template seeds a skeletal, buildable project for you (unless you answered no to `include_rust_skeleton` / `include_python_skeleton`); follow the "Initializing the project" instructions in your generated project's README to set up an environment and check that the sample tests pass.
+If you opted out of the skeleton, initialize the project manually — e.g. `cargo init` for Rust, or a virtual environment plus your existing packaging setup for Python.
+
+#### 3. Define the project architecture
+
+Before writing requirements for individual features, establish the project's high-level goals and architecture.
+The template includes a `rr-architecture` skill for this, and running it is normally the first thing you do in a new project. In Claude Code, use:
+
+```
+/rr-architecture I want to build a molecular dynamics code.
+```
+
+In Codex, use:
+
+```
+$rr-architecture I want to build a molecular dynamics code.
+```
+
+In OpenCode, ask it to use the `rr-architecture` skill with the same description.
+
+The agent will ask a series of questions to turn a broad ambition into concrete, load-bearing decisions — the intended scale and audience, execution targets (CPU, GPU, distributed), which features carry architectural weight, how the system should be extended (for example, whether it needs a plugin system for user-defined components), the key libraries, and how whole-project testing should be handled.
+It records the results in `rqm/ARCHITECTURE.md`, which the agent's project guidance references so that every later planning and implementation step shares the same architectural context.
+
+The goal is not to specify every detail — that is the job of the per-feature requirements files below — but to capture the decisions that would be expensive to reverse later.
+You can re-run the `rr-architecture` skill at any time to refine or extend the document as the project matures.
+
+#### 4. Generate a requirements document
+
+Before you begin generating code through the LLM, you **must** generate one or more requirements documents.
+These are stored in markdown files in an `rqm` directory.
+You should have a separate requirements document for each feature.
+
+Included in this template is a skill to help you generate requirements documents, which is automatically invoked when appropriate.
+For example, you can say:
+
+```
+I want to add a parser to my code that parses XYZ molecular structure files. Help me plan this feature, and place the requirements document in rqm/parser.md.
+```
+
+You can also invoke the skill explicitly in Claude Code:
+
+```
+/rr-plan I want to add a parser to my code that parses XYZ molecular structure files. Help me plan this feature, and place the requirements document in rqm/parser.md.
+```
+
+In Codex, use:
+
+```
+$rr-plan I want to add a parser to my code that parses XYZ molecular structure files. Help me plan this feature, and place the requirements document in rqm/parser.md.
+```
+
+In OpenCode, ask it to use the `rr-plan` skill with the same request.
+
+The agent will then ask you numerous questions to clarify your detailed requirements, and will write them to a corresponding markdown file in the `rqm` directory.
+Examine this file carefully, including the Gherkin scenarios - these will later be used to generate unit tests for your code.
+Correct any issues with the file either manually or by asking the agent to make adjustments to the file.
+
+For somewhat more complex features, it may prove useful to manually fill out a small portion of a requirements document, and then ask the agent to refine it.
+For example, you might write a file in `rqm/basis/bse.md` with the following contents:
+
+```
+# Feature: Pull Missing Basis Set from Basis Set Exchange
+
+There will be points when this code will need access to a Gaussian basis set for the purpose of electronic structure calculations.
+Basis set files should be stored in a directory called `data/basis`.
+If a required basis set is not available in this directory, it should be downloaded from the Basis Set Exchange (BSE), using the BSE API.
+The BSE website is https://www.basissetexchange.org/.
+If the `data/basis` directory does not exist, it should be created.
+
+This feature implements a function that is given an atom type and the name of a basis set, and downloads the required file from the BSE if it is not already present.
+```
+
+Then, you can prompt:
+
+```
+Help me flesh out the requirements file in rqm/basis/bse.md
+```
+
+The agent will then automatically use the `rr-plan` skill.
+
+
+
+#### 5. Implement the feature
+
+You may now ask the agent to implement the feature, which will automatically invoke the `rr-implement` skill:
+
+```
+Implement the feature in rqm/requirements.md
+```
+
+#### 6. Iteratively refine the requirements and code
+
+Examine and test the code the agent generates carefully.
+If there are any problems, **modify the requirements file before changing the code**.
+For example, you might prompt:
+
+```
+I want my parser to be able to support trajectory files that contain many snapshots. Help me modify the requirements file in rqm/parser.md accordingly. These trajectory files may be too big to load into memory all at once, so suggest options for how to handle this problem.
+```
+
+After making any changes to a requirements file, ask the agent to update the code:
+
+```
+I have made changes to rqm/parser.md to support trajectory files.  Update the implementation of the parser to conform to the latest version of the requirements file.
+```
+
+Repeat the above process for implementing additional features.
+
+
+#### General points
+
+It is fine for features to reference other features, and you may use subdirectories in `rqm` to better organize your requirements files.
+As you develop, the documents in `rqm` should form a complete and coherent description of all the intended functionality of your code.
+If you were to delete everything in `src`, it should be possible to reliably reproduce the functionality of your code by prompting the LLM to produce these features.
+You should treat these requirements documents as your true work product - they are the most fundamental expression of the proper functioning of the project, not your source code or your tests.
+In this approach, it may be helpful to view the development process as natural-language programming with an LLM translator, rather than LLM-generation of code.
+
+
+### Quizzes
+
+It is important that you understand the functionality of your code.
+To help with this, the template includes a `rr-quiz` skill. Invoke it as `/rr-quiz` in Claude Code
+or `$rr-quiz` in Codex; in OpenCode, ask it to use the `rr-quiz` skill.
+If you prompt the LLM with this skill, it will ask you a question about the implementation details of your code.
+Using this skill periodically is a great way to ensure that you aren't creating code you don't understand.
+
+
+### Customizing skills
+
+The authoritative, agent-neutral skill implementations live under `.riprap/managed/skills/`.
+Claude discovers managed adapters under `.claude/skills/`, Codex discovers managed adapters
+under `.agents/skills/`, and OpenCode discovers managed adapters under `.opencode/skills/`.
+Project-owned extensions live separately under
+`.riprap/user/skills/<skill-name>/local.md`.
+
+Riprap creates each `local.md` when your project is generated and never touches it again, so your
+customizations survive `copier update`. Use these files to extend or override skills with
+project-specific conventions—for example, pointing `rr-plan` at an exemplar requirements file or
+requiring `rr-implement` to run a particular linter. Where `local.md` conflicts with a skill's
+built-in instructions, `local.md` wins. Avoid editing managed `SKILL.md` files directly.
+
+### File ownership
+
+Riprap-managed implementations live under `.riprap/managed/` and should not be edited. Supported
+project customizations live under `.riprap/user/`. Shared project identity and machine-local build
+state live under `.riprap/state/`; generated ignore rules distinguish which state should be
+committed. A few managed adapters remain at tool-mandated locations, including `rr.sh`, `rr.bat`,
+`.claude/skills/`, `.agents/skills/`, `.opencode/skills/`, and `.opencode/plugins/`.
+
+Conventional files outside `.riprap`, such as source files, manifests, `README.md`, and the root
+`Containerfile`, belong to the generated project and are preserved by `copier update`.
+
+### Agent permissions
+
+Generated projects ship least-privilege permission defaults for each agent that provides a
+permission mechanism. The defaults pre-approve the commands Riprap's own skills run and your
+language's routine build, test, and lint commands, and they deny reading credential files. They
+deliberately do **not** pre-approve a general language interpreter, a package installer, or a
+shell, so those prompt the first time they are used. Each language variant grants named commands
+rather than an interpreter, so the breadth of the default does not depend on which language you
+chose.
+
+**Claude Code** reads `.claude/settings.json`, which is Riprap-managed. Record your project's own
+permissions in `.claude/settings.local.json`, which Claude Code merges with the managed settings
+rather than replacing them; choosing "don't ask again" at a prompt writes the rule there for you.
+That file is ignored by Git, so one contributor's approvals do not silently become the project's
+policy, and template updates never disturb them.
+
+**OpenCode** reads `opencode.json`, which is Riprap-managed and carries the equivalent defaults. It
+also disables OpenCode's automatic updater, since the launcher manages agent versions (see
+"Updating the agents" above). Store personal provider, model, and permission choices through
+OpenCode's own user configuration, which lives in the project-scoped OpenCode state volume rather
+than in the repository.
+
+**Codex** receives no permission configuration, because it exposes no permission mechanism that
+Riprap can populate. Codex is governed by its own sandbox and approval settings together with the
+development container. This is deliberate: a rule an agent ignores is not a default, it is a
+comment that reads like one.
+
+These permission defaults narrow accidental exposure; they are not a containment boundary. A
+permitted shell command can still read a denied path. The rootless container is the boundary, and
+keeping credentials out of the workspace and out of Git is a separate safeguard.
+
+
+## Key Rules of AI-Assisted Programming
+
+### 1. Only ever use agentic AI inside of a rootless container
+
+LLM's are intrinsically vulnerable to prompt injection and data poisoning, allowing even relatively unsophisticated attackers to alter the behavior of the LLM.
+Malicious actors can easily hijack an LLM to send them a user's personal information (including ssh keys) or to instruct an LLM agent engage in destructive actions.
+*There are no reliable ways of preventing LLMs from falling for these types of attacks.*
+If you've used LLM agents before, you've no doubt noticed that they will often ask for permission before executing commands.
+Don't let this lull you into a false sense of security - there are many ways around this permission structure.
+If you run an LLM agent, you should *assume* that at some point it will take hostile actions.
+
+One of the most important things you can do to protect yourself is to restrict any LLM agents to an isolated container environment that does not have sudo access.
+Note that although Docker is currently the most popular containerization option, Docker containers have root access by default and are therefore not a good solution to the LLM security problem.
+Instead, The MolSSI recommends using Podman.
+Podman containers do not have root access by default, making them a generally better option when security is a concern.
+To help you avoid accidentally exposing your entire system to hackers, generated repositories include checks that prevent Claude Code, Codex, and OpenCode from answering prompts unless they are run in a container.
+Claude Code and Codex use their supported project hook mechanisms; OpenCode, which has no hook mechanism, uses a managed project plugin that runs the same container check.
+
+Note that containerization is merely a first step in protecting yourself when using LLM agents.
+Even when working in a container, you should treat the agent with considerable skepticism.
+Among other things, this means that you must:
+- Never give it any information you wouldn't give to a stranger.
+- Never expose your private ssh keys or other personal information in your LLM container.
+- Never give an LLM write access to your remote repository, and do not include GitHub credentials in your LLM container.
+- Never push LLM-generated code until you are convinced that it hasn't introduced any exploits into your repository, and only push from outside of the container.
+
+### 2. Switch to a development workflow that is customized for use with agentic AI.
+
+Development with assistance from agentic AI represents a major paradigm shift that necessitates fundamental changes in processes and attitudes.
+In particular, you will need to adopt a workflow that utilizes your AI agents in an intelligent way.
+When first getting started, many users naturally fall into a "vibe-coding" workflow that looks like this:
+1. Ask the AI to write some code.
+2. Try running the code, and notice that something isn't quite working correctly.
+3. Ask the AI to fix the issue.
+4. Repeat steps 1-3.
+
+There are many problems with this approach.
+When you use a simple, one sentence prompt to ask an LLM to implement a complex and nuanced feature, it is almost guaranteed that you won't get what you want.
+The LLM will naturally tend to write the simplest possible code that technically does what you asked for, while assuming happy paths (that is, situations in which everything else is working correctly) and ignoring possible edge cases.
+For example, if you say "Write me a parser for XYZ molecular input files", the response from the LLM will likely make many assumptions about the formatting and contents of the XYZ files in question.
+In a proper, maintainable implementation that is suitable for distribution, you would need to consider many nuances, including the following:
+- What if the file doesn't exist?
+- What if the file has unexpected blank lines?
+- What if a line is missing expected columns?
+- What if a line has extra columns that were not expected?
+- What if columns in a line are tab-separated instead of space-separated?
+- What if the number of atoms listed in the header does not match the number of atomic coordinates listed in the rest of the file?
+- What if some of the atom types don't correspond to real elements?
+- What if the file is a trajectory file that contains many frames?
+- What should be done with the comment line in the header?
+
+If you're taking the cavalier vibe-coding approach, you aren't even considering these nuances, let alone expressing them to the LLM.
+It doesn't matter how good your LLM model is, or how good they become in the future: if you don't express what you want in clear and complete terms, you aren't going to get what you want.
+Most of the real work of programming is consumed by dealing with all of the obnoxious edge cases that an untrained mind wouldn't even notice.
+
+There are many workflows that can improve the utilization of AI agents.
+As a baseline for getting started, we recommend the following workflow:
+1. Create a requirements file for a feature.
+2. Generate code to fulfill the requirements file.
+3. If something about the new code is incorrect or insufficient, modify the requirements file to increase clarity or completeness.
+4. Repeat 2-3 until the feature is satisfactory.
+
+### 3. Your project's requirements files are the only source of truth.
+
+This is another big paradigm shift.
+Never write code that isn't directly necessitated by a requirements file.
+First change the requirements file, then write the code (either manually or with LLM assistance).
+The requirements files must form a complete description of the project that is sufficient to reproduce the behavior of the code from scratch, including full handling of edge cases and unhappy paths.
+If the source code doesn't agree with the requirements, the code is wrong.
+In practice, this means that as a single-contributor developer, you must follow the sorts of formal design processes normally associated with management of a human development team.
+The primary difference is that an LLM is doing the grunt work.
+
+### 4. Take full advantage of modern compilers, linters, etc.
+
+One of the primary disadvantages of working with lower-level languages is that the up-front cost of writing an initial solution is higher.
+With an LLM doing much of the work, this disadvantage is substantially mitigated; meanwhile, the benefits of having compile-time validation of the LLM agent's work is massive.
+When working with a compiled code, LLM agents can automatically attempt to compile the code, and then iteratively make any necessary corrections until all compiler errors and warnings are resolved.
+Many of these same errors would not be caught until runtime when using an interpreted language such as Python or Ruby, and runtime errors are much trickier for both humans and LLMs to notice and debug.
+
+Having said this, many low-level compiled languages, including C and C++, introduce another major headache in the form of memory bugs.
+These sorts of bugs are easy for both humans and LLMs to accidentally introduce, while being notoriously difficult to identify or debug.
+This makes memory-safe languages, such as Rust, especially appealing for the purpose of LLM-assisted work.

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xshu-hub/opencode-computer-use-win · OpenCode Plugins</title>
+<meta name="description" content="OpenCode Windows computer-use plugin adapted from dsh-computer-use-win: session-aware desktop/browser control, progress overlay and full settings extension">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-computer-use-win, xshu-hub, xshu-hub/opencode-computer-use-win, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, sessions, tools, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/xshu-hub__opencode-computer-use-win">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="xshu-hub/opencode-computer-use-win · OpenCode Plugins">
+<meta property="og:description" content="OpenCode Windows computer-use plugin adapted from dsh-computer-use-win: session-aware desktop/browser control, progress overlay and full settings extension">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/xshu-hub__opencode-computer-use-win">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=93292ae7">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "xshu-hub/opencode-computer-use-win", "codeRepository": "https://github.com/xshu-hub/opencode-computer-use-win", "url": "https://opencode-plugins.zhuikan.com/repos/xshu-hub__opencode-computer-use-win", "description": "OpenCode Windows computer-use plugin adapted from dsh-computer-use-win: session-aware desktop/browser control, progress overlay and full settings extension", "author": {"@type": "Organization", "name": "xshu-hub", "url": "https://github.com/xshu-hub"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-13", "license": "https://spdx.org/licenses/MIT.html", "keywords": "sessions,tools,server,tui"}</script>
+</head>
+<body data-repo="xshu-hub/opencode-computer-use-win" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">xshu-hub/opencode-computer-use-win</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="xshu-hub__opencode-computer-use-win"><img class="rp-side-av" src="https://github.com/xshu-hub.png?s=300" width="300" height="300" alt="xshu-hub avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-computer-use-win</div>
+      <a class="rp-side-owner" href="https://github.com/xshu-hub">xshu-hub</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/xshu-hub">xshu-hub</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-computer-use-win</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode Windows computer-use plugin adapted from dsh-computer-use-win: session-aware desktop/browser control, progress overlay and full settings extension</p>
+    <div class="rp-statrow"><span class="rp-stat" title="downloads30d">↓ <b>361</b></span><span class="rp-stat" title="downloads_month">↧ <b>361</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/sessions">sessions</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-13</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/xshu-hub/opencode-computer-use-win">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.1.3</span><a class="rp-dl-a" href="https://www.npmjs.com/package/opencode-computer-use-win/v/0.1.3">0.1.3 ↓</a><span class="rp-dl-ver">0.1.3</span><span class="rp-dl-date">2026-11-13</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">361</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">361</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenCode Computer Use for Windows
+
+面向 OpenCode V1 的 Windows 电脑操控插件。提供 25 项操作工具和 1 项管理入口，支持桌面控件读取、截图、OCR、鼠标键盘输入、窗口管理，以及通过 CDP/BiDi 操作浏览器。
+
+基于 Yu-tao-Li/dsh-computer-use-win 0.5.7，保留原后端、设置控件和原生浮窗，增加 OpenCode 会话/轮次绑定、跨项目桌面占用控制、取消与恢复、动态工具同步及全局设置入口。来源和许可说明见 THIRD_PARTY.md；设置页面不展示项目推广栏。
+
+ 环境
+
+- Windows，正常且已解锁的交互桌面。
+- Node.js 22 或更新版本。
+- OpenCode V1；实际验证版本为 1.18.0。当前不支持 OpenCode V2 的插件接口。
+- 浏览器通道需要本机安装 Edge、Chrome 或受支持的 Firefox 系浏览器。
+
+ 安装
+
+通过 npm 全局安装，在 PowerShell 执行：
+
+~~~powershell
+npm install --global opencode-computer-use-win@0.1.3 --registry=https://registry.npmjs.org
+npm root --global
+~~~
+
+也可从 GitHub Actions 成功构建的 opencode-computer-use-win artifact 下载并解压 tgz，离线包安装命令为：
+
+~~~powershell
+npm install --global --omit=dev --ignore-scripts .\opencode-computer-use-win-0.1.3.tgz
+npm root --global
+~~~
+
+也可以从源码构建：
+
+~~~powershell
+git clone https://github.com/xshu-hub/opencode-computer-use-win.git
+cd opencode-computer-use-win
+npm ci --ignore-scripts
+npm run build
+npm pack
+~~~
+
+npm 与 tgz 安装使用相同的全局配置方式，见下文。
+
+ 全局配置
+
+根据 npm root --global 输出，找到包目录。以下示例路径需要替换为自己的实际安装路径。
+
+在用户目录下的 .config/opencode/opencode.json 或 opencode.jsonc 中合并：
+
+~~~json
+{
+  &quot;plugin&quot;: [
+    [
+      &quot;file:///C:/path/to/node_modules/opencode-computer-use-win/opencode/plugin.mjs&quot;,
+      { &quot;locale&quot;: &quot;zh&quot; }
+    ]
+  ]
+}
+~~~
+
+在同目录的 tui.json 中合并：
+
+~~~json
+{
+  &quot;plugin&quot;: [
+    &quot;file:///C:/path/to/node_modules/opencode-computer-use-win/opencode/tui.mjs&quot;
+  ]
+}
+~~~
+
+保留现有配置和其他插件，只追加对应条目。重启 OpenCode 后，其他项目会继承全局配置。已有手动 mcp.wincu 条目时，先备份并移除该条目；wincu 由本插件管理。
+
+如果使用源码入口，将示例中的包目录换为自己的源码目录。不要同时注册源码和全局安装包。
+
+更详细的路径获取和升级说明见 全局安装说明。
+
+ 设置入口
+
+- 在 TUI 输入 /computer-use，或从命令面板选择“电脑操控设置 / Computer Use settings”。
+- OpenCode 已运行时，在系统终端执行 opencode-cu settings。
+- 其他客户端可让 agent 调用 computer_use_settings。
+
+/computer-use 只由 TUI 注册一次，直接打开设置，不调用模型。没有额外的服务端同名斜杠命令，也不需要修改 OpenCode 本体。
+
+设置页保留全部/精简/懒启动/自定义工具方案、逐项开关、浏览器类型与可见性、保留登录、连接现有浏览器、接管提示、鼠标标签、浮窗原文/AI 总结、位置/尺寸/透明度/锁定、快捷键录制和实际预览。支持中英文切换。
+
+数据保存在 %LOCALAPPDATA%\opencode-computer-use-win；可通过 OPENCODE_CU_HOME 指定其他目录。浏览器登录配置与原 DSH 插件隔离。显示设置实时生效；工具或浏览器配置在当前调用结束后重载。并发保存通过版本号检测冲突。
+
+ 执行与停止
+
+工具调用绑定 OpenCode 的真实会话 ID 和执行中的用户轮次，并携带宿主签名。队列中的用户提示、模型重试和系统生成的继续消息不会解除本轮停止。
+
+真实鼠标键盘操作期间可按 Esc 或自定义快捷键停止，本轮后续操作将被拒绝。新用户任务或明确发送“继续”后恢复。浏览器后台操作不监听全局 Esc；使用 OpenCode 的停止按钮取消。原生输入清理结束前保持桌面占用，避免其他项目或会话插入操作。
+
+截图通过标准 MCP 图片块交给 OpenCode，能否参与判断取决于模型及提供方的视觉能力。动作返回 sent 仅说明已发送，应使用新观察或 wait_for 确认效果。
+
+AI 进度总结是可选的额外模型调用，使用当前任务的模型。仅传入受长度限制的操作标签和已公开的助手输出，不传截图、工具参数或完整对话；默认显示原文。
+
+ 验证
+
+~~~powershell
+npm test
+npm run build
+npm run test:ui
+node test/run-opencode-host.mjs C:/path/to/opencode.exe
+node test/screenshot-output.mjs
+node test/batch-actions.mjs
+~~~
+
+宿主测试使用真实 OpenCode 进程与隔离的本地模拟模型，验证管理 MCP、会话签名、动态工具刷新、会话互斥、取消/恢复、图片传递和 AI 总结，不使用个人模型密钥。UI 测试只操作隔离的无头 Edge 测试页面。
+
+CI 在 Windows 上构建、测试并上传可安装 tgz。原项目回归仍可通过 npm run test:upstream 运行；部分测试需要其原生/Electron 测试运行环境。参见 验证记录 和 适配实现。
+
+ 已知边界
+
+OpenCode 1.18 没有原生 Desktop GUI 设置页扩展接口，设置通过本地浏览器窗口展示。对话里的工具详情与图片使用 OpenCode 自身的界面，不注入 DSH 专属聊天行分组。
+
+管理员窗口、UAC、应用自身的自动化限制与参考后端相同。录屏隐藏选项的原生回归在验证环境中未通过，原项目也复现相同问题，</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/xshu-hub/opencode-computer-use-win/releases"><b>0.1.3</b> <span class="rp-rel-tag">0.1.3</span> <span class="rp-item-extra">2026-11-13</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-21T10:28:44Z · Data license Apache-2.0 ·
+<a href="../data/repos/xshu-hub__opencode-computer-use-win.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/purify.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/qrcode.min.js?v=93292ae7"></script>
+<script src="../assets/common.js?v=93292ae7"></script>
+<script src="../assets/repo.js?v=93292ae7"></script>
+</body>
+</html>

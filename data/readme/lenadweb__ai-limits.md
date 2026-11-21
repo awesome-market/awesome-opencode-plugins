@@ -1,0 +1,296 @@
+# ai-limits
+
+[![npm version](https://img.shields.io/npm/v/@lenadweb/ai-limits.svg)](https://www.npmjs.com/package/@lenadweb/ai-limits)
+[![license](https://img.shields.io/npm/l/@lenadweb/ai-limits.svg)](./LICENSE)
+[![node](https://img.shields.io/node/v/@lenadweb/ai-limits.svg)](https://nodejs.org)
+
+A CLI and TypeScript SDK to check usage limits and quotas across multiple AI coding assistants from one place.
+
+It reuses the credentials that the official tools already store on your machine, so for most providers there is nothing to configure. Run one command and see how much of your plan is left and when it resets.
+
+```
+Provider: CLAUDE
+Overall Usage: ████████░░ 78%
+Next Reset:    in 2h 14m
+
+┌──────────────────────────────┬────────────────────┬────────────────────┐
+│ Model/Bucket                 │ Usage              │ Reset Time         │
+├──────────────────────────────┼────────────────────┼────────────────────┤
+│ 5-Hour Quota                 │ ████████░░ 78%     │ in 2h 14m          │
+│ 7-Day Quota                  │ ███░░░░░░░ 31%     │ in 5d 3h           │
+│ 7-Day Fable Quota            │ █████░░░░░ 52%     │ in 5d 3h           │
+└──────────────────────────────┴────────────────────┴────────────────────┘
+```
+
+## Supported providers
+
+| Provider | Source | Where credentials come from |
+| --- | --- | --- |
+| Claude | Anthropic / Claude Code CLI | macOS Keychain or `~/.claude/.credentials.json` |
+| ChatGPT / Codex | ChatGPT backend API | `~/.codex/auth.json` |
+| Gemini | Google Cloud Code Assist | `~/.gemini/oauth_creds.json` |
+| Antigravity | Antigravity CLI (`agy --print /usage`) | `agy` CLI signed in to your Google account |
+| MiniMax | MiniMax OpenPlatform API | `MINIMAX_API_KEY` environment variable |
+| OpenCode | OpenCode Console API (Go + Zen budgets) | `OPENCODE_API_KEY` environment variable |
+| OpenRouter | OpenRouter API key endpoint | `OPENROUTER_API_KEY` environment variable |
+
+The credentials are created by the providers' own CLIs and IDE plugins. If those tools already work on your machine, this one works too.
+
+OpenRouter has no plan-based quota. Instead it reports the per-key spend limit (e.g. `$3 / month`): if the key has a limit set, you get an overall usage bar and reset time; if the key is unlimited, the spend is shown for information only.
+
+OpenCode is read with a Console API key. Go, Go Plus and Go Teams report the 5-hour, weekly and monthly allowance of the signed-in member, while Zen workspaces report their monthly dollar budgets and prepaid balance. Both kinds of data are merged into one provider, so a workspace using Go with Extra Usage shows the Go windows, the budgets and the balance together.
+
+## Installation
+
+Install globally to use the CLI anywhere:
+
+```bash
+npm install -g @lenadweb/ai-limits
+```
+
+Or add it to a project to use the SDK:
+
+```bash
+npm install @lenadweb/ai-limits
+```
+
+Requires Node.js 18 or newer.
+
+## CLI usage
+
+### Show usage
+
+```bash
+# All providers at once
+ai-limits show
+
+# A single provider
+ai-limits show claude
+ai-limits show chatgpt
+ai-limits show gemini
+ai-limits show minimax
+ai-limits show opencode
+ai-limits show openrouter
+ai-limits show antigravity
+```
+
+Each provider is printed with an overall usage bar, the next reset time, and a per-model or per-window breakdown when the provider exposes one.
+
+### Antigravity login
+
+Antigravity usage is read from the `agy` CLI, so signing in to `agy` is all that is needed. The OAuth login below is kept for backward compatibility and is not used to read usage:
+
+```bash
+# Open the browser and complete the OAuth flow
+ai-limits login antigravity
+
+# Remove the cached tokens
+ai-limits logout antigravity
+```
+
+## SDK usage
+
+```typescript
+import { LimitsClient } from "@lenadweb/ai-limits";
+
+const client = new LimitsClient();
+
+// Usage for every provider, keyed by provider name
+const all = await client.fetchAllUsage();
+console.log(all.claude.overallUsagePercent);
+
+// Usage for a single provider
+const claude = await client.fetchUsage("claude");
+console.log(claude.overallUsagePercent, claude.overallResetTime);
+```
+
+### Available methods
+
+| Method | Returns | Description |
+| --- | --- | --- |
+| `fetchUsage(provider)` | `StandardUsageResult` | Normalized usage for one provider. |
+| `fetchAllUsage()` | `Record<Provider, StandardUsageResult>` | Normalized usage for every provider in parallel. |
+| `fetchSummary(provider)` | `UsageSummary` | Compact status with flags and a ready to print line. |
+| `fetchAllSummaries()` | `Record<Provider, UsageSummary>` | Summaries for every provider. |
+| `fetchRawUsage(provider)` | `any` | The provider's raw API response, unmodified. |
+| `fetchAllRawUsage()` | `Record<Provider, any>` | Raw responses for every provider, errors captured per provider. |
+| `getProvider(name)` | `BaseProvider` | The underlying provider instance, for example to call `login()` on Antigravity. |
+
+### Response shapes
+
+`fetchUsage` returns a normalized result that is the same for every provider:
+
+```typescript
+interface StandardUsageResult {
+  provider: string;
+  overallUsagePercent: number | null;
+  overallResetTime: string | null; // ISO timestamp
+  perModel?: Record<string, {
+    usagePercent: number | null; // null for informational rows (e.g. OpenRouter spend or OpenCode balance)
+    remainingAmount?: number;
+    limitAmount?: number;
+    windowSeconds?: number;
+    resetAfterSeconds?: number;
+    resetTime?: string | null;
+    displayName?: string;
+    // Set when the window covers only part of the account, e.g. Claude's weekly
+    // limit for a single model: { model: "Fable", modelId?: string, surface?: string }
+    scope?: { model?: string; modelId?: string; surface?: string };
+  }>;
+  credits?: {
+    hasCredits: boolean;
+    unlimited: boolean;
+    overageLimitReached: boolean;
+    balance: string | null;
+    approxLocalMessages: number[] | null;
+    approxCloudMessages: number[] | null;
+  };
+  rateLimitResetCredits?: {
+    availableCount: number;
+    applicableAvailableCount: number;
+  };
+  error?: { code: "AUTH" | "API" | "CONN" | number; message: string };
+}
+```
+
+`fetchSummary` returns a smaller object that is handy for status bars and alerts:
+
+```typescript
+interface UsageSummary {
+  provider: string;
+  overallUsagePercent: number | null;
+  overallResetTime: string | null;
+  isExhausted: boolean;
+  isRateLimited: boolean;
+  needsAuthentication: boolean;
+  formattedText: string;
+}
+```
+
+When a provider fails, `fetchUsage` resolves with the `error` field set instead of throwing, so a single broken provider never breaks the whole batch.
+
+### Typed accessors per provider
+
+Instead of iterating `perModel` with string keys, each provider exposes named, typed methods for its specific windows. Get the typed instance with `getProvider<T>(name)`. All accessors share the same cached fetch, so calling several in a row makes a single request.
+
+```typescript
+import { LimitsClient, ProviderName, ClaudeProvider, OpenCodeProvider, OpenRouterProvider } from "@lenadweb/ai-limits";
+
+const client = new LimitsClient();
+
+const claude = client.getProvider<ClaudeProvider>(ProviderName.Claude);
+await claude.getFiveHourUsage();          // ModelUsage | null
+await claude.getSevenDayUsage();          // ModelUsage | null
+await claude.getScopedWeeklyUsage("Fable"); // ModelUsage | null — the weekly limit for one model
+await claude.listScopedWeeklyUsage();     // Record<bucketKey, ModelUsage> — every model-scoped limit
+
+const or = client.getProvider<OpenRouterProvider>(ProviderName.OpenRouter);
+await or.getLimit();         // OpenRouterLimit | null — { amount, interval, used, remaining, usagePercent, resetTime }
+await or.getMonthlySpend();  // number | null
+await or.fetchDetails();     // OpenRouterUsage — structured limit + spend
+
+const oc = client.getProvider<OpenCodeProvider>(ProviderName.OpenCode);
+await oc.getRollingUsage();  // ModelUsage | null — Go 5-hour window
+await oc.getWeeklyUsage();   // ModelUsage | null
+await oc.getMonthlyUsage();  // ModelUsage | null
+await oc.getBudgets();       // ModelUsage[] — every Console budget bucket
+await oc.getBalance();       // number | null — Zen prepaid balance in USD
+```
+
+| Provider | Methods |
+| --- | --- |
+| Claude | `getFiveHourUsage()`, `getSevenDayUsage()`, `getSonnetWeeklyUsage()`, `getScopedWeeklyUsage(model)`, `listScopedWeeklyUsage()` |
+| ChatGPT | `getPrimaryWindow()`, `getSecondaryWindow()` |
+| MiniMax | `getDailyUsage()`, `getWeeklyUsage()` |
+| OpenCode | `getRollingUsage()`, `getWeeklyUsage()`, `getMonthlyUsage()`, `getBudgets()`, `getBudgetUsage(ruleID)`, `getBalance()` |
+| Gemini | `getModelUsage(modelId)`, `getModels()` |
+| Antigravity | `getModelUsage(modelId)`, `getModels()` |
+| OpenRouter | `getLimit()`, `getTotalSpend()`, `getDailySpend()`, `getWeeklySpend()`, `getMonthlySpend()`, `fetchDetails()` |
+
+Window accessors return `ModelUsage | null` (`null` when that window is absent). Every provider also inherits `listBuckets()` to discover the raw bucket keys.
+
+### Caching
+
+Each provider caches its normalized usage internally, so several accessor calls in a row (for example `getFiveHourUsage()` then `getSevenDayUsage()`) make a single network request. The default TTL is 30 seconds.
+
+Control it through config. Set `cacheTtlMs` globally or per provider; `0` disables caching entirely. A per-provider value overrides the global one.
+
+```typescript
+// Global default for every provider
+const client = new LimitsClient({ cacheTtlMs: 10000 });
+
+// Disable globally, but keep a 60s cache for OpenRouter only
+const client2 = new LimitsClient({
+  cacheTtlMs: 0,
+  openrouter: { apiKey: process.env.OPENROUTER_API_KEY, cacheTtlMs: 60000 },
+});
+
+// Force a fresh fetch on the next call
+client.getProvider(ProviderName.Claude).clearCache();
+```
+
+### Custom configuration
+
+Every provider accepts overrides, which is useful for non standard credential locations, custom OAuth clients, or passing a key directly:
+
+```typescript
+import { LimitsClient } from "@lenadweb/ai-limits";
+
+const client = new LimitsClient({
+  antigravity: {
+    binaryPath: "/custom/path/to/agy",
+    tokenPath: "/custom/path/antigravity_oauth.json",
+    clientId: process.env.ANTIGRAVITY_CLIENT_ID,
+    clientSecret: process.env.ANTIGRAVITY_CLIENT_SECRET,
+  },
+  claude: {
+    credentialsPath: "/custom/path/.credentials.json",
+    useKeychain: false,
+  },
+  chatgpt: {
+    authPath: "/custom/path/auth.json",
+  },
+  gemini: {
+    credentialsPath: "/custom/path/oauth_creds.json",
+    projectId: "your-gcp-project",
+  },
+  minimax: {
+    apiKey: process.env.MINIMAX_API_KEY,
+  },
+  opencode: {
+    apiKey: process.env.OPENCODE_API_KEY,
+    // Optional workspace override; usually unnecessary with an API key.
+    workspaceId: process.env.OPENCODE_WORKSPACE_ID,
+  },
+  openrouter: {
+    apiKey: process.env.OPENROUTER_API_KEY,
+  },
+});
+```
+
+## How it reads credentials
+
+This tool never asks for your passwords and never sends your tokens anywhere except to the matching provider's official API.
+
+- Claude: besides the session and account-wide weekly windows, Anthropic also reports weekly limits scoped to a single model, e.g. `Fable`. Which models an account reports is decided by Anthropic and changes as new ones ship, so they cannot be enumerated up front: each one becomes its own bucket, keyed `7d_<model>_quota` and carrying `scope.model`. Read them with `listScopedWeeklyUsage()`, or filter `perModel` on `scope`. `overallUsagePercent` stays account-wide, since a scoped limit caps one model and cannot speak for the account. Accounts still on the older response shape keep exactly the buckets they had.
+- Claude: reads the token from the macOS Keychain entry `Claude Code-credentials`, or from `~/.claude/.credentials.json`. Set `useKeychain: false` to force the file. When the OAuth token expires it is refreshed automatically through Anthropic's token endpoint and written back to the same credential store, so Claude Code stays logged in. Set `autoRefresh: false` to disable this.
+- ChatGPT / Codex: reads the access token and account id from `~/.codex/auth.json`.
+- Gemini: reads Google OAuth credentials from `~/.gemini/oauth_creds.json`.
+- Antigravity: runs `agy --print /usage --output-format json` and reads the plan-level quota pools it reports (e.g. Gemini Models, Claude and GPT models). Each pool becomes a bucket keyed by the id `agy` reports, such as `gemini-weekly` or `3p-weekly`, and `overallUsagePercent` is the most used pool. The binary is taken from the `binaryPath` option, the `AGY_BIN` environment variable, `agy` on `PATH`, or `~/.local/bin/agy`. If `agy` is missing or fails, an error is returned instead of usage numbers.
+- MiniMax: uses the `MINIMAX_API_KEY` environment variable, or the `apiKey` option.
+- OpenCode: uses the `OPENCODE_API_KEY` environment variable, or the `apiKey` option. Calls `GET /zen/go/v1/usage` for the Go allowance and `GET /console/api/policies/current-budgets` for Console budgets, then adds the Zen prepaid balance from `GET /console/api/billing/status` when that endpoint is readable with the key. A workspace without Go keeps its budgets; a workspace without budgets keeps its Go windows.
+- OpenRouter: uses the `OPENROUTER_API_KEY` environment variable, or the `apiKey` option. Calls `GET /api/v1/key` to read the key's spend limit and usage.
+
+For Gemini and Antigravity the package uses the same public OAuth client identifiers that the official Google CLIs ship with. These are public desktop clients protected by PKCE, not private secrets. You can swap in your own client through the configuration options above.
+
+## Development
+
+```bash
+npm install
+npm run build      # bundle with tsup
+npm run dev        # rebuild on change
+```
+
+## License
+
+MIT

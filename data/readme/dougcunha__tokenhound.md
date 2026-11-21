@@ -1,0 +1,251 @@
+<p align="center">
+  <img src="logo.png" alt="TokenHound logo" width="128" />
+</p>
+
+# TokenHound 🐶
+
+> **A non-intrusive Windows 11 desktop HUD monitoring LLM usage, rate limits, and agent activity across AI coding tools.**
+
+[![CI](https://github.com/dougcunha/TokenHound/actions/workflows/ci.yml/badge.svg)](https://github.com/dougcunha/TokenHound/actions/workflows/ci.yml)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![Windows 11](https://img.shields.io/badge/Platform-Windows%2011-0078D4?logo=windows11)](https://www.microsoft.com/windows)
+[![WPF](https://img.shields.io/badge/UI-WPF-blue)](https://github.com/dotnet/wpf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+TokenHound is a lightweight, peripheral desktop notch / HUD crafted specifically for Windows 11. It provides continuous, glanceable insight into token consumption, rate limit reset windows, and live agent activity across local AI coding assistants—without stealing window focus or cluttering your workspace.
+
+---
+
+## Key Features
+
+- Dock the HUD at the top left, top center, top right, left edge, or right edge of your chosen monitor. Side placements use a vertical capsule. Drag a docked HUD to slide it along its edge; on the top edge it becomes Top left or Top right at the corners. Choose Free in the Position menu to place it anywhere. Placement is saved across launches.
+- **Zero Focus Disruption (`WS_EX_NOACTIVATE`)**: Built using native Win32 interop so the notch never steals keyboard or window focus from your IDE, terminal, or browser.
+- Adjust HUD size in Settings. Changes apply immediately and are saved across launches.
+- Translucent (Acrylic) HUD background on Windows 11, on by default and switchable in Settings > General, with a transparency slider from 0 to 50 % (default 7 %; higher values reduce contrast over bright backgrounds). Settings explains why when Windows keeps it off. The HUD uses the solid background while Windows transparency effects are off, or while energy saver or high contrast is on.
+- Enable or disable startup at Windows logon in Settings, with support for the installer's startup option.
+- **"Borrow, Don't Own" Principle**: Never initiates competing logins or asks for raw passwords. TokenHound safely reads existing local sessions (Windows Credential Manager, DPAPI, SQLite WAL databases) in read-only mode (`FileShare.ReadWrite | FileShare.Delete`).
+- **Zero Fake Data**: Strictly reports honest telemetry. If an API provider only exposes remaining quota without a total limit, TokenHound will never invent percentages or artificial denominators.
+- **HTTP 429 Resilience & Persistence**: Backoff deadlines and rate-limit states are persisted to `%LOCALAPPDATA%\TokenHound\`, guaranteeing that restart cycles will never hammer provider endpoints under active penalty windows.
+- **Self-Updating from GitHub Releases**: Checks the latest stable release periodically (every 24 h by default) and from the tray or HUD menu ("Check for Updates…"), asks before installing, verifies the download (size and SHA-256 when published), and restarts on the new version. See [Updates](#updates).
+- **Ultra-Lean Resource Usage**: Operates continuously at approximately ~30–45 MB RAM in idle desktop state.
+
+The capsule uses inverse rounded joins where it meets a screen edge, and clicks outside its visible contour pass through to the application behind it. Additional ring animations remain separate follow-up work. See the [roadmap](docs/ROADMAP.md) for delivered features and planned scope.
+
+---
+
+## Supported Providers
+
+| Provider | Integration Mechanism | Monitored Telemetry |
+| :--- | :--- | :--- |
+| **Claude Code** | `%USERPROFILE%\.claude\.credentials.json` | OAuth token, 5-hour rolling session quotas, 7-day limits |
+| **Cursor** | Local SQLite (`state.vscdb`, WAL mode) | Session requests, plan thresholds, active agent status |
+| **OpenAI Codex** | stdio JSON-RPC bridge & rollout logs | Execution tokens, rate-limit resets, active command states |
+| **Google Antigravity / Gemini** | Language server IPC & Windows Credential Manager (`gemini:antigravity`) | 5-hour and weekly model-group quotas, session transcripts |
+| **GitHub Copilot** | Borrowed `gh` / Copilot CLI OAuth token & internal quota API | Monthly premium interactions, reset windows, billing AI credits, active CLI sessions |
+| **OpenCode Go** | Borrowed `auth.json` API key & official usage API | 5-hour rolling, weekly, and monthly quotas, process and session activity |
+| **Cline** | Borrowed `providers.json` session & account API (`api.cline.bot`) | Credit balance, plan scope, local session token usage, free-model limit, hub/CLI activity |
+| **Z.ai GLM** (soon) | Local config discovery & direct metering API | Coding plan usage, daily quota allocation |
+| **Perplexity** (soon) | Isolated WebView2 session borrowing | Real-time search queries and rate limit quotas |
+
+---
+
+## Images
+
+![HUD](screenshot.png)
+
+### Provider Status
+
+![Provider status window](ProviderStatus.png)
+
+### Settings
+
+![Settings: Providers](Settings-Providers.png)
+
+![Settings: Cadence & Rate Limits](Settings-CadenceRateLimits.png)
+
+## Architecture & Solution Structure
+
+TokenHound is architected following Clean Architecture principles on **.NET 10**:
+
+```text
+TokenHound/
+├── TokenHound.slnx                         # Solution file (native .NET 10 SLNX format)
+├── ARCHITECTURE.md                         # Detailed architecture and technology rationale
+├── AGENTS.md                               # Repository coding standards and invariants
+│
+├── src/
+│   ├── TokenHound.Core/                    # Pure domain models, contracts, and policies (net10.0)
+│   │   ├── Models/                         # Immutable snapshots, limit windows, agent sessions
+│   │   ├── Contracts/                      # IUsageProvider, IActivityMonitor, ICredentialStore
+│   │   └── Policies/                       # BackoffCalculator, RateLimitPolicy, RefreshSchedulePolicy
+│   │
+│   ├── TokenHound.Infrastructure/          # Windows 11 OS interop, storage, and providers (net10.0)
+│   │   ├── Engine/                         # UsageStore, historical state persistence
+│   │   ├── Security/                       # Windows Credential Manager P/Invoke, DPAPI
+│   │   ├── Storage/                        # SQLite WAL reader, safe shared file access
+│   │   ├── System/                         # Process discovery, TCP table helper, power events
+│   │   └── Providers/                      # Provider adapters (Claude, Cursor, Codex, Gemini, Copilot, etc.)
+│   │
+│   └── TokenHound.App/                     # Windows Presentation Foundation desktop host (net10.0-windows)
+│       ├── UI/                             # Windows, HUD controls, Bézier geometry, animations
+│       ├── Interop/                        # Win32 window styles, DWM blur, mouse hook
+│       └── ViewModels/                     # MVVM state and provider collection bindings
+│
+├── tests/
+│   ├── TokenHound.Core.Tests/              # Unit tests for domain logic and backoff calculators
+│   └── TokenHound.Infrastructure.Tests/    # Integration tests for storage, parsing, and DPAPI
+│
+└── docs/
+    ├── specs/                              # 12 deep technical specifications
+    └── design/                             # Visual design assets, layout coordinates, and mockups
+```
+
+---
+
+## Updates
+
+TokenHound updates itself from [GitHub Releases](https://github.com/dougcunha/TokenHound/releases):
+
+- **When**: a check runs shortly after startup and then whenever the interval has elapsed; a balloon notification (no focus stealing) announces a new stable release. Choose **Check for Updates…** in the tray menu or the HUD right-click menu to check right away. Prereleases are ignored.
+- **Your choice**: the update dialog offers **Update now**, **Later** (asks again at the next due check), and **Skip this version**.
+- **Portable copies** (the `-fxdependent.zip`): the update is downloaded, verified, swapped in place with rollback on failure, and the app restarts. A read-only folder is detected up front and the release page is offered instead.
+- **Installed copies** (the setup): the installer runs silently for the current user (no elevation prompt) and the app restarts. Installed copies are recognized by the `TokenHound.installed` marker next to the executable.
+- **Settings**: **Settings > Updates** turns automatic checks on or off and sets the interval in hours (`0` turns periodic checks off), stored in the `Update` section of `settings.json`.
+- **Rate limits**: GitHub's unauthenticated limit (60 requests per hour) is respected; a `429` deadline is persisted in `%LOCALAPPDATA%\TokenHound\update-state.json` and honored across restarts.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Windows 11** (Build 22000 or higher recommended)
+- **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** (`10.0.400` or newer)
+
+### Building the Project
+
+Clone the repository and build using the .NET CLI:
+
+```powershell
+# Clone the repository
+git clone https://github.com/dougcunha/TokenHound.git
+cd TokenHound
+
+# Restore and build the solution
+dotnet restore TokenHound.slnx
+dotnet build TokenHound.slnx --no-restore
+```
+
+### Running Tests
+
+After building the solution, run each test project through its Microsoft.Testing.Platform executable:
+
+```powershell
+dotnet run --project tests/TokenHound.Core.Tests/TokenHound.Core.Tests.csproj --no-build --no-restore -- --minimum-expected-tests 1
+dotnet run --project tests/TokenHound.Infrastructure.Tests/TokenHound.Infrastructure.Tests.csproj --no-build --no-restore -- --minimum-expected-tests 1
+```
+
+---
+
+## MCP Server
+
+While TokenHound is running, it exposes the provider metrics behind the HUD to MCP clients through a local server. Two read-only tools are available: `list_provider_metrics` (every enabled provider) and `get_provider_metrics` (one provider by ID). Calls read TokenHound's current state; they never trigger a provider refresh or touch rate-limit deadlines.
+
+| Transport | URL |
+| --- | --- |
+| SSE | `http://127.0.0.1:37653/mcp/sse` |
+| Streamable HTTP | `http://127.0.0.1:37653/mcp` |
+
+The server listens on loopback only and stops when TokenHound exits. If port 37653 is taken, the HUD keeps working and the log explains why MCP did not start.
+
+### Installing in your harness
+
+**Claude Code**
+
+```powershell
+claude mcp add --transport sse tokenhound http://127.0.0.1:37653/mcp/sse
+```
+
+**Codex CLI** — `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.tokenhound]
+url = "http://127.0.0.1:37653/mcp"
+```
+
+**Cursor** — `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
+
+```json
+{
+  "mcpServers": {
+    "tokenhound": { "url": "http://127.0.0.1:37653/mcp/sse" }
+  }
+}
+```
+
+**VS Code (GitHub Copilot)** — `.vscode/mcp.json`, or **MCP: Add Server** in the Command Palette:
+
+```json
+{
+  "servers": {
+    "tokenhound": { "type": "sse", "url": "http://127.0.0.1:37653/mcp/sse" }
+  }
+}
+```
+
+**Gemini CLI** — `~/.gemini/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "tokenhound": { "url": "http://127.0.0.1:37653/mcp/sse" }
+  }
+}
+```
+
+**OpenCode** — `opencode.json`:
+
+```json
+{
+  "mcp": {
+    "tokenhound": { "type": "remote", "url": "http://127.0.0.1:37653/mcp", "enabled": true }
+  }
+}
+```
+
+**Cline** — open **MCP Servers → Remote Servers**, name it `tokenhound`, and enter `http://127.0.0.1:37653/mcp/sse`.
+
+For response fields, lookup states, null semantics, and the privacy boundary, see [docs/MCP.md](docs/MCP.md).
+
+## HUD Feed
+
+While TokenHound is running, it also writes the HUD content to `%LOCALAPPDATA%\TokenHound\hud.json`: the rings in HUD order, their hover card rows, and the busy state of each agent. Other local apps, such as a Herdr mod, read this file to show the same data. TokenHound replaces the file after each HUD change, every 30 seconds, and one last time at exit. See [docs/HUD-FEED.md](docs/HUD-FEED.md) for the contract.
+
+---
+
+## Technical Documentation
+
+For in-depth specifications and implementation guides, explore the `docs/` folder:
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Rationale for WPF (.NET 10) vs. WinUI 3, design principles, and memory targets.
+- [docs/specs/01-READING-STRATEGY-RESILIENCE.md](docs/specs/01-READING-STRATEGY-RESILIENCE.md) - Polling intervals, 429 backoff math, and offline caching.
+- [docs/specs/02-WINDOWS-CREDENTIALS-SECURITY.md](docs/specs/02-WINDOWS-CREDENTIALS-SECURITY.md) - Credential Manager P/Invoke, DPAPI encryption, and SQLite WAL mechanics.
+- [docs/specs/11-PROVIDER-COPILOT.md](docs/specs/11-PROVIDER-COPILOT.md) - GitHub Copilot lightweight internal quota, billing telemetry, and CLI activity heuristics.
+- [docs/specs/12-PROVIDER-OPENCODE.md](docs/specs/12-PROVIDER-OPENCODE.md) - OpenCode Go credential borrowing, official quota telemetry, and read-only session activity.
+- [docs/specs/](docs/specs/) - Dedicated specifications for each supported AI provider.
+- [docs/MCP.md](docs/MCP.md) - Local MCP server (SSE and Streamable HTTP) exposing the current provider metrics to MCP clients.
+- [docs/HUD-FEED.md](docs/HUD-FEED.md) - The `hud.json` file that shows the HUD content to other local apps, such as a Herdr mod.
+
+---
+
+## Acknowledgements
+
+TokenHound was inspired by [codenotch](https://github.com/vinzdg/codenotch), a macOS notch-based monitor for AI coding tools. TokenHound is an independent implementation built from scratch for Windows 11.
+
+The monochrome provider marks in `src/TokenHound.App/Assets/Logos/ProviderGlyphs.xaml` (Claude, Codex, Cursor, Antigravity, GLM and Perplexity) are ported from codenotch's `GlyphOutline`, used under its MIT license; Copilot, Grok, OpenCode, and Cline marks are flattened from official vendor SVGs or brand kits.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

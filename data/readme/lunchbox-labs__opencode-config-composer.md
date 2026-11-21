@@ -1,0 +1,61 @@
+# Config Composer
+
+> [!WARNING]
+> Config Composer is deprecated. Use [OpenCode Model Profiles](https://github.com/lunchbox-labs/opencode-model-profiles) for new setups.
+
+Share native OpenCode settings through agent-owned groups and one selected profile per worktree. Choose profiles with `/profiles` and inspect loaded definitions and applied values with read-only `/view-configs`. The prompt shows the applied profile, or `Profile: error` while the loaded composition has failed. Pieces that can't apply in a project, such as an unknown group, a patch for an agent or command it doesn't load, or an invalid agent file field, are skipped with a warning toast instead; the inspector hides built-in agents until toggled. Tested against OpenCode V1 1.19.x.
+
+Add the package to `plugin` in both `opencode.jsonc` and `tui.jsonc`:
+
+```jsonc
+{ "plugin": ["@lunchbox-labs/opencode-config-composer"] }
+```
+
+Declare membership in an agent's frontmatter:
+
+```yaml
+groups: [coding, cautious]
+```
+
+Define those groups in `config-composer.jsonc` in OpenCode's configuration directory:
+
+```jsonc
+{
+  "models": {
+    "coding": { "model": "openai/gpt-5", "variant": "high" },
+  },
+  "groups": {
+    "coding": { "agent": { "modelRef": "coding", "permission": { "edit": "ask" } } },
+    "cautious": { "agent": { "permission": { "edit": "deny" } } },
+  },
+  "profiles": {
+    "review": {
+      "models": { "coding": { "model": "anthropic/claude-sonnet-4-5" } },
+      "groups": { "coding": { "agent": { "temperature": 0 } } },
+    },
+  },
+  "defaultProfile": "review",
+}
+```
+
+Later entries in an agent's `groups` array win overlaps. Permission patterns combine: updated tool blocks move last with their retained rules, and later matching patterns win within each tool. `profiles.<name>.permission` sets profile-wide defaults below group and named-agent rules. Each group's selected profile patch applies with that group. Patches can set `disable` to turn agents off for a profile, including built-ins. Composer does not check which agents remain usable; if `default_agent` ends up disabled, hidden or a subagent, OpenCode reports it. Explicit native agent frontmatter always wins, including model pins. Built-in and JSON-defined agents declare the same array at `agent.<name>.groups` in `opencode.jsonc`.
+
+`models` names reusable model/variant choices and optional model-bound sampling, output limits and provider options. A profile replaces each matching root binding as a whole; an omitted binding variant uses the native default. Group and named agent patches use either `modelRef` or a concrete `model`. An explicit patch `variant` overrides the binding. A reference with no binding in the root or selected profile leaves the native model in place. See the [configuration contract](skills/config-composer-explain/references/schema.md) for profile-only aliases and precedence.
+
+Definitions are shared across projects using this file; profile choices persist separately per worktree. **Shared only** skips profile settings. **Follow configured default** follows `defaultProfile` again. Profile changes have a preview and Apply confirmation.
+
+To use another profile for one OpenCode process, such as a CI run or one of several servers on a worktree, name it in `OPENCODE_CONFIG_COMPOSER_PROFILE`. It takes precedence over the saved choice and `defaultProfile`, is never saved, and makes `/profiles` read-only for that process:
+
+```sh
+OPENCODE_CONFIG_COMPOSER_PROFILE=review opencode run "Review the staged changes"
+```
+
+An unknown name leaves Composer unapplied for that process. `opencode run` then continues with native settings and exits successfully; the error appears only with `--print-logs`.
+
+Restart the OpenCode server process after editing files to update loaded definitions. Applying a profile requires an idle instance and unchanged native configuration files. Existing session model/variant choices remain native.
+
+See the [schema](schema.json) and examples for [provider profiles](docs/examples/provider-profiles/config-composer.jsonc), [shared permissions](docs/examples/role-permissions/config-composer.jsonc), and [worktree selection](docs/examples/project-selection/config-composer.jsonc); each example includes native agent membership in its adjacent `opencode.jsonc`. Native OpenCode retains agent prompts and command templates. For prompt composition, see the independent [Prompt Composer](https://github.com/lunchbox-labs/opencode-prompt-composer).
+
+For usage journeys, see the [user guide](https://github.com/lunchbox-labs/opencode-config-composer/wiki/User-Guide). Contributor and maintainer documentation is in the [Developer section](https://github.com/lunchbox-labs/opencode-config-composer/wiki/Developer).
+
+This package is licensed under MIT ([license](LICENSE)).

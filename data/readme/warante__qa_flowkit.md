@@ -1,0 +1,314 @@
+# QA FlowKit
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node.js 22.18+](https://img.shields.io/badge/node.js-22.18%2B-339933.svg)](package.json)
+[![Status: RC](https://img.shields.io/badge/status-RC-yellow.svg)](docs/qa-ai/stability-policy.md)
+[![CI](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml/badge.svg)](https://github.com/warante/QA_FlowKit/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/qa-flowkit.svg)](https://www.npmjs.com/package/qa-flowkit)
+
+Turn AI-assisted QA work into a repeatable, reviewable repository workflow.
+
+Language: **English** | [Español](README.es.md)
+
+FlowKit complements existing test runners and coding agents: it governs traceability and evidence rather than
+replacing test generation. Native skills, optional Codex hooks and opt-in commit-bound execution evidence are
+described in [current-agent modernization](docs/qa-ai/modernization.md).
+
+QA FlowKit coordinates an AI coding agent while deterministic scripts enforce the workflow:
+
+```text
+requirement -> risk analysis -> test design -> Gherkin -> test data ->
+environment readiness -> traceability -> automation plan -> execution ->
+result analysis -> defect triage -> release gate -> learning loop
+```
+
+New capabilities (risk analysis, test data, environments, execution, result analysis, defect triage,
+observability, and learning loop) are opt-in and default to advisory or off. See the
+[full functional flow example](examples/full-functional-flow/).
+
+It is for QA and automation teams that want AI-generated artifacts without relying only on prompt discipline.
+QA FlowKit is currently in **Release Candidate**; see the [stability policy](docs/qa-ai/stability-policy.md).
+
+## The Problem It Solves
+
+AI agents can generate tests quickly, but teams still need consistent structure, traceability, approval points and
+reliable validation. QA FlowKit installs those controls inside the target repository:
+
+- phase-specific agent instructions and reusable specialists (including on-demand strategy specialists — see [specialist routing](docs/qa-ai/specialist-routing-matrix.md); standard presets ship with `testDesign.strategyRouting.mode: advisory` to recommend specialists from requirement signals without blocking validators; `manual-only` keeps routing off);
+- quick, standard and enterprise workflow tracks;
+- persistent, resumable run state and an append-only event log;
+- validation for Gherkin, traceability, test design, sync plans and release gates;
+- configurable cross-feature coverage checks and traceable test-design techniques;
+- source non-functional requirement (NFR) coverage validation against `normalized-requirements.md`, proposal tables and traceability;
+- opt-in AI-system testing support with AI-component tags, technique coverage and eval evidence checks;
+- functional security review and mixed-source requirement intake;
+- overwrite, path traversal, deletion and secret-handling safeguards;
+- proposal-first planning for Jira, TestRail, Zephyr, Xray and similar tools.
+
+The AI reasons and edits files. QA FlowKit controls phase order, required outputs, approvals and pass/fail checks.
+
+## Five-Minute Start
+
+From the repository where you want QA FlowKit:
+
+```bash
+npx qa-flowkit
+```
+
+Open the repository in your AI coding CLI and run the guided setup:
+
+```text
+/qa-init
+```
+
+From this point, stay inside the model's CLI. Check setup and choose the next action:
+
+```text
+/qa-help
+/qa-doctor
+/qa-full-flow
+```
+
+`/qa-help` shows the available framework commands and recommends the next QA step. Claude Code and OpenCode expose
+project slash commands through generated adapters; agents without slash-command support use generated adapter
+instructions (`AGENTS.md`, `GEMINI.md`, `.codex/README.md`, etc.).
+
+Use `/qa-add-tests` instead of the full flow when adding one new requirement, and `/qa-status` to review results.
+For team knowledge, use `/qa-init --qa-context qa-ai-knowledge` inside the model session.
+The agent runs the underlying scripts and validators; direct terminal commands are optional alternatives for CI and troubleshooting.
+See the [agent-first quick start](docs/qa-ai/getting-started.md) or the separate
+[terminal and maintenance reference](docs/qa-ai/terminal-setup-and-maintenance.md).
+During the RC line, use `npx qa-flowkit@rc` at installation if you need that channel explicitly.
+
+## Demo
+
+> The bilingual illustrated tutorial shows **terminal installation, then slash commands inside the model's CLI**.
+> Spanish (Spain) is the default audio track; select English in your player's audio menu.
+> It is an illustrated guide, not a live model recording. [Quick start](docs/qa-ai/getting-started.md).
+
+| Format                                                       | Description                                                       |
+| ------------------------------------------------------------ | ----------------------------------------------------------------- |
+| [Recorded video](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4) | Two-minute RF-101 quick-track demo with English and Spanish audio |
+| [Static walkthrough](docs/qa-ai/demo.md)                     | RF-101 story, fixtures and expected E2E output                    |
+| [Recording script](docs/qa-ai/demo-script.md)                | Script for the approved illustrated agent-first tutorial          |
+| [Transcript and captions](docs/qa-ai/demo-transcript.md)     | Alt text, captions and replay fallback                            |
+| `npm run test:e2e-quick`                                     | One-command automated replay from a clean temporary target        |
+
+[![RF-101 recorded demo thumbnail](docs/qa-ai/media/qa-flowkit-rf101-demo-thumbnail.png)](docs/qa-ai/media/qa-flowkit-rf101-demo.mp4)
+
+The approved tutorial shows `/qa-init`, optional team context, `/qa-doctor`, `/qa-help`, `/qa-full-flow`, review,
+validation and `/qa-status`. It does not invent model replies or passing results. External caption tracks are available in
+[English](docs/qa-ai/media/qa-flowkit-rf101-demo.en.vtt) and
+[Spanish](docs/qa-ai/media/qa-flowkit-rf101-demo.es.vtt).
+
+The deterministic RF-101 demo, including an intentional validator failure and correction, is also documented in
+[Getting Started](docs/qa-ai/getting-started.md#reproduce-the-verified-path). From this source repository you can
+replay it:
+
+```bash
+npm run test:e2e-quick
+```
+
+For a complete reviewed target that installs and validates from the packed CLI, use the
+[manual-only public example](examples/manual-only/README.md):
+
+```bash
+npm run test:e2e-manual-example
+```
+
+## What Gets Installed
+
+```text
+.qa-ai/                    framework, rules, agents, workflows and validators
+.qa-ai/qa-ai.config.yaml   target-repository configuration (compact default)
+.qa-ai/output/             generated analysis, plans and traceability
+.qa-ai/features/           manual and automated QA design in Gherkin
+AGENTS.md                  generic agent instructions when no host-specific override is selected
+```
+
+Legacy layouts are detected but never loaded at runtime. Review `qa-flowkit migrate --dry-run`, approve the explicit
+migration, and then continue exclusively with `.qa-ai/qa-ai.config.yaml`, `.qa-ai/output/`, `.qa-ai/features/` and
+configured modern automation paths.
+
+Automation folders are generated only when the selected preset requires them. In an interactive terminal, `init`
+shows an AI CLI adapter selector; in non-interactive environments it detects existing agent host folders and syncs
+matching adapters plus `generic`. When no host folder exists, it generates only `generic`. Existing files are skipped
+unless the user explicitly passes `--force`.
+
+## Choose a Track
+
+| Track        | Use it for                                       | Main output                                                                    |
+| ------------ | ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `quick`      | Small changes and manual QA                      | Requirements, Gherkin, traceability and PR summary                             |
+| `standard`   | Most QA automation repositories                  | Full test design, test-management planning, feasibility and implementation     |
+| `enterprise` | Formal governance, audit or release requirements | Standard workflow plus strict target validation and a release quality decision |
+
+The track controls workflow depth; presets configure frameworks and tools.
+
+## Presets
+
+| Preset                       | Typical track | Automation                  |
+| ---------------------------- | ------------- | --------------------------- |
+| `manual-only`                | `quick`       | None                        |
+| `playwright-full`            | `standard`    | Playwright UI + API         |
+| `maestro-karate-mobile`      | `standard`    | Maestro mobile + Karate API |
+| `karate-full`                | `standard`    | Karate API + UI             |
+| `selenium-jest-browserstack` | `standard`    | Selenium/Jest               |
+| `cypress-full`               | `standard`    | Cypress UI + API            |
+| `webdriverio-full`           | `standard`    | WebdriverIO browser         |
+| `appium-full`                | `standard`    | Appium mobile               |
+| `postman-full`               | `standard`    | Postman API collections     |
+| `rest-assured-full`          | `standard`    | REST Assured Java API       |
+
+Example:
+
+```bash
+node .qa-ai/scripts/init.mjs --preset karate-full --adapters generic,claude
+```
+
+Or run `/qa-init` in your AI coding agent for interactive setup.
+
+See the [configuration schema](docs/qa-ai/config-schema.md) for all generated keys.
+
+## Core Commands
+
+| Command                                               | Purpose                                                      |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
+| `qa-flowkit`                                          | Copy the `.qa-ai/` framework into the repository             |
+| `qa-flowkit update`                                   | Upgrade `.qa-ai/` while preserving run state                 |
+| `qa-flowkit doctor`                                   | Diagnose installation and configuration                      |
+| `qa-flowkit help`                                     | Recommend the next QA workflow step                          |
+| `qa-flowkit run start\|next\|check`                   | Execute a resumable controlled workflow                      |
+| `qa-flowkit metrics`                                  | Report local workflow KPIs from run event logs               |
+| `qa-flowkit validate-target`                          | Run the target-repository quality gate                       |
+| `qa-flowkit validate-untrusted-content`               | Scan requirements/context for prompt-injection-like content  |
+| `qa-flowkit validate-features`                        | Validate QA design Gherkin                                   |
+| `qa-flowkit validate-test-coverage`                   | Validate configured coverage obligations and source NFR rows |
+| `qa-flowkit validate-traceability`                    | Validate RF-to-test and NFR traceability                     |
+| `qa-flowkit validate-agent-guidance`                  | Validate agent/specialist guidance manifest and Markdown     |
+| `qa-flowkit validate-release-gate`                    | Validate the enterprise release decision                     |
+| [`qa-flowkit export-report`](docs/qa-ai/reporting.md) | Export Gherkin-aligned test cases and execution results      |
+| `npm run qa:traceability-metrics`                     | Compute traceability coverage metrics                        |
+| `npm run qa:execution-traceability`                   | Link execution results to RFs                                |
+| `npm run qa:change-impact`                            | Predict affected RFs from git diffs                          |
+| `npm run qa:rf-dependency-graph`                      | Build RF dependency graph (JSON, Markdown, DOT)              |
+| `npm run qa:update-traceability`                      | Update traceability artifacts from CI data                   |
+| `npm run qa:apm-intake`                               | Fetch production signals from APM connectors                 |
+
+The complete command and option reference is in [CLI Reference](docs/qa-ai/cli-reference.md).
+`qa-flowkit metrics` reads only local run state under `.qa-ai/state/runs/`; it never reads artifact contents or sends
+telemetry.
+
+## Deterministic Rules
+
+QA FlowKit validates, among other things:
+
+- configured English or Spanish Gherkin;
+- one `.feature` file per test case;
+- manual tests represented as `.feature` files;
+- acceptance-criteria blocks;
+- required `@priority:`, `@type:` and `@manual:` tags;
+- prompt-injection-like instructions in requirement and QA context sources;
+- official RF traceability and duplicate test IDs;
+- proposal-first test-management sync language;
+- agent and specialist guidance manifest consistency;
+- required enterprise release-gate evidence and test execution results.
+
+See [Gherkin rules](.qa-ai/rules/gherkin.rules.md) and the
+[framework rules index](.qa-ai/rules/README.md).
+
+## Agents and Adapters
+
+The generic `AGENTS.md` contract works with any repository-aware coding agent. Templates are also available for:
+
+- Claude Code;
+- Codex Desktop;
+- OpenCode;
+- Cline;
+- Continue;
+- Aider;
+- Goose;
+- Gemini CLI.
+
+Adapters use native structured questions when the host exposes them and numbered options otherwise. Interface
+language comes from `project.interfaceLanguage`; `gherkin.language` controls only `.feature` content.
+
+Adapter generation is tested automatically. Real-host verification levels are documented separately and should not
+be confused with tool-level sandbox enforcement. See [Agent Compatibility](docs/qa-ai/agent-compatibility.md).
+
+## Safety and Limits
+
+QA FlowKit:
+
+- keeps workflow state and outputs inside the repository;
+- rejects configured paths that escape the repository;
+- requires scoped approval before modifying pre-existing phase outputs;
+- denies external writes and deletes in the current workflow contract;
+- treats requirement files, QA context folders and imported external content as untrusted data;
+- scans those untrusted sources for prompt-injection-like instructions, with `--strict` available when teams want a
+  blocking gate;
+- scans generated QA artifacts for secret-like content during strict validation;
+- supports native settings-level enforcement hooks on Claude Code to prevent turn completion with validation failures or missing checks.
+
+It does **not** host or invoke an AI model. An agent with unrestricted shell access can operate outside the harness;
+see the [agent harness](docs/qa-ai/agent-harness.md) for the exact boundary.
+
+## Updating
+
+```bash
+npx qa-flowkit@rc update
+npx qa-flowkit doctor --strict
+npx qa-flowkit validate-target
+```
+
+`update` replaces the framework folder while preserving `.qa-ai/state/`, config profiles and user-owned artifacts
+outside `.qa-ai/`. Review the [beta-to-1.0 migration guide](docs/qa-ai/beta-to-1.0-migration.md).
+
+## Documentation
+
+| Topic                        | Document                                                                    |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| First workflow               | [Getting Started](docs/qa-ai/getting-started.md)                            |
+| CLI commands and options     | [CLI Reference](docs/qa-ai/cli-reference.md)                                |
+| CI/CD pipeline integration   | [CI Integration](docs/qa-ai/ci-integration.md)                              |
+| Claude Code plugin           | [Claude Code Plugin](docs/qa-ai/claude-plugin.md)                           |
+| Architecture                 | [Architecture](docs/qa-ai/architecture.md)                                  |
+| Workflow                     | [Full Workflow](docs/qa-ai/workflow.md)                                     |
+| Advanced test design         | [Coverage, techniques and mixed inputs](docs/qa-ai/advanced-test-design.md) |
+| Gherkin quality rubric       | [Quality Rubric](docs/qa-ai/quality-rubric.md)                              |
+| Resumable harness            | [Agent Harness](docs/qa-ai/agent-harness.md)                                |
+| Troubleshooting              | [Troubleshooting](docs/qa-ai/troubleshooting.md)                            |
+| Product stability            | [Stability Policy](docs/qa-ai/stability-policy.md)                          |
+| Public contracts             | [Contract Inventory](docs/qa-ai/public-contracts.md)                        |
+| Threat model                 | [Threat Model](docs/qa-ai/threat-model.md)                                  |
+| Pilot measurement            | [Pilot Methodology](docs/qa-ai/pilot-methodology.md)                        |
+| External requirements intake | [External Intake](docs/qa-ai/external-intake.md)                            |
+| Governed test sync           | [Governed Sync](docs/qa-ai/governed-sync.md)                                |
+| Automation bridge / healing  | [Automation Bridge](docs/qa-ai/automation-bridge.md)                        |
+| Traceability & observability | [Traceability Roadmap](docs/qa-ai/traceability-observability-roadmap.md)    |
+| Roadmap and implementation   | [Roadmap](ROADMAP.md) and [implementation tasks](tasks/README.md)           |
+| Security                     | [Security Policy](SECURITY.md)                                              |
+| Contributing                 | [Contributing Guide](CONTRIBUTING.md)                                       |
+
+## Source Repository
+
+This repository maintains the framework, CLI, CI and npm package. A target QA repository receives `.qa-ai/`
+through `npx qa-flowkit`, then configures QA artifacts through `/qa-init` or `node .qa-ai/scripts/init.mjs`.
+
+Before proposing a source-repository PR:
+
+```bash
+npm ci
+npm run lint
+npm run format:check
+npm run docs:check
+npm run validate:oss-extraction
+node .github/scripts/verify-npm-pack.mjs
+```
+
+Releases use release-please. Do not manually bump versions, publish locally or create release tags. See the
+[release checklist](docs/qa-ai/release-checklist.md).
+
+## License
+
+[MIT](LICENSE)

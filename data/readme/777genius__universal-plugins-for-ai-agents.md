@@ -1,0 +1,167 @@
+# universal-plugins-for-ai-agents
+
+> **Legacy catalog.** New plugins and Agent Plugins 1.0 packages live in
+> [`777genius/universal-agent-plugins`](https://github.com/777genius/universal-agent-plugins).
+> This repository receives critical security fixes only during the migration
+> grace period. The period starts with the first public `agentplugins` beta and
+> ends 90 days after a stable release with `migrate-format` and `rebind` is
+> available. Exact start and end dates will be recorded in this notice and the
+> repository releases. Existing `plugin.yaml` installations remain supported
+> during that period; format migration is never automatic.
+
+Universal plugin catalog for AI agents.
+
+This repository holds portable, production-ready plugin directories plus a small number of honest agent-specific hosted connector entries where the vendor only documents one supported lane today.
+
+The catalog currently covers install paths across these agent ecosystems:
+
+- Claude
+- Codex
+- Gemini
+- OpenCode
+- Cursor
+
+Current plugins:
+
+| Plugin | Transport | Entry point | Targets |
+| --- | --- | --- | --- |
+| `atlassian` | remote | `https://mcp.atlassian.com/v1/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `chrome-devtools` | stdio | `npx -y chrome-devtools-mcp@0.21.0` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `cloudflare` | remote | `https://mcp.cloudflare.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `cloudflare-bindings` | remote | `https://bindings.mcp.cloudflare.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `cloudflare-docs` | remote | `https://docs.mcp.cloudflare.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `cloudflare-observability` | remote | `https://observability.mcp.cloudflare.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `cloudflare-radar` | remote | `https://radar.mcp.cloudflare.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `context7` | stdio | `npx -y @upstash/context7-mcp@2.1.6` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `docker-hub` | stdio | `docker run -i --rm -e HUB_PAT_TOKEN mcp/dockerhub --transport=stdio --username=${env:HUB_USERNAME}` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `firebase` | stdio | `npx -y firebase-tools@latest mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `figma` | remote | `https://mcp.figma.com/mcp` | Claude, Codex, Cursor |
+| `agent-code-navigator` | skills/policy | `rg`, Semble, Serena, CGC, and memory routing | Claude, Codex, Cursor, Gemini, OpenCode |
+| `github` | remote | `https://api.githubcopilot.com/mcp/` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `gitlab` | remote | `https://gitlab.com/api/v4/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `gmail` | remote | `https://gmail.mcp.claude.com/mcp` | Claude |
+| `google-calendar` | remote | `https://gcal.mcp.claude.com/mcp` | Claude |
+| `greptile` | remote | `https://api.greptile.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `heroku` | remote | `https://mcp.heroku.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `hubspot-crm` | remote | `https://mcp.hubspot.com` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `hubspot-developer` | stdio | `npx -y -p @hubspot/cli@8.3.0 hs mcp start` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `linear` | remote | `https://mcp.linear.app/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `microsoft365` | remote | `https://microsoft365.mcp.claude.com/mcp` | Claude |
+| `neon` | remote | `https://mcp.neon.tech/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `notion` | remote | `https://mcp.notion.com/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `sentry` | remote | `https://mcp.sentry.dev` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `slack` | remote | `https://mcp.slack.com/mcp` | Claude, Cursor |
+| `statsig` | remote | `https://api.statsig.com/v1/mcp` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `stripe` | remote | `https://mcp.stripe.com` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `supabase` | remote | `https://mcp.supabase.com/mcp?project_ref=${SUPABASE_PROJECT_REF}` | Claude, Codex, Gemini, OpenCode, Cursor |
+| `vercel` | remote | `https://mcp.vercel.com` | Claude, Codex, Gemini, OpenCode, Cursor |
+
+`slack` intentionally remains `Claude` and `Cursor` only. Slack's current MCP docs list Claude.ai, Claude Code, Cursor, and Perplexity as supported partner clients, but this catalog only ships targets that overlap with the current `plugin-kit-ai` target model and official connection flows. Perplexity is not a target in this catalog, and Slack does not currently document hosted MCP connection flows here for Codex, Gemini, or OpenCode.
+
+`figma` intentionally remains `Claude`, `Codex`, and `Cursor` only. Figma's current remote MCP docs explicitly limit hosted access to clients listed in the Figma MCP Catalog, and the published install guides in this area are for Claude Code, Codex, Cursor, and VS Code, not Gemini or OpenCode.
+
+`gmail`, `google-calendar`, and `microsoft365` intentionally remain `Claude` only. Anthropic documents these as Claude-hosted connectors, and its official open-source Claude plugin examples wire them only inside Claude plugin `.mcp.json` configs, not as general hosted connection flows for Codex, Gemini, OpenCode, or Cursor.
+
+Coverage notes for the screenshot-aligned app set:
+
+- `Teams`, `SharePoint`, `Outlook Email`, and `Outlook Calendar` are represented by the single canonical `microsoft365` plugin because Anthropic documents one Microsoft 365 connector spanning all four surfaces, not four separate hosted MCP servers.
+- `Google Drive` is intentionally documented as a native Claude integration gap here, not shipped as a catalog plugin. Anthropic's current official plugin examples publish hosted MCP URLs for `gmail`, `google-calendar`, and `microsoft365`, but do not publish a standalone Google Drive MCP endpoint in the same packageable form.
+
+## Legacy Discovery And Marketplace Use
+
+New Agent Plugins 1.0 users should follow the
+[`universal-agent-plugins` catalog](https://github.com/777genius/universal-agent-plugins)
+and its quick start:
+
+```bash
+npx --yes agentplugins@0.1.0 add context7
+```
+
+The commands below are retained only for existing legacy `plugin.yaml`
+installations. They do not install the standard root `plugin.json` packages
+from the replacement catalog.
+
+This repository now ships the root discovery artifacts each ecosystem actually supports:
+
+- Claude Code marketplace catalog: `.claude-plugin/marketplace.json`
+- Codex repo marketplace catalog: `.agents/plugins/marketplace.json`
+- Cursor marketplace catalog: `.cursor-plugin/marketplace.json`
+- Gemini bundled root extension: `gemini-extension.json`
+
+Claude Code can add this repository directly as a marketplace:
+
+```text
+/plugin marketplace add 777genius/universal-plugins-for-ai-agents
+```
+
+Then install any listed plugin:
+
+```text
+/plugin install context7@universal-plugins-for-ai-agents
+```
+
+For the skills-first code navigation plugin, use the one-command installer. It installs the plugin first, then offers optional setup for Semble, CGC, and Serena. It requires Bash, `curl`, and `git`; it does not require preinstalling `plugin-kit-ai`, npm, or Node. If an older `plugin-kit-ai` is found, it bootstraps `1.2.4+` for Cursor support:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/777genius/universal-plugins-for-ai-agents/main/plugins/agent-code-navigator/scripts/install.sh | bash
+```
+
+The agent CLIs you want to configure still need to be installed and working in `PATH`. On Windows, use WSL or Git Bash rather than native PowerShell.
+
+For plugin-only install when `plugin-kit-ai` is already installed:
+
+```bash
+plugin-kit-ai add github:777genius/universal-plugins-for-ai-agents//plugins/agent-code-navigator
+```
+
+To install `plugin-kit-ai` globally first:
+
+```bash
+brew install 777genius/homebrew-plugin-kit-ai/plugin-kit-ai
+# or
+npm install -g plugin-kit-ai@latest
+```
+
+If you use an already installed `plugin-kit-ai`, make sure it is `1.2.4` or newer. Cursor local plugin packages require the stable Cursor package lane released in `1.2.4`.
+
+Codex reads repo-local marketplaces from `.agents/plugins/marketplace.json`. Clone this repository, open it as the working repo in Codex, and the marketplace will be available from the local repo catalog.
+
+Cursor now follows the official repo-level marketplace layout used by Cursor plugin repositories and team marketplaces: `.cursor-plugin/marketplace.json` in the root, plus generated `plugins/*/.cursor-plugin/plugin.json` manifests for every installable plugin.
+
+Gemini is different. Official Gemini gallery indexing is repository-rooted and expects a public repository with `gemini-extension.json` at the repository root or archive root plus the `gemini-cli-extension` GitHub topic. This repository now publishes a bundled root Gemini extension for gallery and scanner visibility, while keeping the authored per-plugin `gemini-extension.json` files under `plugins/*/`. The bundled root extension mirrors the MCP-backed Gemini-compatible plugins from this catalog; skills-first plugins such as `agent-code-navigator` install through their own plugin package. Prebuilt Gemini archives are published on the GitHub Releases page for tagged versions.
+
+OpenCode still relies on the native `opencode.json` artifacts committed inside each plugin directory.
+
+Marketplace drift is also gated in CI:
+
+- `python3 scripts/validate_marketplaces.py` verifies that the Claude, Codex, Cursor, and Gemini root discovery artifacts stay aligned with the checked-in plugin manifests under `plugins/*`, and also fails on duplicate MCP transport signatures across different plugins
+- `python3 scripts/sync_cursor_marketplace.py` regenerates `.cursor-plugin/marketplace.json` and `plugins/*/.cursor-plugin/plugin.json`
+- `python3 scripts/sync_gemini_marketplace.py` regenerates the bundled root `gemini-extension.json`
+- `python3 scripts/package_gemini_extensions.py` builds release-ready Gemini archives for the bundled root extension plus every MCP-backed Gemini-compatible plugin
+- `.github/workflows/marketplace-visibility.yml` runs `codex-plugin-scanner==2.0.12` across the Claude, Codex, Gemini, and OpenCode ecosystems and uploads JSON scan artifacts for review, while the validate step separately gates Cursor marketplace drift
+- `.github/workflows/gemini-gallery-release.yml` packages Gemini archives on version tags and uploads them to GitHub Releases
+
+## Layout
+
+Each plugin lives inside `plugins/`.
+
+Example:
+
+- `plugins/context7/plugin/plugin.yaml`
+- `plugins/context7/plugin/mcp/servers.yaml`
+- optional `plugins/context7/plugin/targets/...`
+- `plugins/context7/plugin/README.md`
+- `plugins/context7/CLAUDE.md` and `plugins/context7/AGENTS.md` mark the boundary between authored and generated files
+- `plugins/context7/README.md` is a short generated entrypoint that points to `plugins/context7/plugin/README.md`
+- generated native artifacts are committed at the plugin root
+
+## Authoring Flow
+
+Each plugin should keep its authored source of truth in:
+
+- `plugin/plugin.yaml`
+- optional `plugin/mcp/servers.yaml`
+- optional `plugin/targets/<platform>/...`
+- edit only `plugin/`; treat plugin-root manifests as generated outputs
+
+Then generate and validate with `plugin-kit-ai`.

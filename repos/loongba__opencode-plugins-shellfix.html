@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>loongba/opencode-plugins-shellfix · OpenCode Plugins</title>
+<meta name="description" content="OpenCode Windows PowerShell 修复插件 — 中文不乱码、export→$env: 转换、命令错误检测、Git 免交互">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-plugins-shellfix, loongba, loongba/opencode-plugins-shellfix, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, workflow, tools, server">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/loongba__opencode-plugins-shellfix">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="loongba/opencode-plugins-shellfix · OpenCode Plugins">
+<meta property="og:description" content="OpenCode Windows PowerShell 修复插件 — 中文不乱码、export→$env: 转换、命令错误检测、Git 免交互">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/loongba__opencode-plugins-shellfix">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=93292ae7">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "loongba/opencode-plugins-shellfix", "codeRepository": "https://github.com/LoongBa/OpenCode-Plugins-ShellFix", "url": "https://opencode-plugins.zhuikan.com/repos/loongba__opencode-plugins-shellfix", "description": "OpenCode Windows PowerShell 修复插件 — 中文不乱码、export→$env: 转换、命令错误检测、Git 免交互", "author": {"@type": "Organization", "name": "loongba", "url": "https://github.com/LoongBa"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-11-08", "license": "https://spdx.org/licenses/MIT.html", "keywords": "workflow,tools,server"}</script>
+</head>
+<body data-repo="loongba/opencode-plugins-shellfix" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">loongba/opencode-plugins-shellfix</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="loongba__opencode-plugins-shellfix"><img class="rp-side-av" src="https://github.com/LoongBa.png?s=300" width="300" height="300" alt="loongba avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-plugins-shellfix</div>
+      <a class="rp-side-owner" href="https://github.com/LoongBa">loongba</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/LoongBa">loongba</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-plugins-shellfix</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode Windows PowerShell 修复插件 — 中文不乱码、export→$env: 转换、命令错误检测、Git 免交互</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/workflow">workflow</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-08</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/LoongBa/OpenCode-Plugins-ShellFix">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">2.3.4</span><a class="rp-dl-a" href="https://www.npmjs.com/package/@tkwf/opencode-shellfix/v/2.3.4">2.3.4 ↓</a><span class="rp-dl-ver">2.3.4</span><span class="rp-dl-date">2026-11-08</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">8</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">OpenCode Plugins ShellFix 🔧
+
+Windows PowerShell 三大修复 + 七命令体系
+
+当前版本：v2.3.4
+
+---
+
+ 核心：命令错误、中文乱码、降噪压缩 Token、梳理上下文
+
+在 Windows 上用 OpenCode 的开发者都遇到过：
+
+ 1. export 命令错误，浪费 Token 还降智！
+
+OpenCode 调用 bash 工具时，在 Windows Powershell 环境下经常调用错误，怎么也改不过来。多说几次 Agent 回答：
+
+ 被你抓住了，我又犯错误了，看来形成肌肉记忆了。这次一定改正！
+
+然后，依然是错的，摆烂。
+
+但这样浪费对话不说，大量的错误信息充斥上下文，浪费 Token 还降智！
+
+bash
+ Agent 输出这个（Linux bash 语法）👇
+export CI=true
+/exexport DB_HOST=localhost
+
+ PowerShell 报错 👇
+&#x27;export&#x27; 不是内部或外部命令，也不是可运行的程序或批处理文件。
+
+
+ 2. 中文乱码，经典问题从未消失
+
+比如读取文件列表，遇到中文返回乱码。所以，上下文中充斥着大量乱码。
+
+powershell
+ 中文输出全是乱码 ❌
+Write-Output &quot;你好世界&quot;
+ 输出：浣犲ソ涓栫晫
+
+
+ 3. 大量重复信息占用上下文，浪费 Token 还降智！
+
+OpenCode 内置消除 git 等待交互的插件，但它会注入大量信息：
+
+powershell
+ Git 卡住等待交互式输入 ❌
+git commit -m &quot;fix&quot;
+ 等待编辑器、等待凭据、进入分页器...
+
+
+ 4. 复制粘贴，非遗传承
+
+以及日常开发中的重复性劳动：
+
+
+ 每次都要手写相同 prompt
+帮我 review 一下代码
+请解释一下这个函数
+请验收版本 2.0
+
+ 对话中的关键信息无法沉淀
+&quot;记住，这个项目的连接池是 HikariCP maxPoolSize=20&quot;
+→ 下次对话又忘了
+
+
+---
+
+ 四大基础修复，解决问题，摒弃噪音，拯救 Agent 心智
+
+ ① 中文不乱码
+
+每条命令前自动注入 UTF-8 编码设置：
+
+powershell
+$OutputEncoding=[Console]::OutputEncoding=[Console]::InputEncoding=[Text.Encoding]::UTF8;
+
+
+PowerShell 非交互子进程默认输出编码为系统代码页（Windows 常见 GBK），导致中文乱码。插件强制设置管道、控制台和输入编码为 UTF-8 —— 既防输出乱码，也防命令字符串中的中文路径传输损坏。
+
+ 优化：v2.1.1 将前缀从 120 字符压缩至 69 字符（-42%），v2.2.8 再压缩至 64 字符，v2.2.11 追加 [Console]::InputEncoding 增至 91 字符（输入+输出双保险）。
+
+ 解决思路对比：为什么选 ShellFix
+
+中文乱码的根源是 opencode 用 cross-spawn 以 pwsh -NoProfile 启动子进程，跳过了 profile 丢失 UTF-8 设置。业界有四种解决思路，各有取舍：
+
+| 思路 | 做法 | 生效范围 | 缺点 | 开箱即用 |
+|------|------|----------|------|---------|
+| ShellFix 前缀注入（本插件） | 每条命令自动注入 [Console]::OutputEncoding=UTF8 | 仅 ShellFix 处理的命令 | 命令字符串变长（91 字符前缀） | ✅ 安装即用 |
+| CMD Wrapper（Profile 型） | 过滤 -NoProfile，让用户自己的 profile 加载 | opencode 内所有命令 | 必须用户事先配好 profile（含 UTF-8 设置）；换机需重配 | ❌ 需手写 .cmd + 改配置 |
+| CMD Wrapper（编码注入型） | .cmd → .ps1 链，注入 chcp 65001 + 编码设置 | opencode 内所有命令 | .ps1 用 Invoke-Expression 有注入风险；额外进程链；换机需重配 | ❌ 需手写 .cmd + .ps1 + 改配置 |
+| powershell.config.json | 设置 Console:Encoding: utf-8 | 仅 PowerShell 7 | 只改 $OutputEncoding，够不到 [Console]::OutputEncoding | ❌ 不够用 |
+| 注册表 OEMCP=65001 | 全局代码页改 UTF-8 | 所有进程 | 依赖 GBK 的旧软件乱码 | ❌ 有全局风险 |
+
+ 完整排查过程与三种方案实测对比 → docs/05-中文乱码排查记录.md
+
+ShellFix 的优势：
+
+- 零配置零依赖：安装插件即生效，不碰 profile、不碰注册表、不写 wrapper
+- 不依赖 profile：-NoProfile 下同样生效（前缀直接塞进命令字符串）
+- 无全局副作用：只影响自己的命令，不波及系统其他软件
+- 自动兜底：还能顺带处理输入编码 [Console]::InputEncoding（v2.2.11）
+
+ ② export → $env: 自动转换
+
+Agent 生成的 Linux export 语法被自动转换为 PowerShell 兼容写法：
+
+| Agent 输出                   | 插件转换后                           |
+| ---------------------------- | ------------------------------------ |
+| export FOO=bar             | $env:FOO=&quot;bar&quot;;                    |
+| export FOO=&quot;hello world&quot;   | $env:FOO=&quot;hello world&quot;;            |
+| export FOO=&#x27;hello $PATH&#x27;   | $env:FOO=&quot;hello \$PATH&quot;;          |
+| export K1=v1 K2=v2 &amp;&amp; make | $env:K1=&quot;v1&quot;;$env:K2=&quot;v2&quot;; &amp;&amp; make |
+
+不再出现大量错误，减少重复对话。
+
+裸 VAR=x 也自动转换（v2.2.10，cmdRules.bareEnv 默认 on）：
+
+| Agent 输出      | 插件转换后              |
+| --------------- | ----------------------- |
+| GIT_MASTER=1  | $env:GIT_MASTER=&quot;1&quot;;  |
+| VAR=          | $env:VAR=&quot;&quot;;          |
+
+ 歧义排</pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/LoongBa/OpenCode-Plugins-ShellFix/releases"><b>2.3.4</b> <span class="rp-rel-tag">2.3.4</span> <span class="rp-item-extra">2026-11-08</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-21T10:28:44Z · Data license Apache-2.0 ·
+<a href="../data/repos/loongba__opencode-plugins-shellfix.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/purify.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/qrcode.min.js?v=93292ae7"></script>
+<script src="../assets/common.js?v=93292ae7"></script>
+<script src="../assets/repo.js?v=93292ae7"></script>
+</body>
+</html>

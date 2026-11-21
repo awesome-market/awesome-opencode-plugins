@@ -1,0 +1,550 @@
+# pi-codemode-guard
+
+English | [简体中文](./docs/README.zh-CN.md)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tychenjiajun/pi-codemode-guard/main/assets/preview.png" alt="pi-codemode-guard compiles LLM codemode scripts before they reach the QuickJS sandbox" width="880">
+</p>
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/pi-codemode-guard.svg)](https://www.npmjs.com/package/pi-codemode-guard)
+[![pi extension](https://img.shields.io/badge/pi-extension-7c3aed.svg)](https://pi.dev/docs/latest/extensions)
+[![pi package](https://img.shields.io/badge/pi-package-7c3aed.svg)](https://pi.dev/docs/latest/packages)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6.svg)](./tsconfig.json)
+[![Tests](https://img.shields.io/badge/tests-456%20passing-brightgreen.svg)](./package.json)
+[![CI](https://github.com/tychenjiajun/pi-codemode-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/tychenjiajun/pi-codemode-guard/actions/workflows/ci.yml)
+[![npm downloads](https://img.shields.io/npm/dm/pi-codemode-guard.svg)](https://www.npmjs.com/package/pi-codemode-guard)
+[![pnpm](https://img.shields.io/badge/package%20manager-pnpm-f69220.svg)](https://pnpm.io)
+
+**Install:** `pi install npm:pi-codemode-guard` ·
+[Gallery](https://pi.dev/packages/pi-codemode-guard) ·
+[Docs](https://pi.dev/docs/latest/packages)
+
+> **In one sentence:** *a best-effort, idempotent compiler that turns broken
+> codemode tool calls from any LLM into the exact JavaScript pi's QuickJS
+> sandbox expects — without forking codemode.*
+
+**pi-codemode-guard** is an open-source (MIT), TypeScript extension for the
+[pi](https://github.com/earendil-works/pi) AI coding agent. `codemode` is pi's
+tool for running one model-written JavaScript script that calls pi's other
+tools inside a QuickJS sandbox — and **many models write that script wrong**.
+The guard **repairs the script before it reaches the sandbox**: it inserts
+missing `await`, strips markdown fences, converts JSON tool-call programs into
+real JavaScript, normalizes `@options:` / `@exec:` pragmas, unwraps async IIFEs,
+and translates the OpenCode, Cloudflare agents, TanStack AI, Vercel AI SDK,
+DeepSeek Harness PTC, and OpenAI Codex code mode dialects — so AI-generated
+agent scripts run instead of silently failing.
+
+Typical model mistakes: a markdown fence around the script, a JSON tool-call
+program instead of JavaScript, a wrong field name (`script` instead of `code`),
+a relaxed `@options:` line, an async IIFE wrapper, or a forgotten `await` — and
+an unawaited tool call is silently JSON-serialized as `{}`.
+
+## Before → after
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tychenjiajun/pi-codemode-guard/main/assets/demo.gif" alt="The model writes a fenced script without await; pi-codemode-guard compiles it; the sandbox receives await searchTools(…)" width="880">
+</p>
+
+Real output of `compileCodemodeSource`, the compiler every `codemode` call
+runs through:
+
+**Markdown fence + missing `await`** — the `feishu: {}` bug (pi issue
+[#10555](https://github.com/earendil-works/pi/issues/10555)). The model
+writes:
+
+````markdown
+```js
+const hits = searchTools("feishu")
+```
+````
+
+The sandbox receives:
+
+```js
+const hits = await searchTools("feishu")
+```
+
+**JSON tool-call program.** The model writes:
+
+```json
+[{"tool":"read","args":{"path":"package.json"}}]
+```
+
+The sandbox receives:
+
+```js
+const _result0 = await tools.read({"path":"package.json"});
+return _result0;
+```
+
+**Another dialect.** The model writes (OpenCode):
+
+```js
+const r = await tools.orders.lookup({ id: 1 });
+```
+
+Resolved against pi's live tool catalog, the sandbox receives:
+
+```js
+const r = await tools.orders_lookup({ id: 1 });
+```
+
+Compile any of these again and nothing changes: every pass is idempotent, and
+a script that does not parse is returned unchanged with a warning — a guard
+bug can never block a tool call.
+
+Install in one command (it registers pi's `codemode` tool itself):
+
+```bash
+pi install npm:pi-codemode-guard
+```
+
+Other sources (git, local checkout, one-session `pi -e`), the security note,
+and the pi ≥ 1.1.0 startup warning: see [Install](#install).
+
+## Why
+
+Real failures from pi sessions and the pi tracker:
+
+- **Missing `await` on async helpers.** `const hits = searchTools("feishu")`
+  printed `feishu: {}` because the pending promise was serialized. Pi fixed the
+  *description* for this (`await searchTools(...)`, commit `269121616`, issue
+  #10555); the guard fixes the *scripts*.
+- **JSON tool-call programs.** Models that cannot write JavaScript emit
+  `[{"tool":"read","args":{"path":"package.json"}}]`, which pi validates as a
+  string only if it is wrapped, and then fails to run.
+- **Markdown fences.** The pi docs explicitly say "raw JavaScript source, not
+  JSON and not a markdown code fence"; models ignore that.
+
+## What it does
+
+Two hooks, installed automatically:
+
+1. **Argument normalization** (`prepareArguments`). Pi validates tool arguments
+   *before* any execution hook, so the guard adds a shim to the codemode tool
+   definition. It accepts a raw string, the common field aliases (`script`,
+   `source`, `javascript`, `input`, …), nested source objects
+   (`{ code: { language, content } }`), a single JSON tool call, and JSON
+   tool-call programs.
+2. **Script compilation** (the `tool_call` event). The validated `code` is
+   compiled in place by `compile.ts`.
+
+### Compile passes
+
+| Pass | Before | After |
+|------|--------|-------|
+| `strip-code-fence` | ` ```js\nconst x = 1;\n``` ` | `const x = 1;` |
+| `normalize-options-line` | `/* @options: {'maxOutputTokens': 2000} */` | `// @options: {"max_output_tokens": 2000}` |
+| `normalize-options-line` | `// @exec: {"yield_time_ms": 10000, "max_output_tokens": 1000}` | `// @options: {"max_output_tokens": 1000}` (+ a `yield_time_ms` warning) |
+| `normalize-options-line` | `// @options: {"timeout_ms": 1000}` after the first line | moved to the first line (+ duplicates removed) — pi ≥ 1.2.0 fails the call otherwise |
+| `compile-json-program` | `[{"tool":"read","args":{"path":"a"}}]` | `const _result0 = await tools.read({"path":"a"});\nreturn _result0;` |
+| `tanstack-typescript` | `const city: string = "London";` | `const city = "London";` |
+| `vercel-typescript` | `const c: string = "London";` | `const c = "London";` |
+| `ptc-typescript` | `let total: number = 0;` | `let total = 0;` |
+| `strip-typescript` | `const n: number = 1;` (no dialect claimed it) | `const n = 1;` |
+| `unwrap-iife` | `(async () => { … })();` | `…` |
+| `rename-wrapper-params` | `const tools = await searchTools("x");` | `const tools_ = await searchTools("x");` — pi runs the script as `(async (tools, console) => { … })`, so a top-level lexical `tools`/`console` is a sandbox syntax error |
+| `translate-statements` | one statement-based pass over every dialect construct | OpenCode/Cloudflare/TanStack/Vercel/PTC/Codex constructs translated independently |
+| `opencode-dialect` | `await tools.orders.lookup({…})` | `await tools.orders_lookup({…})` |
+| `cloudflare-dialect` | `await codemode.lookupOrder({…})` | `await tools.lookupOrder({…})` |
+| `tanstack-dialect` | `external_getWeather({…})` | `tools.getWeather({…})` |
+| `vercel-dialect` | `await tools["web-search"]({ q })` | `await tools.web_search({ q })` |
+| `ptc-dialect` | `await tools["my-tool"]({ q })` | `await tools.my_tool({ q })` |
+| `codex-dialect` | `yield_control()` / Codex-only helpers | left in place with a warning |
+| `bare-tool-calls` | `search({ q })` (a known tool name) | `tools.search({ q })` |
+| `pi-search-empty` | `searchTools("")` / `searchTools("  ")` | `ALL_TOOLS` (+ `.slice(0, N)` for a literal `{ limit: N }`) |
+| `await-async-calls` | `const hits = searchTools("x");` | `const hits = await searchTools("x");` |
+| `rewrite-tool-identifiers` | `tools["mcp__dev-radius__search"](…)` | `tools.mcp__dev_radius__search(…)` |
+
+Every pass is independent, idempotent, and best-effort. A script that does not
+parse is returned unchanged with a warning, so a guard bug can never block a
+tool call. A JSON tool-call program is compiler-generated JavaScript: it skips
+statement translation and runs only `rename-wrapper-params`,
+`await-async-calls` and `rewrite-tool-identifiers` on the result.
+
+Translation is **statement-based**: a snippet may mix dialects, and each
+construct is repaired by its shape rather than by one dialect detected for the
+whole snippet. The per-dialect pass ids above are reported for attribution; a
+single compile can list several of them at once (plus `translate-statements`).
+
+## Dialects
+
+The compiler detects which codemode dialect a script is written in, but
+translation no longer depends on that single answer: `translateCodemode` parses
+the source once and translates **each statement by its shape**, so OpenCode,
+Cloudflare, TanStack, Vercel/PTC and Codex constructs in one snippet are all
+repaired. Detection is still used to pick the TypeScript-stripping pass, to
+disambiguate the two constructs OpenCode and PTC share (`Object.keys(tools)` and
+unresolved bracket names), and to report `dialect` in the interop contract.
+
+`detectCodemodeDialect(code, { hadOptionsLine, hadExecLine })` returns `pi`,
+`opencode`, `cloudflare`, `tanstack`, `vercel`, `ptc`, `codex`, or `unknown` with
+the signals it found; the context flags restore the `@options` / `@exec` signal
+the options pass removed. OpenCode-exclusive signals are
+`$codemode`, a `tools.<ns>.<tool>` path (Pi tools are always single-level), and
+`Object.keys(tools)`. Cloudflare signals are a `codemode.<tool>` / `codemode.search`
+platform call and the bare `async () => { … }` program wrapper. TanStack signals
+are a bare `external_<tool>` binding reference (never a `tools.external_<tool>`
+member access). Vercel signals (`vercel:tools.<name>`) are TypeScript source
+(acorn cannot parse it) that references `tools` and carries no
+OpenCode/TanStack/Cloudflare signal — TanStack (`external_`) and OpenCode
+(`$codemode` / nested `tools.<ns>.<tool>`) take priority. DeepSeek Harness PTC
+signals are `ptc:ToolCallError` and `ptc:import()`, plus `ptc:Object.keys(tools)`
+only when acorn cannot parse the TypeScript; OpenCode's structural signals
+(`$codemode` / nested `tools.<ns>.<tool>`), TanStack, and Cloudflare take
+priority, but PTC's own signals outrank the generic `Object.keys(tools)` shape
+that OpenCode also uses. Codex signals are the `@exec` pragma and the Codex-only
+helpers (`yield_control`, `notify`, `generatedImage`, `audio`); they outrank
+Pi's own helper signals because a Codex script also uses `ALL_TOOLS`/`models`.
+Vercel remains the generic TypeScript fallback, so a PTC program with none of
+these signals is still compiled correctly as `vercel`.
+
+When the dialect is `opencode`,
+[`@opencode-ai/codemode`](https://github.com/anomalyco/opencode/tree/dev/packages/codemode)
+programs are translated. `compileOpencodeDialect` runs before the await
+pass:
+
+| OpenCode (`@opencode-ai/codemode`) | Pi codemode |
+|---|---|
+| `tools.orders.lookup({…})` | `tools.orders_lookup({…})` — resolved against the live catalog |
+| `tools.context7["resolve-library-id"]({…})` | `tools.context7_resolve_library_id({…})` |
+| `tools.mcp.dev.radius.search({…})` | `tools.mcp__dev_radius__search({…})` (fuzzy name match) |
+| `await tools.$codemode.search({ query, namespace, limit, offset })` | an `await searchTools(...)` shim returning `{ items: [{ path, description, signature }], remaining, next }` |
+| `Object.keys(tools)` | `ALL_TOOLS.map((t) => t.name)` |
+| `Object.keys(tools.<ns>)` | the `ALL_TOOLS` name list filtered by the namespace prefix (plain and `mcp__` spellings) |
+| `for...in tools.<ns>` | not rewritten — warns and points at `ALL_TOOLS.map((t) => t.name)` |
+| `return value`, `console.log`, `Promise.all`, top-level `await` | already valid Pi — left untouched |
+
+Tool-path resolution needs Pi's live catalog, so the extension passes
+`pi.getAllTools().map((t) => t.name)` into the compiler. Exact separators
+(`.`, `__`, `_`, `/`, `-`, each also tried under the MCP `mcp__` prefix) are tried first, then a fuzzy match that normalizes
+both sides (`mcp.dev.radius.search` ↔ `mcp__dev-radius__search`). A path with no
+catalog match is flattened deterministically and reported in `warnings`.
+
+`console.log` maps to Pi's `<console_output>` block and OpenCode's `{ ok, value }`
+envelope is dropped (Pi surfaces the `return` value directly); both are
+compatible in the OpenCode → Pi direction, so no rewrite is needed.
+
+When the dialect is `cloudflare`,
+[`@cloudflare/codemode`](https://github.com/cloudflare/agents/tree/main/packages/codemode)
+programs are translated. `unwrap-iife` removes the `async () => { … }` wrapper
+first, then `compileCloudflareDialect` rewrites the namespaces:
+
+| Cloudflare agents | Pi codemode |
+|---|---|
+| `codemode.lookupOrder({…})` | `tools.lookupOrder({…})` — the default namespace is stripped |
+| `state.readFile("/path")` | `tools.state_readFile("/path")` — named provider, resolved against the live catalog |
+| `await codemode.search("query")` | an `await searchTools(...)` shim returning Cloudflare's `{ results: [{ path, connector, method, description, kind }], total, truncated }` |
+| `await codemode.describe(path)` | an `await describeTool(...)` shim returning `{ path, description, types }` |
+| `codemode.run(name)` / `codemode.step(name, fn)` | no Pi equivalent — left unchanged with a warning |
+| `Math.*`, `JSON.*`, `console.*`, `Promise.*`, `searchTools`, … | never treated as a provider namespace |
+
+Cloudflare names tools with `sanitizeToolName` (hyphens/dots → `_`, invalid
+characters stripped, digit-leading names prefixed with `_`, reserved words
+suffixed with `_`), which differs from Pi's `toCodemodeIdentifier`. The catalog
+is therefore also keyed by the Cloudflare spelling, so `codemode.delete_()` maps
+back to `tools.delete()` and `codemode._3d_render()` to `tools._d_render()`.
+Provider namespaces are only rewritten when the catalog confirms them, and names
+bound by the script itself (`const state = {…}`) are never touched. An
+unresolved provider is also left unchanged — but it only warns when the
+detected dialect is `cloudflare` (`` could not resolve Cloudflare provider
+`state.readFile` … ``); any other dialect stays silent unless the trailing
+segment is a live Pi tool, in which case it hints `` `foo.read` is not a Pi
+tool path; Pi has a tool `read` — call `tools.read(...)` `` (`translate.ts`),
+so `performance.now()` and `foo.bar()` warn about nothing. Positional
+provider arguments (`state.readFile("/path")`) are preserved as written. Two
+known limitations: a statement-form program that uses only named providers (no
+`codemode.*` call, no async-arrow wrapper) detects as `unknown` (detection is
+catalog-free), and `export default async () => {}` is left alone — `unwrap-iife`
+only unwraps a lone expression statement.
+
+When the dialect is `tanstack`, [`@tanstack/ai-code-mode`](https://github.com/TanStack/ai/tree/main/packages/ai-code-mode)
+programs are translated. The code is TypeScript, so `tanstack-typescript` runs
+first (`unwrap-iife` runs after, in case the model wrapped its code), then
+`compileTanstackDialect` rewrites the bindings:
+
+| TanStack AI code mode | Pi codemode |
+|---|---|
+| `{ typescriptCode: "…" }` | `{ code: "…" }` (via the `typescriptCode` argument alias) |
+| `external_getWeather({…})` | `tools.getWeather({…})` — resolved against the live catalog |
+| `external_my_tool({…})` with tool `my-tool` | `tools.my_tool({…})` (Pi's `toCodemodeIdentifier` rule) |
+| `return value`, `console.log`, `Promise.all`, top-level `await` | already valid Pi — left untouched |
+
+The binding prefix is stripped and the rest resolved through Pi's catalog the
+same way OpenCode namespace paths are; an unresolvable binding is flattened
+identically to OpenCode (and warned about) so it at least parses.
+
+When the dialect is `vercel`, [`@ai-sdk/code-mode`](https://github.com/vercel/ai/tree/main/packages/code-mode)
+programs are translated. The envelope field is `{ js: "…" }` instead of Pi's
+`{ code }` (`js` is already accepted as an argument alias) and the program runs
+as the body of an async function (top-level `await`/`return` work). The code is
+TypeScript, so `vercel-typescript` runs before `unwrap-iife`, then
+`compileVercelDialect` rewrites the bracket access:
+
+| Vercel AI code mode | Pi codemode |
+|---|---|
+| `{ js: "…" }` | `{ code: "…" }` (via the `js` argument alias) |
+| `await tools["web-search"]({ q })` | `await tools.web_search({ q })` — resolved against the live catalog |
+| `const c: string = "London";` | `const c = "London";` — TypeScript stripped via sucrase |
+| `tools.getWeather({ location })` | `tools.getWeather({ location })` (unchanged) |
+
+Raw tool names that are not valid JS identifiers keep bracket access in Vercel;
+`compileVercelDialect` maps them to Pi's identifier against the live catalog,
+flattening (and warning about) any name it cannot resolve — the same fallback
+OpenCode uses. A plain-JavaScript Vercel program parses, so `vercel-dialect`
+does not run: its exotic bracket access is still resolved against the catalog
+by `rewrite-tool-identifiers`, but without the unresolved-name warning. This dialect has no `searchTools` / `ALL_TOOLS` / `codemode.*`
+helpers; tool discovery is embedded in the tool description, so nothing is
+shimmed.
+
+When the dialect is `ptc`,
+[`@deepseek-ai/dsh-ptc-runtime-node`](https://github.com/deepseek-ai/deepseek-harness/tree/master/packages/ptc-runtime/ptc-runtime-node)
+programs are translated. DeepSeek's PTC mode tool is
+`run_code({ description, code })` — the argument shim reads only `code` (or an
+alias field), so the extra `description` is ignored, leaving Pi's `{ code }` —
+and `code` is the body
+of an async TypeScript function (erasable TypeScript only), so top-level
+`await`/`return` work. The code is TypeScript, so `ptc-typescript` runs before
+`unwrap-iife`, then `compilePtcDialect` rewrites the calls:
+
+| DeepSeek PTC | Pi codemode |
+|---|---|
+| `{ code, description }` | `{ code }` (`description` ignored) |
+| `await tools["web-search"]({ q })` | `await tools.web_search({ q })` — resolved against the live catalog |
+| `Object.keys(tools)` | `ALL_TOOLS.map((t) => t.name)` |
+| `const c: string = "London";` | `const c = "London";` — TypeScript stripped via sucrase |
+| `ToolCallError` | no equivalent — a warning is emitted |
+| `await import("node:fs")` | unavailable in Pi — a warning is emitted |
+
+Host functions are exposed as a global `tools` object whose names are
+arbitrary strings (the model writes `await tools.name(args)`, or quoted access
+`tools["my-tool"](args)` for exotic names); `compilePtcDialect` maps them to
+Pi's `tools.<identifier>` against the live catalog. `ToolCallError` (PTC's
+rejection for failed tool calls, carrying `.toolName`) and `await import(...)`
+(the way PTC reaches Node APIs) have no Pi equivalent — a failed Pi tool call
+rejects with a plain `Error`, and Pi's QuickJS sandbox has no `import`,
+`fetch`, or Node APIs — so both emit a warning. Those two are PTC-specific;
+everything else the sandbox lacks — timers (`setInterval`/`clearInterval`),
+`Intl`, `structuredClone`, `TextEncoder`/`TextDecoder`, `URL`/`URLSearchParams`,
+`crypto`, `fetch`, `process`, `require`, `Buffer`, and host globals such as
+`Atomics`, `WebAssembly`, `AbortController`, `Headers`, `Request`, `Response`,
+`localStorage`, `window`, `document` — warns too, through the shared `runtime`
+rows in `UNSUPPORTED_GLOBALS` (`dialect/signals.ts`), each leaving the call in
+place with a suggested Pi alternative. An absent global warns **only when
+nothing resolves**: a reference the live catalog confirms as a tool —
+`fetch({q})` with a tool `fetch`, `crypto.read` with a tool `crypto_read` —
+rewrites instead and stays silent. `console.log(...)` and `return` are PTC's
+output channels and are Pi-compatible.
+
+### OpenAI Codex code mode (`codex-rs/code-mode-runtime`)
+
+[OpenAI Codex](https://github.com/openai/codex/tree/main/codex-rs/code-mode-runtime)
+runs its `exec` tool as raw JavaScript in a fresh V8 isolate. Its program API is
+close to Pi's, so most of a Codex script is already valid:
+
+| Codex | Pi codemode |
+|---|---|
+| `exec({ code: "…" })` | `codemode({ code: "…" })` |
+| `await tools.mcp__ologs__get_profile({…})` | unchanged — Codex's `normalize_code_mode_identifier` is exactly Pi's `toCodemodeIdentifier` |
+| `text` / `image` / `store` / `load` / `exit` | unchanged |
+| `ALL_TOOLS` as `{ name, description }[]` | unchanged |
+| `// @exec: {"yield_time_ms": 10000, "max_output_tokens": 1000}` | `// @options: {"max_output_tokens": 1000}` — `yield_time_ms` is dropped with a warning |
+| `audio` / `generatedImage` / `notify` / `yield_control` / `setTimeout` / `clearTimeout` | no Pi equivalent — left in place with a warning |
+
+The only translation is the pragma and the Codex-only helpers; the `codex`
+dialect exists so a Codex script is reported and its boundaries are surfaced.
+
+### What it deliberately leaves alone
+
+- Missing `await` inside a **non-async** function (inserting one is a syntax
+  error).
+- Members of `Promise.all` / `allSettled` / `race` / `any` and promises chained
+  with `.then` / `.catch` / `.finally`.
+- Envelope shapes that already failed pi validation before the arguments hook.
+
+### Known limitations
+
+- Statement-form Cloudflare programs that use only named providers (no
+  `codemode.*` call, no async-arrow wrapper) report `dialect: unknown` —
+  detection is catalog-free — so the interop `dialect` is inaccurate, and,
+  because the detected dialect is not `cloudflare`, such a program gets **no**
+  provider diagnostic at all unless the trailing segment happens to be a live
+  catalog tool (the `` `foo.read` is not a Pi tool path `` hint). The provider
+  rewrite still runs: `translate.ts` applies the Cloudflare rule to every
+  statement, catalog permitting.
+- A tool-handle property access (`tools.read.length`) is preserved only when
+  the live catalog confirms the first segment, and detection is catalog-free —
+  so the contract still reports `dialect: "opencode"` for such a source.
+  The rest of the chain is never validated: an unresolved
+  `tools.<tool>.<property>` (`tools.read.zzz`) is left exactly as written — no
+  rewrite, no warning — and fails at runtime inside pi's helpful tools proxy.
+- Non-erasable TypeScript: sucrase compiles `enum`/`namespace` into running
+  JavaScript, where DeepSeek's erasable-only PTC reference would reject them.
+- Identifier collisions (`web-search` / `web_search`): resolution is
+  deterministic (the written raw name wins) and emits no warning, but both map
+  to the same `tools.web_search`.
+- Dynamic bracket access (`tools[expr]`, a non-literal property) is never
+  rewritten, silently.
+- `ALL_TOOLS` entries are `{ name, description }` objects; model code that
+  treats them as strings (e.g. `ALL_TOOLS.filter(n => /x/.test(n))`) is not
+  normalized (observed in real sessions).
+- A blank `searchTools("")` becomes `ALL_TOOLS` only when its result is used
+  as a value. A `.then`/`.catch`/`.finally` chain keeps the call (an array has
+  none of them), a `namespace` option keeps it (a `namespace`-filtered entry
+  carries only `{ name, description }`, so `ALL_TOOLS` cannot reproduce it),
+  and a script that binds `searchTools` or `ALL_TOOLS` itself keeps it.
+
+## Install
+
+`pi-codemode-guard` is a [Pi package](https://pi.dev/docs/latest/packages): it
+ships a `pi.extensions` manifest and the `pi-package` keyword, so installing it
+with the `pi` CLI registers the `codemode` tool itself. It is published to npm as
+[`pi-codemode-guard`](https://www.npmjs.com/package/pi-codemode-guard).
+
+```bash
+# from npm (recommended)
+pi install npm:pi-codemode-guard
+
+# from git
+pi install git:github.com/tychenjiajun/pi-codemode-guard
+
+# from a local checkout
+pi install ./pi-codemode-guard
+
+# try it for one session without saving it to settings
+pi -e npm:pi-codemode-guard
+```
+
+`pi list` shows configured packages; `pi remove <source>` removes one and
+`pi update --extensions` reconciles installed packages; `pi config` enables or
+disables individual resources, including pi's built-ins. Personal installs are
+written to `~/.pi/agent/settings.json` — add `--local` (or `-l`) to write a
+project-scoped declaration to `.pi/settings.json` instead, which pi reads only
+after project trust is granted.
+
+> Extensions and packages run **inside the pi process with your operating-system
+> permissions** and can inspect prompts, tool calls, and session history. Review
+> third-party source before installing it — including this one.
+
+It works both with the CLI's built-in codemode extension (which it replaces) and
+in SDK sessions that add `createCodemodeExtension()`.
+
+> **Startup warning on pi ≥ 1.1.0.** Registering a tool named `codemode` makes
+> pi leave out its replaceable built-in `codemode` extension and print
+> ``Extension … registers tool `codemode`, so built-in extension `codemode` was
+> not loaded``. The guard *is* that replacement — `codemode` still works — but to
+> silence the message, disable the built-in copy: add
+> `"extensions": ["-builtin:codemode"]` to `~/.pi/agent/settings.json` (or
+> uncheck `codemode` under **Built-in** in `pi config`). If the guard is later
+> removed, re-enable the built-in so `codemode` keeps working.
+
+## How it stays compatible
+
+The built-in `codemode` tool is registered by an extension that pi marks
+**replaceable** (`builtin: true, replaceable: true` in the CLI), and
+reimplementing it would lose `models`, `store()` persistence, and
+`codemode.mode`. Instead the guard runs the canonical
+`createCodemodeExtension()` factory through a small `pi` proxy whose
+`registerTool` adds the argument shim and a compile receipt. The proxy spreads
+the canonical definition, so the tool keeps `parameters === codemodeSchema`,
+`reachesTools`, `prepareLoadout`, `defaultActive: false`, and all of its other
+original options — pi 1.2.0 relies on `reachesTools` (not on the old
+`isCodemodeTool` helper, removed in 1.2.0) to decide whether a replacement
+`codemode` can reach MCP tools.
+
+## Built on pi
+
+The guard is an ordinary [extension](https://pi.dev/docs/latest/extensions) — a
+TypeScript module whose default export is a factory that receives `ExtensionAPI`
+and registers capabilities for the current runtime. It uses two of the documented
+integration points, and nothing else:
+
+- `pi.registerTool()` — re-registers the canonical `codemode` tool through a
+  proxy that adds `prepareArguments` and the render receipt.
+- `pi.on("tool_call")` / `pi.on("tool_result")` — compiles the validated `code`
+  in place, then stamps `details.piCodemodeGuard` on the result.
+
+It follows the [package contract](https://pi.dev/docs/latest/packages) too:
+
+| Package contract | How this package complies |
+|---|---|
+| Manifest | `"pi": { "extensions": ["./src/index.ts"], "image": "https://raw.githubusercontent.com/tychenjiajun/pi-codemode-guard/main/assets/preview.png" }` |
+| Gallery eligibility | the `pi-package` keyword is present, and `pi.image` supplies the gallery preview |
+| Host packages | `@earendil-works/pi-coding-agent` and `@earendil-works/pi-tui` are `peerDependencies` with a `"*"` range and are never bundled |
+| Runtime dependencies | `acorn` and `sucrase` are real `dependencies`, installed with the package |
+| No build step | pi loads the TypeScript entry through jiti, so the published tarball ships the source as-is |
+| Lifecycle | the factory only registers — it starts no processes, sockets, watchers or timers, so a session-less load is safe, and compilation keeps no state beyond a bounded pending-call map |
+
+## Interop contract
+
+Compiled calls publish `details.piCodemodeGuard` (see `contract.ts`):
+
+```ts
+interface PiCodemodeGuardDetails {
+  version: 1;
+  originalCode: string; // what pi validated
+  compiledCode: string; // what the sandbox received
+  passes: string[];     // e.g. ["opencode-dialect(2)", "await-async-calls(2)"]
+  parsed: boolean;
+  dialect: "pi" | "opencode" | "cloudflare" | "tanstack" | "vercel" | "ptc" | "codex" | "unknown";
+  warnings: string[];
+}
+```
+
+Read it with `readPiCodemodeGuardDetails(details)`. The shape is versioned and
+additive-only; consumers must fall back to the inline content for versions they
+do not understand.
+
+## FAQ
+
+### What is pi-codemode-guard?
+
+`pi-codemode-guard` is a [Pi package](https://pi.dev/packages/pi-codemode-guard)
+that compiles LLM-written `codemode` scripts — `codemode` is pi's tool for
+running one model-written JavaScript script that calls pi's other tools inside
+a QuickJS sandbox — into the exact JavaScript the sandbox expects. Every pass
+is best-effort and idempotent: a script that does not parse is returned
+unchanged with a warning, so a guard bug can never block a tool call.
+
+### Does it work with the OpenCode/Codex code mode dialects?
+
+Yes — it detects and translates the OpenCode, OpenAI Codex, Cloudflare agents,
+TanStack AI, Vercel AI SDK, and DeepSeek Harness PTC code mode dialects into
+pi's own dialect, resolving tool paths and namespaces against pi's live tool
+catalog. Each dialect is an independent, idempotent compile pass, and input
+that does not parse is left untouched.
+
+### How is it different from forking codemode?
+
+It does not fork anything: it re-registers the canonical
+`createCodemodeExtension()` through a small proxy, keeping the original schema,
+`models`, `store()` persistence, and `codemode.mode` so it coexists with the
+built-in tool. It does replace the built-in registration — disable the built-in
+copy (`"extensions": ["-builtin:codemode"]`) if you want pi to stop warning
+about the replacement.
+
+### Why does my codemode call return an empty `{}`?
+
+Because the script contained an un-awaited promise (typically
+`searchTools(...)` or a `models.*` call). The pending promise is
+JSON-serialized as `{}`, so the tool silently returns nothing. The
+`await-async-calls` pass inserts the missing `await` automatically.
+
+## Development
+
+```bash
+pnpm install
+pnpm test        # 456 unit tests
+pnpm typecheck
+pi -e .          # load this checkout as an extension for one session
+```
+
+Layout and design notes live in [`AGENTS.md`](./AGENTS.md) and
+[`CONTEXT.md`](./CONTEXT.md). Pi's own documentation:
+[Extensions](https://pi.dev/docs/latest/extensions) ·
+[Pi packages](https://pi.dev/docs/latest/packages).
+
+## License
+
+MIT

@@ -1,0 +1,194 @@
+# swe-mux
+
+[English](README.md) | [简体中文](README.zh-CN.md)
+
+**A terminal multiplexer for all your agent sessions, highly optimized for mobile use.**
+
+swe-mux runs Claude Code, Codex, pi, oh-my-pi, opencode or any shell in real terminals on your own machine, with the same keys and controls in every agent, and your phone gets the whole workspace over your own Tailscale network, voice and project notes included.
+I usually have several Claude Code and Codex sessions going across different projects, and I built swe-mux because I found the phone experience and the project notes lacking in the tools I had tried.
+It is open source (Apache-2.0), with no account, relay or telemetry, and it runs as a native desktop app on Windows, in the browser on Linux and macOS, and as an installable web app on your phone.
+
+[![Agents and a preview arranged in the swe-mux workspace](site/img/showcase-panes.webp?v=e8ebca109a98)](https://swemux.dev/demo/)
+
+[Try the interactive demo](https://swemux.dev/demo/) or [read the setup guide](https://swemux.dev/docs/install/).
+The demo runs the real interface with simulated agent activity and needs no provider connection.
+
+On the phone: answer a waiting agent, then open the app it is building (50 seconds, recorded from the demo).
+
+https://github.com/user-attachments/assets/87d1c12c-8cfc-4632-a3bf-8d8c11f364a5
+
+Desktop and phone together, agents asking for agents, and the land queue (85 seconds, recorded from the demo).
+
+https://github.com/user-attachments/assets/1f964770-bee4-4823-a341-4c123b40605b
+
+## What you can do
+
+- **Work from your phone.** The phone runs the same workspace as the desktop, with the same features, not a companion app: the live terminal with a row of extra keys for the ones a phone keyboard lacks, approvals, git diff review, files, project notes, a queue for your next prompt, and push notifications. It installs from the browser as a web app and reaches your machine over your own Tailscale network, with no app store and no relay.
+- **Use the same controls in every agent.** Shift+Enter inserts a new line and Ctrl+Backspace deletes a word in every recognized agent's prompt, clicking places the cursor, and paste and text selection work the same way, so moving from Codex to Claude Code to pi changes nothing about how you drive it. Workspace keymaps come in swe-mux, tmux, VS Code, Vim and Emacs presets, and images paste straight into agents that take them.
+- **Run any agent CLI or shell.** Claude Code, Codex, pi, oh-my-pi and opencode are recognized, and any other CLI or shell runs in a real terminal. Type `claude` or `codex` in any pane and it becomes a tracked session in place. Resume any of them, branch a Claude conversation from any message, and restart an agent onto the same conversation.
+- **Run your projects by voice.** Conversation mode listens hands-free: a wake word followed by a command phrase sends or appends what you dictated, interrupts an agent, reads its last reply aloud, goes to a session or starts a new agent in a project, and those commands never wait on a model call. Anything the commands do not cover goes to an assistant that can tell you what needs you or queue a message to a session, and it asks before anything consequential. Speech-to-text runs on your own machine; the assistant uses a model endpoint you configure.
+- **Keep notes per project.** Each project has its own notes in a Markdown editor that renders as you type (headings, nested lists, checkboxes, tables, code blocks and an outline to jump through), on the desktop and the phone, and a selection can go to an agent as a prompt. The Scratchpad is one more note, outside every project.
+- **See every project and session in one sidebar.** Each session shows whether it is working, idle or waiting on you, read from the agent's hooks, its transcript, the terminal and the process tree rather than the screen alone, and waiting names its reason: an approval, a question, a rate limit, a login. An agent that is idle with subagents or background tasks still running looks different from one that is done. The sidebar also shows live sessions, CPU and RAM.
+- **Know where your quota went, and switch accounts.** Each saved Claude and Codex account shows its 5-hour and weekly windows, split into what swe-mux sessions used, what the account used outside them, and what was used on another device, with history and reset alerts. Switching the system-wide login between accounts you own is one click.
+
+The rest is optional, and you can leave any of it alone:
+
+- **Notifications.** Alerts and push notifications name the session and the reason, reach a locked phone, and respect quiet hours.
+- **Your dev server on your phone.** A server on the host's `127.0.0.1` opens in a Preview pane on the desktop or the phone, proxied through swe-mux with hot reload and WebSockets, so no extra port is exposed. Click a URL an agent printed to open it.
+- **What each agent loaded and did.** The Agent tab lists the tools, skills, MCP servers, plugins and hooks a Claude Code or Codex session can see, and flags configuration that changed after it started. Read CLAUDE.md, AGENTS.md and Claude's memory in one place, follow the transcript, and search every agent's past conversations at once.
+- **The processes agents leave behind.** Every process and listening port is attributed to the session that started it. Processes still running after their session ended, ones that escaped its tree, and anything over 90% CPU or 2 GiB of memory are flagged, with terminate-tree one press away. Nothing is killed automatically.
+- **Sessions that coordinate.** Queue a prompt behind a running turn, let a Codex session ask a Claude session something, and land a finished branch only after the checks you approved pass.
+- **Sessions that survive restarts and updates.** A separate supervisor holds every terminal, and typing keeps working while swe-mux restarts.
+
+## Interface language
+
+English and Simplified Chinese ship in the same app and installer.
+Choose **English** or **简体中文** during setup or in **Settings → General → Language**.
+Before you choose, the interface follows a supported browser language, with English as the fallback.
+Your saved choice applies to desktop and phone without restarting sessions or losing drafts.
+
+This translates swe-mux controls, help, status labels, and application messages.
+Terminal output, agent replies, your content, command syntax, and voice-command phrases keep their original language.
+
+## What runs where
+
+Your agent CLIs run in real terminals under your existing subscriptions.
+Data stays on your machine, with no swe-mux account, vendor-operated backend or usage telemetry.
+Agent providers, optional integrations and update checks still use the network.
+The assistant uses your configured model endpoint and budget; speech recognition running locally is a separate capability.
+
+A separate supervisor keeps sessions working through daemon restarts and app updates.
+Supervisor death and power loss end live processes; cold recovery restores readable, resumable records.
+Automation and agent control have explicit Project permissions.
+Clipboard history records in-app text copies and is memory-only unless persistence is enabled.
+
+## Install
+
+<!-- TODO(release): the installer exists as of v0.1.2 and is NOT code signed. When a signing
+     certificate is in hand, say here which Windows builds and architectures it is signed for and
+     drop the SmartScreen sentence below. The site does not need that edit:
+     https://swemux.dev/#download is drawn from the release manifest. This file is the copy that
+     stays manual, so it is the one to remember. -->
+
+swe-mux is on PyPI. The wheel is pure Python and carries the built frontend, so this needs no Node and no checkout.
+
+```
+# Recommended. Isolated environment, every command on your PATH globally.
+uv tool install swe-mux
+swe-mux  # Windows: open the desktop app and tray
+
+# The same isolated, on-PATH install, without uv.
+pipx install swe-mux
+swe-mux  # Windows: open the desktop app and tray
+```
+
+On Windows that is everything: run `swe-mux` and you get the native window and a tray icon, with no console and nothing else to install.
+The setup guide offers Start Menu, desktop, and sign-in shortcuts and detects those already configured.
+Setup, the UI tour, and optional first steps remain available in Getting started above Usage in the sidebar.
+
+Elsewhere - or if you would rather just use the browser - `swemux start` puts the daemon in the background and returns once it is serving <http://127.0.0.1:8765>; closing the terminal does not stop it, and `swemuxd --shutdown` does.
+`swemuxd` still runs it in the foreground when you want the log in front of you.
+`swemux doctor` is a read-only health report covering the daemon, the supervisor, the frontend build, detected agent CLIs, the tailnet listener, and background loops.
+
+Every install writes three commands, one per program: **`swemux`** (the CLI), **`swemuxd`** (the daemon), and **`swe-mux`** (the desktop window and tray).
+There are no short aliases, deliberately: `mux` is shared with at least one unrelated tool, and shipping a launcher under a contested name is what creates the collision rather than what survives it.
+
+A **Windows installer** is published from v0.1.2 onward, alongside a portable archive, on the [releases page](https://github.com/jatoran/swe-mux/releases).
+It is **not code signed**, so SmartScreen warns on first run; the PyPI install avoids that prompt entirely.
+
+**No Python install of any kind creates a desktop shortcut.**
+Wheels have no post-install hook, so `uv` prints its own installation summary.
+Launch `swe-mux` on Windows or `swemuxd` for the browser UI to begin setup.
+`swemux install-shortcut --startup` also creates Start Menu, desktop, and sign-in shortcuts directly.
+Use Help → Restart setup or `swemux setup --restart` to choose retained settings or backed-up fresh global preferences.
+For isolated first-use testing, `swemuxd --new-user-profile test-one` uses separate data and a separate local port.
+
+Running from a checkout, upgrades, PATH troubleshooting and uninstall: [`.docs/development/OPERATOR_LIFECYCLE.md`](.docs/development/OPERATOR_LIFECYCLE.md).
+
+### Requirements
+
+- Python 3.12+, and uv or pipx to install with.
+- At least one agent CLI, already installed and logged in. swe-mux does not install, manage, or proxy them.
+- Optionally Tailscale, to reach the daemon from a phone.
+- Node 22.6+ **only** to build the frontend from source; the published wheel carries it.
+
+On-device speech is optional and acquired on an explicit press rather than shipped: the libraries and their models are downloaded once, verified against pinned hashes, and nothing is fetched until you ask.
+**Speech-to-text decodes on your own machine in both shipped configurations** - faster-whisper, or Windows Speech Recognition. There is no cloud speech path and no browser fallback; without an engine, transcription returns a typed error rather than sending audio anywhere.
+Text-to-speech is the same, except the explicitly experimental Edge TTS provider, which does leave the machine and requires an acknowledgement first.
+
+## First run
+
+Setup walks through **Experience → Agents → Projects → Keymap**.
+Recent project folders appear in the background after selecting agents; filter and select any of them, or add a folder manually.
+**Start working** launches the chosen shell or agent, with optional permissions, models, voice, desktop, phone, and the UI tour available in Getting started.
+
+Create a Project and point it at an existing folder.
+`Ctrl+Shift+Enter` opens a terminal at its root, `Ctrl+Shift+P` (or `F1`) opens the command palette; nothing is spawned until you ask.
+
+Then type `claude`, `codex`, or another CLI normally.
+swe-mux puts its own launchers first on that terminal's PATH, so the usual command promotes the terminal you are standing in to an agent session in place: same pane, same scrollback, now carrying a transcript, a status, a queue, and a context meter.
+
+The **Run** menu starts an agent, a shell, a worktree session, or an imported task. Imported tasks - VS Code tasks, `package.json` scripts, `.swe-mux/actions.toml` - stay inert until their exact current bytes are trusted. ([project actions](.docs/design/features/project-actions.md))
+
+## Platform support
+
+CI builds, validates and install-smokes the wheel on Windows, Linux and macOS every push, and starts a real daemon on Windows, Linux and macOS from the source checkout to prove it serves a shell and exits cleanly.
+No CI job starts a daemon from a **published artifact**, which is exactly where the proof stops.
+
+- **Windows 10/11 is the proving platform.** The full gate runs there, including real ConPTY integration and the Playwright renderer suite, and it is the only platform the desktop app ships on.
+- **Linux runs headless plus a browser**, on a required CI leg. A native Linux desktop app and installer are planned; the current UI runs in a browser.
+- **macOS runs the daemon and browser client**, with required CI checks including the source-daemon tier.
+
+What each claim rests on: [`.docs/development/CROSS_PLATFORM_FINDINGS.md`](.docs/development/CROSS_PLATFORM_FINDINGS.md).
+
+## Remote access
+
+The daemon listens on localhost and on the machine's detected Tailscale IPv4 address; `swemuxd --local-only` keeps it local.
+**Tailscale policy is the access boundary**, and swe-mux has no separate remote login, so a tailnet peer your policy admits has terminal and code-execution authority.
+
+Browsers restrict the clipboard and microphone over plain HTTP, so for those put Tailscale Serve in front: `tailscale serve --bg http://127.0.0.1:8765`.
+`0.0.0.0`, direct LAN binding, Funnel, port forwarding and public ingress are unsupported. ([detail](.docs/design/features/remote-access.md))
+
+## Configuration and data
+
+Configuration is `config.toml` inside the data directory: `~/.mux` on Windows, `$XDG_DATA_HOME/swe-mux` (else `~/.local/share/swe-mux`) on Linux, `~/Library/Application Support/swe-mux` on macOS.
+An existing `~/.mux` always wins, and `MUX_DATA_DIR` overrides all of it.
+
+## Provider accounts
+
+Settings → Accounts saves Claude and Codex logins, tracks each account's subscription window, and switches the system-wide login in one click. Only authentication is copied.
+
+This is a convenience for **one person switching between accounts they personally own and pay for**, replacing the logout/login cycle the provider CLIs otherwise require.
+It is not account pooling and not a way around a usage limit: accounts are never shared between people, credentials stay local and go nowhere but the provider's own endpoints, sessions are never load-balanced, and switching is always explicit. ([scope and terms](.docs/design/features/provider-accounts.md))
+
+## Documentation
+
+Published docs: <https://swemux.dev/docs/>.
+The maintained design contract starts at [`.docs/design/00_OVERVIEW.md`](.docs/design/00_OVERVIEW.md), and [`.docs/CLAUDE.md`](.docs/CLAUDE.md) routes each subsystem to the document that owns it.
+
+## Contributing
+
+Contributions are welcome.
+Feature requests are [Discussions in the Ideas category](https://github.com/jatoran/swe-mux/discussions/categories/ideas), where a thumbs-up is a vote and the most-voted open ideas are drawn on the [roadmap](https://swemux.dev/roadmap/); [issues](https://github.com/jatoran/swe-mux/issues) are for bugs.
+Describe the problem rather than the fix.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) covers what a change has to satisfy; [`CLAUDE.md`](CLAUDE.md) covers the working rules; [`SECURITY.md`](SECURITY.md) is where a vulnerability report goes.
+
+## License
+
+swe-mux is licensed under the [Apache License 2.0](LICENSE).
+See [`NOTICE`](NOTICE) for attribution and [`TRADEMARK.md`](TRADEMARK.md) for what the license's trademark reservation does and does not allow.
+
+Contributions arrive under a [DCO sign-off](CONTRIBUTING.md) - `git commit -s` - and not a CLA.
+A CLA would let the project relicense your contribution later; a DCO does not, and that is the intended trade.
+
+Third-party software redistributed with swe-mux is listed in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md), generated from the lockfiles by `packaging/license_audit.py` so it cannot drift.
+swe-mux ships no GPL or AGPL code; it ships `pystray` under the LGPL as replaceable source inside the bundle.
+
+### Not affiliated with the agent vendors
+
+swe-mux launches and observes coding-agent CLIs published by other vendors, including Anthropic's Claude Code and OpenAI's Codex CLI.
+It is **not affiliated with, endorsed by, sponsored by, or certified by** Anthropic, OpenAI, or any other such vendor, and it uses their names only to identify which tool a feature works with.
+You run those CLIs under your own account and your own agreement with each vendor, and the same is true of the optional OpenRouter and Hugging Face integrations.
+
+The optional Edge TTS integration is different: the upstream client uses Microsoft Edge's consumer Read Aloud endpoint with no API key and no documented third-party service contract, so selecting it requires an explicit disclosure acknowledgement.
+That client is LGPL, runs only in an isolated managed or operator-supplied Python, and is absent from the frozen bundle - but that software boundary does not resolve Microsoft's service terms.

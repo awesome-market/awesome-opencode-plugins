@@ -1,0 +1,481 @@
+<img src="https://chatrecall.dev/logo.svg" alt="chat-recall" width="208" height="40">
+
+
+[![npm](https://img.shields.io/npm/v/chat-recall?logo=npm&color=cb3837)](https://www.npmjs.com/package/chat-recall)
+[![npm downloads](https://img.shields.io/npm/dm/chat-recall?color=cb3837&label=downloads)](https://www.npmjs.com/package/chat-recall)
+[![MCP registry](https://img.shields.io/badge/MCP%20registry-io.github.munhq%2Fchat--recall-1f6feb)](https://registry.modelcontextprotocol.io/v0/servers?search=chat-recall)
+[![Smithery](https://img.shields.io/badge/Smithery-munhq%2Fchat--recall-7c3aed)](https://smithery.ai/servers/munhq/chat-recall)
+[![Glama](https://img.shields.io/badge/Glama-munhq%2Fchat--recall-4f46e5)](https://glama.ai/mcp/servers/munhq/chat-recall)
+
+[![Install in Cursor](https://img.shields.io/badge/Install-Cursor-000?logo=cursor)](cursor://anysphere.cursor-deeplink/mcp/install?name=chat-recall&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi1wIiwiY2hhdC1yZWNhbGwiLCJjaGF0LXJlY2FsbC1tY3AiXX0=)
+[![Install in VS Code](https://img.shields.io/badge/Install-VS%20Code-007ACC?logo=visualstudiocode)](vscode:mcp/install?%7B%22name%22%3A%22chat-recall%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22-p%22%2C%22chat-recall%22%2C%22chat-recall-mcp%22%5D%7D)
+
+**[chatrecall.dev](https://chatrecall.dev)** · [How it works](https://chatrecall.dev/how-it-works/) · [MCP tools](https://chatrecall.dev/mcp/) · [Pricing](https://chatrecall.dev/pricing/) · [Self-host](https://chatrecall.dev/self-hosting/) · [Security](https://chatrecall.dev/security/)
+
+> Turn what your AI coding tools already write into shared team knowledge, leaked-secret alerts, ranked code findings and tracked tasks.
+
+**Your agents wrote it all down. Nobody read it.**
+
+Every coding agent you run keeps a full transcript of its work: the decisions, the
+reasoning, the keys somebody pasted, the problems it found and never filed. Each one
+writes to its own directory in its own format, none can read another's, and nothing
+reads any of them. `chat-recall` does, through **68 MCP tools**.
+
+| | What it does | Tools |
+|---|---|---|
+| **Shared AI knowledge** | Decisions, conventions and project facts one agent learned, available to every other agent and every teammate. Time-aware, so a superseded decision reads as superseded | 16 |
+| **Security findings** | Credentials pasted into past conversations, flagged per session, checked for whether they still work, and tracked until rotated or dismissed | 4 |
+| **Automated code improvements** | Ranks what is actually worth fixing in a repository, then applies or dismisses each recommendation, with code intelligence over the repo itself | 9 |
+| **Task tracking** | A shared board fed by those findings, with rules per repository, so a finding becomes work instead of a report | 5 |
+
+Underneath all four is one index of every session your tools already wrote, and 28
+more tools to search, replay and diff it. That index is the mechanism. It is not
+the pitch, and it is not why anyone buys this.
+
+The cross-tool part is what makes it work. A single tool's built-in history stops at
+its own boundary. This does not, and neither does your team.
+
+## See it work
+
+Every screen below is real output against a real server, captured from the demo
+account. Nothing is mocked, replayed or re-timed.
+
+**One index, every tool.** Search finds a session by what was *discussed* in it,
+not by its filename, and `memory status` shows every source type in one place —
+sessions beside the skills, MCPs, commands, subagents and hooks that produced
+them.
+
+![chat-recall search finding a past session by what was discussed in it, and memory status listing every indexed source type](docs/media/7-cross-claude.png)
+
+**Or just ask in plain English** — no tool names, no session ids. The agent picks
+the call itself:
+
+![Claude Code answering a question about a past session by calling chat-recall itself](docs/media/A-claude-code.gif)
+
+**It also finds the credentials you pasted, and checks which ones still work.**
+A dead key is hygiene. A live one is an incident, and only live ones raise an alert.
+
+![The security view: leaked secrets grouped by rule, each with a masked preview, a live-or-dead verdict and the sessions it appeared in](docs/media/security-scans.png)
+
+## Install
+
+```bash
+npx chat-recall init
+```
+
+That indexes the transcripts already on your disk, detects which AI tools you have, and registers the MCP server **in each of their configs**:
+
+| Tool | Where the entry goes |
+|---|---|
+| Claude Code | user scope (`claude mcp add --scope user`) |
+| Codex | `~/.codex/config.toml` |
+| OpenCode | `~/.config/opencode/opencode.json` |
+| Pi, Hermes, Gemini CLI | their own `mcp add` or `config set` commands |
+| Cursor | `~/.cursor/mcp.json` |
+
+`chat-recall login` does the same step on its own: one sign-in, and `chat-recall-mcp` is in every tool that is installed, with no sign-in in the tool itself. Run it again on a machine that is already connected to finish a setup that an older version started; `--skip-mcp` leaves the tools alone. The device token goes to the OS keyring, or to a file that only you can read (`CHAT_RECALL_SECRET_STORE=sealkeep` keeps it in sealkeep).
+
+It only touches a config whose tool is on this machine, it never overwrites an entry you curated by hand, and `chat-recall doctor` prints one line per tool so a missing registration is visible. Inside Claude Code you can install the skills and the MCP server together instead:
+
+```
+/plugin marketplace add munhq/chat-recall
+/plugin install chat-recall@chat-recall
+```
+
+Any other MCP client (Claude Desktop, Windsurf, Zed, Cline, or a tool `init` does
+not know) takes the same server as a JSON entry. The bin is `chat-recall-mcp`,
+which is why the package name alone is not enough — `npx -y chat-recall` starts
+the CLI, not the server:
+
+```json
+{
+  "mcpServers": {
+    "chat-recall": {
+      "command": "npx",
+      "args": ["-y", "-p", "chat-recall", "chat-recall-mcp"]
+    }
+  }
+}
+```
+
+The same command as one line, for a `claude mcp add`-style client: `npx -y -p chat-recall chat-recall-mcp`.
+
+Then:
+
+```bash
+chat-recall search "that auth bug"      # search everything you have ever done
+chat-recall recent                      # what was I working on
+```
+
+By default this syncs to the hosted server at [chatrecall.dev](https://chatrecall.dev), which starts with a 7-day trial that needs no card and is a paid subscription after that — see [pricing](https://chatrecall.dev/pricing/). To keep everything on your own machine instead, run the server yourself: that is **free for one person, forever**, with every feature and no licence key — the task board and Toolkit included — and a licence only buys collaboration: a second member, shared history, assigning work. See [Self-host](#self-host-the-server-docker-compose) below. Either way the CLI is the same binary and the same commands; only the server URL differs.
+
+No API keys are required. Search is Postgres full-text search. AI summaries are an optional upgrade, not a prerequisite.
+
+### What never leaves your machine
+
+It indexes every AI session on this disk, so `init` shows you what would upload — count, tools, and the projects by name — and waits for a yes before the first sync. (`--yes`, or no TTY, prints the same summary and proceeds; `--skip-sync` holds the upload back entirely.) Secrets are masked client-side and project paths are sent as hashes; on top of that you choose what is in scope at all:
+
+```bash
+chat-recall exclude project ~/work/client   # a path, and everything under it, never syncs
+chat-recall exclude tool cursor             # one AI tool never syncs
+chat-recall sync-only add git:github.com/me/app   # invert it: ship ONLY what you list
+chat-recall sources decline ~/.claude-work  # a whole transcript profile stays out
+                                            #   (--delete-remote purges what it already sent)
+chat-recall exclude list                    # every rule in force
+chat-recall delete <session-id>             # purge one session on every server, tombstoned
+chat-recall retention                       # how long the server keeps what you sent
+chat-recall retention set 90                # delete anything older, on a timer (0 = keep everything)
+```
+
+Some tools file transcripts under a hash rather than a project folder, so those sessions have no path for a path rule to match; `exclude tool` is the control that covers them, and `init` prints that count. **A retention window deletes from the server on a timer.** `retention set` prints how many sessions it would remove and makes you confirm the number. It is undoable only where the original transcript is still on a machine you have — widen the window and `chat-recall sync --full` re-ships what it admits. For a laptop you no longer own, history your AI tool rotated, or files you deleted, our copy is the only copy. Export first if you want one.
+
+Exclusions live on the machine that holds the data, so the CLI owns them; they apply from the next sync, and rows already synced stay until deleted. The dashboard's **Sync rules** panel adds rules across every device — unioned with the local ones, so it can only ever add protection. Full model, limits included: [Security](https://chatrecall.dev/security/).
+
+## Four things it actually does
+
+1. **Cross-tool unified memory.** One index, one search, one UI over Claude Code (`~/.claude/projects/`), Codex (`~/.codex/`), OpenCode (`~/.local/share/opencode/`), Antigravity (`~/.gemini/antigravity-cli/`), Cursor (`~/.cursor/` for the CLI, `~/.config/Cursor/` for the IDE), Hermes Agent (`~/.hermes/`) and Pi (`~/.pi/agent/`). Sessions, plans, tasks, CLAUDE.md files, paste cache, shell history and agent diaries all share one pluggable `MemorySource` interface.
+2. **The agent recalls itself.** 68 MCP tools, so Claude Code can `recall_smart_resume`, `recall_search` (with `like_session` to find similar work), `recall_edits_timeline`, `recall_subagent_search` and `recall_redundant_files` rather than asking you what happened last time. It writes back too, via `recall_decision_record`, `recall_kg_add` and `recall_set`.
+3. **Warns before you redo work.** A `UserPromptSubmit` hook searches for similar past sessions on every prompt and injects a short "you have done this before, in session X" note into the agent's context.
+4. **Temporal knowledge graph.** Decisions and tool mentions become entity-relationship triples with `valid_from`/`valid_to` windows, so you can ask what was decided in March and whether it still holds.
+
+## Add your own AI tool
+
+A new backend is one file and one line — no changes to the engine. If a tool you use writes transcripts to disk, it can be indexed here, and a pull request is the fastest way to make that happen.
+
+### Optional: web dashboard
+
+The React dashboard is part of the **server** (SaaS or self-host docker
+compose) — the CLI itself has no UI. For dashboard development:
+
+```bash
+npm run web:install                 # install web deps
+npm run web:dev                     # API on :5000, UI on :5174
+```
+
+### Self-host the server (docker compose)
+
+Everything on your own machine, no account, nothing sent anywhere:
+
+```bash
+git clone https://github.com/munhq/chat-recall && cd chat-recall
+echo "ADMIN_KEY=$(openssl rand -hex 24)"         >> .env
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" >> .env
+docker compose up -d                  # pulls the published image
+```
+
+Then mint a device token and connect a machine — the full sequence, with
+troubleshooting, is in **[docs/SELF_HOSTING.md](docs/SELF_HOSTING.md)**.
+
+Two containers: the server plus a bundled `pgvector/pgvector` Postgres, so a
+plain `docker compose up` is self-contained. Bring-your-own-Postgres is
+supported too (it is how the hosted service runs): set `DATABASE_URL` to an
+external Postgres 16+.
+
+### Keep the index live (+ optional server sync)
+
+You do not need a daemon. Claude Code spawns the MCP server, and that process
+syncs every 3 minutes on its own — the binary is the daemon. For a headless box
+with no assistant running, opt in to a background service:
+
+```bash
+chat-recall watch                    # foreground daemon: watches every tool, summaries, precompute
+chat-recall watch --install-service  # systemd user unit (Linux) · launchd (macOS) · Scheduled Task (Windows)
+```
+
+`init` does not install it, on purpose. Both paths push through the same
+`syncIncremental()` under the same cross-platform index lock, so one writer
+touches the ledger at a time — see [docs/SYNC.md](docs/SYNC.md) before changing
+any of it. Secrets are masked client-side before anything leaves the machine.
+`chat-recall sync` does the same push once, on demand.
+
+## Hook it up to Claude Code
+
+`chat-recall init` does this for you. Manual equivalent in `~/.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "chat-recall": {
+      "command": "chat-recall-mcp"
+    }
+  }
+}
+```
+
+`chat-recall-mcp` is a relay, not the server. It finds the background daemon for
+your tool profile, starts one if there is none, and passes bytes to it. Every
+session on a machine therefore shares one loaded engine instead of carrying its
+own: a session costs about 50 MB rather than 87 MB, against a single shared
+daemon, and background sync runs in one process instead of racing a lock in all
+of them. The daemon exits 15 minutes after the last session closes.
+
+Two knobs, both optional:
+
+```bash
+CHAT_RECALL_NO_DAEMON=1          # load the whole server in each session instead
+CHAT_RECALL_DAEMON_IDLE_SECS=0   # keep the daemon resident (default 900)
+```
+
+If the daemon cannot be reached for any reason, the session loads the server
+itself and works exactly as it did before — slower, never broken.
+
+`chat-recall init` installs the Claude Code hooks in every profile's
+`settings.json`. If you added only the MCP server, from a marketplace button or
+by hand, the MCP server installs them when it starts. You run nothing else.
+
+To choose which hooks run, or to remove them:
+
+```bash
+chat-recall install-hooks --no-resume-hint  # without the resume warning
+chat-recall install-hooks --no-messages     # without messages between sessions
+chat-recall install-hooks --uninstall       # remove ours; third-party hooks stay
+```
+
+After `--uninstall` the MCP server does not put them back.
+
+| Hook | When it fires | What it does |
+|---|---|---|
+| `SessionStart` | New session (`startup` / `clear`) | Injects the project-scoped wake-up bundle |
+| `UserPromptSubmit` | When you type a prompt | Searches past sessions; if a similar one exists, injects "you've worked on this before" into the agent's context |
+| `SessionEnd` | When the session closes | Escalates the session's learnings in the background, so nothing is delayed |
+| `SessionStart`, `UserPromptSubmit`, `Stop`, `SessionEnd` | Each turn | Messages between sessions: tells the session its id, delivers what waits for it, reports its state |
+| `SessionStart`, `UserPromptSubmit`, `Stop` (background) | Until a message arrives | Waits for a message from another session and wakes this one, also when it is idle |
+
+The other AI tools get the message hook too, so their sessions can send and
+receive messages. The installer writes it only for a tool that is installed:
+
+| Tool | Where | When a message arrives in the session |
+|---|---|---|
+| Codex | `~/.codex/hooks.json` | At the next prompt. Approve the hook once with `/hooks` in Codex. |
+| Antigravity | `~/.gemini/config/hooks.json` | At the next prompt |
+| Cursor | `~/.cursor/hooks.json` | When the agent stops, as a follow-up prompt |
+| opencode | `~/.config/opencode/plugins/chat-recall-messages.js` | Within a few seconds, also when the session is idle |
+| pi | `~/.pi/agent/extensions/chat-recall-messages.js` | Within a few seconds, also when the session is idle |
+
+Claude Code, opencode and pi wake an idle session. In Codex, Antigravity and Cursor, an
+idle session reads its messages when its user types next. `chat-recall doctor` shows the
+hook of each tool.
+
+## Sessions that work together
+
+One session can start others and direct them. In Claude Code, ask for it in
+plain words: "start two workers, one on the API and one on the web form, and
+tell me when both are done".
+
+- `recall_session_spawn` starts a child as a Claude Code background session,
+  linked to its parent. `claude attach <id>` opens it.
+- `recall_message_send` sends to a session by id or name, or to `parent`,
+  `children` or `group`. The message wakes the recipient within about a second,
+  also when it waits for input.
+- `recall_session_status` lists the sessions: what each works on, its board
+  cards, and whether it is working, idle, waiting for a permission prompt, or
+  ended.
+- Decisions, facts and shared state go in the memory every session reads:
+  `recall_decision_record`, `recall_kg_add`, `recall_set`.
+
+A message from another session is not a message from you. A child acts on its
+parent's messages because its parent started it with that instruction. Any
+other session treats a message as information and checks with you first.
+
+## The decision guard
+
+A decision nobody reads is a suggestion. `chat-recall guard` runs before a tool
+call and says so when the call reaches for something already ruled out:
+
+```
+chat-recall: this reaches for something already decided against.
+- keycloak was ruled out — BetterAuth is the decision (2026-03-14) · session 8f2c1a4e
+Proceed only if this is a deliberate reversal. If it is, record it:
+recall_decision_record with the area, so the old decision is closed rather than contradicted.
+```
+
+It fires on **installs, imports and manifest edits** — `npm install auth0`, a new
+`import` line, a name added to `package.json`. Never on prose: "we could use
+Auth0" in a sentence must not stop anything, or the guard becomes something
+people switch off.
+
+**It warns; it does not block.** A wrong block costs the user a turn and gets the
+guard uninstalled; a wrong warning costs a line of context. Set
+`CHAT_RECALL_GUARD_ENFORCE=1` to block instead, per machine. `CHAT_RECALL_GUARD=0`
+turns it off.
+
+`chat-recall init` registers it in all five tools. Each one keeps its
+pre-execution hook in its own file, so the installer writes five shapes and
+skips any tool that is not on the machine (`--no-guard` to skip all of them):
+
+| Tool | Where | Event |
+|---|---|---|
+| Claude Code | `~/.claude/settings.json`, every profile | `PreToolUse` |
+| Codex | `~/.codex/hooks.json` | `PreToolUse` |
+| Antigravity | `~/.gemini/config/hooks.json` | `PreToolUse` — the one tool with a real `ask` verdict, so it can prompt |
+| Cursor | `~/.cursor/hooks.json` | `beforeShellExecution` + `afterFileEdit` |
+| OpenCode | `~/.config/opencode/plugins/chat-recall-guard.js` | `tool.execute.before` |
+
+**Codex needs one more step.** It runs a hook only after you trust it — open
+Codex and run `/hooks` once. `chat-recall doctor` reports the registration for
+each tool.
+
+Two of those are not full coverage, and the docs say so rather than implying
+otherwise. **Cursor** exposes `beforeShellExecution` but only `afterFileEdit`, so
+an import added in an edit is reported after the write, not prevented.
+**OpenCode**'s plugin hooks do not fire for subagent tool calls
+([#5894](https://github.com/anomalyco/opencode/issues/5894)), so an agent that
+delegates routes around it.
+
+## Companion: codeindex (auto-detected)
+
+There's a separate MCP server called **codeindex** (Zig binary, ~56 MB) by [munhq](https://github.com/munhq/codeindex) that gives the agent code-level lookup. The two compose:
+
+- **chat-recall** = session memory. *What have I worked on? What did we decide?*
+- **codeindex** = code memory. *Where is this symbol? Who calls it? What breaks if I change it?*
+
+Together the agent can answer "have I built this before?" *and* "does it already exist in this codebase?" before redoing work.
+
+**How chat-recall handles it:** `chat-recall init` detects whether `codeindex` is on your PATH (or at `~/.local/bin/codeindex`). If yes, it registers it as an MCP server in `~/.mcp.json` automatically — no download, no surprise. If no, it prints a one-line hint about how to get it.
+
+```bash
+chat-recall init                       # default — detect and register if installed
+chat-recall init --with-codeindex      # additionally force-download the binary
+chat-recall init --skip-codeindex      # don't even check
+chat-recall companions install         # download manually (after init)
+chat-recall companions status          # show what was detected
+chat-recall companions uninstall       # remove the binary + MCP registration
+```
+
+codeindex is open source (MIT) at [github.com/munhq/codeindex](https://github.com/munhq/codeindex). The install is optional — chat-recall works entirely without it; you just don't get the code-level tools.
+
+## What gets indexed
+
+| Source | Origin | Notes |
+|--------|--------|-------|
+| **Sessions (Claude)** | `~/.claude/projects/<hash>/<uuid>.jsonl` | Full transcripts, tokens, cost, files touched, models used |
+| **Sessions (OpenCode)** | `~/.local/share/opencode/opencode.db` (SQLite) | Cost, tokens, todos |
+| **Subagent transcripts** | `<session-dir>/<id>/subagents/*.jsonl` | Explore, aside, **and `acompact-*`** (orphaned compacted history) |
+| **Plans** | `~/.claude/plans/*.md` | Agent planning docs, split by `##` |
+| **Tasks** | `~/.claude/tasks/<session>/*.json` | Linked to parent session |
+| **CLAUDE.md** | Auto-discovered from project hashes | Linked to sessions in same project |
+| **History** | `~/.claude/history.jsonl` | Shell history, optionally tied to a session |
+| **Paste** | `~/.claude/paste-cache/*.txt` | Large pasted blobs |
+| **Diary** | `~/.chat-recall/index/diary/<agent>/*.json` | What the agent told its future self via `recall_diary_write` |
+
+## MCP tools (68, including 4 code-intelligence tools that register when the companion binary is installed)
+
+**Search & retrieve** — `recall_search`, `recall_memory_search`, `recall_recent`, `recall_show`, `recall_context`, `recall_summary`, `recall_smart_resume`, `recall_project_context`, `recall_weekly_digest`, `recall_analytics_summary`, `recall_wake_up`.
+
+**Pattern detection** — `recall_search` with `like_session: <id>` (find work similar to a given session), `recall_redundant_files` (warn when a new filename overlaps prior work), `recall_diff` with `files_only: true` (what files session X actually touched), `recall_edits_timeline` with `group_by: "session"` (which sessions edited `auth.rs`).
+
+**Subagents & filters** — `recall_subagent_search` (search inside hidden Explore/aside/compact transcripts), `recall_user_prompts` (only what the human typed, banner-stripped).
+
+**Findings, ranked** — `recall_claude_suggestions` (every finding that becomes an agent-instruction change: the CLAUDE.md rules and skill installs, merged across account scope and every indexed project) and `recall_improvements` (everything else, ranked most urgent first, with `create_tasks: true` to open one team task per item). They partition the same recommendation engines, so an item never appears in both.
+
+**Knowledge graph** — `recall_kg_query`, `recall_kg_add`, `recall_kg_invalidate`, `recall_kg_timeline`, `recall_kg_stats`. Plus `recall_decision_record` to write a decision as both a triple and a diary entry in one call.
+
+**KV state** — `recall_set`, `recall_get` (no key = list the scope). Small persistent values keyed by namespaced strings: "current PR url", "branch I'm working on", user prefs.
+
+**Diary & status** — `recall_diary_write`, `recall_diary_read`, `recall_status` (includes memory breakdown), `recall_index`. Plans/tasks: search via `recall_memory_search(source_types:['plan','task'])`, read via `recall_show`.
+
+**Removing things** — `recall_forget` deletes one conversation from the server permanently, tombstoned so no later sync restores it (your own transcript file is untouched); `recall_exclude_path` stops a path syncing, on this machine and on your account. They exist as tools because "forget that conversation" and "stop syncing this repo" are things people say mid-conversation, not things they open a dashboard for. Both require `confirm: true`, both are annotated destructive, and neither is auto-approved — your client asks every time. The boundary is one-way on purpose: an agent can narrow what is stored and there is no tool that widens it again (no un-exclude, no allowlist, no retention). Widening is yours: `chat-recall exclude remove`, or the dashboard.
+
+When the codeindex companion is installed, the agent *also* gets 16 code-level tools (`find_symbol`, `find_callers`, `get_imports`, `plan_change`, `get_change_impact`, `analyze`, etc.) from a separate MCP server. They compose: chat-recall finds what you've done; codeindex tells you what currently exists.
+
+## Search architecture
+
+Search runs **on the server**, and it is Postgres full-text search: keyword
+matching with ranking, plus `pg_trgm` typo tolerance. It needs no embedder, no
+API key and no extra service.
+
+The CLI ships redacted chunks to the server, which indexes them.
+
+## Cost tracking
+
+Cost in USD is computed from token usage when at least one model in the session has a rate the server knows. For every other model — anything local, anything self-hosted, anything newer than the rate table — the dashboard shows `—` instead of fabricating a number. The summary surfaces a `sessionsWithoutPricing` counter, so you can see how much of the total the figure actually covers.
+
+## Wake-up context
+
+```bash
+chat-recall memory wake-up
+```
+
+Builds a small bundle for an AI session: optional identity blurb, the top 10 chunks the classifier flagged as decisions/preferences/milestones at importance ≥ 4, and a snapshot of currently-valid knowledge-graph facts. No magic compression — just the highest-signal items the indexer already tags.
+
+## Data locations
+
+The **CLI** keeps almost nothing locally — just what it needs to reach the server:
+
+| Path | What |
+|------|------|
+| `~/.chat-recall/credentials.json` | Server target(s) (mode 0600). The device token is in the OS keyring or in `~/.chat-recall/tokens/` (mode 0600), or in sealkeep with `CHAT_RECALL_SECRET_STORE=sealkeep`; the file keeps a pointer. A `--token` self-host target keeps its token here too |
+| `~/.chat-recall/sync-ledger.json` | Per-server sync watermark (what's already shipped) |
+| `~/.chat-recall/hooks/` | Installed hooks (after `install-hooks`) |
+| `~/.chat-recall/index/diary/` | Agent diaries written by `recall_diary_write` |
+| `~/.chat-recall/shadow/` | Gzipped copy of the fullest-seen transcript per session, so an upstream `--resume` truncation cannot destroy history |
+| `~/.chat-recall/cache.db` | Local outcome/metadata cache for the local dashboard. Not an index, and not used in server mode |
+
+All indexed content — chunks, FTS, vectors, knowledge graph, secret findings, diary — lives **on the server** (Postgres for self-host and SaaS). Reset it by wiping the server's Postgres data, not anything under `~/.chat-recall`.
+
+## Privacy
+
+Your sessions sync to a chat-recall server — either one **you self-host** (your own box, your own Postgres) or the **SaaS**. Before anything leaves the CLI it is **redacted**: secrets are masked client-side, so the server never receives raw credentials. Self-hosting keeps all data on infrastructure you control; the SaaS is the hosted alternative.
+
+No telemetry. Your data lives in **your** server's Postgres — back that up however you like. On the SaaS it lives in the hosted Postgres; self-host if you'd rather keep it entirely on your own infrastructure.
+
+## Architecture
+
+```
+packages/
+├── engine/src/
+│   ├── core/
+│   │   ├── backends/        ToolBackend per AI tool (claude, opencode, codex, agy, cursor)
+│   │   ├── tool-backend.ts  Registry interface — single source of truth for tool identity
+│   │   ├── tool-paths.ts    Env-overridable default paths for each tool
+│   │   ├── generic-engine.ts  Shared turn extraction / edit scan / replay (canonical events)
+│   │   └── …                Indexing, storage, embeddings, summaries, KG, classifier
+│   └── parsers/             *-source.ts plugins per content type (sessions, plans, tasks, …)
+├── cli/
+│   ├── src/cli.ts           CLI
+│   ├── src/mcp.ts           MCP server
+│   ├── auto-indexer/        chokidar-based watcher daemon (systemd-friendly)
+│   └── hooks/               Claude Code hooks (install via `chat-recall install-hooks`)
+└── server/
+    ├── src/                 Express API
+    ├── client/              React + Vite UI — the dashboard
+    └── cloud/migrations/    Empty by design — pg-schema.ts owns the schema
+
+docker/                  Dockerfile + entrypoint for the server image
+e2e/                     Playwright tests for the dashboard
+```
+
+Two extension points, both registry-driven:
+
+- **Adding a new content type** (e.g. another file format to index) — implement `MemorySource` (`discover` → `parse` → `extractLinks`) and register it in the `SourceRegistry`.
+- **Adding a new AI tool** (a seventh backend alongside Claude/OpenCode/Codex/Antigravity/Cursor/Hermes) — implement `ToolBackend` (paths, ID handling, `readEvents`, `fileToolMap`, `extractEditDelta`) and register it in `packages/engine/src/core/backends/index.ts`. All paths are env-overridable via `CHAT_RECALL_{CLAUDE,CODEX,AGY,CURSOR,CURSOR_IDE,HERMES}_HOME` / `CHAT_RECALL_OPENCODE_DB`.
+
+## Requirements
+
+- Node.js 22 or later. The Docker image and CI run 24.
+- Sessions written by a supported tool, in its standard location: `~/.claude/`,
+  `~/.codex/`, `~/.local/share/opencode/`, `~/.gemini/antigravity-cli/`.
+
+That is the whole list. No API key is needed to install, index or search.
+
+One feature is opt-in, and it needs a back end that you choose:
+
+| Feature | Back ends you can point it at |
+|---|---|
+| AI summaries | Ollama, a CLI you are already logged in to (`SUMMARY_CLI_CMD`), an OpenAI-compatible endpoint, or `ANTHROPIC_API_KEY` |
+
+Without it, sessions carry no generated summary. Everything else works the same.
+
+## License
+
+[Elastic License 2.0](LICENSE) for the whole repository.
+
+In plain terms: use it, modify it, run it for yourself or inside your company,
+free and without asking. The one thing you may not do is offer it to third
+parties as a hosted or managed service — that is the product. You also may not
+strip the licence-key checks or the copyright notices.
+
+It is **source-available, not OSI open source**, and this README will not
+pretend otherwise. It replaced a split where the CLI and engine were MIT and the
+server was BSL 1.1, which answered "may I use this?" three different ways inside
+one repository.

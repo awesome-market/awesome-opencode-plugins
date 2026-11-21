@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jiazc-elk/manuscript-review · OpenCode Plugins</title>
+<meta name="description" content="正文审核器：多角色、只读的正文审核 skill；输出故事设计评分、证据锚点与修改报告。">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="manuscript-review, jiazc-elk, jiazc-elk/manuscript-review, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, workflow">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/jiazc-elk__manuscript-review">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="jiazc-elk/manuscript-review · OpenCode Plugins">
+<meta property="og:description" content="正文审核器：多角色、只读的正文审核 skill；输出故事设计评分、证据锚点与修改报告。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/jiazc-elk__manuscript-review">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=93292ae7">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "jiazc-elk/manuscript-review", "codeRepository": "https://github.com/JIAzc-elk/manuscript-review", "url": "https://opencode-plugins.zhuikan.com/repos/jiazc-elk__manuscript-review", "description": "正文审核器：多角色、只读的正文审核 skill；输出故事设计评分、证据锚点与修改报告。", "author": {"@type": "Organization", "name": "jiazc-elk", "url": "https://github.com/JIAzc-elk"}, "isAccessibleForFree": true, "additionalType": "OpenCode skill", "dateCreated": "2026-11-15", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,workflow"}</script>
+</head>
+<body data-repo="jiazc-elk/manuscript-review" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">jiazc-elk/manuscript-review</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="jiazc-elk__manuscript-review"><img class="rp-side-av" src="https://github.com/JIAzc-elk.png?s=300" width="300" height="300" alt="jiazc-elk avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">manuscript-review</div>
+      <a class="rp-side-owner" href="https://github.com/JIAzc-elk">jiazc-elk</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/JIAzc-elk">jiazc-elk</a>
+        <span class="rp-sep">/</span><span class="rp-name">manuscript-review</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">正文审核器：多角色、只读的正文审核 skill；输出故事设计评分、证据锚点与修改报告。</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/workflow">workflow</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-verified"><span class="i18n-zh">已实测可装可用</span><span class="i18n-en">Tested: installs &amp; loads</span></span><span class="rp-meta-bit">skill</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-15</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/JIAzc-elk/manuscript-review">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">3</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">正文审核器（Manuscript Review）
+
+ 给一幕/一个序列的正文和可选的前情/幕纲/人物卡/文风参考，让五个写作角色真的吵几轮，最后只交一份“好不好看、哪里不好看、怎么写更好”的报告。
+
+ 只读。不改稿。不碰你的文件。
+
+ 当前版本：0.3.0（beta）｜OpenCode / Claude Code / Codex 三端适配
+
+ 这是什么
+
+正文审核器是一个面向已有正文的写作技巧审核 skill。它不写小说，不做设定，不生成大纲，也不做设定/逻辑/时间线一致性审查。它只做一件事：
+
+ 评价这一幕/这个序列/这一章写得好不好看，哪里不好看，有没有更好的写法。
+
+它默认按一幕/一个序列审，而不是一章；因为单章看不出幕逆转、人物弧、求索、伏笔回收、跨章节奏。
+
+ 为什么不是“一个模型写一篇读后感”
+
+单模型审稿有三个常见毛病：
+
+1. 什么都夸/什么都骂：没有稳定标准；
+2. 只挑逻辑错：设定、时间线、知识边界说一堆，却不告诉你“好不好看”；
+3. 越改越像评审团：把作者的个人风格当成错误铲平。
+
+这个项目用五个写作角色分工 + 多轮对抗 + 证据锚点 + “更好的写法”来解决：
+
+- 场景、对白、描写、节奏各管一段，不越权；
+- 人物角色看欲望/矛盾/声音/情感，不做人物卡一致性审判；
+- 结构角色看幕功能/逆转/升级/章功能分布；
+- 节拍拆解只画地图，不评好坏；
+- 魔鬼红队问“这是真好看，还是‘有元素’？”；
+- 主持负责最终裁定与报告。
+
+ 五个核心角色（+ 可选秘书）
+
+| 角色 | Stable ID | 管什么 | 不管什么 |
+|---|---|---|---|
+| 场景、对白与描写 | scene_dialogue | 场景目标/转折、beat、对白行动、潜台词、人物声音、描写/POV、节奏、文字 | 幕结构、人物弧最终裁决 |
+| 人物与情感 | character | 欲望、矛盾、压力选择、魅力、关系、情感落点、人物弧 | 设定/知识边界一致性 |
+| 幕/序列结构与节奏 | story_plot_structure | 幕功能、激励、渐进复杂化、中点、危机/高潮、收束、章功能分布、节奏 | 人物心理、对白原文 |
+| 节拍拆解 | story_deconstructor | 单位地图、章节功能、场景/beat、POV/情绪曲线、承诺/回收 | 评好坏、事实/逻辑核证 |
+| 写作质量红队 | devil_critical_review | 钢人化、误报、虚高、建议副作用、共识偏差、单位是否足够 | 接管专业裁决 |
+| 报告整合（可选） | secretary | 报告结构、算术、分歧保留 | 新增判断、改裁定 |
+
+主持（Chairman）由主线程担任，不单设子代理。不派世界观/设定席。
+
+ 快速开始
+
+ OpenCode
+
+打开本仓库根目录，然后：
+
+text
+用正文审核器审第一卷第一幕（第1–8章）。
+正文：/path/to/ch01-08/
+前情：/path/to/前情摘要.md
+幕纲：/path/to/第一幕幕纲.md
+人物卡：/path/to/人物卡.md
+目标：好不好看、哪里不好看、怎么改更好。
+
+
+也可以显式点名 skill：manuscript-review，或使用 /manuscript-review 命令。
+
+ Claude Code
+
+打开本仓库根目录。Claude Code 会从 .claude/skills/manuscript-review/ 发现入口，从 .claude/agents/ 发现子代理。用法同上。
+
+ Codex
+
+打开本仓库根目录。canonical skill 在 .agents/skills/，子代理在 .codex/agents/。用法同上。
+
+ 安装到已有小说项目
+
+1. 复制 .agents/skills/manuscript-review/ 到目标项目的同一路径；
+2. 复制你所用宿主的适配层：
+   - OpenCode：.opencode/agents/.md + .opencode/commands/.md
+   - Claude Code：.claude/agents/.md + .claude/skills/manuscript-review/
+   - Codex：.codex/agents/.toml
+3. 重开项目/会话，让宿主重新发现 skill 与子代理；
+4. 不要盲目覆盖目标项目已有的 AGENTS.md / CLAUDE.md；把本项目的“只读写作审核”规则合并进去；
+5. 若目标项目已有同名 agent，先确认是否会冲突；必要时改成 review_scene 等名字，并同步修改 skill 里的 Stable ID 映射。
+
+ 审核单位：默认不是“一章”
+
+| 单位 | 范围 | 能判 | 不能判 |
+|---|---|---|---|
+| 单章 chapter_local | 1 章 | 局部场景/对白/描写/节奏/本章功能 | 幕逆转、人物弧、求索、伏笔回收、跨章节奏 |
+| 序列 sequence（推荐最低） | 3–8 章 | 序列目标/转折、章功能分布、局部弧、承诺/回收、序列节奏 | 全幕/全书弧、最终高潮 |
+| 幕 act（推荐） | 约 8–30 章 | 幕功能、激励、渐进复杂化、中点、危机、高潮、收束、人物弧 | 全书/多卷 |
+| 卷/多幕 | 多幕 | 跨幕结构、卷级弧、长线 | 全书终局（除非给全稿） |
+| 序章/引子 | 1 章或短序列 | 建立缺失/悲剧/世界规则/悬念、交棒 | 主角弧、整幕逆转 |
+
+只给一章时，审核器会先问“是否只做局部诊断”；不会把单章硬说成整幕。
+
+ 三种深度
+
+| 模式 | 什么时候用 | 发生什么 |
+|---|---|---|
+| quick | 短序列、只想快速看 | 独立审 + 轻量收敛，3–5 条关键问题 |
+| standard（默认） | 大多数幕/序列 | 独立审 → 交叉质询 → 收敛；两轮讨论 |
+| deep | 卷末、高潮、关键转折、争议大的稿 | 再加一轮复核与魔鬼终检；逐章分析 |
+
+深度 ≠ 审核单位：quick/standard/deep 决定讨论轮次；chapter/sequence/act 决定评审范围。
+
+ 报告里有什么
+
+1. 审核摘要：审核单位/章节类型、总分、写作技巧分、好不好看、最该先改的三处、发布建议。
+2. 审核范围与依据：素材状态、上下文覆盖、能判什么/不能判什么。
+3. 单位地图：章功能表、场景/beat、POV/情绪曲线、承诺/回收。
+4. 六维写作评价：场景与戏剧、对白与人物声音、描写与文字、节奏与可读性、人物与情感、幕/序列效果。
+5. 写作技巧评分：10 项 1–5 分 + Craft Index。
+6. P0/P1/P2 清单：每条带位置、证据、读者影响、改法。
+7. 更好的写法：2–4 组“原文 → 可尝试 → 技法”，短句示例，不是代写。
+8. 章节分布：逐章功能/强度/主要问题/局部分（只作诊断）。
+9. 圆桌争议：谁和谁没谈拢、主持怎么裁、</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-21T10:28:44Z · Data license Apache-2.0 ·
+<a href="../data/repos/jiazc-elk__manuscript-review.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/purify.min.js?v=93292ae7"></script>
+<script src="../assets/vendor/qrcode.min.js?v=93292ae7"></script>
+<script src="../assets/common.js?v=93292ae7"></script>
+<script src="../assets/repo.js?v=93292ae7"></script>
+</body>
+</html>

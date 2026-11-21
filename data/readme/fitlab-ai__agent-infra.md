@@ -1,0 +1,252 @@
+<p align="center">
+  <img src="./assets/logo.svg" alt="Agent Infra Logo" width="200">
+</p>
+
+<h1 align="center">Agent Infra</h1>
+
+<p align="center">
+  Collaboration infrastructure for AI coding agents — skills, workflows, and sandboxes for Claude Code, Codex, Antigravity CLI, and OpenCode.
+</p>
+
+<p align="center">
+  <strong>From issue to merged PR through a risk-selected lifecycle.</strong> Every task starts with analysis, and every implementation receives an independent code review.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@fitlab-ai/agent-infra"><img src="https://img.shields.io/npm/v/@fitlab-ai/agent-infra" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@fitlab-ai/agent-infra"><img src="https://img.shields.io/npm/dm/@fitlab-ai/agent-infra" alt="npm downloads"></a>
+  <a href="License.txt"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D22.9.0-brightgreen?logo=node.js" alt="Node.js >= 22.9.0"></a>
+  <a href="https://github.com/fitlab-ai/agent-infra/releases"><img src="https://img.shields.io/github/v/release/fitlab-ai/agent-infra" alt="GitHub release"></a>
+  <a href="https://codecov.io/gh/fitlab-ai/agent-infra"><img src="https://codecov.io/gh/fitlab-ai/agent-infra/graph/badge.svg" alt="codecov"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+</p>
+
+<p align="center">
+  <strong>English</strong> · <a href="./README.zh-CN.md">中文</a>
+</p>
+
+## Why agent-infra?
+
+Teams increasingly mix Claude Code, Codex, Antigravity CLI, OpenCode, and other AI TUIs in the same repository, but each tool tends to introduce its own commands, prompts, and local conventions. Without a shared layer, the result is fragmented workflows, duplicated setup, and task history that is difficult to audit.
+
+agent-infra standardizes that shared infrastructure. It gives every supported AI TUI the same task lifecycle, the same skill vocabulary, the same project governance files, isolated development sandboxes, and the same upgrade path, so teams can switch tools without rebuilding process from scratch.
+
+## See it in Action
+
+<p align="center">
+  <img src="./assets/demo-init.gif" alt="CLI install and initialize demo" width="720">
+</p>
+
+> The demo is stored with Git LFS. Install Git LFS and run `git lfs install`
+> before cloning, or run `git lfs pull` in an existing checkout. If the image
+> is a small text pointer or is missing, verify `git lfs ls-files`, then retry
+> `git lfs pull`.
+
+Once initialized, open the project in your AI TUI and install the latest skills:
+
+```bash
+/update-agent-infra
+```
+
+> AI reads `.agents/.airc.json`, auto-locates the installed template root, and syncs the latest skill manifests, managed files, and registry deterministically via `sync-templates.js`.
+
+**Scenario**: Issue #42 reports *"Login API returns 500 when email contains a plus sign"*. Every task starts with analysis, which records one canonical path from observable facts:
+
+| Path | Stages | Use when |
+|------|--------|----------|
+| Streamlined | `analyze → code → review-code` | Scope and acceptance are clear, with no separate design or document-audit decision |
+| Standard | `analyze → plan → code → review-code` | The implementation needs an explicit cross-module contract, data flow, or test strategy |
+| Full | `analyze → review-analysis → plan → review-plan → code → review-code` | Concrete acceptance disputes, costly interface/schema/migration choices, or real external/security boundaries require independent review |
+
+File count, module count, or a merely possible risk does not select the full path. A later finding can return work to analysis, planning, or code when new evidence justifies it; independent `review-code` remains part of every path.
+
+Suppose the analysis selects the **standard path** because the application-layer boundary needs an explicit plan:
+
+```bash
+/import-issue 42           # AI reads the issue, creates a task, extracts requirements
+/analyze-task --task <task-id>    # AI scans the codebase, records the selected path, writes analysis.md
+/plan-task --task <task-id>       # AI proposes a fix plan
+```
+
+> **You review the plan and reply in natural language:**
+
+```
+The plan looks right, but don't change the DB schema.
+Just fix it at the application layer in LoginService.
+```
+
+> AI re-runs `/plan-task` to update the plan accordingly and confirms.
+
+```bash
+/code-task --task <task-id>       # AI writes the fix, tests it, and creates a local checkpoint commit
+/review-code --task <task-id>     # A fresh isolated reviewer reports one minor finding
+/code-task --task <task-id>       # AI fixes the minor issue, re-validates, and creates a new checkpoint
+/review-code --task <task-id>     # The reviewer approves the current checkpoint
+/create-pr --task <task-id>       # The reviewed branch is published to its task-bound target; PR links issue #42
+/complete-task --task <task-id>   # task archived
+```
+
+**One analysis-selected path, one natural-language correction, and an independent code review.** The lifecycle keeps the evidence and review depth proportional to the task.
+
+Every command above works the same way in Claude Code, Codex, Antigravity CLI, and OpenCode. Switch tools mid-task — the workflow state follows. For what each skill does under the hood, see [Built-in AI Skills](./docs/en/skills.md).
+
+## Key Features
+
+- **Multi-AI collaboration**: one shared operating model for Claude Code, Codex, Antigravity CLI, and OpenCode
+- **Bootstrap CLI + skill-driven execution**: initialize once, then let AI skills drive day-to-day work
+- **IM command bridge**: route Feishu messages to built-ins, read-only task views, sandbox management, and controlled lifecycle skill runs
+- **Bilingual project docs**: English-first docs with synchronized Chinese translations
+- **Template-source architecture**: `templates/` mirrors the rendered project structure
+- **AI-assisted updates**: template changes can be merged while preserving project-specific customization
+- **Auditable process-data archive**: preserve local tasks and GitHub evidence in append-only, verifiable snapshots
+
+### Sandbox control boundary
+
+Direct-host lifecycle and workflow commands execute in the current CLI process. Task-bound sandboxes route requests to their broker; the broker verifies the request, manifest, generation, owner, lease, and controller before starting a one-request executor. There is no host socket, worker token, or user-level task-control service.
+
+The task directory exposed inside a task-bound sandbox is writable only for its bound task. Artifact commands accept typed workflow operations and canonical artifact basenames. The executor opens candidates with `O_NOFOLLOW`, reads and hashes them through one file descriptor, checks observable metadata changes, and atomically lands validated bytes into the authoritative task directory.
+
+## Quick Start
+
+### 1. Install agent-infra
+
+**Option A - npm (recommended)**
+
+```bash
+npm install -g @fitlab-ai/agent-infra
+```
+
+**Option B - Shell script**
+
+```bash
+# Convenience wrapper — detects Node.js and runs npm install -g internally
+curl -fsSL https://raw.githubusercontent.com/fitlab-ai/agent-infra/main/install.sh | sh
+```
+
+**Option C - Homebrew (macOS)**
+
+```bash
+# Newer Homebrew refuses to load formulae from third-party taps until trusted,
+# which silently blocks upgrades. Trust the tap once before installing.
+brew trust fitlab-ai/tap
+brew install fitlab-ai/tap/agent-infra
+```
+
+### Updating agent-infra
+
+```bash
+ai update
+```
+
+`ai update` updates the installed agent-infra CLI. In an initialized project,
+use `ai sync` to refresh project seed files and the file registry.
+
+The equivalent package-manager commands remain:
+
+```bash
+npm update -g @fitlab-ai/agent-infra
+# or, if installed via Homebrew:
+brew upgrade agent-infra
+```
+
+Check your current version:
+
+```bash
+ai version
+# or: agent-infra version
+```
+
+### 2. Initialize a new project
+
+```bash
+cd my-project
+ai init
+# or: agent-infra init
+```
+
+The CLI collects project metadata, lets you select the enabled Agent Clients, installs any client-specific `update-agent-infra` seed commands, and generates `.agents/.airc.json`.
+
+> `ai` is a shorthand for `agent-infra`. Both commands are equivalent.
+
+### 3. Render the full infrastructure
+
+Open the project in any AI TUI and run `update-agent-infra`:
+
+| TUI | Command |
+|-----|---------|
+| Claude Code | `/update-agent-infra` |
+| Codex | `$update-agent-infra` |
+| Antigravity CLI | `/update-agent-infra` |
+| OpenCode | `/update-agent-infra` |
+| TraeCode CLI | `/update-agent-infra` |
+
+This detects the packaged template version and renders all managed files. The same command is used both for first-time setup and for future template upgrades.
+
+## Core Commands
+
+Manage the five built-in Agent Clients independently from the project lifecycle:
+
+```bash
+ai agent-client list
+ai agent-client status
+ai agent-client enable codex
+ai agent-client disable antigravity-cli
+ai agent-client configure
+```
+
+The most-used lifecycle commands, in delivery order. The command prefix varies by TUI (`/skill` in Claude Code/Antigravity/OpenCode/TraeCode and `$skill` in Codex); the workflow semantics stay the same.
+
+| Command | Purpose |
+|---------|---------|
+| `create-task` / `import-issue` | Start a task from a description or a GitHub Issue |
+| `analyze-task` | Capture scope and risks, then select the streamlined, standard, or full path |
+| `review-analysis` | Review the analysis when the selected full path requires an independent requirement checkpoint |
+| `plan-task` / `review-plan` | Design the approach on standard/full paths; independently review it only on the full path |
+| `code-task` → `review-code` | Implement and test; `code-task` creates a local checkpoint, then a structured review checks that checkpoint |
+| `create-pr` → `complete-task` | Publish the approved checkpoint to the task-bound target branch, then archive after merge and final gates |
+
+
+See the full catalog — task status, release, security, and project-maintenance skills — in [Built-in AI Skills](./docs/en/skills.md).
+
+## What You Get
+
+After setup, your project gains a complete AI collaboration infrastructure:
+
+```text
+my-project/
+├── .agents/               # Shared AI collaboration config
+│   ├── .airc.json         # Central configuration
+│   ├── workspace/         # Task workspace (git-ignored)
+│   ├── skills/            # Built-in AI skills
+│   ├── workflows/         # 4 prebuilt workflows
+│   └── templates/         # Task and artifact templates
+├── .claude/               # Claude Code config and commands
+├── .opencode/             # OpenCode config and commands
+└── AGENTS.md              # Universal AI agent instructions
+```
+
+## Documentation
+
+In-depth guides live under [`docs/en/`](./docs/en/README.md):
+
+- [Process Data Archive](./docs/en/process-data.md) — capture, verify, audit, repair, export, privacy, and backup guidance
+- [Architecture Overview](./docs/en/architecture.md) — bootstrap CLI, end-to-end flow, layered architecture
+- [Platform Support](./docs/en/platform-support.md) — macOS, Linux, Windows; sandbox engines and resources
+- [Sandbox](./docs/en/sandbox.md) — sandbox aliases, host-sandbox file exchange, user-level dotfiles channel
+- [Benchmark Contract and Threat Model](./docs/en/benchmark.md) — versioned benchmark schemas, trust boundaries, and security guarantees
+- [Feishu Bridge](./docs/en/feishu-bridge.md) — configure the Feishu long-connection adapter, command routing, permissions, and TUI selection
+- [Built-in AI Skills](./docs/en/skills.md) — the full skill catalog by use case
+- [Custom Skills](./docs/en/custom-skills.md) — create and sync project-specific skills
+- [Custom Tool Invocations](./docs/en/custom-tool-invocations.md) — configure custom-tool next-step commands
+- [Prebuilt Workflows](./docs/en/workflows.md) — the gated delivery lifecycle and example flow
+- [Configuration Reference](./docs/en/configuration.md) — `.agents/.airc.json`, external sources, version management
+- [File Management Strategies](./docs/en/file-management.md) — managed / merged / ejected update strategies
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+
+## License
+
+[MIT](License.txt)

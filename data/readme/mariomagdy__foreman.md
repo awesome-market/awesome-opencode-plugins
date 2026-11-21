@@ -1,0 +1,188 @@
+# foreman
+
+An agent skill for running an agreed plan through delegated AI agents while you stay in charge.
+
+The foreman splits the plan into milestones and stages, routes each stage to the right worker, checks every
+piece itself, and hands you something you can try: a test plan, and at each milestone a review packet. It never
+writes the product code, and nothing reaches your base branch without your word.
+
+Written for Claude Code; it also runs under codex, opencode and Gemini CLIs with the fallbacks below.
+
+## See it first
+
+```
+git clone https://github.com/MarioMagdy/foreman.git && cd foreman
+python -m pip install pyyaml    # for the same python you run the scripts with
+python track-mode/live.py serve --coord track-mode/sample-run/_coord
+```
+
+Open the printed `http://127.0.0.1:8765/`. That is the live tracker drawn from a recorded sample run: milestones,
+the stage map, managers and their agents, open questions. Open `dashboard/packet.html` in a browser for the
+review packet with its built-in sample.
+
+![The live tracker: what needs you, what is running, each milestone](docs/tracker-overview.png)
+
+![The stage map: builds, AI gates and your review gate per milestone](docs/tracker-stage-map.png)
+
+## Install
+
+From the clone (Python 3.10+):
+
+```
+python install.py                      # Claude Code -> ~/.claude/skills/foreman
+python install.py --harness agents     # codex, opencode -> ~/.agents/skills/foreman
+python install.py --harness all        # both
+python install.py --dest <dir>         # any other harness: the folder that will hold SKILL.md
+```
+
+It copies only the files a session uses (not tests or the sample run), never touches your `LOCAL.md` or
+`~/.foreman/`, and re-running it updates the install. Start a new session afterwards and say **`foreman setup`**.
+
+### Setup
+
+`foreman setup` (also the first `foreman init` on a machine) walks you through one question at a time, each with a
+recommended answer: install a newer release if there is one, which companion skills you have, which agent CLIs and
+subscriptions you have (checked live), which model does which job (proposed from `scores/models.yaml`), the session
+reminder hook, and how often Foreman checks in (default every 60 minutes). Answers go to `~/.foreman/setup.yaml`.
+
+The **reminder hook** (`hooks/session_context.py`, Claude Code and Codex) runs when a session starts, resumes or is
+compacted. Only inside a repo with an active Foreman run (`_runs/ACTIVE`), it tells that run's session its run
+folder, tracker, stage states and next step, so a long run is not lost when the conversation is compacted.
+Everywhere else it prints nothing.
+
+**Model ratings:** Foreman grades every worker it checks and keeps the grades on your machine
+(`~/.foreman/local-runs.csv`). When a run used a model or job the shipped table has no score for, it asks once at the
+end whether to share those ratings. On yes it shows exactly what will be sent (model, job, harness, month, the
+seven grades; no project data) and gives you a prefilled GitHub issue to submit yourself. Shared rows land in
+`scores/community-runs.csv` and the next release's table.
+
+**Updates:** Foreman checks for a new release at most once a day and asks before installing it. It downloads the
+release archive, checks it against the release's `SHA256SUMS`, and runs that version's installer. It never updates
+itself without your yes.
+
+It triggers on requests like "take this plan and build it", "foreman init", "orchestrate this", "run it
+overnight", "where is the work?" or "give me a test plan".
+
+Optional: copy `LOCAL.md.example` to `LOCAL.md` beside `SKILL.md` and put your own worker routing, accounts (env
+var names only) and house rules there. The skill reads it first. It is gitignored.
+
+**Workers inherit your environment.** Every worker Foreman starts gets the environment variables of the shell you
+started from, API keys included. Start your session from a shell that holds only the keys the workers should
+have; `delegation/prepare_worktree.py` also lists the secret-looking variable names to blank per worker.
+
+### Requirements
+
+| For | You need |
+|---|---|
+| The skill itself | an agent harness that can start subagents or other agent CLIs; `git` |
+| Stage and milestone PRs | the GitHub CLI (`gh`), signed in |
+| `evals/plan_check.py`, `track-mode/live.py` | Python 3.9+ (tested on 3.12) and PyYAML |
+| `track-mode/launcher.py` (worker pool for long runs) | **Windows**, and the `opencode` CLI signed in. It drives opencode workers only. |
+| The phone-friendly tracker and answering questions on the page | Claude Code with claude.ai Artifacts (`dashboard/SCHEMA.md`) |
+
+## How a run goes
+
+```
+PLAN ──► MILESTONE 1 ──► MILESTONE 2 ──► ...        each milestone = one PR you review, stacked
+           ├── stage M1-S1                           each stage = one PR into its milestone
+           ├── stage M1-S2
+           ├── gate  M1-G1  (AI review)
+           └── gate  M1-G2  (your review)
+```
+
+1. **`foreman init`.** It reads your plan, does an architect pass (critical path, parallel tracks, who builds
+   what), writes a run sheet from `defaults.yaml`, `_coord/plan.yaml`, `PLAN.md` and one `M<n>_PLAN.md` per
+   milestone, asks its setup questions in one batch, and **stops until you say yes**. Say "init and start" to
+   skip only that wait.
+2. **Milestones are working slices**: each one is a feature you can use end to end, with `adds` and `done_when`
+   in your words. Uncertain work goes into an *explore* milestone off to the side (`references/explore.md`).
+3. **Stage loop.** One worker per stage, from a copy-paste brief → the foreman verifies from git and by running
+   things (never from the worker's report) → stage review, findings posted on the PR → a fix round is a new
+   brief carrying the foreman's rulings → once the gate passes, the stage merges into its milestone branch.
+4. **Gates.** Each milestone ends with an AI gate, then your gate (`references/gates.md`). At your gate you get a
+   review packet (`references/packet.md`) and a test plan whose every step is labelled `free`, `paid (~$X)` or
+   `do-not-run`. The foreman runs the whole test plan itself first.
+5. **You merge milestones.** The foreman never merges a milestone or touches the base branch on its own judgment,
+   and never writes to production without your say-so, every time.
+
+Long runs with several parallel tracks switch to **track mode**: the session becomes an orchestrator, each track
+gets a manager, and workers start through the launcher (`track-mode/CHARTER.md`, `track-mode/LAUNCHER.md`).
+Every hand-off is one JSON line in `_coord/events/`, which is what the live view draws.
+
+## One core, one file per harness
+
+`SKILL.md` holds every rule and names no harness tool. Eight steps depend on the harness: starting a worker or
+manager, waking when a job hands back, scheduled check-ins, showing you the run, taking your answers, resuming a
+manager and sending you updates, naming models, and the session's id. The skill reads one file for those:
+
+| File | For | How it does the eight |
+|---|---|---|
+| `harness/claude-code.md` | Claude Code | subagents, Monitor, scheduled check-ins, the tracker as a claude.ai Artifact you can answer on |
+| `harness/generic.md` | everything else | separate agent CLI runs, polling between steps, `live.py serve`, answers in chat or `questions.md` |
+
+On other harnesses the run moves only while a session is open. A native file for another harness (say codex) is
+one more page in `harness/` holding the same eight steps; the rules never move out of `SKILL.md`.
+
+## Companion skills (optional)
+
+The foreman uses these when they are installed and a short built-in version when they are not. `companions.yaml`
+is the list (setup checks which you have):
+
+| Skill | Used for | Built-in version |
+|---|---|---|
+| `delegation` | Worktrees, mailbox, stops, handback | Bundled: `references/delegation.md` + `delegation/` |
+| `subagent-discipline` | Writing briefs and grading each worker | `references/briefs.md` |
+| `council-judge`, `verified-pr` | Multi-model review for large gates; PR mechanics | `references/review.md` |
+| `keys` | Keys, accounts and spend | `references/keys.md` |
+| opencode / codex / Gemini drivers | Running those CLIs headlessly | `references/workers.md` |
+
+## Files
+
+| Path | What it is |
+|---|---|
+| `SKILL.md` | The skill: rules, flow, red flags. This is what loads into a session. |
+| `harness/` | How the eight harness-dependent steps work in Claude Code, and everywhere else. |
+| `install.py` | Copies the run-time files into a harness's skills folder. |
+| `setup/` | `store.py` (`~/.foreman/setup.yaml`), `detect.py` (agent CLIs, companion skills), `update.py` (release check and verified install). |
+| `hooks/` | `session_context.py` (the reminder hook), `install_hook.py` (adds it to Claude Code or Codex settings, with a backup). |
+| `scores/` | `build_scores.py` (builds the model score table from a run log) and `models.yaml` (the table setup proposes workers from). |
+| `companions.yaml`, `VERSION` | Companion skill list with fallbacks; the installed version. |
+| `defaults.yaml` | The run-sheet template. |
+| `profiles/default.yaml` | Example model routing with pre-approved fallbacks; fill in your own. |
+| `references/` | Read on demand: gates and plan shape, explore milestones, the review packet, delegation (worker setup, mailbox, stops, handback). |
+| `delegation/` | `prepare_worktree.py` (a ready worktree plus the harness hooks per worker), `mailbox.py` (talk to a running worker, progress, hang check), `hook.py` (the hook every harness calls). |
+| `dashboard/` | `tracker.html` (live tracker), `packet.html` (review packet), `SCHEMA.md` (data contract and Artifact recipe), `seed-example.json`. |
+| `track-mode/` | `live.py` (builds and serves the tracker data), `launcher.py` (worker pool), `CHARTER.md`, `LAUNCHER.md`, `usage_split.py` (Claude Code usage per session), `sample-run/`. |
+| `evals/` | `plan_check.py` (checks a `plan.yaml`), `scenarios.py` (scripted gate scenarios), `study.py` (compare skill versions), rehearsal notes. |
+| `LOCAL.md.example` | Shape of your private overlay. |
+
+## Tests
+
+```
+python -m pip install pyyaml pytest   # scenarios.py runs pytest on its fixtures
+python track-mode/test_live.py
+python track-mode/test_launcher.py     # Windows only
+python evals/scenarios.py selftest
+python evals/plan_check.py track-mode/sample-run/_coord/plan.yaml
+python install.py selftest
+python delegation/mailbox.py selftest
+python delegation/hook.py selftest
+python delegation/prepare_worktree.py selftest
+python setup/store.py selftest; python setup/detect.py selftest; python setup/update.py selftest
+python hooks/session_context.py selftest; python hooks/install_hook.py selftest
+python scores/build_scores.py selftest
+```
+
+## Releasing
+
+Bump `VERSION`, tag, then attach the archive and its checksum to the GitHub release (the updater refuses a release
+without them):
+
+```
+git archive --prefix=foreman-<tag>/ -o foreman-<tag>.tar.gz <tag>
+sha256sum foreman-<tag>.tar.gz > SHA256SUMS
+```
+
+## License
+
+MIT, see `LICENSE`.

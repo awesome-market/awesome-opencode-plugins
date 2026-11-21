@@ -1,0 +1,308 @@
+<div align="center">
+
+# 🪓 opencode-token-min
+
+**A cache-aware context trimming plugin for opencode.**
+
+*"Long sessions stop costing money while you watch."*
+
+<img src="assets/token-min-overview.svg" alt="opencode-token-min overview" width="760">
+
+```
+    ┌──────────────────────────────────────────────────────┐
+    │              opencode-token-min                       │
+    │                                                        │
+    │   server hook ──▶ trim + digest each step's context   │
+    │   cache-aware budgets keep the whole session lean     │
+    │   every task logged: cost · tokens · est. saved       │
+    │   right-sidebar Context box now tells the truth       │
+    │                                                        │
+    │                        /╳\  MIT · one plugin          │
+    └──────────────────────────────────────────────────────┘
+```
+
+**License** [MIT](LICENSE) · **Branch** `main`
+
+</div>
+
+---
+
+**opencode-token-min** is a single-purpose plugin that stops the
+runaway-token grind in long interactive sessions. Every step in a chat re-sends
+your whole context to the model — history, tool dumps, cached prefixes — and by
+step 30 that is a lot of money per keystroke. This plugin rewrites the context
+before it ships: it **trims** history down to configurable per-role budgets,
+**digests** huge tool outputs into short summaries, and **respects prompt
+caching** (no cache breaks, so skipped-in tokens stay skipped-in). It tracks
+what it kept vs. trimmed for every step, records a per-task **ledger**, and the
+TUI plugin turns that into the Context box you actually wanted: tokens, % used,
+$ spent, total saved, % saved — and now **saved on the last task**, not a
+blurry lifetime total.
+
+The leading goal, per the [awesome LLM token-optimization guide](https://github.com/pleasedodisturb/awesome-llm-token-optimization): **cut the
+re-sent-context bill by 80–99%.** That is ambitious, measurable, and exactly
+what long sessions need.
+
+---
+
+## ✨ Why this exists
+
+Most cost is not the model. It is *your own conversation* being re-invoiced on
+every single step:
+
+1. **You re-pay for all of history, every step.** A 20-step task with 50k
+   tokens of context isn't 50k tokens — it's ~1M tokens by the end. That's the
+   cost you actually watch happen.
+2. **Tool dumps dominate.** `git status`, file reads, 2,000-line logs all go
+   into the prompt verbatim, then get re-sent forever. Trimming them is the
+   single biggest lever.
+3. **The sidebar lies.** opencode's built-in Context box shows only the *last*
+   step's tokens. You can't see the trend, the burn, or what was saved — so the
+   problem stays invisible until the invoice.
+4. **Fixable, locally, with one hook.** The `experimental.chat.messages.transform`
+   hook runs before every model call. Token-min is that hook, plus a ledger, plus
+   an honest sidebar.
+
+---
+
+## 🚀 Quick start
+
+**One-liner from npm** (installs the server + TUI side by side and registers
+them in both `opencode.json` and `tui.json` — nothing to copy by hand):
+
+```bash
+opencode plugin opencode-token-min --global
+#   → adds "opencode-token-min" to your config's plugin array
+#   → later updates: opencode plugin opencode-token-min --global --force
+```
+
+Prefer the source version? Then it's the same manual copy:
+
+```bash
+mkdir -p ~/.config/opencode/plugins ~/.config/opencode/tui
+
+# server plugin (trim + digest + ledger + /cost tool)
+cp plugins/token-min.ts   ~/.config/opencode/plugins/
+
+# TUI plugin (the honest Context box on the right)
+cp tui/token-min.tsx      ~/.config/opencode/tui/
+
+# config file for sidebar (registers token-min, renders the honest Context box)
+cp tui.json               ~/.config/opencode/tui.json
+# note: if you already have a tui.json (e.g. other TUI plugins), merge the
+# "plugin" arrays instead of overwriting it.
+```
+
+Either way: restart opencode, or just `/tui --dev` to hot-reload the sidebar.
+
+**Zero config.** Sanely conservative defaults. Everything is tunable via the
+constants at the top of `plugins/token-min.ts`:
+
+| Constant | Default | Meaning |
+| --- | --- | --- |
+| `MODE` | `"auto"` | `auto` (default) = trim + digest every step. `watch` = measure only (safe). `trim` = same as auto. `cached` = trims + widens budgets unconditionally |
+| `MAX_USER` / `MAX_ASSISTANT` / `MAX_TOOL` | `12 / 12 / 12` | max messages per role kept in the tail |
+| `MAX_TOTAL` | `30` | total messages kept (history + tail) |
+| `MAX_TOTAL_CACHED` | `60` | tail cap when the session has an active cache |
+| `CACHED_MULT` | `2` | multiplier applied to per-role budgets once a cache is confirmed |
+| `PRESERVE_FIRST` | `3` | instructions/system messages never trimmed |
+| `MIN_KEEP` | `2` | floor regardless of budgets |
+| `OLD_MULT` | `2` | loosen budgets while cache state is unknown |
+| `CHARS_PER_TOKEN` | `4` | chars÷this ≈ tokens for saved estimates |
+| `KEEP_TAIL_MSGS` | `4` | recent tool parts skipped by digesting |
+| `TOOL_DIGEST_BYTES` | `4000` | output limit before a tool part becomes a digest |
+| `TOOL_DIGEST_HEAD` / `TOOL_DIGEST_TAIL` | `800 / 800` | chars kept at each end when digesting |
+
+The default `auto` mode trims and digests from the very first install. If you'd
+rather *measure first*, set `MODE = "watch"` — it only records `~saved` numbers
+without touching a single token. Sessions that confirm an active cache switch
+to `cached` budgets (`MAX_TOTAL_CACHED` / `CACHED_MULT`): keeping more of the
+warm prefix intact is cheaper than forcing a rewrite, so trimming steps aside.
+
+## 🛡 Quiet mode
+
+Set `TOKEN_MIN_LOG=1` (or `true`) to enable per-step console output. By
+default the plugin is quiet — `LOG` is opt-in, so nothing prints unless you ask.
+The ledger (`token-usage.jsonl`) is always written regardless. (Output appears
+in the TUI status area above the chat field when enabled.)
+
+---
+
+## 🧠 How it works
+
+```
+                  every step's messages
+      ┌──────────────────────────────────────────────┐
+      │                                              ▼
+      │   experimental.chat.messages.transform  ──▶  trimMessages()
+      │       │                                        │
+      │       │   per-role budgets + total cap         │ preserve first N
+      │       │   (loosened while cache unknown)       ▼
+      │       │   digest oversized tool outputs   ──▶  keep-then-drop
+      │       │                                        │
+      │       ▼                                        ▼
+      │    token-usage.jsonl ◀──── step-finish ──▶ ledger append
+      │        │  per-task rows: cost · tokens · estSaved
+      │        ▼
+      │    sidebar Context box (tui/token-min.tsx)
+      │        context · tokens · % used · $ · saved · % saved · last task
+      └──────────────────────────────────────────────────────────────
+```
+
+* **Measure first.** Every step records chars-before vs. chars-after and
+  converts the difference to an estimated token saving (`chars/4 ≈ tokens`),
+  plus cache-read tokens when the provider reports them.
+* **Cache-aware.** While the cache state of a session is unknown the budgets are
+  doubled (`OLD_MULT`), so trimming can't silently break a warm cache. Once the
+  session confirms an active cache the per-role budgets widen again (`CACHED_MULT`)
+  and the tail targets `MAX_TOTAL_CACHED`: keeping the warm prefix intact beats
+  forcing a rewrite, since re-sending cached tokens is far cheaper than new ones.
+* **Tool outputs get digested, not deleted.** Oversized outputs are rewritten
+  to a short digest (`[digested N-byte tool output → summary]`), keeping the
+  tail of the conversation *useful* instead of just small.
+* **Per-task ledger.** One JSONL row per step, tagged with the originating user
+  message (`taskID`), so *"how much did that last attempt cost and save"* is a
+  real number — not the whole-session ballpark.
+* **The sidebar tells the truth.** Context / tokens / % used / \$ spent /
+  ~saved / % saved, then **~N tokens saved · last task** — the two numbers that
+  matter mid-session, from the ledger, not from API internals.
+* **Ask the agent.** The `cost` tool prints session / today / all-time totals
+  in chat; a `/cost`-style right-menu item is planned.
+
+---
+
+## 📊 What you get
+
+| In the sidebar | What it means |
+| --- | --- |
+| `8,460 tokens` | tokens in the *last* step, as the API reports them |
+| `7% used` | side panel heading as stock opencode |
+| `$1.23 spent` | cost of the last step (if the provider reports it) |
+| `~3,063,221 tokens saved` | cumulative est. tokens not re-sent, from the ledger |
+| `81% saved` | ΣestSaved ÷ ΣbeforeTok across the session — e.g. 9,852,160 of 12,235,272 (live 7kg47KC0 session) |
+| `~622,254 tokens saved · last task` | savings from the *most recent task only* |
+| `93% saved` | same formula, but for the last task's own rows (lestSaved ÷ lastBeforeTok) |
+
+```bash
+$ opencode /tui --dev     # hot-reload the sidebar while you tweak
+```
+
+---
+
+## 📈 Measured, not just modeled
+
+Numbers from live sessions (default `auto` mode):
+
+| Run | Input tokens sent per step |
+| --- | --- |
+| No token-min, other context plugin active | **441,934** (one request) · a heavy test session sustained **700k–838k** on *every* step |
+| Same-class session, token-min `auto` | **~4,000** shipped (+ ~14k cache-read that stays warm) |
+
+Where a pluginless/other-plugin step was about to ship ~178k tokens, token-min
+sent ~3k — the ledger logged `estSaved ≈ 175k` per step, i.e. a **~98% cut**.
+The gap is why this exists: the untrimmed case re-invoices the entire session
+every keystroke; the trimmed case only pays for what actually changed.
+
+Two long-running sessions this week (`auto` mode, GLM-5.3), names and plan
+details kept out. One session started on a local non-billable model before
+being switched back to GLM; those rows are excluded, so the table counts GLM
+steps only. Both ran from an afternoon into the next day.
+
+| Session | Timeframe (UTC) | GLM steps | GLM cost | input sent | cache-read | est. tokens saved | est. $ saved* | % saved† |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Private site + API + apps build | Sep 20–21, 16:06–17:11 | 3,022 | $92.17 | 52.5M | 49.1M | 1,511.4M | $435.82 | ~97.5% |
+| App modernisation session | Sep 20–21, 18:09–17:11 | 945 | $27.54 | 15.8M | 14.1M | 416.5M | $101.84 | ~96.5% |
+| **Both combined** | 48.1 h total‡ | **3,967** | **$119.71** | **68.3M** | **63.2M** | **1,927.9M** | **$537.66** | **~97.3%** |
+
+*\*$ saved = est. saved tokens × that session's fitted GLM cache-read rate
+(~$0.29/M and ~$0.25/M) — the cheapest possible re-send, so the figures are
+conservative. At each session's actual blended billed rate (~$0.90/M) the same
+tokens are ~$1,363 and ~$380; at full input price (~$1.43/M), ~$2,161 and
+~$603.*
+†*% saved = ΣestSaved ÷ ΣbeforeTok, zero-trim rows included, so this is
+conservative.* Combined, the sessions billed ~132M effective tokens (input +
+cache-read) while the same steps would have re-sent ~1,982M context tokens —
+**~97% of the re-sent context never reached the API**, and the context that
+did ship was only ~54M tokens.
+‡*Sum of each session's elapsed span — the two ran partly in parallel and
+include idle time, so the per-hour rates below are diluted (conservative).*
+
+### Scaled to a full-time agent
+
+Take those two sessions — 48 h of session time combined, $119.71 billed,
+~$538–2,763 of context not re-sent — and run them like a job: 8-hour day,
+7-day week, 4-week month, 12-month year. That's 2,688 hours, about 29% more
+than a standard 40-h-week year (2,080 h). Linear extrapolation from two real
+sessions (elapsed spans include idle time), so treat it as the shape of the
+number, not a quote:
+
+| Period | Hours | Billed with token-min | $ saved (floor*) | $ saved (blended) | $ saved (full input) |
+| --- | --- | --- | --- | --- | --- |
+| One day (8 h) | 8 | $20 | $89 | $290 | $460 |
+| One week (7 days) | 56 | $139 | $626 | $2,029 | $3,217 |
+| One month (4 weeks) | 224 | $557 | $2,503 | $8,115 | $12,866 |
+| One year (12 months) | 2,688 | ~$6,700 | ~$30,000 | ~$97,000 | ~$154,000 |
+
+*\*Floor / blended / full input reuse the per-session rates from the table
+above: the trimmed context priced at each session's fitted cache-read
+(~$0.25–0.29/M), at the sessions' actual blended billed rate (~$0.90/M), and at
+full input price (~$1.43/M) — the cheapest, the likely, and the no-cache worst
+case. Savings scale with context weight: tool-heavy agentic sessions like
+these trim the most; chat-shaped sessions save less. The honest year-end
+comparison: ~$6.7k billed with token-min against ~$30k–154k of context that
+was never re-sent.*
+
+---
+
+## ⚠️ Caveats
+
+* **Usage and cost are provider-truth; savings are an estimate.** The `input` /
+  `output` / `reasoning` / `cacheRead` / `cacheWrite` tokens and the `$` figure
+  are copied verbatim from the provider's step-finish report — the same numbers
+  an invoice would be based on. Only what the sidebar calls *saved* is an
+  estimate: there is no invoice for tokens you *didn't* re-send, so the plugin
+  measures the context before vs. after trimming (`chars ÷ 4`, conservative
+  upper bound, floored at 0). That part is for *watching the trend*; the usage
+  and `$` columns are for *accounting*.
+* **The default (`auto`) trims from day one.** If you want to *measure first*,
+  set `MODE = "watch"` — nothing is touched until you opt in with `trim` /
+  `cached`.
+* **Cache safety is measured, not guaranteed** — the plugin errs on the side of
+  *smaller* context, which is never wrong on cost.
+
+---
+
+## 🔍 Inspecting the ledger
+
+```bash
+tail -5 ~/.local/share/opencode/token-usage.jsonl
+```
+
+One row per step-finish: `ts, sessionID, taskID, messageID, model, cost, tokens
+{input, output, reasoning, cacheRead, cacheWrite, estSaved, beforeTok, afterTok}`.
+`estSaved` (≈ chars-saved ÷ 4) is conservative and floored at 0; `beforeTok` /
+`afterTok` are estimates of the prompt size before vs. after trimming. Sum
+`estSaved` per `taskID` and you have exactly what a long session really burned.
+
+---
+
+## 🛠 Development
+
+```bash
+bun build plugins/token-min.ts --outdir /tmp/token-min-build   # syntax check
+# then: run a long session → inspect the ledger (MODE="watch" to observe first)
+```
+
+---
+
+## License
+
+[MIT](LICENSE) — do whatever, keep the name.
+
+---
+
+<div align="center">
+
+*Built by Big Pickle, directed by the boss.*
+
+</div>
