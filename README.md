@@ -25,20 +25,20 @@
 | [**@omniroute/opencode-plugin-v2**](https://github.com/cheaper-inference/OmniRoute) | 88,876 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
 | [**citrolabs/ego-lite**](https://github.com/citrolabs/ego-lite) | 23,733 | Portable ego-browser Skill for AI agent hosts |
 | [**startrail-org/pixelrag**](https://github.com/StarTrail-org/PixelRAG) | 10,954 | Give opencode eyes — screenshot any URL or document with pixelshot and read it… |
-| [**qingyuna/answer-me-with-html**](https://github.com/QingYunA/answer-me-with-html) | 6,599 | Answer me with HTML — an agent skill that answers hard questions with a… |
+| [**qingyuna/answer-me-with-html**](https://github.com/QingYunA/answer-me-with-html) | 6,627 | Answer me with HTML — an agent skill that answers hard questions with a… |
 | **weave-os/router** | 5,621 |  |
-| [**zju-real/easel**](https://github.com/ZJU-REAL/Easel) | 4,837 | An open-source AI agent for social media — discover trends, create content,… |
+| [**zju-real/easel**](https://github.com/ZJU-REAL/Easel) | 4,868 | An open-source AI agent for social media — discover trends, create content,… |
 | [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,507 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
 | **strukto-ai/mirage** | 3,789 |  |
-| [**learnprompt/awesome-seedance**](https://github.com/LearnPrompt/awesome-seedance) | 2,622 | 🎬 Evidence-led Seedance 2.5 / 2.0 prompt library: 840+ cases traced to original… |
-| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,179 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
+| [**learnprompt/awesome-seedance**](https://github.com/LearnPrompt/awesome-seedance) | 2,634 | 🎬 Evidence-led Seedance 2.5 / 2.0 prompt library: 840+ cases traced to original… |
+| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,196 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
 | [**@kimaki/plugin-fallback**](https://github.com/remorses/kimaki) | 1,452 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
 | [**remorses/kimaki**](https://github.com/remorses/kimaki) | 1,452 | OpenCode plugin that gates tool execution with a two-stage LLM classifier, like… |
 | [**@th3akii/opencode-quota**](https://github.com/slkiser/opencode-quota) | 1,154 | OpenCode quota & tokens usage with zero context window pollution. Supports… |
-| [**aimeoa/hanshuang-codex**](https://github.com/aimeoa/hanshuang-codex) | 1,013 | 针对GPT 6.0,workbuddyV4.1flash的破甲实验项目 |
-| [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 971 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
-| [**insane0777/awwwards-mcp**](https://github.com/INSANE0777/Awwwards-mcp) | 910 | Free, open-source MCP server that gives AI coding agents (Claude Code, Codex,… |
-| [**jazzenchen/agent-hud-open**](https://github.com/jazzenchen/agent-hud-open) | 716 | A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas,… |
+| [**aimeoa/hanshuang-codex**](https://github.com/aimeoa/hanshuang-codex) | 1,032 | 针对GPT 6.0,workbuddyV4.1flash的破甲实验项目 |
+| [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 976 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
+| [**insane0777/awwwards-mcp**](https://github.com/INSANE0777/Awwwards-mcp) | 926 | Free, open-source MCP server that gives AI coding agents (Claude Code, Codex,… |
+| [**jazzenchen/agent-hud-open**](https://github.com/jazzenchen/agent-hud-open) | 750 | A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas,… |
 | [**with-pebbly/aseprite-ai-artist**](https://github.com/with-pebbly/aseprite-ai-artist) | 707 | Agent-native control layer for Aseprite. MCP server (2025-11-25 spec, designed… |
 | **coldteadotai/abide** | 625 |  |
 | [**tavily-ai/skills**](https://github.com/tavily-ai/skills) | 495 | Tavily plugin for OpenCode — web search, content extraction, crawling, URL… |
