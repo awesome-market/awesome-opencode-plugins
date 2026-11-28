@@ -22,26 +22,26 @@
 
 | 插件 | Stars | 简介 |
 | :--- | ---: | :--- |
-| [**@omniroute/opencode-plugin-v2**](https://github.com/cheaper-inference/OmniRoute) | 88,876 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
-| [**citrolabs/ego-lite**](https://github.com/citrolabs/ego-lite) | 23,733 | Portable ego-browser Skill for AI agent hosts |
+| [**@omniroute/opencode-plugin-v2**](https://github.com/cheaper-inference/OmniRoute) | 90,556 | OmniRoute OpenCode plugin (v2 Promise API): catalog transform with models,… |
+| [**othmanadi/planning-with-files**](https://github.com/OthmanAdi/planning-with-files) | 28,250 | Native OpenCode plugin for planning-with-files: per-turn plan injection, write… |
+| [**citrolabs/ego-lite**](https://github.com/citrolabs/ego-lite) | 24,664 | Portable ego-browser Skill for AI agent hosts |
+| [**different-ai/openwork**](https://github.com/different-ai/openwork) | 24,612 | Use OpenWork Cloud in OpenCode: sign in once, and your organization's AI… |
 | [**startrail-org/pixelrag**](https://github.com/StarTrail-org/PixelRAG) | 10,978 | Give opencode eyes — screenshot any URL or document with pixelshot and read it… |
-| [**qingyuna/answer-me-with-html**](https://github.com/QingYunA/answer-me-with-html) | 6,683 | Answer me with HTML — an agent skill that answers hard questions with a… |
+| [**npm/victrid-oh-my-opencode-slim**](https://github.com/alvinunreal/oh-my-opencode-slim) | 10,374 | Lightweight agent orchestration plugin for OpenCode - a slimmed-down fork of… |
+| [**qingyuna/answer-me-with-html**](https://github.com/QingYunA/answer-me-with-html) | 6,698 | Answer me with HTML — an agent skill that answers hard questions with a… |
 | **weave-os/router** | 5,621 |  |
-| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,507 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
+| [**@plfavreau/opencode-dcp**](https://github.com/Opencode-DCP/opencode-dynamic-context-pruning) | 4,532 | Temporary build of @tarquinen/opencode-dcp 3.2.0 with the restart cache fix… |
 | **strukto-ai/mirage** | 3,789 |  |
-| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,229 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
-| [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,479 | oh-my-agent hook bridge for OpenCode and Kilo Code |
-| [**@kimaki/plugin-fallback**](https://github.com/remorses/kimaki) | 1,452 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
+| [**devswha/ovis**](https://github.com/devswha/ovis) | 2,242 | Ovis (formerly herdr web UI): free, open-source browser and phone client for… |
+| [**npm/oh-my-agent-opencode**](https://github.com/first-fluke/oh-my-agent) | 1,480 | oh-my-agent hook bridge for OpenCode and Kilo Code |
+| [**@kimaki/plugin-fallback**](https://github.com/remorses/kimaki) | 1,457 | OpenCode V2 plugin that switches account or model per session on rate limit,… |
 | [**remorses/kimaki**](https://github.com/remorses/kimaki) | 1,452 | OpenCode plugin that gates tool execution with a two-stage LLM classifier, like… |
 | [**@th3akii/opencode-quota**](https://github.com/slkiser/opencode-quota) | 1,167 | OpenCode quota & tokens usage with zero context window pollution. Supports… |
-| [**aimeoa/hanshuang-codex**](https://github.com/aimeoa/hanshuang-codex) | 1,062 | 针对GPT 6.0,workbuddyV4.1flash的破甲实验项目 |
-| [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 1,013 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
-| [**insane0777/awwwards-mcp**](https://github.com/INSANE0777/Awwwards-mcp) | 956 | Free, open-source MCP server that gives AI coding agents (Claude Code, Codex,… |
-| [**jazzenchen/agent-hud-open**](https://github.com/jazzenchen/agent-hud-open) | 876 | A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas,… |
+| [**aimeoa/hanshuang-codex**](https://github.com/aimeoa/hanshuang-codex) | 1,085 | 针对GPT 6.0,workbuddyV4.1flash的破甲实验项目 |
+| [**agents-universe/agents-universe**](https://github.com/agents-universe/agents-universe) | 1,021 | 不是问答机器人，而是能真正干活的数字分身。共享智能体，共享项目上下文，让项目所有成员一起协同工作。同时智能体会像人一样通过资料或者工作抽象和总结经验到项目上下文… |
+| [**insane0777/awwwards-mcp**](https://github.com/INSANE0777/Awwwards-mcp) | 970 | Free, open-source MCP server that gives AI coding agents (Claude Code, Codex,… |
+| [**jazzenchen/agent-hud-open**](https://github.com/jazzenchen/agent-hud-open) | 924 | A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas,… |
 | [**with-pebbly/aseprite-ai-artist**](https://github.com/with-pebbly/aseprite-ai-artist) | 737 | Agent-native control layer for Aseprite. MCP server (2025-11-25 spec, designed… |
-| [**@aerovato/operator-opencode-v2**](https://github.com/aerovato/operator-memory) | 527 | Operator Memory adapter for OpenCode V2. |
-| [**tavily-ai/skills**](https://github.com/tavily-ai/skills) | 496 | Tavily plugin for OpenCode — web search, content extraction, crawling, URL… |
-| **tiger-zzz/mini-trellis** | 444 |  |
 <!-- /BOARD:TOP20 -->
 
 ## 榜单
