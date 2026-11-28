@@ -1,0 +1,474 @@
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [Français](README.fr.md)
+
+# Mempunk
+
+[![npm version](https://img.shields.io/npm/v/mempunk)](https://www.npmjs.com/package/mempunk)
+[![license](https://img.shields.io/npm/l/mempunk)](LICENSE)
+
+Persistent memory between Claude Code sessions.
+
+## The Problem
+
+AI coding CLIs have no memory between sessions. Every time you start a new conversation, your assistant doesn't know:
+
+- What you were working on yesterday
+- What architectural decisions were already made
+- What tasks are pending or done
+- What files were modified and why
+- What the next steps were supposed to be
+- Which CLI tool you were using (Claude Code? opencode? gemini-cli?)
+
+You end up repeating context, re-explaining decisions, and losing momentum. The longer a project runs, the worse it gets.
+
+But there's a deeper issue: even if a CLI *did* remember everything, raw history is inefficient context. Reading 20 session logs to understand where a project stands is nearly as slow as starting from scratch. What you need isn't a log — it's a compiled state that gets more accurate over time, not a pile of entries that keeps growing.
+
+On top of that, if you switch between different AI coding CLIs — Claude Code for some projects, opencode or gemini-cli for others — each tool lives in its own silo. Your context is fragmented across tools.
+
+## The Solution
+
+Mempunk gives your AI a structured vault backed by SQLite and markdown files — and keeps it compiled, not just stored.
+
+- **Session start** (`vault-skills/session-start.md`): the assistant loads the compiled project state from `wiki/state.md` if it exists, or the last session logs otherwise. No re-explaining. No re-deriving. It picks up where you left off.
+- **Session end** (`vault-skills/session-end.md`): the assistant writes the session log, updates the backlog, and rewrites the compiled state — a fresh synthesis of everything that's happened so far. The next session starts with a dense, accurate snapshot instead of raw history.
+- **The vault** (always): each project accumulates a `wiki/` — a knowledge base the LLM owns and maintains. Every session makes it more accurate. Every source you add makes it richer.
+
+The vault is markdown files organized by project, with SQLite as the structured backend. You manage it with a CLI. Your AI navigates it with the protocols defined in `vault-skills/`. It also works as an Obsidian vault, so you can browse and search everything visually.
+
+Because the vault is CLI-agnostic, you can use the same vault with Claude Code, opencode, and Antigravity CLI (through the MCP server) simultaneously. Switch between CLIs without losing context.
+
+## Installation
+
+**Requirements:** Node.js 22 or later, and at least one AI coding CLI (Claude Code, opencode or Antigravity CLI). Git is only needed to [sync the vault between machines](#sync-between-machines).
+
+### 1. Install the CLI
+
+```bash
+npm install -g mempunk
+mempunk -v
+```
+
+### 2. Create the vault and link your CLI
+
+```bash
+mempunk setup
+```
+
+`setup` asks two questions:
+
+1. **Which AI CLI do you mainly use?** `1` for Claude Code, `2` for opencode or another CLI.
+2. **(Claude Code only) How should Mempunk work?** `1` *Automatic* (recommended) installs hooks, agents and the status line, and turns on `auto-start`. `2` *Manual* installs only the vault-skills protocols, which you follow yourself.
+
+It creates `~/Dev-Brain/`, adds it to your CLI's directories, and installs hooks + agents (Claude Code, automatic) or the `vault-skills/` protocols (manual, opencode). Running it again is safe: it keeps the existing vault. Set `MEMPUNK_VAULT` before running it to use a different location.
+
+#### Claude Code: plugin or manual hooks
+
+With Claude Code you can run Mempunk as a plugin instead of installing hooks into `~/.claude`:
+
+```bash
+mempunk setup --plugin
+```
+
+This runs `claude plugin marketplace add JuanesEspinosa/Mempunk` and `claude plugin install mempunk@mempunk`. If `claude` is missing or fails, `setup` falls back to manual hooks. You can also run those two commands yourself, or use `/plugin marketplace add JuanesEspinosa/Mempunk` and then `/plugin install mempunk@mempunk` inside Claude Code.
+
+- **The plugin still needs the CLI.** It ships no hook code: it finds your installed `mempunk` and runs its hooks, so `npm update -g mempunk` updates them too.
+- **Already using manual hooks?** Run `mempunk hooks migrate` first. With the plugin active, manual hooks don't run, so nothing fires twice.
+- **Status line.** A plugin can't set it: run `mempunk statusline install`.
+- **Volta or a custom prefix.** If the plugin warns that it can't find the CLI, set `MEMPUNK_CLI="node <package path>/src/cli.js"`.
+
+### 3. Register your first project
+
+From the root of your repository:
+
+```bash
+cd ~/code/my-api
+mempunk project add api "Backend API"
+```
+
+The id (`api`) is what you use in every other command. `project add` maps the current directory to the project, so sessions opened there resolve it automatically. For a project that already exists (another folder, another machine), link the folder with `mempunk project activate api --here`.
+
+### 4. Connect the MCP server (recommended)
+
+The MCP server gives the assistant typed tools (`get_context`, `save_decision`, `search`…) instead of shell commands. Register it once per CLI as shown in [MCP server](#mcp-server).
+
+### 5. Check the installation
+
+```bash
+mempunk status                # vault, projects, last session
+mempunk hooks install --check # Claude Code: hooks, agents and status line
+mempunk doctor                # vault integrity
+```
+
+Open a session of your CLI in the project folder. With Claude Code in automatic mode, the context block is already there when the session starts.
+
+## Usage
+
+A typical day with a project:
+
+1. **Open your CLI in the repository.** With `auto-start` on, Claude Code starts with the project's compiled context (state, last session, pending backlog, recent decisions). Otherwise type `/mempunk`, or ask the assistant to load the Mempunk context: it lists your projects and asks which one to work on.
+2. **Work as usual.** The assistant saves as things happen: a decision when one is agreed, a backlog update when a task starts or ends, a resource when you share a link. You can also ask it directly ("save this as a decision", "add it to the backlog"), or run the commands yourself:
+   ```bash
+   mempunk decision add api "Use JWT for auth" --tags "auth"
+   mempunk backlog add api "Add refresh tokens" --priority 1
+   mempunk search "refresh token" --project api
+   ```
+3. **Close the session.** Type `/session-end` or tell the assistant you are done. It logs the session, updates the backlog, and rewrites `wiki/state.md`, so the next session starts from a compiled snapshot instead of raw history.
+4. **Switching machines?** `mempunk push` before you leave and `mempunk pull` on the other machine (or `mempunk remote set <url> --auto` to do both from the hooks).
+
+If a session closes unexpectedly, `mempunk session recover api` shows the last automatic snapshot.
+
+## Vault Structure
+
+```
+~/Dev-Brain/
+├── projects/
+│   └── <id>/
+│       ├── INDEX.md        metadata (name, created_at, status)
+│       ├── decisions/      architecture decision records (ADRs)
+│       ├── skills/         stack, patterns, conventions — loaded each session
+│       └── wiki/           LLM-maintained knowledge base
+│           ├── state.md    compiled project state — rewritten each session
+│           ├── log.md      append-only session history
+│           ├── index.md    catalog of all wiki pages
+│           └── sources/    documents for the LLM to ingest
+├── areas/                  ongoing responsibilities, not projects
+├── resources/              links and references
+├── daily/                  narrative daily logs
+└── .mempunk/
+    ├── mempunk.db          SQLite database — do not edit manually
+    └── hooks.log           lifecycle hook execution log
+```
+
+`wiki/state.md` is the central differentiator. It's the *compiled state* of the project — what's true now, not what happened in order. The LLM rewrites it at the end of every session. Reading one compiled file is faster and more accurate than reading N session logs. Every session makes it more precise. Every source you add enriches it. You never write it yourself.
+
+## Session Flow
+
+### Session start
+
+**Claude Code (auto mode):** if you enabled `auto-start` and the directory is linked to a project (`project activate <id> --here`), the session opens with that project's `mempunk context` block already loaded — no agent, no questions. To switch or create a project, use `/mempunk:load` (plugin); without the plugin, follow the manual protocol below.
+
+**Manual (no plugin / Antigravity CLI / opencode):** follow `vault-skills/session-start.md`. The assistant:
+
+1. Runs `mempunk project activate <id>` to set the active project
+2. Runs `mempunk session last <project_id>` to know what the previous session did
+3. Runs `mempunk skill list <project_id>` and reads all relevant skill files
+4. Reads project state — `wiki/state.md` if it exists, otherwise the last 3 session log entries
+5. Runs `mempunk backlog list <project_id> --status pending`
+6. Confirms context before proceeding
+
+### Incremental saves (during session)
+
+The assistant saves context immediately when it happens — not only at session end:
+
+- **Architectural decision made** → `mempunk decision add` immediately
+- **Important bug fixed** → `mempunk session log` with the fix summary
+- **Task completed or started** → `mempunk backlog update` immediately
+- **Project skill modified** → `mempunk skill update` immediately
+- **Relevant link captured** → `mempunk resource add` immediately
+- **Important work block finished** → `mempunk daily log` with a block summary
+
+If a session is interrupted, the important context is already persisted.
+
+### Session end (`vault-skills/session-end.md`)
+
+When a session ends, the assistant:
+
+1. Runs `mempunk backlog update` for each task that changed status during the session
+2. Runs `mempunk decision add` for each important decision not yet saved
+3. Runs `mempunk session log` with a summary and the list of files touched
+4. Updates `wiki/state.md` — rewrites it as a compiled synthesis of the current project state
+5. Appends to `wiki/log.md`
+6. Creates or appends to `daily/YYYY-MM-DD.md`
+
+The next session picks up exactly where this one left off.
+
+## Lifecycle Hooks (Claude Code)
+
+When hooks are installed (`mempunk hooks install`), Mempunk automatically responds to Claude Code session events:
+
+| Hook | Event | Behavior |
+|------|-------|----------|
+| `on-prompt.js` | Before each turn | Counts the turn and keeps the prompt in the session state (`.mempunk/sessions/<session_id>.json`) |
+| `on-tool.js` | After Edit, Write, MultiEdit, NotebookEdit and Bash | Records the files actually edited and the commands run in the session state |
+| `on-stop.js` | After each response | **AutoCheckpoint** — saves an incremental checkpoint every 5 turns from the session state, without reading the transcript |
+| `on-compact.js` | Before context compaction | **CompactGuard** — saves the session state (recent messages, edited files, commands) as a snapshot before Claude compacts |
+| `on-start.js` | Session start | **CompactRestore** — restores context from the last snapshot after compaction; runs `mempunk pull` first (45 s timeout) if `remote set --auto` is on |
+| `on-end.js` | Session end | **AutoPush** — if `remote set --auto` is on, launches `mempunk push --background` detached and returns at once. The result goes to `.mempunk/last-push.json`; the next session start warns once if it failed. It is a safety net: the agent's push (`@mempunk-syncer` or `mempunk push`) writes the commit with a real summary |
+
+Both sync hooks are registered with `timeout: 90` in `settings.json`. If `pull`/`push` fails, only a fixed classified message (network / auth / timeout / conflict) reaches Claude's context; details go to `.mempunk/hooks.log`.
+
+AutoCheckpoint interval is configurable via the `MEMPUNK_CHECKPOINT_INTERVAL` environment variable (default: 5).
+
+Hooks also install a **statusline** integration — a real-time context bar in Claude Code's status line:
+
+```
+🟢 ███░░░░░░ 32% | claude-sonnet | $0.12
+```
+
+The emoji indicates pressure level: 🟢 below 70%, ⚠️ at 70–80%, 🔶 at 80–84%, 🚨 above 84%.
+
+To recover context from a previous session or after an interruption:
+
+```bash
+mempunk session recover <project_id>     # show latest available snapshot
+mempunk session checkpoints <project_id> # list all saved checkpoints
+```
+
+## Agents (Claude Code)
+
+Two sub-agents are installed alongside hooks (or come with the plugin):
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| `@mempunk-recover` | Sonnet | Recovers context from a closed or interrupted session manually |
+| `@mempunk-syncer` | Haiku (background) | Pushes/pulls the vault to its git remote via `mempunk push` / `mempunk pull`; the summary goes through stdin, never on the command line (see [Sync between machines](#sync-between-machines)) |
+
+With `auto-start` enabled (`mempunk auto-start on`), SessionStart injects `mempunk context` for the project linked to the current directory; an unlinked directory, or a CLI failure, gets a one-line notice to use `/mempunk:load`. Saving goes through the [MCP tools](#mcp-server) (`save_decision`, `log_session`, `backlog_update`, `update_state`).
+
+Since 2.7.0, `@mempunk-loader` and `@mempunk-saver` are retired: `mempunk hooks install`, `uninstall` and `migrate` delete old copies that carry Mempunk's marker.
+
+## MCP server
+
+`mempunk mcp` is a local MCP server over stdio: each AI CLI launches it as a subprocess when a session opens. No network, no hosting. It exposes the vault as typed tools on the same code the CLI uses:
+
+| Tool | Use it to |
+|------|-----------|
+| `get_context` | Load the compiled project context (state, last session, pending backlog, decisions) |
+| `save_decision` | Save an ADR as soon as a technical decision is agreed |
+| `log_session` | Log a session summary with the files touched |
+| `backlog_list` / `backlog_add` / `backlog_update` | Read and change backlog tasks |
+| `search` | Full-text search over decisions, resources, daily logs and session logs |
+| `update_state` | Rewrite `wiki/state.md` (the previous state goes to its history) |
+
+`project_id` is optional: by default the server uses the project linked to the session's directory (`mempunk project activate <id> --here`) or `CLAUDE_PROJECT_ID`. It never falls back to the global active project, so a decision is never saved to the wrong project; without a link the tool returns an error asking for `project_id`. Push and pull are not exposed: they stay terminal commands.
+
+Register it once per CLI. On macOS and Linux the command is `mempunk mcp`. **On Windows**, launch the script with `node`: the CLIs start the server without a shell, and the `mempunk` shim (or `cmd /c mempunk mcp`) fails or times out. Find the script path with `npm root -g`; it is `<npm root -g>/mempunk/src/cli.js` (for example `C:/Users/<you>/AppData/Roaming/npm/node_modules/mempunk/src/cli.js`). Below, `<cli.js>` stands for that path.
+
+- **Claude Code:**
+  ```bash
+  claude mcp add --scope user mempunk -- mempunk mcp            # macOS / Linux
+  claude mcp add --scope user mempunk -- node <cli.js> mcp      # Windows
+  ```
+  Check it with `claude mcp list` (`mempunk: … ✔ Connected`) or `/mcp` inside a session. From v2.5 the plugin declares it for you.
+- **opencode** (v2 config schema, servers under `mcp.servers`):
+  ```bash
+  opencode mcp add --global mempunk -- mempunk mcp              # macOS / Linux
+  opencode mcp add --global mempunk -- node <cli.js> mcp        # Windows
+  ```
+  This writes `~/.config/opencode/opencode.jsonc`:
+  ```jsonc
+  { "mcp": { "servers": { "mempunk": { "type": "local", "command": ["node", "<cli.js>", "mcp"] } } } }
+  ```
+  Check it from a project folder with `opencode mcp list` (`✓ mempunk connected`), or `/mcps` inside a session. opencode 1.x used `"mcp": { "mempunk": { …, "enabled": true } }` instead.
+- **Antigravity CLI (`agy`):**
+  ```bash
+  agy mcp add mempunk mempunk mcp                               # macOS / Linux
+  agy mcp add mempunk node <cli.js> mcp                         # Windows
+  ```
+  This writes `~/.gemini/config/mcp_config.json` (`mcpServers.mempunk`). Restart `agy` and open `/mcp`. In print mode (`agy -p`) MCP calls need an allow rule such as `mcp(*)` under `permissions.allow`. `mempunk link --cli agy` (and `setup` in option 2) does this for you, and also adds the vault and the session protocols to `~/.gemini/config/AGENTS.md`.
+- **Gemini CLI** (no longer maintained upstream; prefer Antigravity CLI): add `{ "mcpServers": { "mempunk": { "command": "mempunk", "args": ["mcp"] } } }` to `~/.gemini/settings.json`. Gemini drops environment variables you do not list: with a custom vault add `"env": { "MEMPUNK_VAULT": "$MEMPUNK_VAULT" }`.
+
+The server resolves the project from the directory the CLI was opened in, so open the session inside a linked repository or pass `project_id`. The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) is handy to try the tools without a CLI: `npx @modelcontextprotocol/inspector node <cli.js> mcp`, then *Tools → List Tools*.
+
+If the vault needs `mempunk vault upgrade`, the tools return that error instead of migrating.
+
+## Commands
+
+### Setup & Configuration
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk setup` | Interactive setup: init + link + hooks install | `mempunk setup` |
+| `mempunk setup --plugin` | Same, using the Claude Code plugin instead of manual hooks | `mempunk setup --plugin` |
+| `mempunk init` | Create vault structure and initialize DB | `mempunk init` |
+| `mempunk link [--cli <name>]` | Link vault to Claude Code, opencode, or Antigravity CLI (`agy`) | `mempunk link --cli agy` |
+| `mempunk unlink [--cli <name>]` | Unlink from a CLI | `mempunk unlink` |
+| `mempunk status` | Dashboard: vault info, projects, backlog counts, last session | `mempunk status` |
+| `mempunk cli list` | List compatible CLIs and their link status | `mempunk cli list` |
+| `mempunk auto-start on\|off` | Toggle loading the linked project's context on session start | `mempunk auto-start on` |
+| `mempunk auto-session full\|minimal\|off` | Whether hooks store conversation text (session log, checkpoints, compaction snapshots): yes (`full`, default), no (`minimal`), or no and no automatic session log (`off`). File paths and commands are kept in every mode. Stored in `.mempunk/settings.json`, versioned with the vault | `mempunk auto-session minimal` |
+
+### Projects
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk project add <id> <name> [--path <dir>]` | Register a new project (maps the current directory, or `--path`, as its repo) | `mempunk project add api "Backend API"` |
+| `mempunk project list` | List all projects | `mempunk project list` |
+| `mempunk vault backup` | Verified copy of the database into `.mempunk/backups/` (keeps the last 10) | `mempunk vault backup` |
+| `mempunk export [--out <file>]` | Portable JSON dump of every vault table | `mempunk export` |
+| `mempunk <read command> --json` | JSON output for scripts and agents (lists, `session last/checkpoints`, `search`) | `mempunk backlog list api --json` |
+| `mempunk project activate <id> [--here]` | Set the active project; `--here` maps the current directory to it so hooks resolve the project by cwd | `mempunk project activate api --here` |
+| `mempunk log <id>` | Open project INDEX.md in editor | `mempunk log api` |
+| `mempunk remove <id> --yes` | Delete a project (DB + disk, irreversible) | `mempunk remove api --yes` |
+
+### Backlog
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk backlog add <project_id> "<title>"` | Add a task to the backlog | `mempunk backlog add api "Add auth middleware"` |
+| `mempunk backlog add ... --priority <1\|2\|3>` | Add task with priority (default: 2) | `mempunk backlog add api "Fix CORS" --priority 1` |
+| `mempunk backlog list <project_id>` | List all backlog tasks | `mempunk backlog list api` |
+| `mempunk backlog list ... --status <value>` | Filter by status | `mempunk backlog list api --status pending` |
+| `mempunk backlog update <id> --status <value>` | Update task status | `mempunk backlog update bl_123 --status done` |
+| `mempunk backlog update <id> --priority <value>` | Update task priority | `mempunk backlog update bl_123 --priority 1` |
+
+### Decisions, Skills & Resources
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk decision add <project_id> "<title>"` | Create an ADR with markdown file | `mempunk decision add api "Use JWT for auth"` |
+| `mempunk decision add ... --tags "t1,t2"` | Add decision with tags | `mempunk decision add api "Use JWT" --tags "auth,security"` |
+| `mempunk decision list <project_id>` | List project decisions | `mempunk decision list api` |
+| `mempunk decision remove <decision_id> --yes` | Delete a decision: record, search index and file | `mempunk decision remove dec_123 --yes` |
+| `mempunk skill add <name> --global\|--profile <p>\|--project <id> --description "..."` | Create a Claude Code skill (`skills/<name>/SKILL.md`) in that scope | `mempunk skill add commits --global --description "Commit conventions"` |
+| `mempunk skill list <project_id>` | Skills available to a project (global + profiles + project, resolved) | `mempunk skill list api --json` |
+| `mempunk skill update <id> --file <path>` | Replace a skill's content (keeps the frontmatter if the file has none) | `mempunk skill update project:api:stack --file stack.md` |
+| `mempunk agent add\|list\|update ...` | Same as `skill`, for subagents (`agents/<name>.md`) | `mempunk agent add reviewer --project api --description "..."` |
+| `mempunk profile list` | Profiles (skills/agents shared by stack) | `mempunk profile list` |
+| `mempunk project profile <id> [--add <p>] [--remove <p>]` | Profiles applied to a project | `mempunk project profile api --add nestjs` |
+| `mempunk materialize [--global\|--project <id>] [--dry-run]` | Install vault skills/agents into `~/.claude/` and each repo's `.claude/` (private: added to `.git/info/exclude`). Runs on every session start | `mempunk materialize --dry-run` |
+| `mempunk resource add <project_id> "<title>"` | Capture an external resource | `mempunk resource add api "JWT spec" --url https://jwt.io` |
+| `mempunk resource list <project_id>` | List project resources | `mempunk resource list api` |
+
+### Sessions & Logs
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk session log <project_id> "<summary>"` | Record a work session | `mempunk session log api "Implemented login endpoint"` |
+| `mempunk session log ... --files "p1,p2"` | Record session with touched files | `mempunk session log api "Fix" --files "src/auth.js"` |
+| `mempunk session last <project_id>` | Show the last recorded session | `mempunk session last api` |
+| `mempunk session recover <project_id>` | Show latest snapshot (checkpoint or compact) | `mempunk session recover api` |
+| `mempunk session checkpoints <project_id>` | List all saved checkpoints and compact snapshots | `mempunk session checkpoints api` |
+| `mempunk daily log <project_id> "<content>"` | Add an entry to the daily log | `mempunk daily log api "Finished auth module"` |
+| `mempunk daily list <project_id>` | List daily log entries | `mempunk daily list api` |
+
+### Search
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk search "<query>"` | Full-text search across the vault | `mempunk search "refresh token"` |
+| `mempunk search "<query>" --project <id>` | Search within a single project | `mempunk search "auth" --project api` |
+
+### Hooks & Agents
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk hooks install` | Install hooks + agents globally in `~/.claude/` | `mempunk hooks install` |
+| `mempunk hooks install --local` | Install hooks in `.claude/` of the current project | `mempunk hooks install --local` |
+| `mempunk hooks install --check` | Verify hooks, agents, and statusline are installed | `mempunk hooks install --check` |
+| `mempunk hooks migrate` | Remove manual hooks + agents to move to the plugin | `mempunk hooks migrate` |
+| `mempunk statusline install` | Install the status line (`uninstall` removes it and restores the one it replaced; `--force` replaces another one) | `mempunk statusline install` |
+| `mempunk hooks uninstall` | Remove Mempunk hooks | `mempunk hooks uninstall` |
+
+### Sync between machines
+
+The vault is a git repo; these commands push and pull it without you touching git. Config lives in `.mempunk/remote.json` (travels with the vault); per-machine timestamps in `.mempunk/remote-state.json` (gitignored).
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `mempunk remote set <url> [--branch <b>] [--auto]` | Register the vault's git remote (`git init` + `origin` if needed); without `--branch` uses the branch checked out in `~/Dev-Brain` (else `main`); `--auto` pulls on session start and pushes on session end | `mempunk remote set git@github.com:me/brain.git --auto` |
+| `mempunk remote show [--json]` | Show url (masked), branch, automation flags and last push/pull | `mempunk remote show` |
+| `mempunk remote unset` | Remove `.mempunk/remote.json` (leaves `.git` untouched) | `mempunk remote unset` |
+| `mempunk push [--message-file <path> \| --message-stdin \| -m "<msg>"] [--project <id>] [--strict]` | WAL checkpoint of the DB, commit local changes, fetch + merge `origin/<branch>`, integrity check, then push | `mempunk push -m "auth done" --project api` |
+| `mempunk pull` | Verified backup, commit local changes, fetch + merge `origin/<branch>`, DB integrity check, re-map this machine's project paths | `mempunk pull` |
+
+**New machine.** Clone the vault into `~/Dev-Brain` *before* running any mempunk command there. Running `mempunk init` first and then `remote set`/`pull` fails with an "unrelated histories" error; the CLI prints a hint to clone instead.
+
+**Remote URL.** Accepted forms: https/ssh/git/file URLs, scp-style `git@host:path`, and local paths. URLs that embed credentials (`https://user:token@…`) are rejected — use git's credential helper or SSH keys. Branch names are validated with `git check-ref-format`. `remote set` also untracks per-machine files that were previously committed (`auto-start.flag`, `hooks.log`, backups) and warns that the DB contains session snapshots with conversation excerpts, so the remote must be a **private** repository. To keep conversation text out of the DB from now on, run `mempunk auto-session minimal`.
+
+**Commit messages.** Sources in precedence order: `--message-file <path>`, `--message-stdin` (whole message from stdin), `-m "<msg>"`, default `vault: session <YYYY-MM-DD> — <n> files`. The message is prefixed `vault(<project>):` with `--project` or `vault:` without. Messages are sanitized (control characters removed, 2000 chars max); `--project` must be a plain identifier (letters, digits, `_`, `-`, `.`).
+
+**Conflicts.** Neither command stashes: local uncommitted changes are committed first (`pull` uses `vault: local changes before pull`), then the remote branch is fetched and merged. If both machines wrote to `mempunk.db`, the DB with the most recent activity wins and the loser is saved as `.mempunk/backups/conflict-<stamp>-<ours|theirs>.db` (`--strict` exits 1 after resolving). If markdown files conflict, the command stops with the list and the merge stays in progress: resolve, then `git add`/`git commit` in `~/Dev-Brain` (or `git merge --abort`). A subsequent `push`/`pull` refuses to run while a merge is in progress or `.git/index.lock` exists. Both commands run the DB integrity check after any merge. Git runs non-interactively (`GIT_TERMINAL_PROMPT=0`) with timeouts, so a missing credential fails fast instead of opening a prompt.
+
+**Per-machine paths (vault v5).** Repo paths live in `project_paths` keyed by hostname, normalized (lowercase, `.local`/`.lan` stripped); `MEMPUNK_HOST` overrides it and is normalized the same way. `project activate <id> --here` maps the folder on this machine only, and `mempunk pull` lists the projects that still need it. Existing vaults need `mempunk vault upgrade`.
+
+**Agent.** `@mempunk-syncer` (installed by `mempunk hooks install`) runs `mempunk push` / `mempunk pull` in the background from `SYNC push: project=<id> summary="<summary>"` or `SYNC pull:`. It sends the summary through a quoted heredoc, never on the command line:
+
+```bash
+mempunk push --project <id> --message-stdin <<'MEMPUNK_EOF'
+<summary>
+MEMPUNK_EOF
+```
+
+It never runs git directly and never relays raw git stderr. With no remote configured it prints `MEMPUNK-SYNCER: no remote configured — run: mempunk remote set <url>`; on failure it prints `MEMPUNK-SYNCER ERROR: mempunk push failed (exit N) — run it manually in the terminal to see details`. With `--auto`, `on-start.js` pulls at `SessionStart` and `on-end.js` pushes at `SessionEnd`.
+
+## Privacy
+
+The vault is a memory of your work, so in `full` mode (the default) hooks store commands and conversation excerpts, and the database travels with `mempunk push`.
+
+- **Secrets are hidden when captured.** Hooks replace the value and keep the context: `DB_PASSWORD=hunter2` is stored as `DB_PASSWORD=[REDACTED]`. This covers known API key formats, private keys, JWTs, URLs with credentials, authorization headers and `password=…`-style assignments.
+- **It is best effort.** A password with no name next to it is not detected,. Decisions, state, session logs, backlog, daily logs and resources are filtered too; skills and agents are not, because they are installed files. Text saved by earlier versions stays as it was, including in the git history.
+- **Use a private repository.** `mempunk remote set` warns you if the remote can be read without credentials.
+- **To store no conversation text at all,** run `mempunk auto-session minimal`.
+
+## Vault Maintenance
+
+```bash
+# Check consistency between files on disk and the database
+mempunk sync
+
+# Check vault integrity — missing files, unregistered files
+mempunk doctor
+
+# Show vault schema version and CLI version
+mempunk vault version
+
+# Apply pending schema migrations
+mempunk vault upgrade
+```
+
+`mempunk vault upgrade` is safe to run at any time. It only applies missing migrations and never modifies existing data.
+
+## Compatibility
+
+| Feature | Claude Code | opencode | Antigravity CLI |
+|---|:---:|:---:|:---:|
+| Vault link/unlink | ✔ | ✔ | ✔ |
+| Multi-vault | ✔ | ✔ | ✔ |
+| Session start protocol | ✔ | ✔ | ✔ |
+| Session end protocol | ✔ | ✔ | ✔ |
+| Smart Context Check | ✔ | ✔ | ✔ |
+| Auto ADRs | ✔ | ✔ | ✔ |
+| Intelligent backlog | ✔ | ✔ | ✔ |
+| Consolidated daily log | ✔ | ✔ | ✔ |
+| Knowledge capture | ✔ | ✔ | ✔ |
+| `sync` / `doctor` | ✔ | ✔ | ✔ |
+| Wiki (`state.md`) | ✔ | ✔ | ✔ |
+| Lifecycle hooks (AutoCheckpoint, CompactGuard) | ✔ | ✘ | ✘ |
+| Statusline (context usage bar) | ✔ | ✘ | ✘ |
+| Agents (`@mempunk-recover`, `@mempunk-syncer`) | ✔ | ✘ | ✘ |
+| Multi-CLI simultaneous | ✔ | ✔ | ✔ |
+| MCP server (`mempunk mcp`) | ✔ | ✔ | ✔ |
+
+> Session protocols, ADRs, backlog updates, and daily logs are vault-level features — they work in any CLI that reads the vault's `CLAUDE.md`. Lifecycle hooks and agents require Claude Code's sub-agent and hook infrastructure.
+>
+> Gemini CLI no longer receives updates upstream and is deprecated in Mempunk: `link` and `setup` skip it, and `--cli gemini` only remains to unlink an existing setup. Use Antigravity CLI (`--cli agy`).
+
+## How it Compares
+
+| | Mempunk | RAG / file uploads | Manual notes | Engram |
+|---|:---:|:---:|:---:|:---:|
+| Persists between sessions | ✔ | ✘ | ✔ | ✔ |
+| Knowledge accumulates | ✔ | ✘ | Depends | ✔ |
+| LLM does the maintenance | ✔ | ✔ | ✘ | ✔ |
+| Works offline, no infrastructure | ✔ | ✘ | ✔ | ✔ |
+| Cross-CLI | ✔ | ✘ | ✔ | ✔ |
+| Auto-saves during session | ✔ | ✘ | ✘ | ✔ |
+| Survives context compaction | ✔ | ✘ | ✘ | ✔ |
+| Human-readable markdown (Obsidian) | ✔ | ✘ | ✔ | ✘ |
+| Git sync between machines | ✔ | ✘ | Depends | ✔ |
+
+**vs RAG / file uploads:** Tools like NotebookLM or ChatGPT file uploads retrieve from raw documents at query time. Nothing accumulates. Ask the same question twice and the LLM does the same work twice. Mempunk compiles context incrementally — each session produces a richer, more accurate snapshot.
+
+**vs manual notes:** A wiki you write yourself works — until the maintenance burden kills it. Updating cross-references across dozens of pages is tedious. People abandon wikis because the cost of maintenance grows faster than the value. Mempunk delegates all of that to the LLM.
+
+**vs Engram:** Engram is a Go binary with SQLite + FTS5, exposed through MCP, a CLI, an HTTP API and a TUI. It works with any MCP agent (Claude Code, OpenCode, Gemini CLI, Codex, Antigravity…), recovers context after compaction and syncs through git. The difference is the storage layer: Engram keeps memories only in SQLite, with no human-readable layer. Mempunk keeps markdown as the human layer — decisions, backlog, session logs and a compiled `wiki/state.md` — with SQLite as the structured backend, so the vault is readable in any text editor and works as an Obsidian vault. One trade-off: Engram's git sync exports append-only chunks, while Mempunk versions the SQLite file, so a conflict between two machines sets one machine's database aside as a backup.
+
+## Languages
+
+Documentation available in: **English** (default), **Español**, **Português**, **Français**
+
+The CLI speaks **English by default**. Set `MEMPUNK_LANG=es` for Spanish output.
+
+## License
+
+[MIT](LICENSE)

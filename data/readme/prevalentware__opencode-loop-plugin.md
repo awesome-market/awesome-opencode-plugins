@@ -1,0 +1,309 @@
+# OpenCode Loop Plugin
+
+[![npm version](https://img.shields.io/npm/v/@prevalentware/opencode-loop-plugin.svg)](https://www.npmjs.com/package/@prevalentware/opencode-loop-plugin)
+[![GitHub repository](https://img.shields.io/badge/GitHub-prevalentWare%2Fopencode--loop--plugin-blue?logo=github)](https://github.com/prevalentWare/opencode-loop-plugin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+OpenCode Loop Plugin adds Claude Code-style `/loop` recurring prompts to OpenCode. It gives AI coding agents a `/loop` slash command backed by a persistent scheduler that re-injects an instruction into the session on an interval — or at agent-chosen delays — but only while the session is idle. Use it to babysit CI, watch a deploy, poll PR reviews, triage new issues, or keep any external state under watch without driving every check yourself.
+
+`/loop` is the complement to goal mode ([`@prevalentware/opencode-goal-plugin`](https://github.com/prevalentWare/opencode-goal-plugin)): a goal defines when a task is *done*; a loop defines when to *wake the agent up again* to look at something that changes over time.
+
+The OpenCode Loop Plugin adds:
+
+- `/loop <interval> <instruction>` and `/loop <instruction>` (dynamic pacing) as an OpenCode command for TUI, desktop, and web.
+- A server-side scheduler with per-loop timers that injects a synthetic iteration prompt only when the session is idle, with busy backoff.
+- Dynamic loops where the agent itself picks the delay before each next iteration via `schedule_next_run`, mirroring Claude Code's self-paced `/loop`.
+- Keep-alive loops: `create_loop({ keep_alive: true })` keeps a background or subagent session scheduled across turns and exempts it from age expiry.
+- Agent tools: `create_loop`, `list_loops`, `stop_loop`, `pause_loop`, `resume_loop`, `run_loop`, `schedule_next_run`, and `clear_loops`.
+- Persistent loop state that survives OpenCode restarts, with atomic writes and owner-only file permissions.
+- A TUI sidebar with live countdowns and a `Loops` command-palette entry to run, pause, resume, or stop loops.
+- Plan-mode safety: iterations are deferred while the session's last prompt came from a restricted agent (default: `plan`).
+- Compaction context so active loops are preserved when OpenCode summarizes a long session.
+- Safety rails: minimum interval, per-session loop limit, optional max runs, and automatic expiry after 7 days.
+
+## Install
+
+Choose the instructions that match the CLI you run:
+
+| OpenCode version | How to identify it | Instructions |
+| --- | --- | --- |
+| OpenCode 1 stable | You run `opencode` and `opencode --version` prints `1.x` | [OpenCode 1](#opencode-1-stable) |
+| OpenCode 2 | You run `opencode` and `opencode --version` prints `2.x` | [OpenCode 2](#opencode-2) |
+
+Do not mix the configuration formats. OpenCode 1 uses `plugin` and `tui.json`; OpenCode 2 uses `plugins` and the global `~/.config/opencode/cli.json`.
+
+### OpenCode 1 Stable
+
+Install for the current OpenCode project:
+
+```bash
+opencode plugin @prevalentware/opencode-loop-plugin
+```
+
+Install globally:
+
+```bash
+opencode plugin -g @prevalentware/opencode-loop-plugin
+```
+
+OpenCode detects both package entrypoints and writes the plugin into the server and TUI config targets. For manual installation, add the package to both V1 config files.
+
+`opencode.json`:
+
+```json
+{
+  "plugin": ["@prevalentware/opencode-loop-plugin"]
+}
+```
+
+`tui.json`:
+
+```json
+{
+  "plugin": ["@prevalentware/opencode-loop-plugin"]
+}
+```
+
+### OpenCode 2
+
+This plugin supports OpenCode 2 (`2.x`) while remaining compatible with OpenCode 1.
+
+```bash
+opencode plugin add @prevalentware/opencode-loop-plugin
+```
+
+For manual installation, add the package to both V2 plugin lists.
+
+`opencode.json`:
+
+```json
+{
+  "plugins": ["@prevalentware/opencode-loop-plugin"]
+}
+```
+
+`~/.config/opencode/cli.json`:
+
+```json
+{
+  "plugins": ["@prevalentware/opencode-loop-plugin"]
+}
+```
+
+OpenCode 2 does not read the V1 `tui.json` file. The server entrypoint is loaded from `opencode.json`; the sidebar and palette integration are loaded from the global `~/.config/opencode/cli.json`.
+
+Use the bundled installer to update both V2 entries at once:
+
+```sh
+bun scripts/install.mjs --global
+bun scripts/install.mjs --project /path/to/project
+```
+
+Run these commands from a source checkout or the installed package directory. The installer preserves existing version pins and options, validates both files before writing, and refuses existing `.jsonc` configurations so they can be edited manually without losing comments.
+
+File-spec installs (local paths) require the entry files at the package root:
+`./server.js` and `./tui.js` re-export `./dist/server.js` and `./src/tui.tsx`.
+Subpath-only entries are silently skipped by some hosts, so keep the root
+bridges even though the built bundle lives in `dist/`.
+
+V2 supports the `/loop` command, all loop tools, persistent state, idle scheduling, dynamic loops, Plan-mode safety, session cleanup, TUI sidebar/palette integration, and the `compaction` hook for preserving loops across compaction. Stale dynamic loops resume with a configurable fallback delay after restart (`dynamic_restart_mode: "fallback"`, default 20m) instead of stopping.
+
+## Usage
+
+Create a fixed-interval loop:
+
+```text
+/loop 10m review the current PR. If there are new comments, address them. If CI fails, diagnose the logs and fix it. If everything is green, report and stop this loop.
+```
+
+The interval can lead the instruction (`/loop 10m ...`) or trail it as an `every` clause (`/loop check the deploy every 20m`). Supported units are `s`, `m`, `h`, and `d`; the default minimum is 30 seconds.
+
+Create a dynamic loop — the agent picks the delay between iterations based on what it observes, one iteration at a time:
+
+```text
+/loop watch the staging deploy and run smoke checks when it finishes
+```
+
+Manage loops:
+
+```text
+/loop list
+/loop stop loop_7k3p9
+/loop pause loop_7k3p9
+/loop resume loop_7k3p9
+/loop run loop_7k3p9
+/loop clear
+```
+
+After creating a loop, the agent immediately performs the first iteration in the same turn — it does not wait for the first scheduled run. On each scheduled iteration the scheduler injects a synthetic prompt telling the agent to perform exactly one iteration, never to sleep or poll inside the turn, and to call `stop_loop` once the loop's purpose is achieved (or `pause_loop` if it is blocked on the user).
+
+### Dynamic loops
+
+A dynamic loop mirrors Claude Code's self-paced `/loop`: at the end of each iteration the agent calls `schedule_next_run` with a delay in seconds and a one-sentence reason ("watching CI run"), or calls `stop_loop` to end the loop. If an iteration ends without doing either, the loop ends — exactly like omitting `ScheduleWakeup` in Claude Code.
+
+### Keeping a background session alive
+
+A subagent's session normally has no future of its own: the turn that spawned it ends, the parent detaches, and nothing re-enters that session again. `keep_alive` gives it one.
+
+```
+create_loop(
+  instruction: "Check whether the migration finished. If it has, report the result and call stop_loop.",
+  interval: "5m",
+  keep_alive: true
+)
+```
+
+The session keeps being re-prompted on the cadence and is exempt from age expiry. After an OpenCode restart, the plugin verifies that the session is accessible in the current host location before acquiring its ownership lease and restoring the timer. Sessions in another location or unavailable to this host remain dormant; ordinary loops still require an authoritative session observation.
+
+Explicit `max_runs`, session deletion, and manual pause/stop still apply. Failed injections retain bounded backoff and pause after `max_consecutive_failures`; inspect the loop and use `resume_loop` after resolving the failure. Call `stop_loop` when the work resolves or is abandoned.
+
+`keep_alive` requires a fixed interval. Dynamic pacing hands the next run to the agent every turn, so a single missed `schedule_next_run` would end the very future the flag exists to hold open; that combination is rejected when the loop is created.
+
+Handing a result back to whoever asked for the work stays the agent's job. This flag only keeps the session running long enough to do it.
+
+### How iterations are scheduled
+
+- Iterations only run while the session is idle. If a loop comes due while the session is busy, it is deferred with a short backoff and retried when the session goes idle.
+- If several loops in one session are due at once, one iteration is injected and the rest wait for the next idle.
+- Failed injections store only the safe `provider/model request failed` category. They use bounded exponential backoff and are paused after five consecutive failures by default; provider responses and session data are never persisted or logged.
+- Loops are stopped automatically when their session is deleted, when `max_runs` is reached, or after 7 days (configurable).
+
+## Options
+
+In OpenCode 1, server options use the package-and-options tuple in `opencode.json`:
+
+```json
+{
+  "plugin": [
+    [
+      "@prevalentware/opencode-loop-plugin",
+      {
+        "min_interval_seconds": 30,
+        "max_loops_per_session": 5,
+        "busy_backoff_seconds": 60,
+        "failure_backoff_seconds": 60,
+        "max_failure_backoff_seconds": 3600,
+        "max_consecutive_failures": 5,
+        "max_loop_age_days": 7,
+        "dynamic_max_delay_seconds": 86400,
+        "dynamic_restart_mode": "fallback",
+        "dynamic_restart_fallback_seconds": 1200,
+        "restricted_agents": ["plan"],
+        "register_command": true,
+        "command_name": "loop"
+      }
+    ]
+  ]
+}
+```
+
+In OpenCode 2, use the plugin object form:
+
+```json
+{
+  "plugins": [
+    {
+      "package": "@prevalentware/opencode-loop-plugin",
+      "options": {
+        "min_interval_seconds": 30,
+        "max_loops_per_session": 5,
+        "busy_backoff_seconds": 60,
+        "failure_backoff_seconds": 60,
+        "max_failure_backoff_seconds": 3600,
+        "max_consecutive_failures": 5,
+        "max_loop_age_days": 7,
+        "dynamic_max_delay_seconds": 86400,
+        "dynamic_restart_mode": "fallback",
+        "dynamic_restart_fallback_seconds": 1200,
+        "restricted_agents": ["plan"],
+        "register_command": true,
+        "command_name": "loop"
+      }
+    }
+  ]
+}
+```
+
+Defaults:
+
+- `min_interval_seconds`: `30`; the smallest accepted interval and the lower clamp for dynamic delays.
+- `max_loops_per_session`: `5` open (active or paused) loops per session.
+- `busy_backoff_seconds`: `60`; retry delay when an iteration comes due while the session is busy.
+- `failure_backoff_seconds`: `60`; base retry delay when injecting the iteration prompt fails. Consecutive failures double this delay.
+- `max_failure_backoff_seconds`: `3600`; upper bound for exponential failure backoff, including the first retry.
+- `max_consecutive_failures`: `5`; number of consecutive provider/model failures after which the loop is paused with an inspectable `blockedReason`.
+- `max_loop_age_days`: `7`; loops stop automatically after this age. Set `0` to disable expiry.
+- `dynamic_max_delay_seconds`: `86400`; upper clamp for `schedule_next_run` delays.
+- `dynamic_restart_mode`: `"fallback"`; stale dynamic loops resume with a fallback delay after restart instead of stopping. Set `"stop"` for the legacy stop behavior.
+- `dynamic_restart_fallback_seconds`: `1200`; fallback delay for stale dynamic loops, clamped to `[min_interval_seconds, dynamic_max_delay_seconds]`.
+- `restricted_agents`: `["plan"]`; iterations are deferred while the session's last prompt came from one of these agents.
+- `register_command`: `true`
+- `command_name`: `"loop"`
+
+## State
+
+Loop state is stored at:
+
+```text
+$XDG_DATA_HOME/opencode-loop-plugin/loops.json
+```
+
+If `XDG_DATA_HOME` is not set, the default is:
+
+```text
+~/.local/share/opencode-loop-plugin/loops.json
+```
+
+Set `OPENCODE_LOOP_STATE_PATH` to use a custom file.
+
+The state file is written atomically with owner-only permissions when the host filesystem supports it. Persisted loops are rehydrated only after authoritative session context establishes a renewable session lease, preventing concurrent OpenCode instances from driving the same session. Dynamic loops that were waiting on the agent to schedule their next run resume after the configured restart fallback delay once their session is observed. Set `dynamic_restart_mode: "stop"` to stop these loops with an explanatory reason instead.
+
+
+Session lease revisions identify ownership epochs; heartbeats keep the current epoch stable. Claims and automatic dynamic-loop cleanup are checked against that session epoch. Pausing, stopping, or explicitly rescheduling a loop invalidates any pending delivery claim.
+
+State mutations use an atomic lock with a process ID and unique owner token. A suspended live writer keeps its lock; a crashed writer's lock is recovered only after its process has exited. Waiting for a live writer times out after 30 seconds rather than stealing its lock. This coordinates processes on the same host; sharing one state path between different hosts is unsupported.
+
+## Credits
+
+This plugin follows the semantics of Claude Code's `/loop` skill (interval parsing, immediate first iteration, dynamic self-pacing with an explicit schedule-or-stop contract, and 7-day auto-expiry) implemented on top of OpenCode plugin hooks. The package structure, persistence approach, and idle-continuation mechanics follow [`@prevalentware/opencode-goal-plugin`](https://github.com/prevalentWare/opencode-goal-plugin).
+
+## Development
+
+```bash
+bun install
+bun test
+bun run lint
+bun run typecheck
+bun run build
+npm pack --dry-run
+```
+
+The server build bundles its private Effect 3 persistence implementation. Keep it bundled: an OpenCode V2 host can resolve a bare `effect` import to its incompatible Effect 4 runtime. The package regression test loads the built server with an Effect 4 host to cover this boundary. The TUI remains exported as source.
+
+## Publishing
+
+This package is set up for npm Trusted Publishing from GitHub Actions. On every push to `main`, CI runs typecheck, lint, and unit tests in parallel. If they all pass, the publish job computes the next patch version from the latest version on npm, builds the package, and runs `npm publish`.
+
+Before the first automated publish, configure the package on npm:
+
+1. Open the package settings on npmjs.com.
+2. Add a Trusted Publisher for GitHub Actions.
+3. Use repository `prevalentWare/opencode-loop-plugin`.
+4. Use workflow file `publish.yml`.
+
+The repository must be public for npm provenance to be generated automatically.
+
+## Notes
+
+OpenCode plugin modules are target-specific. This package exports separate modules for server hooks/tools and TUI UI. Each default export includes the legacy V1 entrypoint (`server` or `tui`) and the native V2 `setup` entrypoint:
+
+```json
+{
+  "exports": {
+    "./server": "./dist/server.js",
+    "./tui": "./src/tui.tsx"
+  }
+}
+```
+
+Claude Code's `/loop` has deeper runtime integration (cron scheduling, cache-aware wake-ups, event monitors). This plugin implements the same workflow with OpenCode plugin hooks: timers on the server plugin, idle detection through `session.status` / `session.idle` events, and prompt injection through `session.promptAsync`. The TUI sidebar reads loop state from the plugin's tool outputs in the session, so it works without a private channel between the TUI and the server.

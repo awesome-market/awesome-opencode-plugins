@@ -1,0 +1,147 @@
+<div align="center">
+
+# ArchAIHarness Agent Workflows
+
+**OpenCode 插件 / Agent / Skill / Tool 集合**
+
+[![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Agents](https://img.shields.io/badge/agents-3-success.svg)](#agents)
+[![Skills](https://img.shields.io/badge/skills-10-blue.svg)](#skills)
+
+</div>
+
+---
+
+## 这是什么
+
+`ArchAIHarness/agent-workflows` 是公开的 OpenCode 能力集合，提供可直接加载的插件、Agents、Skills 和 Tools。
+
+当前能力覆盖：
+
+- 日常办公：办公材料整理、正式简历制作。
+- 编码开发：DDD Java / Spring Boot 多模块开发。
+- 内容运营：内容选题、内容生成、内容预审，与知乎、小红书、掘金、CSDN 等发布渠道适配分离。
+- 质量评估：基于项目自身设计文档的代码质量评估。
+
+---
+
+## OpenCode 安装
+
+在 `opencode.json` 中添加：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["archai-agent-workflows@git+https://github.com/ArchAIHarness/agent-workflows.git"]
+}
+```
+
+重启 OpenCode。
+
+插件会注册：
+
+- `agents/*.md` 为 OpenCode agents。
+- `skills/**/SKILL.md` 为 OpenCode skills。
+- 依赖内置的 `superpowers` skills 会从 `node_modules/superpowers/skills` 自动注册，用户无需单独安装。
+- 自动注册 `playwright` MCP，用于浏览器自动化；如用户已有自定义 `mcp.playwright`，插件不会覆盖。
+- `tools/zhihu`、`tools/xiaohongshu`、`tools/juejin`、`tools/csdn` 中的渠道发布工具为 OpenCode custom tools，用于生成渠道包、浏览器操作手册、自动化引导和发布前检查；发布上线必须人工确认。
+
+安装说明见 [.opencode/INSTALL.md](./.opencode/INSTALL.md)。插件安装、缓存、更新和版本 pin 策略见 [OpenCode 插件安装与更新机制](./OpenCode插件安装与更新机制.md)。
+
+---
+
+## Agents
+
+<a name="agents"></a>
+
+| Agent | 定位 |
+|---|---|
+| [`office`](./agents/office.md) | 日常办公材料整理、会议纪要、日报周报、文档总结 |
+| [`resume`](./agents/resume.md) | 正式简历制作、排版、HTML/PDF 导出编排 |
+| [`ddd-java-developer`](./agents/ddd-java-developer.md) | DDD Java / Spring Boot 多模块工程开发 |
+
+---
+
+## Skills
+
+<a name="skills"></a>
+
+| Skill | 分组 | 定位 | 版本 |
+|---|---|---|---|
+| [`formal-resume-builder`](./skills/office/formal-resume-builder/) | office | 正式简历制作、排版、HTML/PDF 输出和质量校验 | 1.0.0 |
+| [`ddd-java-developer`](./skills/engineering/ddd-java-developer/) | engineering | DDD Java / Spring Boot 多模块开发约束流程 | 1.0.0 |
+| [`doubao-speech`](./skills/engineering/doubao-speech/) | engineering | 豆包语音模型 TTS 合成与 ASR 转写 | 1.0.0 |
+| [`doubao-video`](./skills/engineering/doubao-video/) | engineering | 豆包 Seedance/Seedream 视频生成：创建/查询/列表/取消任务 | 1.0.0 |
+| [`content-package-manager`](./skills/content/content-package-manager/) | content | 平台无关内容包、内容预审和多渠道发布准备 | 1.0.0 |
+| [`zhihu-publisher`](./skills/content/zhihu-publisher/) | content | 知乎渠道包、Draft.js 编辑器导入、逐张插图、封面/专栏设置和发布门禁 | 2.0.0 |
+| [`xiaohongshu-publisher`](./skills/content/xiaohongshu-publisher/) | content | 小红书图文笔记、卡片规划、话题适配和发布门禁 | 1.0.0 |
+| [`juejin-publisher`](./skills/content/juejin-publisher/) | content | 掘金技术 Markdown、front matter、分类标签和发布门禁 | 1.0.0 |
+| [`csdn-publisher`](./skills/content/csdn-publisher/) | content | CSDN 技术 Markdown、编辑器内容注入、封面上传、发布门禁和全流程踩坑梳理 | 2.0.0 |
+| [`code-quality`](./skills/quality/code-quality/) | quality | 基于项目自身设计文档的 AI 代码质量评估 | 9.0 |
+
+---
+
+## Tools
+
+| 目录 | 定位 |
+|---|---|
+| [`tools/office`](./tools/office/) | 办公文档处理、格式转换、摘要生成辅助工具 |
+| [`tools/java`](./tools/java/) | Java / DDD 工程检查和模板辅助工具 |
+| [`tools/quality`](./tools/quality/) | 质量评估辅助工具 |
+| [`tools/content`](./tools/content/) | 平台无关内容选题、生成、预审和内容包工具 |
+| [`tools/zhihu`](./tools/zhihu/) | 知乎渠道适配、浏览器自动化引导、草稿操作手册和发布前检查工具 |
+| [`tools/xiaohongshu`](./tools/xiaohongshu/) | 小红书图文笔记渠道包、卡片规划、浏览器操作手册和发布前检查工具 |
+| [`tools/juejin`](./tools/juejin/) | 掘金技术文章渠道包、front matter、浏览器操作手册和发布前检查工具 |
+| [`tools/csdn`](./tools/csdn/) | CSDN 技术文章渠道包、分类标签、原创声明、浏览器操作手册和发布前检查工具 |
+| [`tools/doubao`](./tools/doubao/) | 豆包语音（TTS/ASR）与 Seedance/Seedream 视频生成任务工具 |
+
+---
+
+## 仓库结构
+
+```text
+agent-workflows/
+├── package.json
+├── README.md
+├── AGENTS.md
+├── LICENSE
+├── docs/
+│   └── superpowers/
+├── .opencode/
+│   └── INSTALL.md
+├── opencode-plugin.js
+├── agents/
+├── skills/
+│   ├── office/
+│   ├── engineering/
+│   ├── content/
+│   └── quality/
+└── tools/
+    ├── office/
+    ├── java/
+    ├── quality/
+    ├── content/
+    ├── zhihu/
+    ├── xiaohongshu/
+    ├── juejin/
+    ├── csdn/
+    └── doubao/
+```
+
+---
+
+## 相关仓库
+
+- [docs](https://github.com/ArchAIHarness/docs) — 架构哲学、实践方法与落地指南
+- [zhuanlan-ai-and-agents](https://github.com/ArchAIHarness/zhuanlan-ai-and-agents) — 「看懂 AI 与智能体」专栏源码
+- [framework](https://github.com/ArchAIHarness/framework) — DDD + AI 协作工程底座样例
+- [gateway](https://github.com/ArchAIHarness/gateway) — 网关与统一接入样例
+
+---
+
+<div align="center">
+
+**Engineered by Architects · Empowered by AI**
+
+</div>

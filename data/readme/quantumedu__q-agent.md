@@ -1,0 +1,420 @@
+# q-agent — Master Project Orchestrator
+> **Hermetic deployment package v2.14.1 (Dual Engine, Vertical Slices & Wave Execution)** · Tool-agnostic · Greenfield · Brownfield · Fast-Track · Audit
+
+[![CI Pipeline](https://github.com/QuantumEdu/q-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/QuantumEdu/q-agent/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.14.1-green.svg)](CHANGELOG.md)
+
+---
+
+## 1. Fundamentos & Visión Arquitectónica
+
+### Communication provenance
+
+q-agent-owned messages distinguish their emitter from workflow, executor, host,
+orchestrator and phase. Runtime records carry real timezone-aware timestamps;
+missing historical identity/time and uninstrumented provider usage stay unknown,
+not fabricated. Routine activity is recorded without redundant chat interruptions.
+
+The cockpit exposes bounded recorded activity and a read-only execution view.
+These records are not authenticated identity or authorization, and do not imply
+that a loaded skill or installed backend executed a task. See the
+[communication contract](references/communication-contract.md),
+[lifecycle crosswalk](docs/communication-policy.md), and
+[cockpit API](tools/q-cockpit/README.md#recorded-communication).
+
+### ¿Qué es q-agent?
+`q-agent` es un **director de orquesta** para el ciclo de vida completo de ingeniería de software asistida por IA. No es un generador de código que escupe archivos sin control (*vibe coding*): es un **árbitro arquitectónico** que guía el contexto mediante preguntas socráticas, delimita fronteras de dominio inmutables, hace cumplir el **Artículo Constitucional ARQ-01** (Vertical Slices) y delega la ejecución a herramientas deterministas y compuertas de calidad no negociables.
+
+Toda decisión queda registrada en Git y es trazable como un GitHub Issue. Cada entrega técnica genera evidencia observable en terminal con **cero mocks**.
+
+### Por qué SDD Determinista: El Análisis "Amarillas"
+Los frameworks contemporáneos de agentes autónomos fallan en producción debido a tres vicios estructurales:
+1. **Regresiones por Vibe Coding:** Modificar código sin restricciones arquitectónicas rompe invariantes de dominio y genera deuda técnica invisible.
+2. **Big Design Up Front (BDUF) y Context Rot (Spec-Kit):** Volcar especificaciones gigantescas en una sola sesión satura la ventana de contexto. Para la fase 5, los LLMs sufren degradación de atención (*Lost in the Middle*), alucinando y olvidando instrucciones clave ([Spec-Kit Issues #3507, #3752](https://github.com/github/spec-kit/issues/3507)).
+3. **Sobrecarga de Enjambres No Acotados (BMAD / ChatDev):** Los enjambres conversacionales multi-agente disparan el consumo de tokens entre 3x y 5x, añaden latencia crítica y compounding hallucinations al carecer de compuertas verificables en terminal.
+
+`q-agent` resuelve estos fallos mediante **Orquestación Monolítica de Nivel 1 con Bounded Workers de Nivel 2 y Compuertas Deterministas**:
+
+### Matriz Comparativa de Capacidades
+
+| Capacidad | GitHub Spec-Kit | OpenSpec | BMAD Method | Superpowers | **q-agent v2.14.1** |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Arquitectura de Ejecución** | Cascada BDUF (Riesgo alto de *Context Rot*) | Modular, sin compuertas deterministas | Enjambre conversacional (3x–5x costo tokens) | Prompt chain estático, soporte débil Brownfield | **Director Tier-1 + Workers Tier-2 acotados** |
+| **Aislamiento de Espacio** | Árbol de trabajo local (colisión de ramas) | Checkout manual | Dependiente del harness | Checkout manual | **Git Worktrees Mandatorios (`.q-worktrees/task-<ID>`)** |
+| **Garantía de Código** | Confianza basada en prompt (`/converge`) | Diff review subjetivo | Consenso inter-agente | Ejecución directa | **TDD Reproduction-First (RED obligatorio antes de GREEN)** |
+| **Higiene de Contexto** | Vuelca specs Markdown completas | Inyecta archivos de spec completos | Alto consumo conversacional | Inyección rígida de templates | **Poda AST (Ahorro >70% tokens en repos grandes)** |
+| **Human-in-the-Loop** | Agente toma control total | Agente toma control total | Diálogos opacos entre bots | Agente toma control total | **Compuertas Supervisadas (P03, P04, P08 Gate) + Modo Mentor** |
+| **Gobernanza de Fusión** | Merge ciego por pull request | Revisión manual | Voto de agentes | Merge local directo | **Deterministic Merge Policy Gate (`q-merge-gate` Exit 0, 7, 8)** |
+| **Revisión Continua** | Difusa en cada turno | No persistente | Discusión en bucle | No disponible | **Review Remembers Protocol (`skills/q-adversarial-review`)** |
+| **Enrutamiento por Calibre** | Talla única burocrática | Branching manual | Roles de enjambre | Scripts estáticos | **Fast-Track (≤3 archivos) vs Full SDD vs Plan C Forense** |
+
+### El Artículo Constitucional ARQ-01: Vertical Slices
+1. **Vertical Slices por Defecto:** Cada feature o fix se entrega como una rebanada vertical completa (Dominio, Persistencia, Casos de Uso/Servicio, Presentación y Tests) en ≤400–500 líneas de código modificadas.
+2. **Indirección Mínima:** Prohibido crear capas o interfaces cosméticas sin al menos 2 implementaciones concretas o un límite de infraestructura genuino.
+3. **Evidencia Terminal con Cero Mocks:** No se aceptan mocks en el dominio central. Todo resultado debe certificarse con comandos ejecutados contra bases de datos reales (ej. SQLite WAL) y suites de tests unitarios/e2e. Se autorizan y fomentan emuladores herméticos de contrato (LocalStack, WireMock, sandboxes SQLite in-memory) para aislar servicios externos de terceros sin falsear la lógica interna del sistema.
+
+### Autoridad de Ejecución & Recuperación Selectiva de Contexto
+El contrato de [Autoridad de Ejecución Acotada por Humanos](references/execution-authority.md) delimita el alcance de permisos: la investigación pública no autoriza escrituras ni mutaciones en repositorios privados; las operaciones remotas y el despliegue/merge requieren autoridad humana independiente.
+La memoria del proyecto opera de forma local-first; la consulta a repositorios de conocimiento histórico se rige por [Recuperación Selectiva de Contexto](references/context-retrieval.md), garantizando presupuestos estrictos de caracteres y tokens sin inyecciones innecesarias en cada fase.
+
+---
+
+## 2. Flujo Integral de Ejecución (End-to-End Flow)
+
+El ciclo de vida en `q-agent` sigue una progresión estricta desde la concepción hasta el despliegue a producción, garantizando evidencia observable y cero mocks:
+
+```mermaid
+flowchart TD
+    classDef guided fill:#1c2333,stroke:#58a6ff,stroke-width:2px,color:#e6edf3;
+    classDef auto fill:#161b22,stroke:#3fb950,stroke-width:2px,color:#e6edf3;
+    classDef gate fill:#2d1b1b,stroke:#f78166,stroke-width:2px,color:#e6edf3;
+    classDef skill fill:#1f1b2d,stroke:#bc8cff,stroke-width:1px,color:#e6edf3;
+
+    subgraph Guided["FASE I: DESCUBRIMIENTO SOCRÁTICO (Pasos 0 a 3)"]
+        S0["Paso 0: Selección de Plan (A, B, C o F)"]:::guided --> S1["Paso 1: Contexto Inicial (1 pregunta a la vez)"]:::guided
+        S1 --> S2["Paso 2: Investigación & Elicitación"]:::guided
+        S2 -.-> S2a["q-deliberate (Debate dialéctico y ADRs)"]:::skill
+        S2 -.-> S2b["q-grill-me (Elicitación profunda de requisitos)"]:::skill
+        S2 --> S3{"Paso 3: Gate de Meta-Orquestación"}:::gate
+    end
+
+    subgraph DualEngine["FASE II: DUAL ENGINE & APERTURA DE BITÁCORA"]
+        S3 -->|"Motor Dual Integrado"| S4a["Gentle-AI ODD (odd/tasks/<feature>.md)"]:::auto
+        S3 -->|"Motor Canónico"| S4b["q-agent Standalone (q-tasks/<feature>.md)"]:::auto
+    end
+
+    subgraph WaveExec["FASE III: EJECUCIÓN POR OLEADAS & COMPUERTA DUAL (Pasos 4 a 7)"]
+        S4a & S4b --> WT["Aislamiento en Git Worktrees (.q-worktrees/task-ID)"]:::auto
+        WT --> SLICE["Paso 5: Slice Vertical Autónomo (~400 LOC, ARQ-01)"]:::auto
+        SLICE --> DUAL_GATE{"Paso 6: Dual Verification Gate"}:::gate
+        DUAL_GATE -->|"Fase A (Máquina)"| MACH["Compilación, Tests, Linters & q_inspect (.docx/.xlsx)"]:::auto
+        DUAL_GATE -->|"Fase B (Adversarial)"| AR["q-adversarial-review (Review Remembers R-IDs)"]:::skill
+        AR -->|"REJECTED (Budget agotado)"| QUAR["q-worktree quarantine (Aislamiento a quarantine/*)"]:::gate
+        MACH & AR -->|"APPROVED (Exit 0)"| TEG["Terminal Evidence Gate (Evidencia real + Telemetría Costo)"]:::auto
+        TEG --> SYNC["Paso 7: Higiene Determinista & Sync en BLUEPRINT.md"]:::auto
+    end
+
+    subgraph GovernanceGate["FASE IV: GOBERNANZA & DEPLOY GATE (Pasos 8 y 9)"]
+        SYNC --> MG{"Paso 8: q-merge-gate (Análisis blast-radius)"}:::gate
+        MG -->|"Exit 0: PROCEED"| MRG["Merge a main & Prune de Worktree"]:::auto
+        MG -->|"Exit 7 / 8"| HUM["Compuerta Humana (Security/Money/Schema)"]:::gate
+        HUM --> MRG
+        MRG --> S8["Deploy Gate Formal (REVIEW.md firmado por humano)"]:::gate
+        S8 --> S9["Paso 9 / Ops: Bucle Ops-to-ODD (Telemetría -> RED_FAIL TDD)"]:::auto
+    end
+```
+
+### Las 4 Fases Operativas:
+
+1. **Fase I: Onboarding Socrático & Descubrimiento (Pasos 0 a 3):**
+   - **Una sola pregunta por turno:** El agente escucha y valida antes de asumir.
+   - **Selección de Plan:** **Plan A** (Greenfield), **Plan B** (Brownfield), **Plan F** (Fast-Track quirúrgico ≤3 archivos) o **Plan C** (Auditoría Forense CAB-RP 2.0).
+   - **Elicitación y Deliberación:** `q-deliberate` resuelve bifurcaciones dialécticas y genera ADRs; `q-grill-me` desafía supuestos frágiles antes de escribir especificaciones.
+   - **Revisión de Diseño con Ojos Frescos (Paso 3):** `skills/q-design-review/` audita el diseño con un subagente aislado que recibe solo el documento + el código referenciado, sin el historial (idea Goldfish adaptada de EGM). Si el runtime no puede crear subagentes con contexto fresco, la revisión se aborta con mensaje claro: nunca se simula.
+
+2. **Fase II: Meta-Orquestación & Dual Engine (Pasos 3 y 4):**
+   - **Detección Dinámica:** Detecta automáticamente si opera bajo Gentle-AI ODD (`odd/tasks/`) o en modo Standalone (`q-tasks/`).
+   - **CodeGraph Auto-Init:** Inicializa y explora dependencias mediante AST real (`codegraph_explore` / `codegraph impact`) antes de búsquedas ciegas.
+   - **Apertura de Bitácora Viva:** Define User Stories ágiles (BMAD) y Criterios de Aceptación (`UAC`), gobernados bajo el **Artículo Constitucional ARQ-01**.
+
+3. **Fase III: Ejecución por Oleadas & Compuerta Dual (Pasos 4 a 7):**
+   - **Aislamiento en Worktrees:** Cada tarea corre en `.q-worktrees/task-<ID>` mediante `q_worktree.py`, protegiendo la rama de trabajo principal de colisiones.
+   - **Slices Verticales Cohesivos:** Persistencia pragmática (SQLite WAL con `busy_timeout=10000`, transacciones atómicas Compare-and-Swap, timestamps UTC) y separación de vistas `.html` empaquetadas.
+   - **Compuerta Dual de Verificación (Paso 6):**
+     * **Fase A (Máquina):** Compilación estricta, tests automatizados, linters y validación estructural de entregables vía `tools/q-inspect/q_inspect.py` (código, documentos `.docx` y hojas de cálculo `.xlsx` sin dependencias externas). Paso consultivo de fuzz: `tools/q-fuzz/q_fuzz.py` intenta romper funciones puras con entradas generadas por semilla (presupuesto fijo, nunca bloqueante por "no encontró nada").
+     * **Fase B (Adversarial):** Subagente aislado audita el `git diff` contra ARQ-01 mediante el protocolo *Review Remembers* (`R-01`, `R-02`), exigiendo veredicto `APPROVED`. Si se agota el presupuesto de 2 rondas, la rama se aísla automáticamente a `quarantine/<task_id>`.
+   - **Terminal Evidence Gate:** Registro obligatorio de comandos reales, códigos de salida 0 y telemetría de costos/tokens por tarea en la bitácora viva.
+   - **Paso 7 Higiene:** Consolidación de nuevos slices en `BLUEPRINT.md`.
+
+4. **Fase IV: Gobernanza de Fusión, Deploy Gate y Operaciones (Pasos 8 y 9):**
+   - **Merge Gate Determinista (`q-merge-gate`):** Evalúa el radio de impacto (*blast radius*). Si el cambio supera 500 LOC o toca dominios críticos (`money`, `auth`, esquemas DDL), detiene la automatización y exige aprobación humana (`Exit 7/8`).
+   - **Paso 8 Deploy Gate:** Generación de `REVIEW.md` con matriz de evidencia. **Bloqueo absoluto:** Prohibido desplegar a producción sin firma humana explícita.
+   - **Paso 9 Bucle Ops-to-ODD:** Los fallos o logs en producción (Sentry/telemetría) se inyectan como tests reproductores en rojo (`RED_FAIL`) antes de autorizar cualquier reparación. Los crashes de `q-fuzz` alimentan el mismo bucle: cada crash se convierte en un test reproductor en ROJO antes del fix.
+
+---
+
+## 3. Inicio Rápido & Enlace Universal
+
+### Runtimes Compatibles y Activación
+
+| Runtime / Registry | Cómo activarlo | Ubicación del Enlace |
+|--------------------|----------------|----------------------|
+| **skills.sh** | `npx skills add QuantumEdu/q-agent` | Global |
+| **Antigravity CLI (AGY)** | Cargar skill y decir "start agent" | `~/.gemini/antigravity-cli/skills/q-agent` |
+| **OpenAI Codex** | Detección nativa de skill | `~/.codex/skills/q-agent` |
+| **Pi (Oh My Pi)** | `pi chat --skill q-agent` o decir "start agent" | `~/.pi/agent/skills/q-agent` |
+| **Claude Code** | Auto-detectado vía frontmatter en `SKILL.md` | `~/.claude/skills/q-agent` |
+| **OpenCode** | Cargar directorio de skill | `~/.config/opencode/skills/q-agent` |
+| **GitHub Copilot** | Cargar directorio de skill | `~/.copilot/skills/q-agent` |
+
+### Enlace en 1 Comando (Single Source of Truth)
+Enlaza el repositorio canónico a todos los runtimes presentes en tu máquina simultáneamente. Un simple `git pull` en este repositorio propaga las actualizaciones al instante en todos tus agentes:
+
+```bash
+# Vía just (Recomendado)
+just install
+
+# O ejecutando el script directamente
+./install.sh
+
+# Verificar el estado y salud de los enlaces
+just check  # o ./install.sh --check
+```
+
+### Triggers de Activación Conversacional
+En cualquier sesión con `q-agent` cargado, simplemente decí:
+```text
+start agent · /q-agent · iniciar agente · new project · new feature · audit code
+```
+
+---
+
+## 4. Casos Reales & Vertical Slices en Producción
+
+`q-agent` ha sido probado y certificado en escenarios de desarrollo reales:
+
+### Caso 1: Sistema de Tickets de Atención con SLA y Worktrees
+- **Ubicación en el repo:** [`examples/support-tickets/demo.py`](examples/support-tickets/demo.py) y suite [`tests/test_e2e_ticket_system.py`](tests/test_e2e_ticket_system.py).
+- **Dominio:** Máquina de estados estricta (`OPEN` ➜ `IN_PROGRESS` ➜ `RESOLVED` ➜ `CLOSED`), motor de SLAs por prioridad (`CRITICAL` 2h, `HIGH` 8h, `MEDIUM` 24h, `LOW` 72h) y detección de incumplimientos.
+- **Flujo de Gobernanza Verificado:**
+  1. Aislamiento automático de la tarea en `.q-worktrees/task-TICKETS-01`.
+  2. Implementación de la rebanada vertical con persistencia SQLite zero-mock.
+  3. Evaluación de `q_merge_gate` (+4 LOC ➜ `exit_code: 0` `status: "PROCEED"`).
+  4. Fusión atómica a `main` y poda del worktree.
+- **Ejecución local:**
+  ```bash
+  python3 examples/support-tickets/demo.py
+  ```
+
+### Caso 2: Sistema Clínico & Práctica Médica Especializada
+- **Dominio:** Plataforma médica y bioquímica para consulta clínica ambulatoria.
+- **Arquitectura:** Go + Chi + SQLite WAL puro (`modernc.org/sqlite`) + HTMX + Alpine.js + Pico.css v2.
+- **Gobernanza:** Separación estricta de privilegios (el especialista jamás toca la caja ni cobros; módulo restringido al rol Asesora), expedientes con consecutivo automático por cita, cálculo de índice HOMA-IR y generación documental formal para impresión médica.
+
+### Caso 3: Plataforma Editorial & Medios Digitales Multi-Tenant
+- **Dominio:** CMS headless para medios de comunicación y sindicación de contenidos multi-sitio.
+- **Arquitectura:** Desacoplamiento de repositorios vía interfaces, caché perimetral Stale-While-Revalidate, paywall híbrido con conteo de lecturas y cumplimiento de accesibilidad WCAG 2.1 AA sin uso de elementos HTML no gobernados.
+
+---
+
+## 5. Catálogo de Herramientas de Gobernanza (`tools/`)
+
+### Local task recovery
+
+`q-agent task` records local work and commit-bound verification in SQLite;
+`q-agent resume` reports pending, active, failed and uncertain work without
+replaying it. No Cloudroom or external service is required. See
+[usage, states and recovery limits](references/local-task-recovery.md).
+The [Cloudroom-inspired roadmap](references/cloudroom-inspired-roadmap.md)
+distinguishes delivered local reliability from pending runtime capabilities.
+The cockpit includes a read-only local execution panel. `q-agent task preflight`
+reports disk capacity and runner activity; `q-agent capabilities` probes local
+primitives and distinguishes external CLI installation from verified support.
+Task output and operational diagnostics have documented retention/size limits.
+
+`q-agent` incluye utilidades CLI sin dependencias externas diseñadas para integrarse en pipelines y subagentes:
+
+### 1. `tools/q-worktree/` (Aislador de Worktrees y Protocolo de Cuarentena)
+```bash
+python3 tools/q-worktree/q_worktree.py create --task TICKET-01 --base main
+python3 tools/q-worktree/q_worktree.py list --json
+python3 tools/q-worktree/q_worktree.py merge --task TICKET-01 --target main
+python3 tools/q-worktree/q_worktree.py quarantine --task TICKET-01 --reason "Review budget exhausted"
+python3 tools/q-worktree/q_worktree.py remove --task TICKET-01
+```
+Garantiza que múltiples subagentes u oleadas trabajen en paralelo sin colisionar en el árbol de trabajo principal del usuario. Si un slice agota su presupuesto de corrección o es bloqueado, `quarantine` archiva atómicamente la rama a `quarantine/<task_id>` y desmonta el directorio sin ensuciar `main`.
+
+### 2. `tools/q-inspect/` (Linter Estructural de Entregables Zero-Dep)
+```bash
+python3 tools/q-inspect/q_inspect.py report.docx balance.xlsx handler.go
+python3 tools/q-inspect/q_inspect.py --json spec.md data.csv
+```
+- **Integridad de Ofimática OpenXML:** Inspecciona documentos `.docx` y hojas de cálculo `.xlsx` sin dependencias de terceros (utilizando la librería estándar de Python vía `zipfile` y `xml.etree.ElementTree`).
+- **Detección de Defectos Estructurales:** Alerta ante cuerpos vacíos, hojas de cálculo sin filas, fórmulas rotas (`#REF!`, `#N/A`, `#VALUE!`, `#DIV/0!`) y sentinelas de relleno (`TODO`, `NaN`, `undefined`, `[Insert]`).
+
+### 3. `tools/q-merge-gate/` (Compuerta Determinista de Políticas de Merge)
+```bash
+python3 tools/q-merge-gate/q_merge_gate.py --base main --head HEAD --max-loc 500 --json
+```
+- **Exit 0 (`PROCEED`):** Rebanada limpia dentro del umbral de LOC (≤500) y sin disparadores de riesgo.
+- **Exit 7 (`HUMAN_APPROVAL_REQUIRED`):** Modificaciones en lógica financiera/pagos (`money`), autenticación/seguridad (`auth`) o exceso de líneas.
+- **Exit 8 (`HUMAN_ACTION_REQUIRED`):** Modificaciones destructivas en esquemas de base de datos o migraciones DDL.
+
+### 4. `skills/q-adversarial-review/` (Revisión Adversarial con *Review Remembers*)
+Audita el código con un agente con contexto limpio e implementa el protocolo **Review Remembers**: asigna identificadores persistentes (`R-01`, `R-02`...) a cada hallazgo y exige evaluar una matriz de estado (`[FIXED]`, `[NOT_FIXED]`, `[NO_LONGER_APPLIES]`) antes de autorizar la entrega, eliminando discusiones circulares.
+
+### 5. `tools/q-cockpit/` (Cockpit Visual y Recuperación de Sesión)
+```bash
+just cockpit-plus        # Inicia cockpit interactivo con snapshots de repositorio
+just cockpit-health      # Reporte de estado de salud del proyecto
+python3 tools/q-cockpit/q_cockpit_plus.py backup --output sessions.zip
+python3 tools/q-cockpit/q_cockpit_plus.py restore --archive sessions.zip --destination sessions/
+```
+
+### 6. `tools/q-audit-validator/` & `tools/q-audit-aggregator/` (Plan C Forense)
+```bash
+python3 tools/q-audit-validator/validate_audit.py --mode manifest --level 2
+python3 tools/q-audit-aggregator/generate_report.py
+```
+Implementa el principio: *"La completitud es una propiedad del sistema de archivos, no del texto generado por el LLM"*. Despacha 17 ítems forenses atómicos en paralelo (`audit/A01-A17.md`) y genera el reporte final de forma determinista con Python, con 0 tokens quemados en resúmenes.
+
+### 7. `tools/q-tickets/` (Ticket Store Durable)
+```bash
+python3 tools/q-tickets/q_tickets.py open --trigger-id github:issue_comment:9001 \
+  --title "Slow homepage" --actor iquantum --thread github:12
+python3 tools/q-tickets/q_tickets.py assign T-0001 --executor codex
+python3 tools/q-tickets/q_tickets.py attention-queue
+just tickets && just attention
+```
+Estado que sobrevive a la sesión: `Trigger → Ticket → Mandate → Assignment`, más `Subscriptions`, `Attention` y un log de eventos append-only, todo en SQLite WAL con `synchronous=FULL`. Aceptar dos veces el mismo `trigger_id` devuelve un solo ticket. Un ticket detenido no se reanuda, y un mandato emitido bajo otra versión de política se rechaza en vez de ampliarse en silencio.
+
+### 8. `tools/q-triggers/` (Triggers de GitHub con Compuerta Determinista)
+```bash
+just triggers-status
+just triggers-poll LIMIT=20          # observe: registra candidatos, no abre tickets
+python3 tools/q-triggers/q_triggers.py gate --actor <login> --text "@q-agent arreglá el test"
+```
+La compuerta corre **antes** de cualquier modelo: quién puede pedir, en qué scope y con qué fuerza (`explicit` / `inferred` / `not_admitted`). Una allowlist vacía se niega a correr en vez de admitir a todos, y el texto de un mensaje no puede cambiar la política. Arranca en `accept_mode: observe`.
+
+### 9. `tools/q-skill-doctor/` (Doctor de Skills: mide y propone, nunca edita)
+```bash
+just skill-doctor-ingest SOURCE=all LIMIT=25
+just skill-doctor-score
+just skill-doctor-report
+```
+Agrega transcripts reales (Codex, Antigravity, OpenCode o cualquier JSONL) a un corpus local y los puntúa con una rúbrica fija — eficiencia, calidad, cobertura — para emitir propuestas con evidencia. **Nunca escribe un `SKILL.md`**: un scorer con permiso de escritura sobre lo que puntúa es un lazo auto-confirmatorio sin control externo.
+
+### 10. `skills/q-design-review/` (Revisión de Diseño con Ojos Frescos — idea Goldfish)
+Audita un documento de diseño con un subagente aislado que recibe **solo** el diseño + el código que referencia, sin el historial de la conversación. Tres lentes adaptadas de EGM: crítica de diseño (supuestos sin justificar, riesgos), estructura (secciones obligatorias, jerarquía) y preparación para implementar (cada paso accionable). Hallazgos con R-IDs de Review Remembers. Enganche: Paso 3 (gate de meta-orquestación). Si el runtime no puede crear subagentes con contexto fresco, la skill falla con `[ABORTED - no fresh-subagent support]` y no emite veredicto.
+
+### 11. `tools/q-fuzz/` (Fuzz Acotado con Semilla) & `tools/q-drift/` (Reporte de Deriva)
+```bash
+python3 tools/q-fuzz/q_fuzz.py run --target merge-gate-shortstat --seed 1 --budget 60 --json
+python3 tools/q-fuzz/q_fuzz.py list-targets
+python3 tools/q-drift/q_drift.py --root . --docs README.md
+just fuzz TARGET=merge-gate-shortstat SEED=1 BUDGET=60
+just drift
+```
+- **`q-fuzz`:** genera entradas con semilla determinista para intentar romper funciones puras registradas; cada crash se deduplica por firma, se guarda en el corpus (`tests/fuzz/corpus/<objetivo>/`) y emite un test reproductor en ROJO (`tests/fuzz/repro/`, exit 2 mientras el bug existe). Paso consultivo en Fase A; fuente de tests RED_FAIL en Paso 9. Exit 0 sin crashes, 2 con crash, 1 error de uso. Fuzzing nativo de Go documentado como trabajo futuro.
+- **`q-drift`:** compara las rutas referenciadas en `BLUEPRINT.md` (y `docs/designs/*.md` si existe) contra el árbol real y reporta solo las diferencias: archivos referenciados que no existen o están vacíos. Detector, nunca editor. Exit 0 sin deriva, 2 con hallazgos, 1 error.
+
+El contrato del router que usa estas piezas está en [`skills/q-superagent/`](skills/q-superagent/SKILL.md), y la política de interrupción humana — tres clases, silencio por defecto — en [`references/attention-policy.md`](references/attention-policy.md).
+
+---
+
+## 6. Modos de Operación & Catálogo de Prompts
+
+`q-agent` se adapta al nivel de autonomía deseado mediante `.q-agent.json` o directamente en el diálogo:
+
+1. **`supervised` (Por defecto / Recomendado):**
+   - Ejecución autónoma en tareas mecánicas.
+   - Detención obligatoria en compuertas de diseño (P03 ADR, P04 Scope Proposal, P08 Deploy Gate).
+2. **`interactive` / Modo Mentor (El usuario al volante):**
+   - El agente no escribe código autónomamente; actúa como Mentor y Senior Architect explicando cada fase y entregando plantillas para que el usuario las complete.
+3. **`autonomous` (CI/CD / Headless):**
+   - [Flujo E2E desatendido](references/unattended-e2e.md): prueba inicial, diagnóstico y hasta dos correcciones con nuevas pruebas, regresiones y revisión independiente. El agente anfitrión ejecuta el flujo; el [controlador durable](references/durable-workflow.md) impone el presupuesto y las transiciones para comandos de workflows registrados; el host sigue diagnosticando y editando mediante esos comandos.
+   - Avanza en tareas cubiertas y explícitamente autorizadas; decisiones no resueltas o cambios fuera de alcance aún detienen el flujo.
+
+### Prompts Operativos Listos para Copiar y Pegar:
+
+#### 🎓 Modo Mentor (El usuario al volante):
+> *"Quiero ejecutar el flujo SDD manualmente paso a paso. No implementes nada por tu cuenta. Actúa únicamente como mi Mentor Arquitectónico: indícame en cada turno qué prompt o fase sigue, explícame el objetivo conceptual y entrégame la plantilla con las variables que debo completar. Yo tendré el volante."*
+
+#### 🚀 Plan A — Greenfield (Nuevo Sistema desde Cero):
+> *"Inicia un proyecto Greenfield con q-agent para construir un sistema de [nombre_sistema, ej: Helpdesk de atención con tickets y SLAs] con arquitectura hexagonal y SQLite. Guíame en los pasos iniciales y genera la Constitución y primer ADR."*
+
+#### 🔧 Plan B — Brownfield (Feature sobre Código Existente):
+> *"Ejecuta Plan B Brownfield en este repositorio para añadir el feature de [descripción_feature, ej: Dashboard de métricas con exportación a DuckDB]. Realiza el descubrimiento previo P01, actualiza a BLUEPRINT_V2 y coordina el cambio SDD."*
+
+#### ⚡ Plan F — Fast-Track (Micro-Parche Quirúrgico ≤3 archivos):
+> *"Aplica un cambio Fast-Track para solucionar el bug de [descripción_bug, ej: timeout por concurrencia en SQLite WAL]. Ejecuta la fase roja obligatoria, verifica el fallo del test reproductor y aplica el fix quirúrgico en ≤3 archivos sin tocar el dominio."*
+
+#### 🛡️ Plan C — Auditoría Forense Read-Only (MAB-PC & CAB-RP):
+> *"Ejecuta una auditoría Plan C en este repositorio bajo el protocolo MAB-PC y CAB-RP. Invariante estricto: no modifiques ningún archivo de código fuente. Inspecciona arquitectura, seguridad y persistencia, y genera la lista de issues EARS de remediación."*
+
+---
+
+## 7. Estructura del Paquete, Calidad & Atribuciones
+
+### Directorio Canónico
+```text
+q-agent/
+├── SKILL.md                          # Orquestador maestro (Pasos 0 a 9, ≤120 líneas)
+├── README.md                         # Documentación estratégica y flujo
+├── install.sh                        # Linker universal (AGY, Codex, Pi, Claude, OpenCode, Copilot)
+├── justfile                          # Recetas de automatización (install, check, test, cockpit)
+├── skills/                           # Ecosistema de skills modulares (≤200 líneas c/u)
+│   ├── INDEX.md                      # Catálogo central de descubrimiento y dependencias
+│   ├── q-adversarial-review/         # Review Remembers con matriz R-IDs y Completion Gate
+│   ├── q-design-review/              # Revisión de diseño con ojos frescos (Goldfish, Paso 3)
+│   ├── q-fuzz/                       # Fuzz acotado con semilla (Paso 6 Fase A, Paso 9 RED_FAIL)
+│   ├── q-audit-readonly/             # Auditoría forense con zero-mutation gate
+│   ├── q-delegate-context/           # Delegación agnóstica de contexto
+│   ├── q-gbrain-assistant/           # Gateway de memoria GBrain
+│   ├── q-deliberate/                 # Deliberación dialéctica multi-agente
+│   ├── q-ci-fixer/                   # Corrección de pipelines CI (≤2 passes)
+│   ├── q-grill-me/                   # Entrevista socrática de alineación
+│   ├── q-improve-loop/               # Auditoría, compresión y reescritura de skills (rúbrica 1–5 + verificación externa)
+│   └── q-session-wrap/               # Cierre higiénico de sesiones
+├── workflows/                        # Flujos operativos progresivos
+│   └── plan-c-audit.md               # Protocolo MAB-PC / CAB-RP 2.0 Forense
+├── examples/                         # Implementaciones y demos de referencia
+│   └── support-tickets/              # Caso real: Sistema de tickets y SLAs E2E
+├── tests/                            # Suite oficial de regresión (139 tests unitarios y E2E)
+├── evals/                            # Suites de evaluación formal y benchmarks (Harness² local prototype)
+│   └── harness2/                     # Evaluación contrastiva: Base, Stress y Context Recovery
+├── tools/                            # Herramientas de gobernanza CLI
+│   ├── q-worktree/                   # Aislamiento en Git Worktrees
+│   ├── q-fuzz/                       # Fuzz acotado con semilla + corpus y reproductores RED
+│   ├── q-drift/                      # Reporte de deriva docs-vs-código
+│   ├── q-merge-gate/                 # Compuerta determinista de políticas de merge
+│   ├── q-checklist/                  # Validador determinista de checklists ODD
+│   ├── q-cockpit/                    # Cockpit visual e inspectores de salud
+│   ├── q-audit-runner/               # Runner unificado y ciclo de vida Plan C
+│   ├── q-audit-validator/            # Validador de manifiesto forense Plan C
+│   └── q-audit-aggregator/           # Generador determinista de reportes
+├── prompts/                          # Prompts ejecutables del SDD Pipeline (P01 a P09)
+├── templates/                        # Plantillas canónicas (ADR, BLUEPRINT, CONSTITUTION, PROPOSAL)
+└── references/                       # Protocolos, adaptadores CLI y taxonomías internas
+```
+
+### Certificación de Calidad y Tests
+Toda evolución en `q-agent` debe mantener la suite 100% verde con evidencia terminal estricta:
+```bash
+python3 -m unittest discover -s tests -v
+# 139 tests pasando en < 16s sin mocks
+```
+
+### Suite de Evaluación Contrastiva Harness² (`evals/harness2/`)
+`q-agent` incluye una suite de evaluación formal inspirada en la metodología de **Harness²** ([arXiv:2610.14224](https://arxiv.org/abs/2610.14224), Google Research) para medir el desempeño contrastivo del arnés frente a un baseline mínimo utilizando sesiones del CLI de Codex:
+
+1. **Prototipo Base ([`evaluator.py`](evals/harness2/evaluator.py)):** Flujo estricto de tickets SQLite (OPEN->CLOSED), cálculo de SLA y WAL. 3/3 tests aprobados con diff verificado por revisor independiente.
+2. **Stress Testing ([`stress_evaluator.py`](evals/harness2/stress_evaluator.py)):** Aislamiento multi-tenant, RBAC, auditoría y migración idempotente de esquemas legacy. Incluye demostración de autocorrección acotada tras feedback adversarial.
+3. **Context Recovery ([`recovery_evaluator.py`](evals/harness2/recovery_evaluator.py)):** Resistencia a la amnesia contextual en sesiones efímeras (`--ephemeral` sin historial de chat). Reparación quirúrgica de regresiones en SLA sin pérdida de trabajo no commiteado previo y con verificación de hashes SHA-256 de tests inmutables.
+
+Para reproducir la suite:
+```bash
+python3 evals/harness2/evaluator.py
+python3 evals/harness2/stress_evaluator.py
+python3 evals/harness2/recovery_evaluator.py
+```
+Detalles y trazas completas en [`docs/validation/harness2-evaluation.md`](docs/validation/harness2-evaluation.md).
+
+### Atribuciones y Reconocimientos
+`q-agent` incorpora con orgullo y formaliza en [`ATTRIBUTION.md`](ATTRIBUTION.md) el crédito a proyectos y metodologías de referencia de la industria:
+- **Shopify Helix:** Arquitectura modular de habilidades e interacción controlada.
+- **Super-Board (EricTechPro):** Estrategia de aislamiento en Git Worktrees, políticas deterministas de merge (`merge_policy`) y persistencia de revisiones.
+- **OpenSpec & Spec-Kit:** Esquemas de especificación basada en capacidades (BDD/EARS).
+- **BMAD Method:** Visión de Product Manager y taxonomía de user stories.
+- **SWE-agent:** Principio de *Reproduction-First TDD* (fase roja demostrable antes de implementar código).
+- **Harness² (Google Research):** Metodología de evaluación contrastiva de arneses con tests inmutables, evidencia terminal real y contraste de comportamiento en tareas de mundo abierto.
+- **Elephant-Goldfish Model (Google):** Idea de revisión de diseño con sesiones frescas sin historial (Goldfish) y de reporte de deriva docs-vs-código, adaptadas en `skills/q-design-review/` y `tools/q-drift/`. Solo ideas; el plugin EGM no se portó (ver `ATTRIBUTION.md`).
+
+---
+
+## Licencia y Autor
+
+- **Autor & Arquitecto:** Gabriel Magallón Sánchez / QuantumEdu (Quantum).
+- **Licencia:** [Apache License 2.0](LICENSE).
+- **Contribuciones:** Consultar [CONTRIBUTING.md](CONTRIBUTING.md).

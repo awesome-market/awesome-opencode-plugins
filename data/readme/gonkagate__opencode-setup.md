@@ -1,0 +1,303 @@
+# @gonkagate/opencode-setup
+
+Set up local `opencode` to use GonkaGate in one `npx` command.
+
+```bash
+npx @gonkagate/opencode-setup
+```
+
+![Package](https://img.shields.io/badge/package-%40gonkagate%2Fopencode--setup-6E63FF?style=flat-square)
+![Node](https://img.shields.io/badge/node-%3E%3D22.14.0-4DA2FF?style=flat-square)
+![OpenCode](https://img.shields.io/badge/OpenCode-%3E%3D1.4.0-35D6FF?style=flat-square)
+![License](https://img.shields.io/badge/license-Apache--2.0-2A2A2A?style=flat-square)
+
+[![Website](https://img.shields.io/badge/Website-gonkagate.com-111827?style=flat-square)](https://gonkagate.com/en?utm_source=github&utm_medium=referral&utm_campaign=opencode_setup&utm_content=readme_badge_website)
+[![Docs](https://img.shields.io/badge/Docs-API%20Guides-2563EB?style=flat-square)](https://gonkagate.com/en/docs?utm_source=github&utm_medium=referral&utm_campaign=opencode_setup&utm_content=readme_badge_docs)
+[![API%20Key](https://img.shields.io/badge/API%20Key-Dashboard-F97316?style=flat-square)](https://gonkagate.com/en/register?utm_source=github&utm_medium=referral&utm_campaign=opencode_setup&utm_content=readme_badge_api_key)
+[![Telegram](https://img.shields.io/badge/Telegram-%40gonkagate-229ED9?style=flat-square&logo=telegram&logoColor=white)](https://t.me/gonkagate)
+[![X](https://img.shields.io/badge/X-%40gonkagate-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/gonkagate)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-GonkaGate-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/gonkagate)
+
+## See It In Action
+
+From API key to a verified `opencode` setup in one short walkthrough:
+
+[![See the installer in action](https://raw.githubusercontent.com/GonkaGate/opencode-setup/main/.github/assets/gonkagate-opencode-setup-demo.gif)](https://raw.githubusercontent.com/GonkaGate/opencode-setup/main/.github/assets/gonkagate-opencode-setup-demo.mp4)
+
+Need an API key first? [Get one on GonkaGate](https://gonkagate.com/en/register?utm_source=github&utm_medium=referral&utm_campaign=opencode_setup&utm_content=readme_api_key_cta).
+
+## Overview
+
+`@gonkagate/opencode-setup` is the onboarding CLI for people who already use
+`opencode` and want it configured to use GonkaGate without hand-editing
+`opencode.json`, exporting secrets through shell profiles, or dealing with
+OpenCode provider internals.
+
+The installer walks you through the setup, writes the minimum safe OpenCode
+config, verifies that OpenCode actually resolves GonkaGate the way it should,
+and then sends you back to plain `opencode`.
+
+## What This Does For You
+
+- Configures local `opencode` to use GonkaGate as a custom provider.
+- Keeps the secret out of repository-local config.
+- Preserves unrelated OpenCode settings instead of replacing whole files.
+- Verifies the real resolved OpenCode result instead of assuming writes worked.
+- Supports macOS, Linux, native Windows, and WSL.
+
+## Quick Start
+
+### Interactive setup
+
+Use this if you are setting up your own machine:
+
+```bash
+npx @gonkagate/opencode-setup
+```
+
+The happy path is:
+
+1. CLI checks `opencode` is installed and supported.
+2. It asks for your GonkaGate API key through a hidden prompt.
+3. It fetches `GET https://api.gonkagate.com/v1/models` with Bearer auth.
+4. It shows the live GonkaGate model picker.
+5. It asks whether GonkaGate should be activated in `user` or `project` scope.
+6. It writes managed config, verifies the result, and tells you to go back to
+   plain `opencode`.
+
+### Non-interactive setup
+
+Use this for automation or scripts:
+
+```bash
+npx @gonkagate/opencode-setup --scope project --yes
+```
+
+You can pass the secret through `GONKAGATE_API_KEY`:
+
+```bash
+GONKAGATE_API_KEY=gp-... npx @gonkagate/opencode-setup --scope project --yes
+```
+
+Or through stdin with `--api-key-stdin`:
+
+```bash
+printf '%s' "$GONKAGATE_API_KEY" | npx @gonkagate/opencode-setup --api-key-stdin --scope project --yes --json
+```
+
+If you run non-interactively, pass `--scope` or `--yes`. In a git repository,
+the recommended default is usually `project`; outside a repo, it is usually
+`user`.
+
+## Before You Run It
+
+You need:
+
+- Node `>=22.14.0`
+- local `opencode` installed and on your `PATH`
+- a GonkaGate API key in the usual `gp-...` format
+  from [GonkaGate](https://gonkagate.com/en/register?utm_source=github&utm_medium=referral&utm_campaign=opencode_setup&utm_content=readme_api_key_cta)
+
+Current OpenCode baseline:
+
+- minimum verified OpenCode version: `1.4.0`
+- latest audited stable upstream release against this repo contract:
+  `opencode-ai` `1.4.1` as of April 9, 2026
+
+## What The Installer Actually Changes
+
+The default public flow is still:
+
+```bash
+npx @gonkagate/opencode-setup
+```
+
+Under the hood, the shipped runtime:
+
+- validates local `opencode`
+- accepts the secret only through a hidden prompt, `GONKAGATE_API_KEY`, or
+  `--api-key-stdin`
+- fetches `GET https://api.gonkagate.com/v1/models` with Bearer auth after
+  API-key intake
+- uses the live response for the model picker, `--model` fetched model id
+  validation, defaults, config writes, and verification
+- writes only the minimum safe OpenCode config layers
+- verifies the durable plain-`opencode` outcome and the current session
+  effective OpenCode outcome
+- finishes by returning the user to plain `opencode`
+
+For `project` scope, installer keeps the provider definition and secret binding
+in user scope and writes only activation settings to repo-local `opencode.json`.
+
+## Where Files Go
+
+The important managed locations are:
+
+- durable global config target: `~/.config/opencode/opencode.json`
+- project config target: `opencode.json`
+- managed secret file: `~/.gonkagate/opencode/api-key`
+- project-config rollback backup path:
+  `~/.gonkagate/opencode/backups/project-config`
+
+The canonical installer-owned secret binding is exactly:
+
+`provider.gonkagate.options.apiKey = {file:~/.gonkagate/opencode/api-key}`
+
+That binding belongs in user config. The repo-local file stays commit-safe by
+default and must not contain the secret or the secret file path.
+
+## Safe Inputs And Security Rules
+
+Safe secret inputs:
+
+- hidden interactive prompt
+- `GONKAGATE_API_KEY`
+- `--api-key-stdin`
+
+Not supported:
+
+- plain `--api-key`
+- shell profile mutation
+- `.env` generation
+- repository-local secret storage
+- direct writes to `auth.json`
+
+The installer never prints the GonkaGate key. It also redacts secret-bearing
+fields on user-facing diagnostics. That includes fallback entrypoint error handling.
+Resolved-config output is treated as secret-bearing, so the runtime uses
+redacted resolved-config diagnostics and must never print resolved-config raw.
+
+On macOS, Linux, and WSL, the managed secret file and directory use owner-only
+permissions, and reruns repair drifted owner-only secret protections in place
+without rewriting unchanged secret contents or creating backups.
+
+On native Windows, managed files stay inside the current user's profile and
+rely on inherited per-user ACLs instead of portable `chmod`-style enforcement.
+
+## Current Product Truth
+
+The live GonkaGate model picker is backed by:
+
+```http
+GET https://api.gonkagate.com/v1/models
+Authorization: Bearer <GonkaGate API key>
+```
+
+That response is the source of truth for picker choices, `--model` fetched
+model id validation, defaults, config writes, and verification. Interactive mode
+keeps the live picker visible. `--yes` safe non-interactive flows may
+auto-select the first fetched model without showing the picker.
+
+The runtime live-model-first contract:
+
+- stable provider id is `gonkagate`
+- managed user-level provider key is `provider.gonkagate`
+- canonical base URL is `https://api.gonkagate.com/v1`
+- current transport target is `chat/completions`
+- future migration should add `responses` support without renaming the product
+- installer writes every fetched model id into `provider.gonkagate.models` so
+  OpenCode's `/models` command can switch between managed GonkaGate models
+- selected setup model remains the activation default through `model` and
+  `small_model`
+
+## Verification And Config Precedence
+
+This installer does not treat a successful file write as success by itself.
+Success is based on effective OpenCode config.
+
+For durable verification, `opencode debug config --pure` stays the final truth
+source. The installer uses that resolved result to verify `model`,
+`small_model`, `provider.gonkagate`, the transport and base URL
+shape, the live model-catalog shape, and provider allow/deny gating.
+
+OpenCode precedence matters here:
+
+- `OPENCODE_CONFIG` is an additional higher-precedence override layer, not a
+  replacement for `~/.config/opencode/opencode.json`
+- `OPENCODE_CONFIG_CONTENT` is a runtime-only higher-precedence override layer,
+  not a durable install target
+- `enabled_providers` and `disabled_providers` can still block GonkaGate even
+  when `provider.gonkagate` is present
+
+Exact blocker attribution is guaranteed only for locally inspectable layers.
+Within those inspectable layers, the installer follows current precedence:
+user config, then `OPENCODE_CONFIG`, then project config, then file-based
+system managed config.
+
+If the resolved config proves provider gating but no locally inspectable layer
+explains it, the installer reports an inferred higher-precedence or managed
+blocker instead of a vague mismatch.
+
+Secret-binding provenance is verified separately from resolved-config
+verification. `user_config` is the only durable layer allowed to own
+`provider.gonkagate.options.apiKey`, and project config, `OPENCODE_CONFIG`,
+file-based system managed config, and `OPENCODE_CONFIG_CONTENT` must not define
+that key.
+
+The installer proves both the durable plain-`opencode` outcome and the current
+session's effective OpenCode outcome. `OPENCODE_CONFIG_CONTENT` is never used
+as a durable install target, but it can still block the current session if it
+changes the effective result away from the intended GonkaGate setup.
+
+The durable migration anchor remains `install-state.json`. Its
+`lastDurableSetupAt` field means the last durably verified setup, even if a
+later current-session-only check is still blocked or failed.
+
+## Reruns, Scope, And Rollback
+
+Rerunning the installer is the official safe update path.
+
+That rerun flow refreshes GonkaGate-managed config, secret storage, and
+install-state metadata. It also normalizes only installer-owned GonkaGate
+activation in the old target instead of deleting unrelated OpenCode settings.
+
+To replace the GonkaGate API key later, rerun setup with a safe secret input:
+
+```bash
+printf '%s' "$GONKAGATE_API_KEY" | npx @gonkagate/opencode-setup --api-key-stdin --scope project --yes
+```
+
+If you use OpenCode Desktop, restart the desktop app after rerunning setup so
+its sidecar reloads the managed secret file. The Desktop custom-provider form
+does not replace the installer-managed `~/.gonkagate/opencode/api-key` file.
+
+For `project` scope:
+
+- user-level config still owns the provider definition and secret binding
+- repo-local `opencode.json` contains only activation settings
+- if repo-local config must be rewritten, rollback backups go under
+  `~/.gonkagate/opencode/backups/project-config`
+
+## Windows Support
+
+Native Windows is part of the supported runtime contract. The claim is backed
+by native Windows CI and integration coverage, not only simulated `win32`
+tests.
+
+WSL is still the upstream-recommended Windows path for the best experience,
+but native Windows is supported too.
+
+## Docs
+
+- [Documentation Index](docs/README.md)
+- [Architecture Decisions](docs/architecture-decisions.md)
+- [How It Works](docs/how-it-works.md)
+- [Model Validation](docs/model-validation.md)
+- [Security Notes](docs/security.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [PRD](docs/specs/opencode-setup-prd/spec.md)
+
+## Development
+
+```bash
+npm install
+npm run ci
+```
+
+Useful commands:
+
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- `npm run format`
+- `npm run package:check`

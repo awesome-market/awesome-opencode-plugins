@@ -1,0 +1,327 @@
+# OpenCode SuperNudge
+A plugin for when you really want to make sure your agents never forget about super important things.
+
+## Use cases
+Here are examples of `nudges` I use in my workflows which improve agent code-quality ; because I remind them of this ALL the time.
+
+```jsonc
+{
+  "prompts": [
+    "~/.config/opencode/snippet/tdd.md",
+    "~/.config/opencode/snippet/no-mocking.md",
+    "~/.config/opencode/snippet/givenwhenthen.md",
+    "~/.config/opencode/snippet/test-pollution.md",
+    "~/.config/opencode/snippet/docstring-pollution.md",
+    "~/.config/opencode/snippet/disable-question-tool.md"
+  ]
+}
+```
+
+### Forcing TDD (red-green) development
+```md
+TDD: YOU MUST respect the RED / GREEN principle - you ALWAYS write a FAILING test case FIRST - this will ENSURE your changes actually fix the problem.
+```
+
+### Forcing e2e tests without mocking
+```md 
+Do NOT use MOCKING, EXCEPT when calling external vendors incurs a real life $$$ COST; otherwise we must stick with REAL e2e test cases at the outer-most user-facing SEAM.
+```
+
+### Forcing the GivenWhenThen forms for test cases
+```md 
+You MUST define acceptance criteria in the GivenWhenThen form UNLESS the current project's style guidelines DICTATE otherwise.
+```
+
+### Hedging against too many useless test case creations
+```md 
+Be very wary of creating too many test cases. Test the inputs and the outputs of what the user will do at the seams of the application. No more, no less. We don't want to test cases that are extreme outliers.
+```
+
+### Hedging against docstring and comment pollution
+```md
+Do NOT add test docstrings, or comments, or module docstrings unless ABSOLUTELY necessary.
+```
+
+### Soft-disabling the often-slow 'question' tool
+```md
+Do NOT use the question tool at you disposal, it is extremely slow.
+```
+
+## Install
+```bash
+git clone https://github.com/kevincojean/opencode-supernudge.git
+cd opencode-supernudge
+npm install
+```
+
+Add to `~/.config/opencode/opencode.jsonc` `plugin` array, replacing `<PATH_TO_SUPERNUDGE>` with the absolute path to your clone:
+
+```jsonc
+"plugin": [
+  "<PATH_TO_SUPERNUDGE>"
+]
+```
+
+
+## Config
+Create `~/.config/opencode/opencode-supernudge/supernudge-configuration.jsonc`:
+
+```jsonc
+{
+  "prompts": ["~/prompts/style.md", "~/prompts/constraints.md"],
+  "injection.interval": 1,
+  "injection.alwaysOnFirstMessage": true,
+  "injection.resetCounterOnCompaction": true,
+  "injection.subagentInterval": 1,
+  "injection.subagentAlwaysOnFirst": true,
+  "injection.subagentResetOnCompaction": true,
+  "position.normalMessage": "start",
+  "position.subagent": "start",
+  "position.compaction": "start",
+  "enabled.normalMessage": true,
+  "enabled.subagentSystemPromptNudge": true,
+  "enabled.subagentAutonomousWorkNudge": true,
+  "enabled.compaction": true,
+  "wrapper.prefix": "<opencode-supernudge>",
+  "wrapper.suffix": "</opencode-supernudge>",
+  "nudge.visible": true,
+  "nudge.visibleMarker": true
+}
+```
+
+### Prompt path resolution
+
+<details>
+<summary><strong>Project-local config</strong></summary>
+
+A project-local config file can overlay the global config. Two global config keys control this:
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `currentWorkingDirectory.configFilePath` | string | `"./.opencode/com.kevincojean.opencode-supernudge/supernudge-configuration.jsonc"` | Path to local config (relative to opencode cwd) |
+| `currentWorkingDirectory.configEnabled` | boolean | `true` | Master switch for local config lookup |
+
+When enabled, the plugin looks for a local config file. If found and valid, the local config's `prompts` array is **merged** with the global config's `prompts` array.
+
+#### Locally overridable keys
+
+| Key | Locally overridable? |
+|-----|---------------------|
+| `prompts` | **YES** (concatenated with global) |
+
+**Keys overridable within `prompt` objects:
+
+| Prompt-key | Overridable? |
+|-----|---------------------|
+| `injection.interval` | YES |
+| `injection.alwaysOnFirstMessage` | YES |
+| `injection.resetCounterOnCompaction` | NO |
+| `position.normalMessage` | YES |
+| `position.subagent` | YES |
+| `position.compaction` | YES |
+| `enabled.normalMessage` | YES |
+| `enabled.subagentSystemPromptNudge` | YES |
+| `enabled.subagentAutonomousWorkNudge` | YES |
+| `enabled.compaction` | YES |
+| `wrapper.prefix` | NO |
+| `wrapper.suffix` | NO |
+| `nudge.separator` | NO |
+| `nudge.enableTitlePrefix` | NO |
+| `nudge.trim` | NO |
+| `nudge.visible` | YES |
+| `nudge.visibleMarker` | YES |
+| `injection.skipFirstMessageBelowChars` | NO |
+| `injection.subagentInterval` | YES |
+| `injection.subagentAlwaysOnFirst` | YES |
+| `injection.subagentResetOnCompaction` | NO |
+| `currentWorkingDirectory.configFilePath` | NO |
+| `currentWorkingDirectory.configEnabled` | NO |
+
+Example local config:
+```jsonc
+{
+  "prompts": [
+    ".opencode/com.kevincojean.opencode-supernudge/project-specific-nudge.md",
+    {
+      "path": ".opencode/com.kevincojean.opencode-supernudge/project-specific-nudge.md/tdd.md",
+      "injection.interval": 3,
+      "enabled.compaction": false
+    }
+  ]
+}
+```
+
+</details>
+
+Prompt file paths in the `prompts` array support 3 modes:
+
+1. **Home directory** - paths starting with `~` or containing `$HOME`:
+```jsonc
+   { "prompts": ["~/prompts/tdd.md", "$HOME/prompts/no-mocking.md"] }
+   ```
+
+2. **Relative paths** - resolved against opencode's __working directory__:
+   ```jsonc
+   { "prompts": ["./prompts/tdd.md", "prompts/no-mocking.md", "../shared/constraints.md"] }
+   ```
+
+3. **Absolute paths** - paths starting with `/` are used as-is:
+   ```jsonc
+   { "prompts": ["/home/user/prompts/tdd.md"] }
+   ```
+
+<details>
+<summary><strong>Subagent nudge paths</strong></summary>
+
+There are **two distinct paths** for injecting nudges into subagent contexts. They are gated separately and have independent defaults:
+
+- **System prompt nudge** (`enabled.subagentSystemPromptNudge`, default `true`): injects the nudge into the subagent's **initial system prompt** via `experimental.chat.system.transform`. Fires **once** per subagent session, before the subagent starts working. This is the path that gives the subagent the nudge "at the system prompt level" you observe.
+- **Autonomous work nudge** (`enabled.subagentAutonomousWorkNudge`, default `true`): injects the nudge **periodically** during subagent autonomous turns (via `experimental.text.complete` + `experimental.chat.messages.transform`). Does NOT fire on the primary agent's `chat.message` - the primary path uses `enabled.normalMessage` instead.
+
+To disable periodic nudges, set:
+```jsonc
+{
+  "enabled.subagentAutonomousWorkNudge": false
+}
+```
+
+> The legacy key `enabled.subagent` is no longer recognized. If your config still has it, replace it with the two `enabled.subagent*` keys above.
+
+</details>
+
+<details>
+<summary><strong>Per-prompt override</strong></summary>
+
+### Per-prompt override
+Any prompt entry can be an object that overrides specific global settings for that prompt only. String entries use all global defaults.
+
+```jsonc
+{
+  "prompts": [
+    // String: global defaults apply
+    "~/prompts/tdd.md",
+
+    // Object with partial overrides: only listed keys override globals
+    {
+      "path": "~/prompts/givenwhenthen.md",
+      "injection.interval": 3,
+      "injection.skipFirstMessageBelowChars": 10
+    },
+
+    // Object with all overrides: every global setting overridden
+    {
+      "path": "~/prompts/no-mocking.md",
+      "enabled.compaction": false,
+      "enabled.normalMessage": true,
+      "enabled.subagentSystemPromptNudge": false,
+      "enabled.subagentAutonomousWorkNudge": false,
+      "injection.alwaysOnFirstMessage": false,
+      "injection.interval": 1,
+      "injection.resetCounterOnCompaction": false,
+      "injection.skipFirstMessageBelowChars": 10,
+      "injection.subagentInterval": 1,
+      "injection.subagentAlwaysOnFirst": false,
+      "injection.subagentResetOnCompaction": false,
+      "position.compaction": "end",
+      "position.normalMessage": "end",
+      "position.subagent": "end"
+    }
+  ],
+  "injection.interval": 1,
+  "injection.alwaysOnFirstMessage": true
+}
+```
+
+- `tdd.md` - string, all global defaults
+- `givenwhenthen.md` - partial override, injects every 3rd message only
+- `no-mocking.md` - full override, all globals ignored, uses its own settings exclusively
+
+</details>
+
+<details>
+<summary><strong>Skipping injections in system contexts</strong></summary>
+
+### Skipping injections in system contexts
+
+You may chose for nudges to not fire using regexes. 
+For instance, the oh-my-openagent plugin injects prompts when sub-agents finish a task, and it's wasteful to inject in those messages. 
+Use `injection.skipOnRegexMatch` to suppress nudges when text contains markers:
+
+```jsonc
+{
+  "injection.skipOnRegexMatch": [
+    "<\\/?system-reminder>"
+  ]
+}
+```
+</details>
+
+<details>
+<summary><strong>Hidden nudges</strong></summary>
+
+### Hidden nudges
+
+By default the nudge block is prepended/appended into your message text, so it shows up in the chat. Set `nudge.visible` to `false` to keep your message untouched and deliver the nudge as a separate hidden `synthetic` text part instead. The model still sees it; the chat UI does not render it, and it is never written to the session store.
+
+Set `nudge.visibleMarker` to `false` to suppress the `wrapper.prefix`/`wrapper.suffix` marker around each nudge block, even when those strings are non-empty. The nudge text is still injected, just without the wrapper.
+
+Both keys are overridable per-prompt. Both are no-ops for the system-prompt and compaction paths, where you never see the content anyway.
+
+```jsonc
+{
+  "nudge.visible": false,
+  "nudge.visibleMarker": false
+}
+```
+</details>
+
+
+### Parameters
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `prompts` | `(string \| object)[]` | `[]` | Prompt file paths. String or `{ path: string, ...overrides }`. Supports `~`, `$HOME` interpolation, and relative paths (resolved against opencode's working directory). |
+| `injection.interval` | `number` | `1` | Inject every Nth *user* message. `1` = every message. `2` = 1st, skip 2nd, inject 3rd. |
+| `injection.alwaysOnFirstMessage` | `boolean` | `true` | Force inject on first user message regardless of interval. |
+| `injection.resetCounterOnCompaction` | `boolean` | `true` | Reset per-session counter to 0 when compaction fires. |
+| `position.normalMessage` | `"start"` \| `"end"` | `"start"` | Nudge placement in user message. `start` = before user text. `end` = after. |
+| `position.subagent` | `"start"` \| `"end"` | `"start"` | Nudge placement in subagent workflows.|
+| `position.compaction` | `"start"` \| `"end"` | `"start"` | Nudge placement in compaction context. |
+| `enabled.normalMessage` | `boolean` | `true` | Inject nudge on user messages. |
+| `enabled.subagentSystemPromptNudge` | `boolean` | `true` | Inject nudge into subagent's **initial system prompt** (via `experimental.chat.system.transform`). Fires once per subagent session. |
+| `enabled.subagentAutonomousWorkNudge` | `boolean` | `true` | Inject nudge **periodically** during subagent autonomous turns (via `experimental.text.complete` + `experimental.chat.messages.transform`). Does NOT fire on the primary agent's `chat.message`. |
+| `enabled.subagentAutonomousWorkNudge` | `boolean` | `true` | Inject nudge **periodically** during subagent autonomous turns (via `experimental.text.complete` + `experimental.chat.messages.transform`). Does NOT fire on the primary agent's `chat.message`. |
+| `enabled.compaction` | `boolean` | `true` | Inject nudge into context on compaction. |
+| `wrapper.prefix` | `string` | `"<opencode-supernudge>"` | Marker inserted above each nudge block. Empty string disables. |
+| `wrapper.suffix` | `string` | `"</opencode-supernudge>"` | Marker inserted below each nudge block. Empty string disables. |
+| `nudge.separator` | `string` | `"\n\n"` | Separator between multiple nudges within the same block. |
+| `nudge.enableTitlePrefix` | `boolean` | `true` | Prefix each nudge with `[filename]` (lowercase, no extension). |
+| `nudge.visible` | `boolean` | `true` | Deliver the nudge inside the user's message (visible in chat). When `false`, the user message is left untouched and the nudge is delivered as a hidden `synthetic` text part that only the model sees. |
+| `nudge.visibleMarker` | `boolean` | `true` | Emit `wrapper.prefix`/`wrapper.suffix` around each nudge block. When `false`, the wrapper is suppressed even if the strings are non-empty. |
+| `injection.skipFirstMessageBelowChars` | `number` | `3` | Skip injection when user message length `<=` this threshold. |
+| `injection.skipOnRegexMatch` | `string[]` | `[]` | Skip injection if message text matches any regex. |
+| `injection.subagentInterval` | `number` | `1` | Inject every Nth autonomous turn. `1` = every turn. `2` = 1st, skip 2nd, inject 3rd. |
+| `injection.subagentAlwaysOnFirst` | `boolean` | `true` | Force inject on first autonomous turn regardless of interval. |
+| `injection.subagentResetOnCompaction` | `boolean` | `true` | Reset autonomous counter to 0 when compaction fires. |
+
+All parameters except `prompts` can be overridden per-prompt by including them in the prompt object.
+
+<details>
+<summary><strong>Test</strong></summary>
+
+```bash
+# Unit tests
+node --import tsx --test src/test/supernudge.test.ts
+
+# E2E tests (spins up opencode serve with an internal stub LLM server)
+# SN_E2E_NO_BWRAP=1 is set by default in package.json to avoid bwrap process kill issues
+# Remove it from package.json to use bwrap sandboxing instead
+npm run test:e2e
+```
+
+</details>
+
+## Roadmap
+You can see what I have in mind for next features by reading my humble [kanban board](.opencode/kanban/board.md).
+
+## License
+MIT Kévin Cojean

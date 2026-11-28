@@ -1,0 +1,406 @@
+# 📱 opencode-termux
+
+**[opencode](https://opencode.ai) CLI native di Termux/Android — tanpa proot, tanpa root.**
+
+[![npm](https://img.shields.io/npm/v/@nemoobc/opencode-termux?color=cb3837&logo=npm)](https://www.npmjs.com/package/@nemoobc/opencode-termux)
+[![release](https://img.shields.io/github/v/release/nemoobc/opencode-termux?color=3B82F6)](https://github.com/nemoobc/opencode-termux/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/nemoobc/opencode-termux/test.yml?label=test&color=22C55E)](.github/workflows/test.yml)
+[![platform](https://img.shields.io/badge/platform-Android%20%7C%20Termux-3DDC84)](#)
+[![arch](https://img.shields.io/badge/arch-arm64-blue)](#)
+[![sync upstream](https://img.shields.io/badge/sync-upstream%20otomatis-C9A227)](.github/workflows/sync-upstream.yml)
+[![license](https://img.shields.io/badge/license-MIT-green)](#)
+
+---
+
+## 🙏 **Attribution & Terima Kasih**
+
+### **Source Asli: opencode-ai (anomalyco)**
+**opencode-termux HANYA membungkus & menyesuaikan binary resmi opencode-ai** agar jalan native di Termux/Android.
+
+| Komponen | Source | Credit |
+|----------|--------|--------|
+| **Core CLI** | [opencode-ai](https://github.com/anomalyco/opencode) | 🏆 **FULL CREDIT** |
+| **Agent System** | opencode-ai | 🏆 **FULL CREDIT** |
+| **LLM Integration** | opencode-ai | 🏆 **FULL CREDIT** |
+| **Architecture** | opencode-ai | 🏆 **FULL CREDIT** |
+| **Musl Loader Build** | opencode-termux (custom) | nemoobc |
+| **Termux Adaptation** | opencode-termux | nemoobc |
+| **Offline Installer** | opencode-termux | nemoobc |
+| **Automation (CI/CD)** | opencode-termux | nemoobc |
+
+> **opencode-ai** adalah upstream asli — semua inovasi fundamental, arsitektur agent, integrasi LLM, dan core CLI berasal dari **tim opencode-ai (anomalyco)**. Kami hanya menambal agar jalan di Termux (musl libc, interp patch, DNS) dan menambah otomasi (CI sync, installer offline, wrapper).
+
+🔗 **Upstream:** https://github.com/anomalyco/opencode  
+📦 **npm:** https://www.npmjs.com/package/opencode-ai  
+📖 **Docs:** https://opencode.ai  
+
+---
+
+## 🧹 **Tanpa Agent / Command / Skill Bawaan**
+
+Paket ini **tidak** membundel agent, command, atau skill opencode — biar
+lingkungan kamu bersih dan bebas konflik dengan setup sendiri. Kalau butuh,
+pasang manual di `~/.config/opencode/`.
+
+> `commands/` tidak ikut di package.json `files[]` — repo ini tidak punya
+> command tambahan; `/update` di TUI ditangani langsung oleh wrapper (lihat
+> bagian **Update**).
+
+**Config default ikut terpasang:** model `opencode/big-pickle` — **tanpa API key**.
+
+---
+
+## 🔄 **Sync Upstream Otomatis**
+
+Workflow GitHub mengecek [opencode-ai](https://github.com/anomalyco/opencode) baru setiap **minggu** — begitu ada versi baru, paket ini otomatis menyesuaikan:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  sync-upstream.yml (cron 0 0 * * 1)                         │
+├─────────────────────────────────────────────────────────────┤
+│  1. Cek npm registry @opencode/cli (v2)                       │
+│  2. Bump opencodeUpstream + version patch                     │
+│  3. Anti-bentrok: cek tag GitHub & npm registry             │
+│  4. Commit + tag vX.Y.Z + push                              │
+│  5. Trigger release.yml (build 6 artefak)                   │
+│  6. Kalau NPM_TOKEN ada: npm publish otomatis               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Setiap sync juga otomatis menambah entry **RELEASE-HISTORY.md** + menyinkronkan
+deskripsi paket ke pin baru — tidak ada lagi langkah manual yang bisa terlewat.
+
+**Commit memakai identitas nemoobc** — riwayat bersih, traceable.
+
+---
+
+## ⬆️ **Update (method: npm)**
+
+Satu-satunya jalur update resmi di Termux — dipakai oleh
+`opencode-termux update` dan alias `opencode-termux upgrade`:
+
+```bash
+npm install -g @nemoobc/opencode-termux@latest
+# atau:
+opencode-termux update
+```
+
+> ℹ️ **`/update` di TUI opencode** adalah command bawaan upstream (`upgrade`)
+> yang menargetkan rilis `@opencode/cli` — di Termux selalu gagal
+> `Installation method not found`, karena detektor npm-nya tak mengenali
+> `@nemoobc/opencode-termux`. Wrapper mem-patch pesan error bawaan itu di
+> binary vendor: saat kamu buka `/update`, kamu melihat
+> **`Update via npm: npm install -g @nemoobc/opencode-termux`** sebagai
+> penunjuk. Patch ini idempoten (rekam mtime + sidik tabel patch di
+> `vendor/.msg-patched`) dan otomatis diulang tiap binary vendor berganti
+> atau tabel patch diperbarui (update npm / sync upstream).
+> Eksekusinya tetap dari terminal: `opencode-termux update`.
+
+> ℹ️ **Export sesi ke editor** (keybind `<leader>x`, atau slash `/editor`)
+> menulis file sementara lewat `os.tmpdir()` — di Termux artinya `$PREFIX/tmp`,
+> susah dijangkau dari home. Wrapper `opencode-termux` mengarahkan `TMPDIR`
+> proses opencode ke **`$HOME/.cache/opencode/tmp`** — file mendarat di dalam
+> home (gampang dibuka editor/aplikasi Android). File tetap sementara:
+> dihapus otomatis saat editor ditutup — simpan (save-as) ke lokasi lain
+> bila ingin disimpan permanen. Cek lokasi aktif: `opencode-termux doctor`.
+
+> ℹ️ **Login web UI (`serve`)** — halaman browser meminta *Server address* +
+> *Password*. Cara termudah: **`opencode-termux pair`** → buka link
+> sekali-pakai (aktif 5 menit) di browser. Password service juga tersimpan di
+> `~/.local/state/opencode/service.json`. Dari perangkat lain:
+> `opencode-termux service set hostname 0.0.0.0`, lalu pakai
+> `http://<ip-hp>:<port>` (port dari `opencode-termux service status`).
+
+---
+
+## 🏗️ **Arsitektur: Kenapa Paket Ini Ada?**
+
+Installer resmi `opencode-ai` gagal di Termux karena:
+1. Tidak mengenali `process.platform === "android"`
+2. Tidak menyediakan build untuk **Bionic libc** (Termux pakai Bionic, bukan glibc)
+
+**Solusi opencode-termux — tanpa trik aneh:**
+
+```
+opencode-termux (Node shim)
+   └─ vendor/opencode       ← binary resmi opencode-linux-arm64-musl
+        ⤳ PT_INTERP → vendor/ld-musl.so (interp-only, TANPA RPATH)
+           libstdc++/libgcc dilayani LD_LIBRARY_PATH=vendor
+           (--set-rpath terbukti SIGSEGV untuk binary 200MB+)
+```
+
+\* Path `/etc/resolv.conf` & `/etc/hosts` dipatch saat kompilasi menuju `$PREFIX/etc/` sehingga **DNS jalan tanpa root**.
+
+**Kenapa interp-only (bukan invoke loader atau RPATH)?** `patchelf --set-rpath`
+menambah/mengubah segment dinamis dan merusakkan binary besar (SIGSEGV —
+terbukti di runner x64); invoke-via-loader membuat re-exec server gagal
+(`/proc/self/exe` = loader). Solusinya: `--set-interpreter` saja (mengganti
+string path yang sudah ada di ELF — tanpa segment baru), libstdc++/libgcc
+dipenuhi `LD_LIBRARY_PATH` oleh wrapper. Patch saat install bila native; pada
+cross-build (bundle rilis) di-patch saat first-run di perangkat.
+
+**Terus background server-nya?** opencode v2 spawn server background dengan
+**re-exec dirinya sendiri** — via loader, re-exec itu gagal
+(`cannot load serve`, karena `/proc/self/exe` = loader). Solusinya: binary
+di-patch `PT_INTERP`-nya saja ke loader vendor (interp-only, **tanpa RPATH**
+— `--set-rpath` terbukti bikin SIGSEGV; lib dipenuhi via `LD_LIBRARY_PATH`).
+Patch saat install bila native, atau otomatis saat first-run di perangkat
+(`ensurePatched` di `bin/opencode-termux.js`, selalu native, idempoten).
+Dengan INTERP benar, binary jalan langsung — re-exec ikut jalan, server
+background normal.
+
+**Auto-heal:** Kalau `postinstall` terlewat (mis. `--ignore-scripts`), binary dipasang otomatis saat pertama kali jalan.
+
+**Auto-stop server:** Kalau TUI yang memulai server background, saat exit
+(`/exit` / Ctrl-C) server ikut dimatikan otomatis (hemat RAM/baterai). Kalau
+server sudah jalan duluan, dibiarkan — tidak membunuh sesi lain.
+
+---
+
+## 📦 **Paket Rilis (6 Artefak — Semua Versi Terpreservasi)**
+
+Setiap rilis (via `release.yml` → `scripts/build-release.sh`) menghasilkan **6 artefak**:
+
+| File | Format | Target | Deskripsi |
+|------|--------|--------|-----------|
+| `nemoobc-opencode-termux-{v}.tgz` | `.tgz` | npm | Package untuk `npm install -g` |
+| `opencode-termux-{v}-aarch64.tar.gz` | `.tar.gz` | Termux ARM64 | **Offline bundle lengkap** (vendor musl + binary + source) |
+| `opencode-termux-{v}-x86_64.tar.gz` | `.tar.gz` | Emulator/x64 | Offline bundle x64 |
+| `opencode-config.zip` | `.zip` | Manual | Config default saja (bebas versi) |
+| `opencode-termux-installer.sh` | `.sh` | Universal | **POSIX sh installer** (tanpa Node, offline-capable) |
+| `SHA256SUMS.txt` | `.txt` | Verify | Checksum sha256 semua file di atas |
+
+> 💡 **Philosophy:** Semua artefak berbundle **versioned** di nama (kecuali
+> `installer.sh` & `opencode-config.zip` yang deliberately bebas versi agar
+> gampang ditimpa pada update). History tidak hilang — versi lama tetap di GitHub Releases & npm registry.
+
+---
+
+## 🚀 **Instalasi Cepat**
+
+### **Online (npm — Recommended)**
+```bash
+pkg update && pkg install nodejs-lts tar
+npm install -g @nemoobc/opencode-termux
+opencode-termux --version
+```
+
+> ⚠️ Warning `install-scripts`? Izinkan sekali:
+> ```bash
+> npm config set allow-scripts=@nemoobc/opencode-termux --location=user
+> npm rebuild -g @nemoobc/opencode-termux
+> ```
+
+### **Offline (Tanpa Node.js / Tanpa Internet)**
+```bash
+# 1. Download 2 file dari GitHub Releases:
+#    - opencode-termux-installer.sh
+#    - opencode-termux-{v}-aarch64.tar.gz
+#    - SHA256SUMS.txt (opsional, untuk verifikasi)
+
+# 2. Taruh di folder yang sama, verifikasi:
+sha256sum -c SHA256SUMS.txt
+
+# 3. Jalankan installer (POSIX sh, no Node):
+sh opencode-termux-installer.sh
+```
+
+### **Instalasi Per-Artefak**
+
+Semua file diunduh dari **[GitHub Releases](https://github.com/nemoobc/opencode-termux/releases)** (ganti `{v}` dengan versi, contoh `1.20.20`).
+
+| # | Artefak | Cara Install / Pakai |
+|---|---------|----------------------|
+| 1 | `nemoobc-opencode-termux-{v}.tgz` | Paket npm. `npm install -g ./nemoobc-opencode-termux-{v}.tgz` (atau simpan lalu `npm install -g @nemoobc/opencode-termux`) |
+| 2 | `opencode-termux-{v}-aarch64.tar.gz` | **Bundle offline arm64.** Taruh di folder sama dengan installer lalu `sh opencode-termux-installer.sh` (atau ekstrak manual: `tar xzf opencode-termux-{v}-aarch64.tar.gz -C ~/.local/lib/opencode-termux --strip-components=1`) |
+| 3 | `opencode-termux-{v}-x86_64.tar.gz` | Sama seperti #2, tapi untuk emulator/PC **x64**. Bisa dijalankan manual: `./vendor/opencode --version` |
+| 4 | `opencode-config.zip` | **Config default saja.** Ekstrak ke `~/.config/opencode/`: `unzip opencode-config.zip -d ~/.config/opencode` (tidak menimpa `opencode.json` yang sudah ada) |
+| 5 | `opencode-termux-installer.sh` | **Installer universal.** `sh opencode-termux-installer.sh`. Baca bundle `-{arch}.tar.gz` di folder yang sama (offline) atau unduh otomatis dari Releases (online). Target instalasi: Termux → `$PREFIX/{lib,bin}`, selain itu → `~/.local/{lib,bin}` |
+| 6 | `SHA256SUMS.txt` | **Verifikasi.** Sebelum install, cek keutuhan: `sha256sum -c SHA256SUMS.txt` (jalankan di folder berisi semua file artefak) |
+
+> **Selalu verifikasi dulu:** `sha256sum -c SHA256SUMS.txt` sebelum mengekstrak/menjalankan artefak apa pun yang diunduh.
+
+### **Via .deb (Termux apt)**
+```bash
+pkg install ./opencode-termux_{v}_aarch64.deb
+```
+> ⚠️ Artefak `.deb` dihapus pada rilis v1.20.3 — paket kini fokus **npm + installer.sh + bundle tarball**. Kalau kamu butuh `.deb`, arahkan ke rilis lama.
+
+---
+
+## ✅ **Verifikasi & Diagnostik**
+
+```bash
+opencode-termux --version   # Versi binary upstream
+opencode-termux doctor      # Diagnosis lengkap environment
+opencode-termux version     # Info versi paket + binary
+opencode-termux update      # Update via npm: npm install -g @nemoobc/opencode-termux
+```
+
+**Doctor output interpretation:**
+| Output | Arti | Tindakan |
+|--------|------|----------|
+| ✅ semua baris | Sehat | Lanjut pakai |
+| ❌ vendor lengkap | Bundle belum ada | `opencode-termux update` |
+| ❌ tar tersedia | Utilitas hilang | `pkg install tar` |
+| ⚠️ platform bukan android | Di luar Android | Wajar di CI/emulator |
+
+---
+
+## 🎯 **Pemakaian Pertama**
+
+```bash
+mkdir -p ~/project-coba && cd ~/project-coba
+opencode-termux
+```
+
+**Config default** sudah terpasang otomatis dengan **model `opencode/big-pickle`** — **tanpa API key**.  
+Lokasi: `~/.config/opencode/opencode.json` (milik user; installer **tidak pernah menimpa**).
+
+**Keybind default** ikut terpasang: **Tab = switch agent (build ↔ plan)**,
+gaya v1. Di opencode v2 defaultnya `shift+tab` (Tab dipakai autocomplete) —
+paket ini override lewat `~/.config/opencode/cli.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "keybinds": {
+    "agent.cycle": "tab",
+    "agent.cycle.reverse": "shift+tab"
+  }
+}
+```
+
+Tab ganti Build ↔ Plan, Shift+Tab balik. Verifikasi: footer TUI menampilkan
+`tab agents`. Kalau `cli.json` user sudah ada, installer **tidak menimpa**.
+
+---
+
+## 🧪 **Testing**
+
+```bash
+npm test              # Struktur + unit (cepat, tanpa unduhan besar)
+npm run drill         # Drill installer offline (ekstrak bundle palsu + rollback)
+npm run test:e2e      # E2E penuh: install bundle + smoke test + subcommand
+```
+
+CI GitHub menjalankan:
+- Struktur + unit test di setiap push, plus **drill installer offline** (`npm run drill` — tanpa jaringan)
+- **Suite penuh `--e2e`** di musl Alpine **x64 dan ARM64 sungguhan** (runner `ubuntu-24.04-arm` — loader musl prebuilt Termux benar-benar dieksekusi; termasuk drill install-gagal-tidak-merusak-vendor)
+
+---
+
+## 🔒 **Keamanan**
+
+- v2 (opencode.ai): **pin sha256 per versi/arsitektur** (`BIN_PINS` — bila pin
+  tersedia WAJIB cocok, fail-closed) + verifikasi gzip + cek ELF sebelum exec.
+- v1 (npm): tarball diverifikasi **sha512** terhadap metadata resmi registry npm.
+- Instalasi ber-staging: vendor lama baru diganti setelah pengganti lolos
+  smoke test; gagal → rollback — instalasi yang jalan tidak pernah dirusak.
+- Unduhan memakai retry + backoff eksponensial + timeout 10 menit/percobaan.
+- Binary upstream tidak dimodifikasi secara fungsional — hanya string pesan
+  `/update` & `PT_INTERP` (keduanya diuji di CI e2e).
+
+---
+
+## 📚 **Dokumentasi Lengkap (Termasuk di Setiap Rilis)**
+
+| File | Deskripsi |
+|------|-----------|
+| **[INSTALASI.md](docs/INSTALASI.md)** | Panduan end-to-end: persyaratan → install → verifikasi → update/uninstall → troubleshooting → FAQ |
+| **[RELEASE-HISTORY.md](RELEASE-HISTORY.md)** | Release notes adaptif semua versi (auto-generated) |
+| **prebuilt/README.md** | Cara rebuild musl loader custom |
+
+---
+
+## 🛠 **Development & Build**
+
+```bash
+# Clone & install deps
+git clone https://github.com/nemoobc/opencode-termux.git
+cd opencode-termux
+npm install
+
+# Build semua artefak rilis (6 format)
+./scripts/build-release.sh
+
+# Output di ./dist/
+ls -la dist/
+```
+
+**Scripts tersedia:**
+| Script | Fungsi |
+|--------|--------|
+| `npm run postinstall` | Install bundle vendor (auto dijalankan npm) |
+| `npm test` | Struktur + unit test |
+| `npm run drill` | Drill installer offline (bundle palsu + rollback, tanpa jaringan) |
+| `npm run test:e2e` | E2E test penuh |
+| `./scripts/build-release.sh` | Build 6 artefak rilis |
+| `./scripts/generate-release-notes.sh` | Generate release notes adaptive |
+| `./scripts/build-install-guide.sh` | Generate panduan instalasi lengkap |
+
+---
+
+## 📦 **Versi & Rilis**
+
+| Link | Deskripsi |
+|------|-----------|
+| [GitHub Releases](https://github.com/nemoobc/opencode-termux/releases) | **Semua versi** (termasuk lama) + 6 artefak per versi |
+| [npm Versions](https://www.npmjs.com/package/@nemoobc/opencode-termux?activeTab=versions) | History versi npm |
+| [RELEASE-HISTORY.md](RELEASE-HISTORY.md) | Release notes/riwayat perubahan per versi |
+
+**Skema versi:** `1.20.<patch>` — patch naik tiap perubahan paket; pin upstream opencode tercatat di field `opencodeUpstream` package.json (contoh: paket `1.20.20` → upstream `2.0.21`).
+
+### 🔄 Alur Rilis Otomatis (kendali tunggal: `sync-upstream`)
+
+Satu-satunya mekanisme yang menaikkan versi & menerbitkan rilis adalah workflow **`sync-upstream`** (otomatis tiap minggu + bisa manual via `workflow_dispatch`):
+
+1. Cek versi terbaru **`@opencode/cli`** di npm (v2).
+2. Berbeda dari `opencodeUpstream`? → naikkan `opencodeUpstream` + versi paket + entry `RELEASE-HISTORY.md` + sinkron deskripsi paket, lalu commit + tag `vX.Y.Z`.
+3. **Publish ke npm** `@nemoobc/opencode-termux`.
+4. Dispatch workflow **`release`** → build 6 artefak + unggah ke GitHub Releases.
+
+Rilis manual (mis. commit fitur/perbaikan): naikkan versi di `package.json` → tag `vX.Y.Z` → push tag → workflow `release` otomatis build + GitHub release.
+
+> **Catatan:** `release-please` sengaja dinonaktifkan otomatis (hanya `workflow_dispatch`) untuk menghindari dua mekanisme bump versi yang bisa bentrok. Publish npm **tidak** dilakukan di workflow `release` — itu tugas `sync-upstream`, agar versi tidak ter-publish dua kali (double-publish).
+
+---
+
+## 🤝 **Kontribusi**
+
+1. Fork & branch
+2. Commit conventional (`feat:`, `fix:`, `docs:`, `chore:`)
+3. Push & buat PR
+4. CI otomatis jalan (test + build)
+5. Review & merge
+
+**Ide kontribusi:**
+- Perbaiki docs di `docs/`
+- Optimasi musl loader build
+- CI/CD improvement
+
+---
+
+## 📄 **Lisensi**
+
+**MIT License** — bebas pakai, modifikasi, distribusi.
+
+**Binary opencode resmi** dari upstream opencode-ai — paket ini hanya membungkus + menambal loader/wrapper. Bebas konflik dengan setup agent kamu sendiri.
+
+---
+
+## 🔗 **Link Penting**
+
+| Link | Deskripsi |
+|------|-----------|
+| [GitHub Repo](https://github.com/nemoobc/opencode-termux) | Source code & issues |
+| [GitHub Releases](https://github.com/nemoobc/opencode-termux/releases) | **Semua artefak rilis terpreservasi** |
+| [npm Package](https://www.npmjs.com/package/@nemoobc/opencode-termux) | Install via npm |
+| [opencode-ai (Upstream)](https://github.com/anomalyco/opencode) | **Source asli — credit utama** |
+| [opencode.ai Docs](https://opencode.ai) | Dokumentasi upstream |
+| [Termux F-Droid](https://f-droid.org/en/packages/com.termux/) | Termux yang benar (bukan Play Store) |
+
+---
+
+**Dibangun dengan ❤️ untuk komunitas Termux/Android**  
+**Powered by [opencode-ai](https://github.com/anomalyco/opencode) — terima kasih tim anomalyco!** 🙏

@@ -1,0 +1,928 @@
+# @osovv/vv-opencode
+
+**An opinionated agentic development layer for OpenCode** — spec-first when it matters, review-driven execution, portable model roles, safer tools, and long-run safety. Under the hood it ships as a set of OpenCode plugins, managed agents, skills, and the `vvoc` CLI.
+
+<p>
+  <a href="https://www.npmjs.com/package/@osovv/vv-opencode"><img src="https://img.shields.io/npm/v/%40osovv%2Fvv-opencode?style=flat&label=npm&color=blue" alt="npm"></a>
+  <a href="https://github.com/osovv/vv-opencode/actions/workflows/publish.yml"><img src="https://github.com/osovv/vv-opencode/actions/workflows/publish.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/osovv/vv-opencode/releases"><img src="https://img.shields.io/github/v/release/osovv/vv-opencode?style=flat&label=release" alt="release"></a>
+  <a href="https://github.com/osovv/vv-opencode"><img src="https://img.shields.io/github/stars/osovv/vv-opencode?style=flat&color=yellow" alt="stars"></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/runtime-bun-%23f9f9f9?style=flat&logo=bun" alt="bun"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/osovv/vv-opencode?style=flat&color=green" alt="MIT"></a>
+</p>
+
+OpenCode owns the mechanics: streaming, model invocation, sandboxing, permissions. The development *process* — when to clarify, when to plan, when to review, how to survive long runs — it leaves up to you.
+
+vv-opencode adds that process layer. It is a hand-picked workflow crystallized from a year and a half of daily agentic development: you run `vvoc install`, learn three skills (`vv-spec`, `vv-plan`, `vv-execute`), and get a disciplined spec-to-code pipeline with review gates, portable model roles, and long-run safety — without needing to know how any of it works inside.
+
+The spec pipeline is the most visible part, but it is only one layer. Everything underneath runs on every session whether or not you ever write a spec: each model edits files through the tool it knows best, routine permissions are approved without interrupting your run, secrets never reach the model, and multi-agent work is held together by an explicit state machine instead of prompt luck. If you already have your own spec tooling, keep it — the runtime layers below apply anyway.
+
+---
+
+## Why vv-opencode?
+
+OpenCode is a strong, flexible base, but it intentionally leaves the development process up to you. Left to itself, agentic work tends to drift: requirements get skipped, one agent silently implements and "reviews" itself, multi-agent loops churn through "one more final review", long runs stall on permission prompts, and model choices are hardcoded everywhere.
+
+vv-opencode addresses each of these:
+
+- **Formalized trajectories** — small changes stay direct, unclear bugs start with investigation, large changes go through spec and plan, risky implementation uses review loops.
+- **Spec-first by default** — broad requests become explicit specs, plans, and review gates before implementation, and every artifact is saved as grep-able XML.
+- **Review-driven execution** — implementation, spec review, and code review are separate steps with bounded retries, not one agent silently doing everything.
+- **A state machine for multi-agent work** — explicit work items, required reviewers, round limits, and hard stops instead of free-form subagent loops.
+- **Portable model choices** — agents reference roles like `vv-role:smart` and `vv-role:fast`; you map roles to concrete models per machine or project and switch stacks with one preset command.
+- **Per-model editing** — each model edits through the tool it knows best: DeepSeek gets its `str_replace_editor` contract, GLM/Qwen/Kimi use the host built-in `edit`, GPT keeps the host `apply_patch` path, and unmatched models get the plugin's `hashline_edit`. Routing is resolved dynamically per session and exposes exactly one edit tool to each model.
+- **Provider-neutral web tools** — agents get one canonical `web_search` and `web_fetch` contract backed by Exa, Brave, Z.AI, DeepSeek, native retrieval, or Spider, instead of provider-specific search and reader schemas leaking into your prompts.
+- **Long-run safety** — Guardian auto-approves routine low-risk permissions (risky ones stay in OpenCode's manual approval flow), and secrets are redacted before they reach the model.
+- **Reproducible setup** — `vvoc install` / `vvoc sync` recreate the same workflow on any machine or project.
+
+---
+
+## You just talk to OpenCode normally
+
+You don't need to learn a command surface first. Ask for what you want — `vv-controller` picks the lightest appropriate trajectory, and explicit skills take over only when the work needs them:
+
+```text
+> Rename this field and update its tests.
+→ handled directly
+
+> Why does auth occasionally return 401 after a token refresh?
+→ root-cause investigation first → targeted fix → verification
+
+> Add organizations with role-based access.
+→ vv-spec → approval → vv-plan → approval → vv-execute
+                               ├─ implement
+                               ├─ spec review
+                               └─ code review
+```
+
+Every managed skill can also be invoked explicitly when you want to drive the process yourself.
+
+---
+
+## Quick start
+
+```bash
+bun add -g @opencode/cli@2.2.5   # native OpenCode host; >=2.0.18 <3.0.0 is supported
+bun add -g @osovv/vv-opencode
+vvoc install
+```
+
+`vvoc install` does four things:
+
+- pins `@osovv/vv-opencode` once in the native OpenCode `plugins` array — the host resolves that package's `./server` export for server plugins and its `./tui` export for the terminal UI;
+- scaffolds the managed agents and skills and registers them through the native `agents` and `skills` config;
+- writes the canonical `vvoc.json` config;
+- sets `vv-controller` as your default OpenCode agent (`default_agent`), with the spec, planning, review, reflection, and handoff skills auto-triggering by request type.
+
+vv-opencode supports the OpenCode 2.x line from `>=2.0.18 <3.0.0`. Inside that window a host is either **verified** (listed in `src/hosts.json`, currently `2.2.5`, with live-host evidence) or **tolerated** (any other stable 2.x: vvoc works, warns once, and marks the host in `vvoc status`). Hosts outside the window — 1.x, 3.x, and prereleases — are refused before any write by `vvoc install`/`init`/`sync`/`launch`. `vvoc status` and `vvoc doctor` report the installed version, the window (`OpenCode supported range: >=2.0.18 <3.0.0`), and the verified list without changing any files. See [docs/host-updates.md](docs/host-updates.md) for the upgrade procedure. Install the host from npm as `@opencode/cli` (its `opencode` binary) or from the matching official binary distribution; do not install the legacy `opencode-ai` V1 host.
+
+**Want to try it without touching your global setup?** Scope everything to one project:
+
+```bash
+vvoc install --scope project
+vvoc launch --scope project
+```
+
+Project scope writes only to `./.opencode/` and `./.vvoc/`. A plain `opencode` launch may still apply OpenCode's native config discovery and merge behavior; `vvoc launch --scope project` is the hard sandbox path — it starts OpenCode with `OPENCODE_CONFIG` and `VVOC_CONFIG` pinned to the selected local files (and pins the native `OPENCODE_CONFIG_DIR` discovery root when the selected config sits outside the default one, so generated sibling agents and skills are still found), so you can smoke-test vv-opencode in one repository without mutating your primary global setup.
+
+> **Already installed?** Run `vvoc sync` anytime to refresh plugins, prompts, skills, and presets.
+
+### Upgrading from vvoc 1.x with a V1 OpenCode host
+
+`vvoc 2.x` is native-only and requires an OpenCode 2.x host inside `>=2.0.18 <3.0.0`. On a machine still running a V1 OpenCode host, `vvoc upgrade` installs `vvoc 2.x`, detects the unsupported host, prints a best-effort method-aware install command, and exits non-zero; it never installs or replaces OpenCode itself. After you install the supported host, the next `vvoc sync` materializes the legacy `opencode.json(c)` into the native V2 shape, validates the result, and writes a timestamped `*.vvoc-backup-<timestamp>` sibling before replacing the file. V1 fields that need a manual decision (provider filters, accepted-but-unsupported fields, `lsp`, or ambiguous provider/model shapes) abort the migration without writing and print a checklist. A legacy `tui.json(c)` is reported, never deleted; OpenCode migrates its own terminal client settings to `cli.json`.
+
+---
+
+## How it works: spec → plan → execute
+
+vvoc keeps larger agentic work from jumping straight into edits. A request first becomes explicit artifacts; only the approved plan gets executed, with bounded implementation and review loops. This trajectory is opt-in per request: small changes never go through it, and if you already run your own spec workflow, you can keep it — nothing else in vv-opencode depends on these skills.
+
+```
+Request / idea
+   ↓
+vv-spec
+   asks clarifying questions
+   writes .vvoc/specs/YYYY-MM-DD-<slug>/spec.xml
+   waits for spec approval
+   ↓
+vv-plan
+   reads the approved spec
+   writes .vvoc/specs/YYYY-MM-DD-<slug>/plan.xml
+   defines tasks, contracts, dependencies, and acceptance criteria
+   waits for plan approval
+   ↓
+vv-execute
+   applies the approved plan task by task
+   runs implementation + review internally
+   verifies before moving on
+   ↓
+Verified result
+```
+
+Inside `vv-execute`, each plan task goes through a tracked loop:
+
+```text
+Each plan task
+   ↓
+vv-implementer
+   implements the focused task and runs targeted verification
+   ↓
+vv-spec-reviewer
+   checks whether the result matches the approved spec
+   ↓
+vv-code-reviewer
+   checks bugs, regressions, maintainability, and missing tests
+   ↓
+verification
+   pass → next task
+   fail → bounded retry loop
+   needs context / blocked → stop and ask the user
+```
+
+All artifacts for one feature live together:
+
+```text
+.vvoc/specs/YYYY-MM-DD-<slug>/
+  spec.xml            # what should be built and why
+  design-context.xml  # optional design memory
+  plan.xml            # how to implement and verify it
+```
+
+Package ids are date-prefixed (`YYYY-MM-DD-<slug>`, for example `2026-06-24-cache-store`) so active packages sort by creation date; the prefix is date-only, never a full timestamp. Spec and plan lifecycle runs through a top-level status: `draft` while being written, `approved` after explicit user approval, `applied` after successful execution. `vv-execute` archives applied packages by moving the whole directory to `.vvoc/specs/archive/YYYY-MM-DD-<slug>-<timestamp>/`.
+
+Specs and plans are XML, so requirements, tasks, acceptance criteria, and dependencies stay grep-able. Identity lives in unique element names — tasks and waves as `<TASK-T-001>…</TASK-T-001>` and `<WAVE-1>…</WAVE-1>`, spec and plan components as `<COMPONENT-CACHE-STORE>…</COMPONENT-CACHE-STORE>` — so grep/sed extraction stays exact without a separate query language. Field names use snake_case; component references are bare slugs; plan architecture components always reuse the exact identities declared in spec.xml, so a plan component without a spec component is a lint error, not a convention breach:
+
+```bash
+grep '<TASK-T-' .vvoc/specs/*/plan.xml      # task ids
+grep '<criterion>' .vvoc/specs/*/plan.xml   # acceptance criteria
+grep '<task_id>' .vvoc/specs/*/plan.xml     # dependency graph
+grep '<COMPONENT-' .vvoc/specs/*/*.xml      # component map across spec and plan
+```
+
+OpenCode routes managed skills through their descriptions and explicit user invocation: `vv-spec`, `vv-plan`, and `vv-review` cover specification, planning, and review; `vv-execute`, `vv-reflect`, and `vv-handoff` cover plan execution, environment reflection and durable repository memory, and end-of-session handoff notes. Native spec-package paths and lifecycle instructions live in the SDD skills.
+
+---
+
+## What's inside
+
+### The server plugins and the native TUI
+
+The server plugins run inside the OpenCode server process; **ContextTuiPlugin** runs in the terminal UI through the same pinned package's `./tui` export.
+
+| Plugin | What it does |
+|---|---|
+| **WorkflowPlugin** | A state machine over multi-agent work: explicit work items, required reviewers, bounded implementation/review rounds, and hard stops when more context is needed. |
+| **ModelRolesPlugin** | Semantic model roles (`vv-role:smart`, `vv-role:fast`, …) instead of hardcoded model IDs in agents, subagents, and commands — resolved from the family settings recorded in the root session's metadata (with the live configuration as the fallback) each time a session or its children are created. |
+| **GuardianPlugin** | Keeps long or AFK runs moving by auto-approving routine low-risk permission requests; anything risky stays in OpenCode's normal manual approval flow. The assessment uses the captured `fast` auxiliary model by default, or an opt-in provider-neutral System One decision provider. |
+| **HashlineEditPlugin** | Routes each model to exactly one native edit tool (host `edit` for GLM/Qwen/Kimi, host `apply_patch` for GPT, `str_replace_editor` for DeepSeek, `hashline_edit` for unmatched models) and hides the other edit tools per session. |
+| **SystemContextInjectionPlugin** | Projects shared primary guidance from the canonical controller template and adds missing controller sections without duplicating the host-supplied template. The active controller policy is added at the request tail; existing subagent exclusions and the explore-specific exception apply. Skill discovery is registered by `vvoc install`/`sync` through the native `skills` config. |
+| **SecretsRedactionPlugin** | Redacts tokens, keys, emails, and other sensitive values before messages reach the model, restoring them only where local execution needs the originals. |
+| **WebToolsPlugin** | Two provider-neutral tools — `web_search` and `web_fetch` — over Exa, Brave, Z.AI, DeepSeek, native retrieval, or Spider, with permission checks and normalized output. |
+| **ToolHistoryCompactionPlugin** | Shrinks the context replayed to the model by compacting old tool outputs non-destructively, without touching on-disk history. |
+| **AnalyticsPlugin** | Local-only token and cache telemetry per model step, a live `cache NN%` indicator in the TUI, and `vvoc analytics cache-hit-rate` for retrospective comparison. |
+| **PeakHoursPlugin** | Warns or blocks models whose provider is in peak-priced hours right now, suggests connected off-peak providers, and shows a persistent orange banner in the TUI. |
+| **SpecGuardPlugin** | Deterministic host-side verification of spec-package artifacts: annotates reads with lint verdicts and validates writes; in enforce mode refuses writes that would break the format. |
+| **TelegramBridgePlugin** | Runs a single-owner Telegram bot inside the OpenCode server process: one private-chat DM topic per active session with a live status emoji in the topic title, a General control topic, manual permission and question buttons, and durable state that survives `opencode service restart`. |
+| **ContextTuiPlugin** | The `/context` inspector: an honest, scrollable TUI dialog showing context-window usage by category, tool, and MCP server. |
+
+### Managed agents
+
+All prompt files are scaffolded by `vvoc install` / `vvoc sync`:
+
+| Agent | When it helps |
+|---|---|
+| `vv-controller` | Primary agent that follows the concrete work policy selected for the session by the orchestration profile |
+| `enhancer` | Improves rough requests before execution when a clearer prompt would help |
+| `vv-implementer` | Applies a focused approved change and verifies it before reporting completion |
+| `vv-spec-reviewer` | Checks whether implementation matches the requested spec and acceptance criteria |
+| `vv-code-reviewer` | Looks for bugs, regressions, maintainability risks, and missing tests |
+| `investigator` | Finds the root cause first when behavior is unclear or a failure needs diagnosis |
+| `vv-reflector` | Reflects on a session and its subagent tree to propose environment improvements, lessons, and runbooks; read-only, and runs the bundled `session-graph` extractor |
+| `guardian` | Supports GuardianPlugin by reviewing permission requests and auto-approving only routine low-risk ones |
+
+Managed prompts and the universal guidance injected into primary sessions carry explicit correctness obligations. For behavior changes, agents derive the material properties that must be preserved from the request and established contracts, separate write scope from impact and verification scope, investigate directly affected consumers, challenge a material assumption with a diagnostic counterexample, and choose verification at the level the risk arises. Controllers tie completion claims to observed evidence rather than status markers; reviewers distinguish no discovered defect from sufficient support for a material claim and can fail a change for a material verification gap. Agents also keep evidence-supported conclusions settled until a concrete trigger — contradictory evidence, a specific counterexample, a changed requirement, or changed inputs — reopens them; they surface false premises instead of silently satisfying them, distinguish unsupported pressure from concrete evidence, and interpret test results as evidence against the request and contracts rather than as the specification. These obligations are prompt-level guidance only: `vvoc install` / `vvoc sync` deliver the current wording, changes take effect after an OpenCode restart like all vvoc config changes, and the bundled contract tests check instruction delivery and wording — they do not evaluate or guarantee how a real model behaves.
+
+The complete controller prompt has seven sections: `task_and_scope`, `project_context`, `repository_memory`, `evidence_discipline`, `working_cycle`, `delegation_and_workflow`, and `communication`. Its single wording source is `templates/agents/vv-controller.md`; the plugin reads that bundled template locally at startup. Other eligible primary agents receive the shared project, memory, evidence, and working-cycle sections plus the shared authority and delivery fragments, without the controller's role, task policy, worker-dispatch/recovery instructions, or full communication policy. Repository memory remains instruction-driven reading of `.vvoc/lessons/index.xml` and `.vvoc/runbooks/index.xml`. The workflow plugin still owns profile-specific machine protocols, and the active orchestration policy remains outside the stable system prefix. Run `vvoc sync` and restart OpenCode to update an existing managed controller prompt together with the plugin.
+
+### Managed skills
+
+Two families: `vv-*` skills guide the work protocol, while `vvoc-*` skills operate and observe the vvoc/OpenCode tooling itself.
+
+| Skill | When to use it | What it gives you |
+|---|---|---|
+| `vv-spec` | You have a feature or creative request and no agreed contract yet | A guided interview, recommended options, and a saved spec in `.vvoc/specs/YYYY-MM-DD-<slug>/spec.xml` |
+| `vv-plan` | A spec is approved and ready to implement | A task-level implementation plan with file targets, contracts, dependencies, and acceptance criteria |
+| `vv-execute` | A plan is approved and you want it applied step by step | Ordered execution with verification, an explicit inline-or-classic mode choice, and applied spec/plan archival |
+| `vv-review` | You want findings, not fixes | A review-only workflow that reports spec/code issues and stops before implementation |
+| `vv-reflect` | A long development, debugging, ops, or investigation session exposed environment friction or produced reusable knowledge | Dispatches the read-only `vv-reflector` subagent over the session and its subagent tree — or the streaming `--archive` aggregate when the question spans sessions/projects — then applies environment improvements (documents, steering, guardrails, skills, tooling) or lessons/runbooks only after per-entry approval |
+| `vv-handoff` | You are ending a session and want the visible context preserved | A redacted XML note at `.vvoc/handoff/YYYY-MM-DD-<session-slug>/handoff.xml`, written from already-visible context only |
+| `vvoc-usage-analytics` | You ask about token usage, cache hit rate, costs, or caching regressions | Read-only analysis across `vvoc analytics`, the analytics JSONL, and historical `opencode.db` data |
+
+Skills are discovered by OpenCode through the native `skills` string array in `opencode.json(c)` — `vvoc install`/`sync` write the path reference and maintain the OpenCode skills-directory symlink. OpenCode supplies the available descriptions and loading instructions; the full skill is loaded when selected or explicitly invoked. The controller prompt does not repeat that catalog or its loading protocol.
+
+---
+
+## CLI at a glance
+
+| Command | Purpose |
+|---|---|
+| `vvoc init` | Interactive bootstrap flow |
+| `vvoc install` | Non-interactive setup and scaffolding |
+| `vvoc sync` | Refresh native plugins/agents/skills registrations, prompts, skills, config |
+| `vvoc launch` | Launch OpenCode with deterministic runtime and vvoc config sources after a host-window preflight |
+| `vvoc status` | Show current installation state, including the installed OpenCode version against the supported window and combined-package registration |
+| `vvoc doctor` | Diagnose OpenCode version/window/runtime/vvoc setup problems and warn about stale managed prompts/skills, duplicate skills roots, and deprecated permission actions (exits non-zero on problems) |
+| `vvoc config validate` | Validate canonical `vvoc.json` |
+| `vvoc role list\|set\|unset` | Manage model role assignments |
+| `vvoc preset list\|show\|<name>` | Inspect or apply named presets |
+| `vvoc session set` | Change one session family's recorded settings (preset, profile, role, plugin toggle, or pull current defaults) through the running host |
+| `vvoc guardian config` | Print or write the guardian section |
+| `vvoc plugin list` | List OpenCode plugin entries |
+| `vvoc plugin enable\|disable` | Toggle a vvoc-managed plugin on or off |
+| `vvoc orchestration show\|set` | Show or set the vv-controller orchestration profile |
+| `vvoc patch-provider stepfun-ai\|codex\|deepseek\|alibaba\|zai\|xiaomi\|all` | Patch OpenCode providers; `codex` adds real gpt-5.5/5.6/6 models with effort variants (also accepts `openai`), `deepseek`/`alibaba`/`zai`/`xiaomi` add `#variant` suffixes on real models, `stepfun-ai` sets the StepFun `.ai` baseURL, `all` patches every provider at once |
+| `vvoc completion` | Install shell completions |
+| `vvoc upgrade` | Upgrade the global package and run follow-up sync; sync failure or an out-of-window host exits non-zero with best-effort method-aware host guidance |
+| `vvoc analytics cache-hit-rate` | Aggregate persisted cache hit rate by day, week, month, session, model, provider, project, vvoc version, or OpenCode version |
+| `vvoc version` | Print installed version |
+
+Guardian duration overrides use positive whole milliseconds. Both `--timeout-ms` and `--review-toast-duration-ms` reject zero, negative, fractional, missing, or malformed values:
+
+```bash
+vvoc guardian config --print --timeout-ms 30000 --review-toast-duration-ms 5000
+```
+
+---
+
+## Configuration
+
+Mutating commands default to global scope for backward compatibility; add `--scope project` to write a project-local layer. Read and diagnostic commands accept `--scope global|project|effective`, where `effective` resolves in this order:
+
+1. explicit env override (`VVOC_CONFIG` / `OPENCODE_CONFIG`, with `OPENCODE_CONFIG_DIR` selecting the native discovery root)
+2. nearest project layer
+3. global layer
+4. built-in defaults when the command/runtime permits defaults
+
+Canonical project-local paths:
+
+```text
+OpenCode config          → ./.opencode/opencode.json(c)
+vvoc config              → ./.vvoc/vvoc.json
+Managed agent prompts    → ./.opencode/agents/*.md
+Managed skills           → ./.vvoc/skills/*/SKILL.md
+Spec package directory   → ./.vvoc/specs/YYYY-MM-DD-<slug>/
+Handoff notes            → ./.vvoc/handoff/YYYY-MM-DD-<session-slug>/handoff.xml
+Repository memory        → ./.vvoc/lessons/*.xml, ./.vvoc/runbooks/*.xml
+```
+
+Legacy root-level `./opencode.json` and `./opencode.jsonc` are intentionally not used as vvoc project layers. vvoc writes no `tui.json(c)`: the terminal UI reads its own process settings from the native `cli.json`, which vvoc leaves alone, and the TUI loads the vvoc package through the server plugin inventory instead.
+
+Global paths:
+
+```text
+OpenCode config          → $XDG_CONFIG_HOME/opencode/opencode.json
+vvoc config              → $XDG_CONFIG_HOME/vvoc/vvoc.json
+Managed agent prompts    → $XDG_CONFIG_HOME/opencode/agents/*.md
+Managed skills           → $XDG_CONFIG_HOME/vvoc/skills/*/SKILL.md
+Persisted data           → $XDG_DATA_HOME/vvoc/
+Usage analytics          → $XDG_DATA_HOME/vvoc/analytics/usage-YYYY-MM.jsonl
+```
+
+Native OpenCode 2.x discovers managed agent markdown from the `agents/` directory beside the config file, so vvoc writes `agents/*.md` there. Legacy pre-V2 `$XDG_CONFIG_HOME/vvoc/agents/*.md` files referenced by an inline `agents.<id>.system` are recognized as managed migration inputs: `vvoc sync` refreshes a managed file in place and reports user-owned inline sources without overwriting them.
+
+### One pinned package in the native plugins array
+
+OpenCode 2.x keeps one native config document per process. `opencode.json(c)` is loaded by the core/server plugin runtime and activates vvoc features such as model roles, Guardian, workflow, hashline edit, redaction, and web tools. The terminal UI process takes its own settings (tabs, keybinds, TUI-only plugin entries) from the native `cli.json`, and it also loads the TUI entrypoints of the plugins carried by the server inventory. vv-opencode uses that directly: the same pinned package entry (for example `@osovv/vv-opencode@X.Y.Z`) is registered once in the native `plugins` array, the host resolves its `./server` export for the server runtime and its `./tui` export for the terminal UI, and headless/server launches never load the UI module.
+
+`vvoc install`, `vvoc init`, and `vvoc sync` conservatively write that single pinned base-package entry — a string, or a `{ "package": …, "options": … }` object — into the native `plugins` array; sync also migrates the broken legacy `@osovv/vv-opencode/tui` form and older managed pins. Machines upgraded from a V1 host carry a second, host-migrated vvoc entry in the client-side `cli.json` (the host moves the retired `tui.json(c)` plugin list there on first start), so the same commands mirror an existing managed `cli.json` entry to the pinned specifier — comments, client preferences, unrelated entries, and the entry's options are preserved, and nothing is created when no client pin exists. `vvoc doctor` and `vvoc status` print the TUI client pin beside the server pin and warn when the two drift apart. Existing comments, unrelated settings, unrelated plugin entries, and their `options` are preserved; malformed plugin entries fail without rewrite. Supported V1 document shapes are materialized into the native V2 shape by `vvoc sync` once the host is inside the supported window, using the official OpenCode V1-to-V2 migration guide, with a timestamped `*.vvoc-backup-<timestamp>` sibling and validate-before-write. Residual or ambiguous V1 fields are refused before any mutation, so `plugin`, `agent`, `provider`, `command`, `small_model`, and `tools` never remain in a document vvoc writes. A legacy inline `agents.<id>.system = {file:...}` reference to a vvoc-managed prompt is refreshed in place by `vvoc sync`; a user-owned inline system is reported with its source path and never overwritten.
+
+The native document shape vvoc validates, extends, and writes into:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "vv-controller",
+  "plugins": [
+    { "package": "@osovv/vv-opencode@1.7.0", "options": { "modelIntent": { "model": "vv-role:smart" } } }
+  ],
+  "agents": { "vv-controller": {} },
+  "skills": ["./.vvoc/skills"],
+  "providers": {},
+  "permissions": {}
+}
+```
+
+`plugins` is an array of package strings or `{package, options}` objects (plus `-target` removal directives); `agents` holds per-agent overrides while agent prompts live as discovered markdown; `skills` is a string array of discovery paths; `providers` carries patched provider/model objects; `permissions` carries host permission rules. There is no `plugin`/`agent`/`provider`/`command` singular key, no `small_model`, and no `tools` key.
+
+Role intent has a native home as well: the pinned package entry's `options.modelIntent` envelope (`model`, `smallModel`, `agents`, `commands`) carries root, small-model, agent, and command model intent inside the native document — native hosts in the supported window have no `small_model` field and reject role references in `model` and `agents.<id>.model`, so vv-opencode never writes a `vv-role:*` reference as a native model literal (the model-overrides APIs route role intent into the envelope instead). Role assignments themselves live in `vvoc.json`: `vvoc role set` and preset application edit only that file, and the model-roles runtime combines the effective role map with the raw envelope intent to resolve concrete `provider/model#variant` selections (for example `xiaomi/mimo-v2.6-flash#thinking`) for newly created sessions.
+
+Runtime plugins resolve a session family's settings from native session metadata: the first time a session family (a root session plus its forks and subagents) is seen, the resolved roles, orchestration profile, and plugin toggles from the effective `vvoc.json` are recorded under the `vvoc:settings` key of the root session's metadata, and the family keeps resolving that record — across config edits and across server restarts — until it is explicitly changed. A new session always births the current configuration, and provider and web credentials are never persisted: they keep coming from the live configuration at request time. A family changes only when you explicitly ask: run `vvoc session set --session <id>` with one of `--preset <name>`, `--profile <name>`, `--role <id>=<model>` (or `--role unset:<id>`), `--plugin <name>=on|off`, or `--pull-defaults` (re-record the current defaults), or run `/vv-settings` in the OpenCode TUI with the same one-line actions (`preset <name>`, `profile <name>`, `role <id> <model>`, `role unset <id>`, `plugin <name> on|off`, `pull-defaults`) — with no argument it shows the current family settings. Both change only the family of the session you name; every write is a read-modify-write of the metadata key, so unrelated metadata on the session survives. The first start after upgrading converts the previous version's family bindings into root metadata once and then removes the old stores. Orchestration policy is injected at the request tail rather than into the system prefix, so switching policy does not invalidate the cached prompt prefix.
+
+### Strict schema, loud failures
+
+The config contract is versioned and published with the package — source of truth at `schemas/vvoc/v3.json`. `vvoc.json` must be canonical version 3 and include required sections such as `plugins`. Existing v1/v2/pre-role, incomplete, malformed, or otherwise invalid config files fail instead of being migrated or repaired. `vvoc install` and `vvoc sync` may create a fresh canonical config when no config exists, but they refuse to rewrite an invalid existing `vvoc.json`; fix the file manually and rerun `vvoc sync`.
+
+The optional schema-v3 `web` section follows the same layer precedence and is omitted from generated defaults — see [Web tools](#web-tools) for provider selection:
+
+```json
+"web": {
+  "search": { "provider": "exa", "apiKey": "optional-exa-key" },
+  "fetch": { "provider": "native" }
+}
+```
+
+### Diagnostics never mutate
+
+`vvoc status` and `vvoc doctor` report the installed OpenCode version, the supported window (`OpenCode supported range: >=2.0.18 <3.0.0`) and the verified host list, selected runtime/vvoc config paths, plugin registration, and validation problems without normalizing or rewriting files. `vvoc doctor` additionally warns when a managed agent prompt or managed skill body is stale relative to the installed package, when two `skills` entries resolve to the same real path, or when a permission rule uses a deprecated action such as `apply_patch`; those warnings do not change the exit code, while a missing `{file:...}` reference remains a problem. `vvoc upgrade` can still finish the package installation when the follow-up `vvoc sync` fails; it then reports a partial upgrade, leaves config unchanged, and tells you to fix the invalid config before rerunning `vvoc sync`.
+
+Runtime compatibility is window-bounded: install, init, sync, and launch refuse a host outside `>=2.0.18 <3.0.0` before touching config, Guardian evaluates permissions through the native `permission.evaluate` hook, hashline edit refs must use current hash/context anchors, and sync writes current managed agents without deleting old pre-rename user or command entries.
+
+### Release channels
+
+The package publishes through npm dist-tags with exactly one pre-release channel, `rc`. A default `vvoc upgrade` resolves only the stable `latest` dist-tag and never offers a release candidate; pre-release versions are published with `--tag rc`, so `latest` can never move onto a candidate.
+
+Opt in explicitly when you want candidates:
+
+```bash
+vvoc upgrade --rc                # upgrade to the version currently on the rc dist-tag
+vvoc upgrade --allow-prerelease  # same behavior, kept as an alias
+```
+
+When the `rc` dist-tag has no published candidate yet, the command reports it and installs nothing. If you sit on `1.4.0-rc.1` and the stable `1.4.0` ships, the default `vvoc upgrade` moves you onto the stable release — semver orders `1.4.0` above its candidates. Plugin consumers can install the channel directly with `npm i -g @osovv/vv-opencode@rc`.
+
+Maintainers release candidates through the same exact-SHA CI-gated flow, with the channel derived from the bumped version:
+
+```bash
+bun run release:bump -- prerelease --preid rc   # 1.4.0-rc.1, published to the rc dist-tag, GitHub Release marked pre-release
+bun run release:bump -- prerelease --preid rc   # next candidate: 1.4.0-rc.2
+bun run release:bump -- 1.4.0                   # final stable release, published to latest
+```
+
+An explicit `--channel latest|rc` argument may only confirm the derived channel; a contradicting value aborts the bump before any commit or publication.
+
+### Stability and compatibility
+
+Since 1.0, vv-opencode treats the daily-driver surface as stable. The compatibility surfaces are: `vvoc install` / `vvoc sync` / `vvoc launch`, the supported host window (`>=2.0.18 <3.0.0`), the managed skill names (`vv-spec`, `vv-plan`, `vv-execute`, `vv-review`, `vv-reflect`, `vv-handoff`), the published package exports, canonical vvoc schema v3, and the date-prefixed `.vvoc/specs/YYYY-MM-DD-<slug>/` artifact layout. Breaking workflow or config changes are documented in release notes. The project still prefers conservative, explicit changes over hidden migration magic: user-owned config is never silently clobbered, and invalid current config fails loudly.
+
+### Deterministic local launch
+
+Use `vvoc launch` when the vvoc-selected config files should be the only files OpenCode sees for this run:
+
+```bash
+vvoc install --scope project
+vvoc launch --scope project -- run "hello"
+```
+
+`vvoc launch --scope project` is strict and non-mutating: if `.opencode/opencode.json` or `.vvoc/vvoc.json` is missing, it fails with a hint to run `vvoc install --scope project`. Launch pins `OPENCODE_CONFIG` and `VVOC_CONFIG` (plus the native `OPENCODE_CONFIG_DIR` discovery root when the selected config sits outside the default one) and never synthesizes missing files. `--scope effective` follows the layered lookup order, and `--scope global` uses the global config paths.
+
+---
+
+## Deep dives
+
+### Model roles & presets
+
+```bash
+# View current assignments
+vvoc role list
+vvoc role list --scope effective
+
+# Assign models to roles (canonical provider/model#variant selections)
+vvoc role set default deepseek/deepseek-flash#max
+vvoc role set smart zai-coding-plan/glm-5.3#max
+vvoc role set fast openai/gpt-6-luna#low
+vvoc role set reviewer zai-coding-plan/glm-5.3#max --scope project
+
+# Switch provider presets
+vvoc preset vv-codex
+vvoc preset vv-zai
+vvoc preset vv-deepseek
+vvoc preset vv-alibaba
+vvoc preset vv-osovv-ds
+vvoc preset vv-osovv-mimo
+vvoc preset vv-osovv-zai
+vvoc preset vv-osovv-qwen
+vvoc preset vv-astra-solo
+vvoc preset vv-astra-workers
+
+# Install the explicit-reasoning provider model patches
+vvoc patch-provider stepfun-ai  # stepfun settings.baseURL https://api.stepfun.ai/v1 + step-3.7-flash
+vvoc patch-provider codex       # real gpt-5.5/5.6/6 models + effort variants (also accepts `openai`)
+vvoc patch-provider deepseek    # deepseek-flash + deepseek-v4-flash with #max/#high variants (384K output)
+vvoc patch-provider alibaba     # qwen3.8-max#xhigh
+vvoc patch-provider zai         # glm-5.3 #high/#max + glm-5.3-flash #max
+vvoc patch-provider xiaomi      # mimo-v2.6-flash#thinking (thinking.type=enabled)
+vvoc patch-provider all         # every patch above in one run
+```
+
+Built-in role IDs: `default`, `smart`, `fast`, `reviewer`, plus any custom lowercase-hyphenated IDs. Presets are partial — applying one only changes the roles it defines. Managed built-in presets (`vv-*`) are refreshed from the shipped registry as part of the other work `vvoc install` and `vvoc sync` already do; neither command activates a preset or writes the active roles or orchestration profile on its own — that only happens when you run `vvoc preset <name>`.
+
+Every shipped preset declares an explicit role matrix and orchestration profile:
+
+| Preset | default | fast | smart | reviewer | Profile |
+|---|---|---|---|---|---|
+| `vv-codex` | `openai/gpt-5.6-terra#high` | `openai/gpt-6-luna#low` | `openai/gpt-5.6-sol#xhigh` | `openai/gpt-5.6-sol#xhigh` | single-session |
+| `vv-zai` | `zai-coding-plan/glm-5.3-flash#max` | `zai-coding-plan/glm-5.3-flash#max` | `zai-coding-plan/glm-5.3#max` | `zai-coding-plan/glm-5.3#max` | balanced |
+| `vv-deepseek` | `deepseek/deepseek-flash#max` | `deepseek/deepseek-flash#max` | `deepseek/deepseek-flash#max` | `deepseek/deepseek-flash#max` | balanced |
+| `vv-alibaba` | `alibaba-token-plan/qwen3.8-max` | `alibaba-token-plan/deepseek-v4-flash` | `alibaba-token-plan/qwen3.8-max#xhigh` | `alibaba-token-plan/glm-5.2` | single-session |
+| `vv-osovv-ds` | `deepseek/deepseek-flash#max` | `openai/gpt-6-luna#low` | `deepseek/deepseek-flash#max` | `zai-coding-plan/glm-5.3#max` | single-session |
+| `vv-osovv-mimo` | `xiaomi/mimo-v2.6-flash#thinking` | `openai/gpt-6-luna#low` | `xiaomi/mimo-v2.6-flash#thinking` | `zai-coding-plan/glm-5.3#max` | single-session |
+| `vv-osovv-zai` | `xiaomi/mimo-v2.6-flash#thinking` | `openai/gpt-6-luna#low` | `zai-coding-plan/glm-5.3#max` | `zai-coding-plan/glm-5.3#max` | single-session |
+| `vv-osovv-qwen` | `xiaomi/mimo-v2.6-flash#thinking` | `openai/gpt-6-luna#low` | `alibaba-token-plan/qwen3.8-max#xhigh` | `zai-coding-plan/glm-5.3#max` | delegated |
+| `vv-astra-solo` | `xiaomi/mimo-v2.6-flash#thinking` | `openai/gpt-6-luna#low` | `openai/gpt-6-astra#max` | `zai-coding-plan/glm-5.3#high` | single-session |
+| `vv-astra-workers` | `xiaomi/mimo-v2.6-flash#thinking` | `openai/gpt-6-luna#low` | `openai/gpt-6-astra#max` | `zai-coding-plan/glm-5.3#high` | delegated |
+
+`vv-osovv-ds` replaces the former `vv-osovv-flash` offering and `vv-osovv-zai` is new; `vv-osovv-sol`, `vv-osovv-flash`, and `vv-osovv-kimi` are no longer shipped. A retired preset definition already present in a saved `vvoc.json` is preserved in place rather than migrated or removed across `vvoc install`/`vvoc sync`; delete it manually if you no longer want it. No automatic provider migration or legacy-name cleanup runs, and applying a preset changes only the roles and profile it declares.
+
+Provider patches bind real model ids with `#variant` suffixes instead of alias models. `deepseek/deepseek-flash` carries `#max` and `#high` effort variants (image input, 384000-token output limit), and `deepseek/deepseek-v4-flash#max` stays text-only with the same output limit. On `zai-coding-plan`, `glm-5.3` carries `#high` and `#max` (both text-only) and `glm-5.3-flash` carries `#max` (text, image, video, and PDF input); `alibaba-token-plan/qwen3.8-max` carries `#xhigh`. On `xiaomi`, `mimo-v2.6-flash#thinking` enables the documented thinking toggle (`thinking.type=enabled`) with no PDF declaration and no `reasoningEffort` — text/image/audio/video input, 1M context / 131K output — because the public Xiaomi API documents a thinking toggle rather than an effort knob; live thinking behavior is not smoke-verified. Codex variants keep the established OpenAI reasoning-summary and encrypted-reasoning options, with the GPT-5.5/5.6 family capped at 400K context / 272K input and GPT-6 Luna/Astra keeping 1.05M/922K/128K. The `stepfun-ai` patch keeps the StepFun `.ai` baseURL (`https://api.stepfun.ai/v1`) for `step-3.7-flash`. `gpt-5.3-codex-spark` keeps its `#medium` variant only for manual configurations that already reference it, advertised conservatively as text-only, and no shipped preset selects it. The shared `fast` role also serves `smallModel` (through the `modelIntent` envelope — native 2.0.18 has no `small_model` field), `explore`, and `guardian`; availability for those consumers is not verified until you use it. Real model access, review quality, latency, and Astra-token savings are unmeasured: metadata here describes provider capability and pricing boundaries, not benchmarked behavior, and credentialed smoke runs would require separate authorization.
+
+### Orchestration profiles
+
+Four concrete policies control how vv-controller delegates work at runtime:
+
+- `single-session` — vv-controller performs exploration, investigation, planning, implementation, and verification directly. Independent reviewer subagents remain available when the user explicitly requests review or when a materially risky completed change benefits from independent cross-model evaluation.
+- `balanced` — vv-controller keeps architecture, critical reading, and final synthesis in the primary session and may selectively delegate bounded search, investigation, mechanical implementation, or review when that is the lightest safe route. Delegation is optional, not mechanically mandatory.
+- `orchestrated` — vv-controller uses the full tracked implementer/reviewer workflow with explicit work items, required reviewers, bounded rounds, and hard stops.
+- `delegated` — implementation is delegated to workers while the primary session keeps architecture, important code reading, task contracts, explicit acceptance, and final synthesis. Source edits, tests, config changes, formatting, lint fixes, and reviewer-requested fixes — including small mechanical ones — go to workers through bounded task packets. Independent review happens at declared plan checkpoints instead of after every task; `BLOCKED` and `NEEDS_CONTEXT` remain hard stops, and stopped or exhausted work resumes only through recorded bounded recovery.
+
+Pick a profile explicitly or let a built-in preset select one:
+
+```bash
+vvoc orchestration show --scope effective
+vvoc orchestration set single-session --scope project
+```
+
+Built-in presets declare an orchestration mapping:
+
+| Preset | Profile |
+|---|---|
+| `vv-codex` | single-session |
+| `vv-alibaba` | single-session |
+| `vv-osovv-ds` | single-session |
+| `vv-osovv-mimo` | single-session |
+| `vv-osovv-zai` | single-session |
+| `vv-astra-solo` | single-session |
+| `vv-astra-workers` | delegated |
+| `vv-osovv-qwen` | delegated |
+| `vv-zai` | balanced |
+| `vv-deepseek` | balanced |
+
+Applying a built-in preset changes both model roles and the root orchestration profile atomically. A custom user-defined preset without an orchestration section preserves the current root profile. `vvoc status` reports the profile resolved from the selected vvoc source; effective status with no config files reports `balanced`.
+
+Profiles are enforced through the concrete policy injected into vv-controller at startup — the model only receives its active work instructions and never sees inactive profile alternatives. The policy is behavioral, not a filesystem sandbox: the delegated profile instructs the controller not to write source files (and not to bypass that via shell rewrites), while runtime authorization genuinely enforces acceptance and checkpoint operations. Asynchronous vv-execute classic mode remains available through that skill's explicit inline/classic/delegated selection. Profile changes take effect after an OpenCode restart, like all vvoc config changes.
+
+### Workflow work items
+
+Workflow work items are opened with explicit intent. For implementation loops, controllers use:
+
+```json
+{
+  "items": [
+    {
+      "key": "implement-feature",
+      "title": "Implement feature",
+      "mode": "implementation",
+      "requiredReviewers": ["spec", "code"]
+    }
+  ]
+}
+```
+
+For review-only reports, use `"mode": "review_only"`. In review-only mode, reviewer `FAIL` is a completed finding result: required reviewers are collected independently, parallel `spec` and `code` reviewers may both return `FAIL`, and the item does not route to `vv-implementer` unless the user explicitly requests fixes.
+
+#### Delegated execution and review checkpoints
+
+The workflow plugin registers two control tools — `work_item_decide` and `work_checkpoint` — for the primary vv-controller session independent of the startup profile. Registration is profile-independent; enforcement is not: child sessions, untrusted workspaces, and unverifiable session identity are denied by the root-controller guard.
+
+Delegated tasks are opened with `"mode": "delegated"`, an explicitly empty `requiredReviewers` array, and a declared `writeScope` of workspace-relative files. One worker (`vv-implementer`) is launched per task with a bounded packet; attempts are bound to the host call identity, so stale or duplicate callbacks fail without side effects. A `DONE` worker parks the item in `awaiting_acceptance` — it never closes the item and the worker never accepts its own result. The controller explicitly decides with `work_item_decide`:
+
+- `accept` (with rationale and evidence references) records controller acceptance and reaches `ready_to_close`. Acceptance is recorded distinctly from an independent reviewer `PASS`.
+- `request_changes` returns the task to the implementation path. Controller-directed retries are bounded to an initial attempt plus one correction; re-deciding or reopening never resets that budget. `DONE_WITH_CONCERNS` requires an explicit `concernsDisposition`.
+- `rework` reopens an accepted task only when a failed checkpoint from the same registered run covers it, preserving acceptance history and granting exactly one additional attempt.
+- `recover` resumes a stopped or exhausted unaccepted task without resetting history. Recovery targets the latest terminal attempt and requires an explicit `diagnosis`, a `changedCondition` (the changed condition or approach), `verification` references, and a stable `recoveryId`. When ordinary budget remains, recovery simply returns a stopped item to the launch gate; when an extra attempt is necessary, it grants exactly one. The first grant per target is the single autonomous allowance; every further unit requires a fresh root-user message referenced by `userMessageId`, which the runtime validates for role, owning-session identity, message identity, and a timestamp at or after the stop — never for its wording — and each message authorizes at most one unit per target. A successful recovery authorization only makes the next bounded attempt possible: it is not a successful implementation, not acceptance, and never satisfies a reviewer. Recovering a cancelled or interrupted attempt additionally requires authoritative cancellation evidence — a pinned native interrupt message that names the child session, the child's terminal `aborted` structured error, and active/inbox quiescence — and fails closed with a `CANCELLATION_EVIDENCE_REQUIRED` message while that evidence is missing, leaving settlement and budget unchanged.
+
+Worker stops stay hard stops for ordinary dispatch: a `BLOCKED` or `NEEDS_CONTEXT` result is never re-launched directly, and its recorded outcome and explanation remain historical facts. The same applies to an exhausted budget — an ordinary third launch is refused until a recorded recovery raises it. Accepted items are not recovery targets; their path is checkpoint-authorized rework.
+
+A worker can fail to launch at all: the host task wrapper rejects the call before the worker runs (for example, an unknown provider or model). The native host surfaces that thrown execution through the `tool.execute.after` hook with `status: "error"`, so the plugin consumes the failure as a distinct **failed attempt** from the live call binding instead of leaving `inFlightAttempt` stranded until a restart. The supported case is deliberately narrow — a fresh ordinary foreground `vv-implementer` task launch (no `background`, no `sessionID` resume, no command/subtask path) whose error message matches the exact pinned native wrapper `Subagent failed (sessionID: <child>): `, where the hook event's session and call identity select the parent binding, the wrapper names the child session, the binding's child matches, and no `completed` after-hook has already been observed for that call. When it applies, the attempt is marked `failed` with the bounded host error as evidence and a completion time, the item stays `awaiting_implementer`, and the attempt is charged against the same two-attempt budget. The controller can then explicitly retry with a new call; two failed attempts exhaust the normal budget exactly like two completed ones. A failed attempt never counts as `DONE`, cannot be accepted or decided as a successful completion, and persists across restart. Because a worker may have applied partial edits before failing, inspect the diff before retrying or closing.
+
+This is not universal automatic error recovery. Background launches, resumed/shared/re-prompted children, cancellation or interruption (a cancelled or interrupted termination leaves the attempt in-flight and settles only through evidence-backed cancellation recovery), any subagent call whose `execute.after` already reported `completed` — latched synchronously before any parsing or repair so a later error event can never be classified as a launch failure — a replaced or mismatched child session, non-delegated launches, and unknown or non-wrapper host errors all remain fail-closed: the in-flight block is preserved and no retry is authorized from the event alone. The plugin never hydrates workflow state, infers a work item from error text, or resets a whole session because of an error event, and it does not reclassify legacy-mode or checkpoint-reviewer launches.
+
+A worker whose execution finishes but whose final report stays protocol-invalid after the bounded continuation is settled truthfully as a **rejected report**: the exact call-bound attempt is recorded as a completed execution with status `report_rejected`, a bounded diagnostic excerpt, and the protocol error code — never as `DONE`, never as a launch failure, and never as a still-in-flight attempt. When the malformed output contains an explicit `VVOC_STATUS: BLOCKED` or `NEEDS_CONTEXT` line, the observed stop is preserved (the item parks in the corresponding hard-stop state) and no continuation runs; otherwise the item returns to the launch gate with the attempt consumed. A rejected report has the same bounded recovery path as any other terminal outcome, and `work_item_list` distinguishes it from a running attempt, an exhausted budget, and a substantive stop by exposing the remaining budget and the supported next action. Unknown or still-running host outcomes (for example a non-string task output) are never guessed terminal and cannot clear a live attempt.
+
+When a tracked subagent returns a recognized task envelope whose inner result is malformed for the strict protocol — a missing `VVOC_STATUS`, a missing `VVOC_ROUTE`, a non-protocol top-block line, or body text without the required blank line — the plugin makes at most one bounded continuation to that same child session. The continuation request carries no `tools` override (so the child's persisted session permissions are preserved), and its instructions direct the child to preserve the original work item, assignment, role, and write scope; to finish unfinished work with its existing history and currently permitted tools; or, if the work was already complete, to correct only the final report without repeating work or inventing evidence; and to report a truthful post-continuation `VVOC_STATUS`/`VVOC_ROUTE` rather than freezing an outdated one. These are instructions to the model, not a mechanical guarantee of compliance: the plugin still reparses the continued output strictly, applies the bounded error-code and explicit-hard-stop gates, and fails closed with the original protocol error and excerpt. Continuation is attempted only once; a valid result never continues, and a failed, empty, or still-malformed continuation is never retried. An explicit `VVOC_STATUS: BLOCKED` or `NEEDS_CONTEXT` line is detected before the call, so malformed hard-stop output fails closed through the original protocol error and excerpt instead of being continued.
+
+Independent review happens at checkpoints declared in the plan. An approved delegated plan carries an `<execution><mode>delegated</mode>` section with `<review_checkpoints>` (`CHECKPOINT-R-NNN` identities, each with kind, wave barrier, covered tasks, reviewed scope files, reviewer set, acceptance criteria, and verification commands) and per-task `<write_scope>` lists. Registration accepts only this supported approved native plan package (the approved spec and plan pair under `.vvoc/specs/`); a provided plan or conversation-scoped execution stays on its own source and lifecycle rather than being converted into a native package. `work_checkpoint` handles these actions:
+
+- `register` — with `planPath`, loads an approved active plan plus its linked approved spec, fully lints them, and binds the run to their content hashes and the canonical workspace root. With a generic `runId` and its required `amendmentId` plus `rationale` instead, it appends a validated task batch (tasks and checkpoints) to that existing execution; it never starts a fresh run. Re-registering identical inputs is idempotent; changed approved inputs are explicit plan drift, never a progress reset.
+- `start` — after every covered task is accepted, captures a fingerprint over the checkpoint scope (native scope files and existence, or the generic accepted-attempt coverage) and opens exactly the declared reviewer set as an ordinary `review_only` item. Writes overlapping an in-flight checkpoint scope are refused.
+- `verify` — for native runs, derives `passed`, `failed`, `stale`, or `stopped` from the recorded reviewer results plus freshly recomputed fingerprints and approval hashes. A checkpoint passes only when every declared reviewer passes for the pinned snapshot; a closed review-only `FAIL` report is findings, not approval; edits during review make the generation stale. The final checkpoint seals the run only via `verify` with `complete: true` after every task is accepted, every earlier checkpoint passed, and the complete declared write scope is covered with fresh verification. Completion is refused while a declared reviewer is missing: a skipped reviewer is never fabricated into a pass.
+- `review` / `bind` — `review` records one generic reviewer result; `bind` is the outcome-recording alias that settles the generation from the linked review item's recorded result when every declared reviewer reported. The callID launch binding itself is a host hook, not this tool action.
+- `complete` — complete a generic execution when every active task is accepted and every assigned checkpoint passed for the current revision, reporting `controller_accepted` or `independently_reviewed` honestly.
+- `amend` — append validated tasks or checkpoints to a generic execution without replaying accepted work.
+- `authorize` / `record_approval` / `revoke_authority` — record a bounded advance authority from an eligible root-user instruction, record a truthful controller-delegated stage approval, or revoke/narrow future authority credits.
+- `recover` — bounded recovery for a checkpoint generation that stopped (`NEEDS_CONTEXT`) or exhausted its ordinary generations. Common required fields are `diagnosis`, `changedCondition`, `verification`, and `recoveryId`. For a native-package checkpoint, recovery supports `userMessageId`: a stopped generation resumes, and an exhausted generation follows the one-unit autonomous-then-authorized policy (a fresh root-user message, or a recorded advance). For a generic checkpoint, `userMessageId` is rejected: a stopped generation is a cost-free bounded resume with no automatic budget reset, and only an *exhausted* generic checkpoint needs a recorded advance authority referenced by `runId` and `authorityId` — a stopped generic checkpoint does not require one. Recovering a stopped generation settles it into history as a `stopped` entry — it does not convert the stop into a failure, so checkpoint rework stays locked until a real failed generation exists — and recovering an exhausted checkpoint grants exactly one further generation with a fresh snapshot at the next `start`. Recovery never satisfies prerequisites, erases a `FAIL`, or seals a run: only the required passing final review does.
+
+Passed milestones stay historical: later planned edits are covered by later checkpoints or the final gate, not by an old approval. Hard stops (`BLOCKED`, `NEEDS_CONTEXT`) are never reset or bypassed by acceptance or checkpoint handling; only a separately recorded recovery decision resumes the affected work. Checkpoint state persists per session and survives restarts; a persisted `PASS` is not fresh evidence until `verify` recomputes current hashes.
+
+Source-independent execution is built on one common contract. Requirements may come from a native package, a provided plan reference, or the current conversation: a native package registers with `work_checkpoint register` (`planPath`), while a provided-plan or conversation-scoped run registers once with `work_item_open` carrying an `execution` descriptor (`executionKey`, `source`, `goal`, `boundary`) and its first task batch, and later tasks append with the same `runId` plus `amendmentId` and `rationale`. Generic review obligations run through `work_checkpoint` actions `start`, `review`/`bind`, `complete`, and `amend`. The registry validates task and checkpoint identities, exact references, execution boundaries, and acyclic dependencies before anything is published, and a selected source stays authoritative — a failed native package is never silently reopened as weaker generic execution, and a provided document is never converted or executed as commands. Required reviews are exactly those registered by the source, the user, or an explicit controller decision; a task with no assigned review completes honestly as controller-accepted rather than as independently reviewed, and a final checkpoint, when one was assigned, must still cover the current revision before completion. Explicit autonomous authority is recorded through `work_checkpoint action "authorize"` from an eligible root-user instruction as a bounded advance reserve shared by the whole authorized execution, consumed one unit at a time only after ordinary allowances are exhausted; duplicate calls, replay, restart, and task replacement cannot refill it, and narrowing or revocation disables future credits without erasing history. The same recorded authority can authorize one bounded continuation that predates a stop, while the separate post-stop `userMessageId` path keeps its own timing rules.
+
+Delegated and checkpoint state persists under `$XDG_DATA_HOME/vvoc/workflow/<sessionId>/workflow-state.json` at snapshot version 4, which adds the common execution registry and session-wide root-message claims on top of version 3's recovery histories, replay-protected authorization references, recovery-aware budgets, and rejected-report attempts. Existing native plan runs materialize a compatibility registry entry with their original run ids and content hashes. Older supported snapshots load conservatively: version 3 and 2 files hydrate with empty execution registries (version 2 also with empty recovery histories and original budgets), and version 1 files hydrate as legacy records without plan runs; none ever synthesizes acceptance, approval, or recovery. A snapshot written by a newer plugin version is refused rather than reset. Recovery mutations commit on the live store and persist synchronously — a failed write rolls the mutation back, so changed launch permissions appear only after a durable record; terminal report settlements stage, persist, and then commit. Because runtime plugins resolve family settings from session metadata and project configuration, a plugin upgrade or configuration change takes effect for new sessions after the change is loaded; running families keep their recorded settings until an explicit `vvoc session set` or `/vv-settings` change.
+
+Plans without an `<execution>` section keep their legacy meaning; executing them with different acceptance or review obligations requires an explicit agreed plan amendment, and archived plans are never rewritten. In a deterministic dispatch-count scenario, a twenty-task plan with two intermediate code-review checkpoints and one final spec+code checkpoint needs exactly four initial reviewer launches instead of forty — that is a property of the declared checkpoint policy, not a wall-clock or model-quality benchmark.
+
+#### Public tool contracts and strict input
+
+The nine vvoc-owned tools keep their existing names: `work_item_open`, `work_item_list`, `work_item_close`, `work_item_decide`, `work_checkpoint`, `hashline_edit`, `str_replace_editor`, `web_search`, and `web_fetch`. Every one now publishes a closed public input contract and rejects invalid or contradictory calls before it mutates state, edits a file, or dispatches a provider request.
+
+This is an intentional compatibility tightening: unknown keys in a vvoc-controlled request object are rejected before mutation instead of being stripped, and a supplied value that conflicts with the selected operation or action is diagnosed instead of being silently ignored. A misspelled authority stage or reserved stop, alone or mixed with valid entries, rejects the entire authority operation — it is never filtered down to the valid subset — and cannot create an authority, claim an authorization message, consume reserve, or grant a launch. Missing optional fields keep their documented defaults; only *invalid supplied* fields are refused. Tool names, package exports, canonical vvoc config schema v3, and persistence snapshot version 4 are unchanged, no config or persistence migration is introduced, and runtime plugin changes still take effect only after an OpenCode restart.
+
+The five workflow tools (`work_item_open`, `work_item_list`, `work_item_close`, `work_item_decide`, `work_checkpoint`) return workflow failures as machine-readable JSON carrying a stable `errorCode` plus a `category` — one of `input`, `state`, `authorization`, `host_context`, `persistence`, or `internal` — and bounded `issues` with tokenized argument paths, the violated expectation, and a safe value/type summary. The edit tools keep their existing human-readable `text`/`Error` result surface plus apply warnings rather than a JSON envelope, and the web tools keep their `ToolResult` text/metadata/attachment delivery. Web structural validation throws the bounded `ContractInputError`; provider failures keep the existing `WebProviderError` behavior (a provider-named code and message with no universal bounded-payload or JSON-shape promise). All nine share the same bounded field-level structural diagnostics, but the host is not promised to expose an output schema for any tool and edit/web output is not forced into JSON; the workflow JSON result shapes are a producer/test contract, not an assumed model-visible SDK feature. Owned structural and workflow diagnostics never echo a full payload and never parse free-form message prose to recover a lost field path; edit text and web document or binary content stay opaque. In particular:
+
+- Invalid `execution.source.kind` is reported as an input error, not as a missing workspace root; a failed generic lookup is not disguised as a missing native-only argument.
+- The generic execution descriptor accepts only `conversation-scoped` or a provided-plan variant carrying its bounded reference. The native-package path is not reachable through that descriptor: it loads only through the approved native `planPath` loader, with spec linkage, lint, and content-hash binding preserved.
+- Standalone `implementation`/`review_only` items require a non-empty unique reviewer set and reject delegated write scopes or native plan bindings. Standalone `delegated` items require an empty reviewer set, an exact-file `writeScope`, and paired optional native bindings. Generic tasks accept an explicit empty or non-empty reviewer set and default `taskId` from `key` and `goal` from `title`.
+
+Path contracts are explicit. `writeScope` entries are exact workspace-relative files and reject wildcards, absolute/home/drive paths, backslashes, traversal, empty segments, and a trailing separator; `boundary.directories` keeps its established one-trailing-separator directory-subtree normalization, so an exact file and a directory subtree are never conflated.
+
+`work_item_list` is read-only over the current session and additively exposes generic and native executions alongside the existing `items` and `planRuns`, with the latest attempt status, current generations, remaining allowances, assigned obligations, and bounded prerequisites. The same response carries the loaded contract identity (`packageName`, `packageVersion`, `toolContractRevision`, and `referencePath`) so an agent can discover the exact reference material shipped with the running release; `toolContractRevision` is the loaded `AGENT_TOOL_CONTRACT_REVISION`. Guidance is snapshotted from the same eligibility gates the mutations use: it is a statement about current state, not a future permission, and it never promises a launch will still be available after concurrent state changes. Inspecting state or describing a recovery path neither grants recovery nor consumes a unit.
+
+For a workflow mutation whose outcome is genuinely unknown — for example a post-side-effect reporting failure — the response never claims the change was untouched, never labels it a pre-execution input rejection, and never invites a blind replay; the truthful `committed`/`not_applied`/`rolled_back`/`unknown` outcome is preserved in the workflow result and the safe next step is to inspect with `work_item_list` before retrying. This workflow envelope is not forced onto the edit and web tools, which keep their own text/`Error` or `ToolResult` delivery.
+
+The full nine-tool contract lives in `templates/skills/vv-execute/references/tool-contracts.md`. It is generated from the pure catalog (`bun run contracts:generate`), shipped with the skill, and kept honest by a coverage gate; it is loaded on demand from the shipped file, not generated when you read it. It is deliberately on-demand documentation rather than a manual injected on every turn, so load the section you need. A declared `writeScope` is an edit boundary, not a universal filesystem sandbox, and nothing here claims that free-form evidence strings mechanically prove a claim or that stricter schemas reduce model errors.
+
+### Edit format routing
+
+`HashlineEditPlugin` resolves an edit mode per session model and exposes exactly one native edit tool to that model — either a host-owned tool or one of the plugin profiles:
+
+- `edit` — the host built-in edit (`filePath`/`oldString`/`newString`/`replaceAll`) with its native matching layers, prior-read enforcement, and unified diff output. Served to `qwen`, `kimi`, and `glm` cohorts; the plugin registers no `edit` tool, so the host runtime stays in charge.
+- `apply_patch` — the host built-in patch tool, shown by the host gate to `gpt`/`codex` models; the plugin never overrides or hides it.
+- `str_replace_editor` — the plugin's DeepSeek dsh contract (`view`/`create`/`str_replace`/`insert`) with exact-verbatim matching.
+- `hashline_edit` — the plugin's hash-anchored tool with `LINE#HASH#ANCHOR` references and anchored read output (default for unmatched models).
+
+The default routing table sends `deepseek` to `str_replace_editor`, `kimi`, `qwen`, and `glm` to `edit`, and `gpt`/`codex` to `apply_patch`; everything else stays on `hashline_edit`. Patterns match case-insensitively as substrings of the session `modelID` only; the first matching rule wins. For every mode the plugin enforces one selected existing-file editor through the native session tool-list visibility — hiding the other existing-file editors (including the host `edit` for the `str_replace_editor`/`hashline_edit` cohorts) while leaving new-file creation available — and never modifies the host's own edit/patch contracts, so each session sees exactly one editing tool for existing files. Every plugin-tool write is gated by an awaited native resource permission before a file is touched.
+
+`vvoc sync` and `vvoc init` write this default table into `vvoc.json` so it is visible and editable. Materialization is conservative: a routing value you have changed is never overwritten; the table is only filled in where it is missing. Override routing in `vvoc.json` (schema v3) — the `plugins["hashline-edit"]` entry accepts a boolean or an object:
+
+```json
+"plugins": {
+  "hashline-edit": {
+    "enabled": true,
+    "routing": {
+      "default": "hashline",
+      "rules": { "qwen": "hashline", "deepseek": "str_replace_editor" }
+    }
+  }
+}
+```
+
+Routing changes require an OpenCode restart, like other runtime plugin settings.
+
+`hashline_edit` and `str_replace_editor` publish closed input contracts and reject conflicting or malformed fields before touching a file, without changing literal edit behavior: `replace` keeps its optional inclusive `end` (the `replace_range` alias still works), `lines` accepts a string, a string array, or `null` (an empty array or `null` deletes the range), `append`/`prepend` perform boundary insertion, `new_str` may be intentionally empty to delete, and `view_range` may end at `-1` to view to end of file. Supplying conflicting anchors, an unknown field, or a malformed range is a structural error that leaves file content, paths, freshness metadata, and the metadata sink unchanged, and the existing current-file and stale-anchor checks stay authoritative before any mutation.
+
+Native `str_replace_editor` calls targeting the same canonical path are serialized across sessions in one process, including the read, freshness check, mutation, and cache update; calls for different files remain independent. Native reads and editor views share session-isolated canonical freshness records, so aliases cannot bypass an existing observation. Writes stage and verify the complete UTF-8 payload before atomic publication instead of truncating the destination, preserving ordinary file modes, POSIX ownership, and existing symlink targets. Multi-hardlink targets and files with setuid, setgid, or sticky mode bits are refused; inability to preserve uid/gid also fails without changing the original file. Publication requires a writable parent directory and does not preserve extended ACLs or xattrs. Removing a restrictive ACL can widen effective access: use a metadata-preserving editor for files with extended ACLs. Separate calls are not an all-or-nothing batch: a rejected replacement does not undo earlier successful calls. This coordination does not lock out other editing tools or external processes, and it does not add support for arbitrary text encodings.
+
+### Tool history compaction
+
+`ToolHistoryCompactionPlugin` shrinks the context replayed to the model on every turn without touching on-disk storage. It rewrites only the in-memory provider-context copy the model is about to receive, through the native session `context` hook and gated per bound session family by its captured policy, and only the `output` of old completed tool parts — `input` and part structure (callID/type/order) are never changed, so provider tool_use/tool_result stitching stays intact.
+
+The recent working context is never touched: the newest message and the last `protectRecentMessages` messages (default 8, measured by message recency time with array-order fallback) are always replayed verbatim, regardless of call count, output size, tool class, or parallel batching. Compaction only applies to messages older than that window.
+
+Compaction is tool-classified, not blanket:
+
+- **Retained (never compacted):** results that stay relevant for the whole session — `webfetch`/`web_fetch`/web readers, web/search tools, `skill`, and subagent (`task`/`agent`) outputs. Retained tools also never consume the per-call protection budget.
+- **Old reads** collapse to `[Read <file>, lines X-Y]` (range recovered from the line-numbered output; missing file or range falls back to head/tail pruning, never a fabricated summary).
+- **Other ephemeral outputs** (`bash`, `grep`, `glob`, …) past `outputMaxChars` are pruned to `headChars` + a fixed marker + `tailChars`. With `savePrunedOutput` (default on), the full output is written once to `$XDG_DATA_HOME/vvoc/tool-output/tool-<callID>.txt` and the marker embeds `Full output saved to: <path>`, so the model can re-read the full content instead of reconstructing it from fragments.
+
+Outside the recent window, the last `protectLastCalls` completed calls are also protected; error parts and parts already compacted by OpenCode are skipped. Rewrites are deterministic and idempotent (each part is rewritten at most once, and the saved path is deterministic per callID), and a `minSavingsChars` guard skips rewrites that would churn the prompt cache for a tiny gain.
+
+Config lives in `vvoc.json` under `plugins["tool-history-compaction"]` (boolean or object) and is conservatively materialized by `vvoc sync`/`init`:
+
+```json
+"plugins": {
+  "tool-history-compaction": {
+    "enabled": true,
+    "protectLastCalls": 3,
+    "protectRecentMessages": 8,
+    "savePrunedOutput": true,
+    "minSavingsChars": 2000,
+    "outputMaxChars": 2048,
+    "headChars": 1200,
+    "tailChars": 400,
+    "readSlim": true,
+    "retainTools": ["webfetch", "web_fetch", "web-reader", "webreader", "search", "brave", "skill", "task", "agent"]
+  }
+}
+```
+
+Set `outputMaxChars` to `0` to disable pruning, `protectRecentMessages` to `0` to disable the message window (only the newest message stays protected), `savePrunedOutput` to `false` to skip disk persistence, or `"enabled": false` to disable the plugin entirely. Changes require an OpenCode restart.
+
+### Cache hit rate analytics
+
+`AnalyticsPlugin` records one line per completed model step — fresh input, cache read, cache write, output, reasoning, recorded cost — to `$XDG_DATA_HOME/vvoc/analytics/usage-YYYY-MM.jsonl`, attributed with the vvoc version, the OpenCode version (from session telemetry), project, provider, model, and agent. Telemetry never leaves the machine; disable collection with `"plugins": { "analytics": false }` and delete old monthly files freely.
+
+In the TUI you get a live `cache NN%` indicator next to the session prompt (green at 80%+, yellow at 50%+, red below, muted `n/a` before the first cache-eligible step) and a combined footer line `• OpenCode <version> · vvoc vX.Y.Z` in the sidebar. The indicator is per-session and computed in memory.
+
+Retrospective analysis lives in the CLI:
+
+```bash
+vvoc analytics cache-hit-rate --group-by day                       # daily trend
+vvoc analytics cache-hit-rate --group-by vvoc --since 30d         # compare vvoc releases
+vvoc analytics cache-hit-rate --group-by opencode --since 30d     # compare OpenCode upgrades
+vvoc analytics cache-hit-rate --group-by session|model|provider|project|week|month
+vvoc analytics cache-hit-rate --project my-repo --order hit-rate --limit 10 --json
+```
+
+The hit rate is token-weighted: `cacheRead / (cacheRead + cacheWrite + input)` over cache-eligible steps; `COVERAGE` shows the share of steps whose provider reported cache tokens at all, so providers without prompt caching read as `n/a` instead of a misleading `0%`. `--since`/`--until` accept `Nd`/`Nw`/`Nm` or `YYYY-MM-DD`; `--order` accepts `date`, `steps`, or `hit-rate`.
+
+Agents can run this analysis conversationally too: the managed `vvoc-usage-analytics` skill answers usage, cache, and cost questions inside a session — including historical comparisons from `opencode.db` that predate the analytics plugin.
+
+### Peak hours
+
+Several providers (DeepSeek, Z.AI, Qwen) bill higher rates during daily or weekday peak windows. `PeakHoursPlugin` matches the provider of each outgoing message against local schedules and either warns or blocks — it never switches the model for you and never fetches pricing from the network.
+
+Behavior per mode:
+
+- **soft** (default): the message goes through and the TUI shows a persistent orange banner in the bottom slot: `⚠ PEAK deepseek until 10:00 UTC · elevated pricing · off-peak now: z-ai, qwen`.
+- **hard**: the LLM request is rejected with the window end, the wait time, and the connected providers that are currently outside peak (`PEAK_HOURS_BLOCK: provider "deepseek" is in peak hours until 10:00 UTC (about 3 h). … Connected providers outside peak hours right now: z-ai, qwen. …`). The block fires in the native `model.request` hook, after your message has been admitted into the session and before any provider request: your message stays in the session history and the block renders as a regular error entry, not a dropped message.
+
+Nothing already in flight is ever killed:
+
+- a session created before the current window started is grandfathered to soft for its lifetime (`graceActiveSessions`, on by default — decisions come from persisted session data, so they survive restarts);
+- subagent sessions, managed subagents, and `guardian` are always soft — the decision to work was already admitted at the parent level;
+- internal OpenCode agents (`compaction`, `title`, `summary`) and auxiliary request kinds (title, compaction, generate) are exempt entirely.
+
+Schedules match **providers, not models**. Subscription plan provider ids from the OpenCode catalog (models.dev) are gated: `zai-coding-plan` and `zhipuai-coding-plan` map to the `z-ai` schedule, `alibaba-token-plan` and `alibaba-token-plan-cn` map to the `qwen` schedule. Bare pay-per-token API providers (`zai`, `zhipuai`, `alibaba`, `alibaba-cn`, `openai`, …) publish no peak surcharge and are never gated. Unknown providers are never warned about or blocked, and a malformed schedule logs a warning and disables that provider's schedule instead of blocking anything (fail-open).
+
+Config lives in `vvoc.json` under `plugins["peak-hours"]` and is conservatively materialized by `vvoc sync`/`init` — your edits are never overwritten. The built-in defaults carry a revision date because providers move these clocks (verified 2026-08-21: DeepSeek ×2 surcharge effective 2026-08-16; Z.AI weekday coding-plan clock; Qwen 22:00–08:00 UTC+8 off-peak plan window):
+
+```json
+"plugins": {
+  "peak-hours": {
+    "enabled": true,
+    "mode": "soft",
+    "graceActiveSessions": true,
+    "schedules": {
+      "deepseek": { "windows": [{ "start": "01:00", "end": "04:00", "tz": "UTC" }, { "start": "06:00", "end": "10:00", "tz": "UTC" }] },
+      "z-ai": { "windows": [{ "start": "06:00", "end": "10:00", "tz": "UTC", "days": [1, 2, 3, 4, 5] }] },
+      "qwen": { "windows": [{ "start": "00:00", "end": "14:00", "tz": "UTC" }] }
+    }
+  }
+}
+```
+
+Windows use `HH:MM` in an explicit timezone (default UTC), may cross midnight (`"start": "22:00", "end": "02:00"`), and accept an optional `days` restriction (0=Sunday … 6=Saturday, default all days). A provider entry may override the global mode with `"mode": "hard"`. Set the top-level `"mode": "hard"` to enforce blocking everywhere, or `"enabled": false` to disable the plugin entirely. Changes require an OpenCode restart, like other runtime plugin settings.
+
+### Spec lint and spec-guard
+
+The spec-package format is verified by deterministic host-side tooling, not by model discipline: models keep grep/sed as their query layer, and `vvoc lint` plus `SpecGuardPlugin` enforce the invariants in code.
+
+```bash
+vvoc lint                                    # lint .vvoc/specs (active packages only)
+vvoc lint .vvoc/specs/2026-08-24-cache/      # one package directory
+vvoc lint .vvoc/specs/2026-08-24-cache/plan.xml   # one file (its sibling spec joins for cross-file rules)
+vvoc lint --archive                          # include archived packages for migration audits
+vvoc lint --strict                           # exit 1 on warnings, not only errors
+vvoc lint --format json --no-cache           # one JSON verdict object; bypass the cache
+```
+
+The engine checks well-formedness, the attribute ban, the template contract per artifact type, `COMPONENT-UPPER-SLUG` / `TASK-T-NNN` / `WAVE-N` identity patterns and uniqueness, reference integrity (component slugs, task ids), the **plan-components-subset-of-spec-components** rule, lifecycle vocabulary, and package layout. Severity is lifecycle-aware: a `draft` document may have empty sections mid-interview and is never an error; `approved`/`applied` documents must be complete. Exit codes are stable for scripts: `0` without errors, `1` with errors, `--strict` escalates warnings. Results are cached content-addressed under `$XDG_CACHE_HOME/vvoc/lint/` — a verdict is recomputed whenever any input byte or the lint rule version changes.
+
+`SpecGuardPlugin` brings the same verdicts into the session:
+
+- **reads**: reading an active `spec.xml` / `plan.xml` / `design-context.xml` appends a bounded `[spec-guard]` verdict to the tool result, so agents see drift before trusting the file; archived files are never annotated;
+- **writes**: `warn` (default) appends the verdict after a write; `enforce` additionally refuses writes whose result would contain ERROR-severity findings — incremental draft editing is never blocked, because draft incompleteness is never an error.
+
+```json
+"plugins": {
+  "spec-guard": { "enabled": true, "mode": "warn" }
+}
+```
+
+Conservatively materialized by `vvoc sync`/`init`; `enforce` blocks only ERROR states; internal failures degrade to a warning log and never break a tool call. Changes require an OpenCode restart, like other runtime plugin settings.
+
+### Telegram bridge
+
+`TelegramBridgePlugin` runs a single-owner Telegram bot inside the OpenCode server process — no second process, no exposed ports. Enable forum topics for the bot in @BotFather first; the bridge uses the private chat between you and the bot only.
+
+The layout is one Telegram DM topic per **top-level** session, with a fixed **General** topic as the control lane. Child sessions and helper sessions — subagents, and the auto-title `vvoc title` session — never get a topic; their activity renders as a bounded card inside the parent topic. Topic titles carry a live status emoji (⚙️ running, 💤 idle, ❓ question, 🔐 permission, ‼️ error, ⏹ aborted) ahead of the session title. The surface is capped at General plus the `maxTopics` (default 20) most recent top-level sessions: when a newer session pushes an older one out, that topic is **deleted** — the Bot API rejects closing a topic in a private chat, so deletion is the only way to bound the surface, and the evicted thread and its history are removed. New sessions are adopted immediately on creation and a periodic reconcile keeps the surface in sync; `/sync` reconciles on demand.
+
+Commands:
+
+| Command | Where | What it does |
+|---|---|---|
+| `/new` | General | Pick a project from an inline list; the session is created with that project's default agent and gets its own topic |
+| `/sync` | General | Idempotent reconciliation: create topics for top-level sessions missing one, delete evicted ones, report counts |
+| `/status` | General or session topic | Active sessions with context usage, or the current session's state |
+| `/help` | anywhere | Command list |
+| plain text | session topic | Prompt for that session; consecutive texts inside the merge window join into one prompt |
+| `/model` | session topic | Inline provider and model picker; the current model is applied through the session model switch |
+| `/rename <title>` | session topic | Rename the session and its topic |
+| `/messages` | session topic | Browse user messages; Revert rolls the session back, Fork branches a new session that gets its own topic |
+| `/abort` | session topic | Interrupt the session |
+| `/settings` | anywhere | Toggle reasoning visibility, tool-call detail, and markdown/raw reply format |
+
+Permissions and agent questions arrive as inline-button prompts in the owning session topic — `✅ Once / ♾ Always / ❌ Reject` for permissions, the offered options plus `✍️ Custom` for questions. Choosing Custom holds the topic's input gate so your next plain message becomes the answer (`/cancel` aborts); nothing is ever auto-approved and no decision is fabricated when a prompt is resolved outside Telegram. Subagent activity renders as bounded cards in the parent topic. Images, PDFs, and text files (bounded, albums included) can be attached to prompts; oversized files are rejected with an explicit notice.
+
+Configuration is an optional top-level section of `vvoc.json` (schema v3). The bot never starts without it:
+
+```json
+"telegram": {
+  "enabled": true,
+  "botToken": "${TELEGRAM_BOT_TOKEN}",
+  "allowedUserIds": [123456789],
+  "activityWindowMinutes": 240,
+  "maxTopics": 20,
+  "apiRoot": "https://tg.example.com"
+}
+```
+
+- `botToken` — a literal or `${VAR}` placeholder resolved from the OpenCode process environment at startup; an unset variable disables the gateway with a value-free diagnostic naming the variable. Prefer the environment or the global vvoc layer; never commit a token.
+- `allowedUserIds` — the numeric Telegram user ids allowed to talk to the bot (get yours from @userinfobot). This is the entire access boundary: single owner, private chat, non-owner messages are ignored.
+- `activityWindowMinutes` — how long a session counts as active after its last update (default 240).
+- `maxTopics` — how many session topics stay live beside General (default 20, 1..100); older topics are deleted.
+- `apiRoot` or `proxyUrl` — mutually exclusive connectivity modes for restricted corporate networks: a custom Bot API root behind your own reverse proxy, or an outbound proxy URL for `api.telegram.org`.
+- `settings` — delivery defaults: `showReasoning` (default false), `showToolCalls` (default true), `formatMode` (`markdown` default or `raw`), `codeFileMaxKb` (default 100; larger code blocks arrive as file documents), `mergeWindowMs` (default 1500).
+
+Durable state (update offset, topic and session map, message mirror, pending finals, settings) lives in the OpenCode plugin storage, scoped to the plugin, and survives `opencode service restart`; a changed bot token resets the stored maps instead of reusing stale bindings. Assistant output streams through draft previews with a throttled edit fallback, finals are delivered exactly once per message across restarts, and all topics share one chat rate budget, so streaming is throttled adaptively. Telegram configuration changes require an OpenCode restart, like other runtime plugins; the `telegram` plugin toggle (`plugins["telegram"]`) is a kill-switch that registers nothing.
+
+Diagnose the bridge without opening the server: `vvoc telegram status` reports the resolved toggle and section, a value-free disabled reason (including unresolved `${VAR}` names), live `getMe` token liveness, the bot fingerprint, the General topic id, topic/session/mirror counts, the update offset age, whether the config is newer than the last gateway boot, and a verdict (`--json` for machine output). The plugin also appends token-free diagnostics to `$XDG_DATA_HOME/vvoc/telegram/telegram.log`, readable with `vvoc telegram log [--lines N]` or `vvoc telegram log --path`.
+
+### Web tools
+
+`WebToolsPlugin` exposes exactly two canonical model-facing tools:
+
+- `web_search` requests the `web_search` permission and returns ranked titles, URLs, snippets, and publication dates. Search uses Exa by default, Brave when configured, the direct Z.AI/Zhipu Tool API for an explicitly selected region, or the direct DeepSeek Search Tool API.
+- `web_fetch` requests the `web_fetch` permission and retrieves a known HTTP or HTTPS URL as Markdown, text, raw HTML, or a direct JPEG, PNG, GIF, WebP, or PDF attachment. Fetch uses local native retrieval by default, Spider for configured textual extraction, the direct Z.AI/Zhipu Reader Tool API, or the direct DeepSeek Fetch Tool API, which always returns Markdown.
+
+The `web-tools` vvoc plugin toggle is enabled by default. Provider selection belongs to `vvoc.json`, not to individual model calls:
+
+```json
+"web": {
+  "search": { "provider": "zai", "region": "international" },
+  "fetch": { "provider": "zai", "region": "china" }
+}
+```
+
+Supported search providers are `exa` (default), `brave`, `zai`, and `deepseek`. Supported fetch providers are `native` (default, no credential required), `spider`, `zai`, and `deepseek`. A `zai` section must set `region` to either `international` or `china`; the plugin never guesses or falls back to another region. The `deepseek` provider requires no region.
+
+Both tools validate a closed caller contract before any provider dispatch. `web_search` accepts `query`, an optional `count` (1–20), and an optional `freshness`; `web_fetch` accepts a URL, an optional `format`, and an optional `timeout` in seconds greater than 0 and at most 120 (fractional values such as `0.5` are allowed). Unknown keys, an invalid URL scheme or shape, or an out-of-range provided value are rejected before the permission prompt or any provider request, so no provider is dispatched and no network call is made. Provider credentials are resolved from configuration once at startup as described below; structural validation only prevents the permission prompt, provider dispatch, and network use, and does not re-resolve or override that startup resolution. Document text, binary/media content, and per-call provider or credential selection are never part of the caller contract. Defaults are applied at execution time even when OpenCode forwards raw, unparsed arguments, so the effective behavior is unchanged: an omitted `count` is 8, an omitted `format` is `markdown`, and an omitted `timeout` is 30 seconds (bounded at 120). Provider and credential configuration is still resolved once at startup from `vvoc.json`; changing it takes effect only after restarting OpenCode through the same `vvoc sync` and restart flow as before.
+
+Direct Z.AI endpoint routing:
+
+| Region | Search | Reader | Search engine |
+|---|---|---|---|
+| `international` | `https://api.z.ai/api/paas/v4/web_search` | `https://api.z.ai/api/paas/v4/reader` | `search-prime` |
+| `china` | `https://open.bigmodel.cn/api/paas/v4/web_search` | `https://open.bigmodel.cn/api/paas/v4/reader` | `search_pro` |
+
+The `zai` provider calls these documented REST Tool APIs directly. It does not use MCP, install or manage Z.AI MCP servers, or consume GLM Coding Plan MCP quota. Direct requests require ordinary Z.AI/Zhipu API entitlement and may use paid API balance. For fetch, supported image and PDF URLs still return direct attachments; textual targets are sent to the selected regional Reader endpoint.
+
+The `deepseek` provider likewise calls the documented DeepSeek Tool APIs directly — search at `https://api.deepseek.com/v1/tools/search` and fetch at `https://api.deepseek.com/v1/tools/fetch` — with bearer authentication using the same API key as the DeepSeek chat completions API, and it does not use MCP. The search query is forwarded verbatim, including operators such as `site:` and quoted phrases, `freshness` maps to the documented `after:` operator, and search requests snippets only, so full pages go through `web_fetch`, whose DeepSeek route returns Markdown content. Only documented rate-limit responses are retried, with bounded backoff. Direct requests require ordinary DeepSeek API entitlement and may use paid API balance.
+
+Credentials resolve in this order:
+
+1. `EXA_API_KEY`, `BRAVE_API_KEY`, `SPIDER_API_KEY`, `ZAI_API_KEY`, or `DEEPSEEK_API_KEY` for the selected provider
+2. `web.search.apiKey` or `web.fetch.apiKey` in the effective `vvoc.json`
+
+Environment variables win when both sources exist; config changes take effect after restarting OpenCode. Config `apiKey` values may be literal or use `${VAR}` placeholders resolved from the OpenCode process environment at startup, matching `secretsRedaction.secret`; a placeholder referencing an unset or empty variable logs a startup warning naming the config field and the missing variable names, never values. Placeholder-resolved `apiKey` values become exact-match SecretsRedactionPlugin rules for provider-bound message flows, and WebToolsPlugin diagnostics report only the credential source (`env` or `config`), never the value. If a project-layer `.vvoc/vvoc.json` containing an `apiKey` is tracked by Git, startup logs warn with the file name only. Prefer environment variables or the global vvoc layer; do not commit credentials.
+
+While `web-tools` is enabled for a bound session family, the plugin publishes exactly `web_search` and `web_fetch` in that session's tool surface instead of the native `websearch`/`webfetch` builtins — selected through per-session tool visibility driven by the captured policy, never by mutating your permission entries. An explicitly disabled captured policy publishes the genuine native builtins instead, and an unknown policy exposes neither owned nor builtin web tools for that family. It does not rewrite OpenCode files or remove MCP servers. Disable the plugin and restart to restore stock behavior:
+
+```bash
+vvoc plugin disable web-tools
+```
+
+Unrelated MCP search or reader tools are not removed automatically; disable those separately if you want only the two canonical tools visible.
+
+### System One decision backend
+
+Guardian can derive its bounded low-risk assessment either from the captured `fast` auxiliary model (the default) or from a provider-neutral System One decision provider that speaks the de-facto `POST /v1/systemone` protocol (`noul`, `choice`, and `score` questions returning typed probabilities instead of generated text). The client is vendor-neutral: any compliant endpoint — a hosted provider, a gateway, or a local server — is selected by `baseUrl` and `model` alone, and no hosted endpoint is assumed.
+
+```json
+"systemone": {
+  "enabled": true,
+  "baseUrl": "http://localhost:8790",
+  "model": "example",
+  "apiKey": "${SYSTEMONE_API_KEY}",
+  "timeoutMs": 5000,
+  "maxRetries": 1
+},
+"guardian": {
+  "decisionBackend": "systemone",
+  "systemone": { "lowRiskThreshold": 0.95 }
+}
+```
+
+- `decisionBackend` is `"fast"` (default) or `"systemone"`; the default keeps today's behavior unchanged.
+- With `"systemone"`, Guardian asks one `noul` ("the action is low-risk") and one `score` (risk rubric) over the same bounded review input and reuses the existing `risk_level === "low" && risk_score < approvalRiskThreshold` rule. `lowRiskThreshold` is the noul probability gate.
+- Fail-closed: an unavailable, unreachable, timed-out, or malformed provider defers to manual approval and never auto-approves from a provider answer. A disabled section, a disabled `systemone` plugin toggle, or an unresolved `${VAR}` key keeps the `fast` backend.
+- The `systemone` plugin toggle is a kill switch: `vvoc plugin disable systemone` constructs no provider and forces the fast backend.
+- `apiKey` may be a literal or a `${VAR}` placeholder resolved from the OpenCode process environment at startup, like web provider credentials. The resolved value is never logged or written to persisted config snapshots.
+
+Switching between a hosted endpoint and a local endpoint is a `baseUrl` and `model` change only, with no code change. OpenAI Decisions API and other vendor products that do not speak `/v1/systemone` are out of scope.
+
+### `/context` inspector
+
+Run `/context` inside an active session. Its bounded host-owned dialog has three tabs: **Overview**, **Tools**, and **MCP**. Use left/right arrows or `1`, `2`, and `3` to switch tabs and up/down to scroll long detail; the measured header remains visible on every tab. Top-line used/remaining values come from the latest assistant turn's provider-reported input, cache-read, and output token counts when OpenCode exposes them.
+
+Overview category rows are provider-neutral estimates derived from observable native state: system instructions, skill catalog, loaded skills, tool schemas, user and assistant messages, tool calls and results, files, and the latest compaction summary. Percentages are always `estimated tokens / current model contextLimit`; if OpenCode does not expose a positive current limit, the percentage is shown as an em dash rather than using another denominator. Numeric percentages may exceed 100% when estimates drift, while visual bars clamp only their fill at 100%.
+
+The Tools tab separates each observable current tool's persistent **schema** estimate from its active **history** estimate, call count, combined total, source, and percentages. When a schema catalog is unavailable, the row says `schema unavailable` and labels the history-only subtotal as `known total` rather than presenting a false zero. History includes only tool parts in the active context: the latest compaction summary and subsequent turns. The `skill` tool remains visible in detail, but its history belongs to Overview's `Loaded skill results` category so it is not double-counted.
+
+The MCP tab lists the native MCP server inventory exactly as the host reports it — server name, `connected`/`pending`/`disabled`/`failed` status, and any server error — and groups registered external or plugin tools without a known owner under **Other external/plugin tools**. Tool namespace is only a registration hint, not authoritative MCP server provenance: instead of guessing ownership from names, vvoc discloses the registered tool catalog as `unavailable` or `partial` (with warnings) when the host cannot expose it, and unattributed tools stay unattributed.
+
+The plugin does **not** claim to reconstruct the exact final provider request or provide provider-exact tokenization. Hidden provider transformations, plugin-added data, or otherwise unattributable content appears as `Unknown/provider-only`; when visible estimates exceed provider usage, the dialog reports estimation drift instead of forcing totals to match. Collection reads the selected session's location-scoped native state (messages, agents, skills, MCP server list, model metadata, compaction summaries) plus one read-only, versioned context-inspection RPC for the registered tool catalog and allowlisted policy, marks failed or mismatched reads explicitly as unavailable instead of empty, and issues no extra MCP requests.
+
+The `context` vvoc plugin toggle defaults to enabled. Disable it with `vvoc plugin disable context`, then restart OpenCode.
+
+---
+
+## Local development
+
+```bash
+bun install                  # Install dependencies
+bun run check                # Typecheck + lint + format check + GRACE markup + tool-contract check + test
+bun run fmt                  # Auto-format source files
+bun run contracts:check      # Read-only nine-tool contract completeness gate
+bun run contracts:generate   # Regenerate the on-demand tool-contracts reference
+bun run contracts:host       # Isolated live-host contract gate (see below)
+bun run e2e:v2               # Installed-package real-host parity harness (see below)
+bun run release:check        # Verify package/schema release consistency
+```
+
+`bun run contracts:check` is a repository-only, read-only gate: it censuses owned tool registrations independently of the catalog, executes every catalog fixture through the real validators and result schemas, and fails on a fake tool, a missing fixture or result variant, an opaque known object, a changed default, or a stale generated reference. It is part of `bun run check` and requires no network or host process. Run `bun run contracts:generate` only as a deliberate, reviewed step when a contract change is intended — the generated file is checked for currency, so editing it by hand fails the gate.
+
+`bun run contracts:host` proves the same contract against the real host. It requires a locally installed `opencode` binary inside the supported window (2.0.18, checked by exact version), a current `bun run build` (it exercises the built `dist/` plugins), and pinned native manifests with no stale `@opencode-ai` dependency. Observed evidence is written under the harness scratch base (`VVOC_E2E_SCRATCH`, default `/tmp/opencode`) as `vvoc-contracts-host-evidence/compatibility-evidence.json`, and the runner creates that directory when missing; evidence never lands inside the workspace or the GRACE change tree, so a run leaves `grace lint` green. The runner never writes into an archive and never finalizes lifecycle state — approval and lifecycle are owned by the GRACE controller. It creates disposable HOME/XDG/config/workspace directories, uses only local built plugin URLs, synthetic agents/messages/credentials, and loopback OpenAI-compatible and Anthropic-compatible responders, and it sends no real provider or paid request. `bun scripts/check-tool-contracts-host.ts --probe` runs the minimal host-seam feasibility test, while the default full run executes the nine-tool matrix and writes `compatibility-evidence.json` only on a full observed pass; a missing executable, an unsupported host version, or any failed scenario exits nonzero instead of recording a skipped success. The generated evidence is one of three distinct levels and never stands in for the separately executed pinned-native unit fixtures (the 2.0.18 schema projection plus OpenAI/Anthropic/Google lowering fixtures) or for real remote-provider acceptance and model quality — paid-provider effectiveness stays explicitly unverified.
+
+`bun run e2e:v2` runs the installed-package parity harness (`bun scripts/e2e-v2.ts --full`): it verifies the pinned native OpenCode 2.0.18 binary and packed-tarball hashes, isolates `HOME`/`XDG_*`/scratch state with loopback-only providers and exact PID ownership, exercises the packed core, real-PTY TUI, and installed-surface tiers against the installed package, and writes machine-readable `core-evidence.json` and `parity-evidence.json` under the harness scratch base (`vvoc-e2e-evidence/` beside its scratch directories, `VVOC_E2E_SCRATCH`, default `/tmp/opencode`) — never inside the workspace, so a run leaves no files in the GRACE tree and `grace lint` stays green right after a run. It exits nonzero while any mandatory parity row is unverified beyond an accepted, documented residual. The current evidence records 38 rows: 35 verified, 3 accepted AC-11 residuals (secrets live-session WebSocket cannot be driven offline against this host; the workflow aggregate sub-checks and cancellation-recovery scenario are cross-referenced to the dedicated workflow suites under T-004/wi-20), 0 failed, 0 unverified — with recorded limits including unexercised paid providers and cross-session equal-time first-accept ordering.
+
+Git hooks are managed via `lefthook`.
+
+Smoke-test the built CLI against an isolated config home:
+
+```bash
+tmpdir="$(mktemp -d)"
+bun run build
+bun dist/cli.js install --config-dir "$tmpdir"
+bun dist/cli.js status --config-dir "$tmpdir"
+```
+
+Test the local TUI against a freshly built `dist/tui.js` without publishing or rewriting your selected configs:
+
+```bash
+bun run tui:local
+bun run tui:local -- -s <session-id>
+bun run tui:local -- --scope project
+```
+
+The command defaults to `effective` config resolution. It builds the package, creates a temporary isolated config home with a native `cli.json` whose plugin list points at a local directory forwarder re-exporting the freshly built `dist/tui.js`, dropping only the previously managed vv-opencode entry while preserving unrelated settings and comments, and forwards the remaining arguments to OpenCode. Your original OpenCode, cli, and vvoc config files are not modified, and the temporary config is removed after OpenCode exits. Restart the command after source changes because runtime plugins do not live reload.
+
+Full release verification:
+
+```bash
+bun run release:check
+bun run check
+bun run pack:check
+```
+
+---
+
+## Publishing
+
+The release flow is automated via a local wrapper and an exact-commit, CI-gated GitHub Actions workflow.
+
+```bash
+bun run release:bump patch   # or minor, major, prerelease, or explicit semver
+```
+
+This will:
+
+1. Reject if the worktree is dirty
+2. Bump `package.json` via `npm version --no-git-tag-version`
+3. Generate a required AI release summary with `opencode run --standalone`
+4. Prepend a `### Summary` section plus conventional commit details to `CHANGELOG.md`
+5. Update `schemas/vvoc/v3.json` `$id` to the new version
+6. Run `release:check` for consistency
+7. Create a release commit without creating a tag
+8. Push only the current branch to `origin`
+9. Dispatch `publish.yml` through `gh` with the exact package version and release commit SHA
+10. Wait for the dispatched CI run to finish successfully
+11. Retry npm metadata propagation, then verify that npm reports the exact release commit as the published `gitHead`
+12. Create and push the annotated tag locally, then create the GitHub Release through `gh`
+
+Local prerequisites:
+
+- `opencode` must be available from `PATH`.
+- `gh` must be installed and authenticated with permission to dispatch/watch workflows and create releases in the repository. `gh run watch` does not support fine-grained PAT authentication; use a supported `gh` login such as OAuth or a classic token.
+- The summary model defaults to `deepseek/deepseek-v4-flash`; override with `VVOC_RELEASE_SUMMARY_MODEL=provider/model` and the per-attempt timeout with `VVOC_RELEASE_SUMMARY_TIMEOUT_MS=120000`.
+- Run `release:bump` from a checked-out branch with branch and tag push access to `origin`. A normal branch push never publishes by itself; the wrapper explicitly dispatches the workflow for the exact pushed commit.
+
+The GitHub Actions workflow checks out the requested commit SHA, verifies that its `package.json` version matches the dispatch input, and runs full validation (typecheck, lint, fmt check, tests, build, pack check, and `release:check`). Only after every gate passes does it publish to npm with provenance. The local wrapper waits for that CI result, retries registry metadata propagation, verifies npm `gitHead`, and only then uses the maintainer's authenticated `git` and `gh` clients to create the annotated `vX.Y.Z` tag and GitHub Release. This avoids GitHub App token restrictions on tagging commits that contain workflow changes while preserving verification-before-tagging.
+
+The workflow uses npm provenance/trusted publishing (`id-token: write`) and read-only repository contents access. It can only publish through an explicit `workflow_dispatch` request; normal branch and tag pushes do not publish. Tag and GitHub Release creation happen locally only after the workflow succeeds. Configure npm trusted publishing for this GitHub repository/package, or adapt the publish step to use an `NPM_TOKEN` secret if token-based publishing is required.
+
+`bun run release:check` verifies independently that `package.json` name, version, and `schemas/vvoc/v3.json` `$id` and config format version are all consistent; run it anytime.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

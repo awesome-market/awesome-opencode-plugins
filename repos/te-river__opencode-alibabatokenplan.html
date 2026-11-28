@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>te-river/opencode-alibabatokenplan · OpenCode Plugins</title>
+<meta name="description" content="OpenCode v2 TUI plugin: Aliyun Bailian Token Plan personal quota and discount windows in one panel.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-alibabatokenplan, te-river, te-river/opencode-alibabatokenplan, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, tools, server, tui">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/te-river__opencode-alibabatokenplan">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="te-river/opencode-alibabatokenplan · OpenCode Plugins">
+<meta property="og:description" content="OpenCode v2 TUI plugin: Aliyun Bailian Token Plan personal quota and discount windows in one panel.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/te-river__opencode-alibabatokenplan">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=44286f76">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "te-river/opencode-alibabatokenplan", "codeRepository": "https://github.com/te-river/opencode-alibabatokenplan", "url": "https://opencode-plugins.zhuikan.com/repos/te-river__opencode-alibabatokenplan", "description": "OpenCode v2 TUI plugin: Aliyun Bailian Token Plan personal quota and discount windows in one panel.", "author": {"@type": "Organization", "name": "te-river", "url": "https://github.com/te-river"}, "isAccessibleForFree": true, "additionalType": "OpenCode plugin", "dateCreated": "2026-08-31", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,tools,server,tui"}</script>
+</head>
+<body data-repo="te-river/opencode-alibabatokenplan" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">te-river/opencode-alibabatokenplan</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="te-river__opencode-alibabatokenplan"><img class="rp-side-av" src="https://github.com/te-river.png?s=300" width="300" height="300" alt="te-river avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-alibabatokenplan</div>
+      <a class="rp-side-owner" href="https://github.com/te-river">te-river</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/te-river">te-river</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-alibabatokenplan</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">OpenCode v2 TUI plugin: Aliyun Bailian Token Plan personal quota and discount windows in one panel.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/tools">tools</a><a class="rp-topic" href="../tags/server">server</a><a class="rp-topic" href="../tags/tui">tui</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-failed"><span class="i18n-zh">装不上或加载失败</span><span class="i18n-en">Install or load failed</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-08-31</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="te-river__opencode-govmode"><img class="rp-same-av" src="https://github.com/te-river.png" alt="" loading="lazy">opencode-govmode</a><a class="rp-same-link" href="te-river__opencode-teammode"><img class="rp-same-av" src="https://github.com/te-river.png" alt="" loading="lazy">opencode-teammode</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/te-river/opencode-alibabatokenplan">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-dl"><span class="rp-dl-label">下载：</span><span class="rp-dl-t">0.2.23</span><a class="rp-dl-a" href="https://www.npmjs.com/package/@te-river/opencode-alibabatokenplan/v/0.2.23">0.2.23 ↓</a><span class="rp-dl-ver">0.2.23</span><span class="rp-dl-date">2026-11-21</span></div><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">@te-river/opencode-alibabatokenplan
+
+Token Plan 优惠雷达 · 仪表盘优先（opencode server + TUI 双入口插件）：装上后打开
+http://127.0.0.1:7777 即得一块可随时查看的本地仪表盘 —— 错峰窗口倒计时（HH:MM:SS 每秒跳动）、
+Qoder Credits 在卖/生效倍率总表、百炼 ¥ 价目（峰/谷）、免费额度与政策、实时额度进度条。
+数据 = 百炼目录三级回退（live→本机 bl CLI→内置快照）+ Qoder 静态快照（2026-08-31），
+合并后原子持久化到 status.json；边界翻转与启动摘要走 toast，无需任何命令。
+
+ 💠 把仪表盘钉成无边框小窗（推荐贴屏幕角落常驻）——「运行」或终端执行：
+
+ 
+ start msedge --app=http://127.0.0.1:7777 --window-size=430,900
+ 
+
+ （端口若漂移，面板页脚「钉为独立小窗」区显示的就是当前实际端口的完整命令，点一下即复制。
+ 也可配 &quot;dashboard&quot;: { &quot;autoOpen&quot;: true } 让插件启动时自动探测本机 Edge 开此小窗。）
+
+
+┌ Token Plan 优惠雷达（sidebar_content · order 160）────────┐
+│ ● Token Plan 优惠雷达   [实时接口 + Qoder快照08-31] [刷新] │
+│ ▸ 错峰 5 折（22:00–08:00）[Qoder Credits]  优惠进行中      │
+│   距结束 03:47:12  ▓▓▓▓▓▓░░░░                              │
+│   qwen3.8-max  0.5x → 0.25x  错峰 5 折 [双源印证] ↗        │
+│ 在卖倍率总表   qwen3.8-flash 0.1x · kimi 0.3x(highspeed…) │
+│ 限时           preview 0.1x · glm-5.3-flash 0.05x …        │
+│ 百炼价目(¥)    deepseek-v4-pro-0813 峰/谷 2250/1125 …      │
+└────────────────────────────────────────────────────────────┘
+
+
+TUI 终端内仍保留 sidebar/home 常驻摘要（opencode 终端版）；两者同吃
+~/.cache/opencode/alibabatokenplan/status.json。
+
+ 安装（两行手工注册）
+
+~/.config/opencode/opencode.jsonc → &quot;plugin&quot; 数组追加一条：
+
+jsonc
+// ~/.config/opencode/opencode.jsonc  →  &quot;plugin&quot;: [ …原有条目…, &quot;@te-river/opencode-alibabatokenplan@latest&quot; ]
+
+
+~/.config/opencode/tui.json → &quot;plugin&quot; 数组追加同一字符串：
+
+json
+// ~/.config/opencode/tui.json        →  { &quot;$schema&quot;: &quot;https://opencode.ai/tui.json&quot;,
+//   &quot;plugin&quot;: [ &quot;@slkiser/opencode-quota@latest&quot;, &quot;@te-river/opencode-alibabatokenplan@latest&quot; ] }
+
+
+无 postinstall 魔法；两个入口都吃同一份 ~/.cache/opencode/alibabatokenplan/status.json。
+
+仪表盘默认开启（http://127.0.0.1:7777）；想钉成无边框小窗：start msedge --app=http://127.0.0.1:7777 --window-size=430,900（或配 &quot;dashboard&quot;: { &quot;autoOpen&quot;: true } 自动探测本机 Edge）。
+
+ 数据源与隐私声明
+
+- 百炼目录三级回退（零登录）：公开控制台匿名接口（live）→ 本机 bl model list（cli）→ 随包内置快照（snapshot）。
+  实时额度可选走 bl usage token-plan（需 bl auth login --console --console-site domestic）。
+- Qoder 数据 = 2026-08-31 静态快照：全部优惠规则/倍率以常量形式内嵌（src/core/qoder-snapshot.ts），
+  不调用任何 Qoder 私有端点（包内 0 处相关 fetch 代码）；展示一律带「截至 2026-08-31」标注，
+  过期公告位会显示「快照可能失效」。快照更新流程：修订该文件 → npm run build &amp;&amp; npm test → 重发版。
+- 两套单位（Qoder Credits 倍率 / 百炼 ¥ 价格倍率）永不互算，各居其 facet；仅 (模型,窗口,倍率,单位)
+  全等才合并为「双源印证」行。1 元 = 250 Credits 仅为展示换算注记（据百炼计费示例验证，非官方汇率）。
+- 与旧版 bailian-discount-panel.ts 兼容：bailian_discounts 工具保留（委托到新名
+  tokenplan_discounts）；旧缓存 ~/.cache/opencode/bailian-discount-cache.json 首启自动迁移。
+
+ 配置（可选）
+
+~/.config/opencode/alibabatokenplan/config.jsonc（server + TUI 同读；缺失/坏 = 全默认）：
+
+jsonc
+{
+  &quot;webpanel&quot;: { &quot;enabled&quot;: true, &quot;port&quot;: 7777 },     // 仪表盘=主界面（0.1.3 起默认开；端口占用自动漂移并粘滞记忆；样式=随包 src/server/panel.html）
+  &quot;dashboard&quot;: { &quot;autoOpen&quot;: false },                 // true=启动时探测本机 Edge（msedge/edge 常见安装路径），以 --app 无边框小窗打开仪表盘；探测/启动失败静默，绝不用默认浏览器裸开
+  &quot;sidebar&quot;: { &quot;order&quot;: 160, &quot;showNonTokenPlan&quot;: false }, // 非匹配会话默认整块隐藏；true=弱化一行
+  &quot;toast&quot;: true,                                      // 窗口边界翻转提醒（每窗口每日恰 2 次）
+  &quot;toastOnBoot&quot;: true,          </pre><h3 class="rp-ph">Latest release</h3><a class="rp-rel" href="https://github.com/te-river/opencode-alibabatokenplan/releases"><b>0.2.23</b> <span class="rp-rel-tag">0.2.23</span> <span class="rp-item-extra">2026-11-21</span></a></section>
+
+<p class="rp-meta">Snapshot: 2026-11-28T11:10:23Z · Data license Apache-2.0 ·
+<a href="../data/repos/te-river__opencode-alibabatokenplan.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=44286f76"></script>
+<script src="../assets/vendor/purify.min.js?v=44286f76"></script>
+<script src="../assets/vendor/qrcode.min.js?v=44286f76"></script>
+<script src="../assets/common.js?v=44286f76"></script>
+<script src="../assets/repo.js?v=44286f76"></script>
+</body>
+</html>

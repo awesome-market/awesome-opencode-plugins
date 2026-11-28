@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>alvarorojasdev/ai-dev-setup · OpenCode Plugins</title>
+<meta name="description" content="My OpenCode setup for working with AI agents: rules, permissions, reviewer agent, commands and skills. Free models, small context.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="ai-dev-setup, alvarorojasdev, alvarorojasdev/ai-dev-setup, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, models, sessions">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/alvarorojasdev__ai-dev-setup">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="alvarorojasdev/ai-dev-setup · OpenCode Plugins">
+<meta property="og:description" content="My OpenCode setup for working with AI agents: rules, permissions, reviewer agent, commands and skills. Free models, small context.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/alvarorojasdev__ai-dev-setup">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=44286f76">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "alvarorojasdev/ai-dev-setup", "codeRepository": "https://github.com/alvarorojasdev/ai-dev-setup", "url": "https://opencode-plugins.zhuikan.com/repos/alvarorojasdev__ai-dev-setup", "description": "My OpenCode setup for working with AI agents: rules, permissions, reviewer agent, commands and skills. Free models, small context.", "author": {"@type": "Organization", "name": "alvarorojasdev", "url": "https://github.com/alvarorojasdev"}, "isAccessibleForFree": true, "additionalType": "OpenCode skill", "dateCreated": "2026-10-05", "license": "https://spdx.org/licenses/MIT.html", "keywords": "models,sessions"}</script>
+</head>
+<body data-repo="alvarorojasdev/ai-dev-setup" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">alvarorojasdev/ai-dev-setup</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="alvarorojasdev__ai-dev-setup"><img class="rp-side-av" src="https://github.com/alvarorojasdev.png?s=300" width="300" height="300" alt="alvarorojasdev avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">ai-dev-setup</div>
+      <a class="rp-side-owner" href="https://github.com/alvarorojasdev">alvarorojasdev</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/alvarorojasdev">alvarorojasdev</a>
+        <span class="rp-sep">/</span><span class="rp-name">ai-dev-setup</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">My OpenCode setup for working with AI agents: rules, permissions, reviewer agent, commands and skills. Free models, small context.</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/models">models</a><a class="rp-topic" href="../tags/sessions">sessions</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-verified"><span class="i18n-zh">已实测可装可用</span><span class="i18n-en">Tested: installs &amp; loads</span></span><span class="rp-meta-bit">skill</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-10-05</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/alvarorojasdev/ai-dev-setup">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">ai-dev-setup
+
+My working setup for coding and writing with AI agents in the terminal, built on OpenCode (open source) and free models. It reflects how I like to work with an agent: evidence before conclusions, explicit approval before risky actions, minimal changes first, and a small fixed context.
+
+ Documentation in English; the agent instructions are in Spanish because that is the language I work in.
+
+ What&#x27;s inside
+
+| Path | What it does |
+|---|---|
+| opencode/AGENTS.md | Global rules for the agent (~500 tokens on purpose: it is sent with every message) |
+| opencode/opencode.json | Default free model, permissions in &quot;ask before&quot; mode, MCP servers off by default, session sharing disabled, automatic pruning of old tool output |
+| opencode/agents/revisor.md | Read-only reviewer subagent: it can analyze, it cannot edit |
+| opencode/agents/carrera.md | Career agent for CVs, job postings and posts. It drafts and analyzes; it never applies, posts or sends anything |
+| opencode/commands/ | /commit (Conventional Commits, waits for OK), /analisis (review run as a subtask so the main session stays small), /analizar-oferta, /adaptar-cv, /revisar-post |
+| opencode/skills/ | Reusable skills: plain-language handoff messages, saving lessons as guides, module design, merge conflicts, writing for agents, stress-testing a plan |
+| opencode/rules/ | Code rules: write a failing test before fixing a bug; tidy in a separate commit before changing behavior |
+| opencode/bin/ | Launcher that runs the Chrome DevTools MCP with an explicit Node version |
+| opencode/tui.json | Sound and notification when the agent finishes or needs permission |
+
+ Design choices
+
+- Small fixed context. Rules, MCP tool lists and memory indexes travel with every message. The global rules are kept short, MCP servers are off by default and switched on with /mcps when needed, and long reviews run as subtasks.
+- Ask before acting. Shell commands are ask by default; only read-only git and file commands are allowed. Deleting uses trash, never rm.
+- Privacy-aware model choice. The default free model is one whose provider states a zero-retention policy. Some free models may use prompts for training; check your provider&#x27;s terms.
+- No cost by accident. Paid usage is blocked at the account level (zero balance, no auto-recharge, zero monthly budget), not by hiding models, so new free models still show up.
+- Memory without lock-in. OpenCode has no built-in long-term memory, so it is emulated: one fact per Markdown file, an index under 21 KB loaded through instructions, and a rule that nothing is saved without explicit approval. The memory files themselves are personal and not included here.
+
+ Install
+
+bash
+brew install anomalyco/tap/opencode
+cp -R opencode/ ~/.config/opencode/
+echo &#x27;export OPENCODE_DISABLE_CLAUDE_CODE=1&#x27;  ~/.zshrc    use only ~/.config/opencode
+npm i -g chrome-devtools-mcp                                 optional, for browser tasks
+mkdir -p ~/.config/opencode/memoria &amp;&amp; touch ~/.config/op</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-28T11:10:23Z · Data license Apache-2.0 ·
+<a href="../data/repos/alvarorojasdev__ai-dev-setup.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=44286f76"></script>
+<script src="../assets/vendor/purify.min.js?v=44286f76"></script>
+<script src="../assets/vendor/qrcode.min.js?v=44286f76"></script>
+<script src="../assets/common.js?v=44286f76"></script>
+<script src="../assets/repo.js?v=44286f76"></script>
+</body>
+</html>

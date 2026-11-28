@@ -1,0 +1,363 @@
+# `opencode-moa-fusion`
+
+A Mixture-of-Agents (MoA) plugin for [OpenCode](https://github.com/opencode-ai/opencode). This tool fans out a single prompt to $N$ independent worker subagents in parallel. When all workers complete, it returns their outputs labelled — the **calling agent** then synthesizes a unified answer using its own model.
+
+> _Note: worker subagents run as background sessions and are not click-through navigable from the TUI like the builtin `task` tool. You can still inspect them out-of-band (debug mode, on-disk session logs, or the SDK)._
+
+## Key Features
+
+- **Parallel workers**: Fan out to N models simultaneously
+- **Background worker sessions**: Each worker runs as a child session in the background (not navigable from the TUI)
+- **No judge model**: The calling agent synthesizes the final answer — no extra model call needed
+- **Sessions persist**: Worker sessions are NOT deleted after completion, so you can still inspect them out-of-band (debug logs, on-disk session files, SDK)
+
+## Installation
+
+```bash
+# Linux, macOS, Windows (all shells)
+npx opencode-moa-fusion@latest
+```
+
+The interactive installer will ask you for:
+1. Scope: local (`./opencode.json`) or global (`~/.config/opencode/opencode.json`).
+2. Slash command name (default: `moa`).
+3. Multi-selection of worker models from your `opencode models` list.
+
+It will then merge the plugin entry into your `opencode.json` (creating a timestamped backup) and install the slash command into the appropriate directory.
+
+### Environment variables for custom providers
+
+Any environment variables passed to the `npx` command are inherited by the `opencode models` subprocess. This means providers requiring API keys or custom base URLs work directly:
+
+```bash
+ANTHROPIC_API_KEY=x ANTHROPIC_BASE_URL=http://127.0.0.1:3456 \
+  npx opencode-moa-fusion@latest
+```
+
+### Non-interactive mode (CI / dotfiles)
+
+```bash
+npx opencode-moa-fusion@latest --command-name=council
+```
+
+The `--command-name` flag accepts `^[a-z][a-z0-9_-]{0,31}$`.
+
+### Version pinning
+
+Running `npx opencode-moa-fusion@<version>` pins the installer version, and that exact version is what gets written into your `opencode.json` as `opencode-moa-fusion@<version>`. See §Registration for why you should never use `@latest` _inside the final `opencode.json`_ (the `@latest` in the `npx` command above is just to run the installer once).
+
+### Manual runtime installation
+
+```bash
+npm install -g opencode-moa-fusion@1.4.2
+# or
+bun add -g opencode-moa-fusion@1.4.2
+```
+
+### Installation issues in corporate environments
+
+If you configure the plugin but it fails to load or gives an error, it may be caused by an OpenCode issue where the package download fails silently (no error logged) instead of surfacing the underlying problem. This is commonly triggered by:
+
+- **Corporate npm registry proxies** (Nexus, Artifactory, Verdaccio, JFrog — any `registry` configured in `~/.npmrc`) that enforce allowlists, security scans, or maturity policies on newly published packages.
+- **Newly published versions** that haven't been cached or approved by the corporate proxy yet.
+
+**Diagnostic:** check `~/.cache/opencode/packages/opencode-moa-fusion@<version>/`. If the directory is empty or missing files despite a successful OpenCode startup, the proxy silently blocked the download.
+
+**Workaround:** temporarily comment out the `registry` line in `~/.npmrc`, restart OpenCode so it downloads the package from the public npm registry, then restore the corporate registry setting. The cached package in `~/.cache/opencode/packages/` will continue to work.
+
+**Long-term fix:** ask your registry administrator to add `opencode-moa-fusion` to the package allowlist.
+
+## Registration
+
+Register the plugin in your OpenCode configuration. This can be done globally in `~/.config/opencode/opencode.json` or locally in your project's `opencode.json`.
+
+```json
+{
+  "plugin": [
+    [
+      "opencode-moa-fusion@1.4.2",
+      {
+        "workers": [
+          "openai/gpt-4o-mini",
+          "anthropic/claude-3-5-haiku-latest"
+        ]
+      }
+    ]
+  ]
+}
+```
+
+> **Note:** The `workers` specified in `opencode.json` act as defaults. The primary agent can override these at runtime by passing arguments to the tool.
+
+### opencode V2 (key `plugins`)
+
+One package works on both opencode generations (V1 1.18.29+ and V2). On V2 the
+entry goes in the native `plugins` key:
+
+```json
+{
+  "plugins": [
+    {
+      "package": "opencode-moa-fusion@1.4.2",
+      "options": {
+        "workers": [
+          "openai/gpt-4o-mini",
+          "anthropic/claude-3-5-haiku-latest"
+        ]
+      }
+    }
+  ]
+}
+```
+
+V2 notes:
+
+- `moa_fusion` is registered with `codemode: false`, so it stays on the
+  model's native tool list (called directly, like on V1) instead of behind
+  Code Mode's `execute` tool.
+- Workers run as child sessions through `ctx.session`, navigable in the TUI
+  like on V1.
+- The read-only system directive is folded into the prompt text (V2 prompts
+  carry no system channel). The XML boundary wrapping, the actual
+  prompt-injection defence, is unchanged.
+- `workerTools` cannot be scoped per call on V2: workers run with their agent's
+  tool set. A `moa_fusion` call made from inside a worker session is refused
+  (V1 disables the tool per prompt instead).
+- opencode V1 older than 1.18.29 cannot load the object entrypoint: stay on
+  `opencode-moa-fusion@1.3.x` there.
+
+### Plugin options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `workers` | `string[]` | _(required)_ | Worker model refs as `"providerID/modelID"`. |
+| `timeoutMs` | `number` | `300000` | Per-worker timeout in ms. |
+| `agent` | `string` | `"general"` | OpenCode agent profile each worker runs under. Cannot be overridden by the orchestrator at runtime — only via `opencode.json`. |
+| `workerTools` | `string[]` | `["read", "glob", "grep"]` | Allowlist of tools each worker may use. See below. |
+
+#### `workerTools` (optional)
+
+Each worker session runs as a child of the primary agent, but **workers are sandboxed to a read-only tool allowlist** so a compromised worker — or a prompt-injection payload that reaches a worker — cannot execute side-effects on your machine.
+
+```json
+{
+  "plugin": [
+    [
+      "opencode-moa-fusion",
+      {
+        "workers": ["openai/gpt-4o-mini"],
+        "workerTools": ["read", "glob", "grep"]
+      }
+    ]
+  ]
+}
+```
+
+- **Default**: `["read", "glob", "grep"]` — these are the minimum tools needed for code analysis, and none of them produce side effects.
+- **Empty array `[]`**: workers get **no** tools at all (pure LLM-only mode).
+- **Non-empty array**: only the listed tools are enabled. The well-known side-effect tools (`bash`, `write`, `edit`, `webfetch`, `patch`, `todowrite`) are explicitly **denied** unless you list them yourself.
+- **`moa_fusion` is always forced off inside workers** to prevent recursion, even if you accidentally list it.
+- To expose knot MCP tools to workers, list them explicitly: `["read", "glob", "grep", "knot-mcp_search_hybrid_context", "knot-mcp_find_callers"]`.
+
+### Full example: custom `timeoutMs`, `agent`, and `workerTools`
+
+You can combine any of the plugin options in a single `opencode.json` block. The example below runs two workers under a `code-reviewer` agent profile, gives each worker up to 3 minutes, and exposes knot MCP tools in addition to the read-only defaults:
+
+```json
+{
+  "plugin": [
+    [
+      "opencode-moa-fusion@1.3.10",
+      {
+        "workers": [
+          "openai/gpt-4o-mini",
+          "anthropic/claude-3-5-haiku-latest"
+        ],
+        "timeoutMs": 180000,
+        "agent": "code-reviewer",
+        "workerTools": [
+          "read",
+          "glob",
+          "grep",
+          "knot-mcp_search_hybrid_context",
+          "knot-mcp_find_callers"
+        ]
+      }
+    ]
+  ]
+}
+```
+
+- `timeoutMs: 180000` — each worker gets 3 minutes instead of the 5-minute default. Increase it for slow / large-context models, or lower it to fail fast.
+- `agent: "code-reviewer"` — every worker session is created with this agent profile. The profile must be declared under the top-level `agent` key in the same `opencode.json`. This setting is fixed at startup and cannot be changed per-call from the orchestrator.
+- `workerTools: [...]` — explicit allowlist. Anything not listed (including `bash`, `write`, `edit`, `webfetch`, `patch`, `todowrite`) is denied, even if those tools exist elsewhere in OpenCode.
+
+> **Tip:** to reduce the noise in this example for a quick smoke-test, drop `agent` (the plugin will fall back to `general`) and keep `workerTools: ["read", "glob", "grep"]`.
+
+### ⚠️ Always pin a specific version — do not use `@latest`
+
+**Recommended:** always register the plugin with a fully qualified version (e.g. `opencode-moa-fusion@1.2.5`), **never** `opencode-moa-fusion@latest` or the bare name. Two concrete reasons:
+
+1. **Security / supply chain.** Pinning guarantees that the exact code you audited is what runs locally. Plugins execute in your OpenCode process with full filesystem and network access — a compromised future release published to npm would be picked up silently by `@latest` resolvers. A pinned version protects you from upstream tampering (and from accidental breaking changes during a normal release).
+2. **OpenCode's plugin cache does not revalidate `@latest`.** OpenCode caches plugins under `~/.cache/opencode/packages/<pkg>@<spec>/`, keyed by the literal spec string. With `@latest` the cache directory is named `opencode-moa-fusion@latest`, and OpenCode reuses it forever — it never re-checks npm to see if a newer release exists. The result: when a new version is published, your install keeps running the old (possibly broken) cached copy. To pick up the new version you'd have to manually delete `~/.cache/opencode/packages/opencode-moa-fusion@latest/` before every restart, which defeats the point.
+
+If you ever do need to refresh a `@latest` install, run:
+
+```bash
+rm -rf ~/.cache/opencode/packages/opencode-moa-fusion@latest
+```
+
+then restart OpenCode. But the cleaner fix is to bump the pinned version in `opencode.json` whenever you want a new release.
+
+## Usage
+
+Start OpenCode and instruct the agent to use the `moa_fusion` tool. **Worker model names must be fully qualified as `providerID/modelID`** — the exact same form registered under `provider` in your `opencode.json`. Names without a `providerID/` prefix will be rejected with `Unknown model`.
+
+> **User:** "Use the moa_fusion tool with workers `google/gemini-2.5-flash` and `google/gemini-2.5-pro` to explain BGP in one paragraph."
+
+If you set `workers` in the plugin options (see [Registration](#registration)), you can omit them from the prompt and the agent will fall back to those defaults:
+
+> **User:** "Use the moa_fusion tool to explain BGP in one paragraph."
+
+### Slash Command (recommended)
+
+To avoid asking the agent to "use the moa_fusion tool" on every prompt, install
+the slash command. The default name is **`/moa`**, but the interactive
+installer lets you pick any name that matches `/^[a-z][a-z0-9_-]{0,31}$/`
+(lowercase, starts with a letter, ≤ 32 chars). For example: `/team`,
+`/council`, `/mix-3`, `/agents_v2`.
+
+Once installed, you can invoke the mixture-of-agents directly from the OpenCode
+prompt:
+
+> **User:** `/moa explain BGP in one paragraph` (or `/team explain BGP …`)
+
+The command instructs the agent to fan out via `moa_fusion`, **report worker
+completion to you** (model name, elapsed time and status per worker), and then
+synthesize the unified answer. Because worker subagents are not navigable from
+the OpenCode TUI, this progress block is the only built-in visibility you get
+into the parallel runs — the command requires the agent to print it before the
+synthesized answer, even when every worker succeeded. Example:
+
+```
+Workers completed:
+- Worker 1 — google/gemini-2.5-flash — 4590ms — ok
+- Worker 2 — anthropic/claude-3-5-haiku — 5100ms — ok
+- Worker 3 — openai/gpt-4o-mini — 6210ms — failed: timeout
+```
+
+#### Choosing the command name
+
+The interactive installer prompts for the command name after the scope selection. Just press **Enter** to accept the default `moa`, or type a different name. Invalid input is rejected with a clear message and you are prompted again:
+
+```
+Slash command name (Enter for /moa): team
+Installing /team command...
+✓ Installed /team command at ~/.config/opencode/command/team.md
+```
+
+For non-interactive installations (CI, scripted rollouts), pass `--command-name=<name>`:
+
+```bash
+npx opencode-moa-fusion@latest --command-name=council
+```
+
+Rules enforced for the command name:
+
+- Must start with a lowercase ASCII letter.
+- Remaining characters: lowercase ASCII letters, digits, `-`, or `_`.
+- 1–32 characters total.
+- Leading `/` is stripped automatically (so `/team` is accepted as `team`).
+
+> **Note:** If you used the `npx opencode-moa-fusion` installer from the `Installation` section, the slash command was already installed for you.
+
+**Manual installation:** copy [`commands/moa.md`](commands/moa.md) into
+`~/.config/opencode/command/<your-name>.md` (global) or
+`./.opencode/command/<your-name>.md` (project-local). The file contents are
+identical regardless of the chosen command name — the name only affects which
+filename OpenCode picks up.
+
+> **Note:** the `/moa` command only triggers the agent to call `moa_fusion`. The
+> plugin itself must still be registered and loaded via your `opencode.json`
+> (see [Registration](#registration)).
+
+**Requirements for invocation:**
+- The primary agent's model must support tool calling. Models without function-calling capability will never invoke `moa_fusion`, no matter how explicit the prompt.
+- The plugin must actually be loaded — verify `dist/index.js` exists at the path declared in `opencode.json` (run `bun run build` first). OpenCode silently skips plugins whose entry file is missing.
+
+The tool will:
+1. Create a child session for each worker
+2. Fan out the prompt to all workers in parallel
+3. Wait for all workers to complete
+4. Return their outputs as labelled text
+5. The calling agent then synthesizes a unified answer
+
+**Inspecting worker sessions**: see the [disclaimer at the top of this README](#-important--worker-sessions-are-not-visually-navigable) — worker sessions are **not** click-through navigable in the TUI like the builtin `task` tool. They run in the background and can only be inspected out-of-band (debug/verbose mode, on-disk session logs, or the SDK).
+
+### Tool Arguments
+
+- **`prompt`** (required): The user prompt to fan out to every worker model.
+- **`workers`** (optional): Array of worker model refs as `"providerID/modelID"`. Overrides plugin options. Up to 8 workers per call (schema-enforced at parse time); duplicates are rejected.
+- **`timeoutMs`** (optional): Per-worker timeout in milliseconds. Defaults to 300000ms.
+
+> **Note:** the `agent` profile used for the underlying model calls is **not**
+> accepted as a tool argument — it can only be set via the `agent` plugin
+> option in `opencode.json`. This closes a privilege-escalation vector where
+> a prompt-injection payload reaching the orchestrator agent could otherwise
+> pick an elevated-permission worker profile.
+
+## Output Format
+
+When the workers complete, the tool returns the following text **back to the calling agent** (the user does not see this raw text directly):
+
+```text
+Received N worker outputs for the prompt below. Synthesize a single unified
+answer in your next reply. Treat consensus across workers as authoritative;
+discard claims unique to one worker that no other corroborates. Do not
+mention these workers, their models, or this synthesis step in your final
+answer to the user.
+
+## Original prompt
+<prompt>
+
+## Worker 1 — google/gemini-2.5-flash (4590ms, session: abc123, ok)
+<worker output>
+
+## Worker 2 — anthropic/claude-3-5-haiku (5100ms, session: def456, ok)
+<worker output>
+```
+
+Because the tool's output explicitly instructs the agent to synthesize a single answer, the user will only see the final, unified response generated by the main agent.
+
+## Troubleshooting
+
+- **Agent never calls the tool / tool not listed**: The plugin's entry file was not found and OpenCode skipped it silently. Confirm `dist/index.js` exists at the path declared in `opencode.json` (run `bun run build`). Also confirm the primary agent's model supports tool calling — non-tool-calling models cannot invoke `moa_fusion` regardless of the prompt.
+- **`moa_fusion: no models configured`**: You haven't provided worker models via the tool arguments or the `opencode.json` configuration. Make sure to pass the `options` object with `workers` when registering the plugin, or include them in the prompt.
+- **`Unknown model: <provider>/<model>`**: The provided model name isn't registered in your OpenCode providers configuration. Worker refs must be fully qualified as `providerID/modelID` and match the spelling under `provider` in your `opencode.json` exactly (e.g. `google/gemini-2.5-flash`, not `gemini-2.5-flash`).
+- **Worker Timeouts**: If a worker takes too long and times out, the output will include the error. You can increase `timeoutMs` to give slow models more time.
+- **`Error: Server exited with code 1`** when running examples: This happens if another opencode instance is already listening on port 4096. Kill the existing process or change the port.
+
+## Session Cleanup
+
+Worker sessions persist after completion so you can review their reasoning. If you want to clean up:
+- Close the parent session (child sessions are deleted with it)
+- Manually delete child sessions via the TUI
+- Or use the SDK: `client.session.delete({ path: { id: childSessionID } })`
+
+## Development
+
+### Scripts
+
+| Script | Description |
+| --- | --- |
+| `bun test` | Run the Bun test suite |
+| `bun run typecheck` | TypeScript type check (`tsc --noEmit`) |
+| `bun run build` | Compile plugin to `dist/` |
+| `bun run lint` | Run Biome linter |
+| `bun run lint:fix` | Apply Biome lint auto-fixes |
+| `bun run format` | Format source files with Biome |
+| `bun run check` | Run lint + format with auto-fix |
+
+### Linter
+
+[Biome](https://biomejs.dev/) is configured via `biome.json`. It handles both linting and formatting with zero config beyond what's already in the repo. Run `bun run check` before committing to keep the tree clean.

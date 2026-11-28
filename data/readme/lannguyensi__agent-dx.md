@@ -1,0 +1,69 @@
+# agent-dx
+
+A monorepo workshop for agent-development tooling, built while shipping AI-agent coding workflows in practice.
+
+## Overview
+
+`agent-dx` collects the CLIs, linters, and playbooks used to build and review AI-agent coding workflows across this workshop and its sibling repos. It is a folder of independent packages, not an npm workspaces, pnpm, or lerna monorepo: there is no root `package.json` and no shared root `node_modules`. Four packages ship on npm today: orchestrator-workflow, okf-kit, agent-primitives, and friction-log. The rest are working tools or documentation packages. See [Repo layout and package status](docs/repo-layout.md) for how the packages relate to each other.
+
+## Packages
+
+| Package | What it does | npm |
+|---------|--------------|-----|
+| [orchestrator-workflow](packages/orchestrator-workflow) | Installer for an orchestrator-led agent workflow: `.ai/` run state, an `AGENTS.md` policy section, and subagent definitions with preselected models for Claude Code, Codex, and opencode. | published |
+| [okf-kit](packages/okf-kit) | CLI that validates OKF v0.1 knowledge bundles (structure, links, staleness against git history, citation drift), scaffolds a starter bundle with `init`, and lists which docs claim a changed path with `docs-for`. | published |
+| [agent-primitives](packages/agent-primitives) | Agent-first CLI that returns one bounded JSON result per call: mutation-probe and verify runners, a PATH doctor, identifier-drift and commit-hygiene guards, and checkout snapshot/delta, plus an `init` command that installs its own skill document into a harness's skill directory. | published |
+| [slop-detector](packages/slop-detector) | AI-slop linter for PRs: catches leaked tool-call XML, doubled Summary headings, hedging openers, marketing adjectives, and other agent-generated tells across eight rule packs. | not published (name taken by an unrelated package; run from a local build) |
+| [friction-log](packages/friction-log) | Capture, query, and infer agent-workflow frictions. SQLite-backed, sink-pluggable, zero-config default. | published |
+| [git-batch-cli](packages/git-batch-cli) | Run safe batch git operations across all repos under a folder: sync, status, dirty checks, fetch, with `--strict` for automation. | not published |
+| [agent-engineering-playbook](packages/agent-engineering-playbook) | Guide for building production-ready AI agent systems. | doc package |
+| [agentic-coding-playbook](packages/agentic-coding-playbook) | Practical playbook for teams using AI agents in coding. | doc package |
+
+Both playbooks are also published as one searchable site: <https://lannguyensi.github.io/agent-dx/>.
+
+## Quick start
+
+Requires Node.js >= 20; friction-log requires Node.js >= 22. CI runs on Node 22.
+
+Try one of the published CLIs directly:
+
+```bash
+npx orchestrator-workflow init
+npx okf-kit check path/to/bundle
+```
+
+For any other package, clone the repo, then build that one package locally:
+
+```bash
+git clone https://github.com/LanNguyenSi/agent-dx
+cd agent-dx/packages/<name>
+npm install
+npm run build
+```
+
+`git-batch-cli` is plain JavaScript and has no build step: run `npm install && npm link` in its directory instead.
+
+## Usage
+
+Example: run the AI-slop linter against a Markdown file from a local build.
+
+```bash
+cd packages/slop-detector && npm install && npm run build && cd ../..
+node packages/slop-detector/dist/cli.js check examples/slop-sample.md --explain
+```
+
+## Documentation
+
+- [Repo layout and package status](docs/repo-layout.md): why this is not a workspace monorepo, and which packages are published, private, or doc-only.
+- [Where this fits](docs/ecosystem.md): how `slop-detector` and this workshop relate to the sibling Project OS repos.
+- [CI checks on this repository](docs/ci-checks.md): what `placement-guard`, `review-guard`, `workflow-guard`, and the OKF bundle prose guard enforce.
+- `slop-detector` overview and quick start: [packages/slop-detector/README.md](packages/slop-detector/README.md); full pack reference and the scan pipeline: [packages/slop-detector/docs/rule-packs.md](packages/slop-detector/docs/rule-packs.md) and [packages/slop-detector/docs/integration.md](packages/slop-detector/docs/integration.md).
+- Each package's own README covers its full install, usage, and API.
+
+## Development and contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for issue and PR conventions, the dev setup per package (`npm install`, `npm run build`, `npm test`), and the release process.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Experimental: each code package has its own version and its own entry in the shared CI matrix, and APIs may evolve at minor-version bumps.

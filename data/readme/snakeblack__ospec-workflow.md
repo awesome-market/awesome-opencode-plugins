@@ -1,0 +1,459 @@
+# ospec-workflow
+
+![ospec-banner.png](docs/banner-op/ospec-banner.png)
+
+[![License: MIT + Commons Clause](https://img.shields.io/badge/License-MIT%20%2B%20Commons%20Clause-blue.svg)](LICENSE)
+
+> **🌐 English** · [Español](./README.es.md)
+
+## 📖 Read this in Spanish / Leer en español
+
+The primary documentation is in English. Spanish versions of the main guides:
+
+| Document | Link |
+| --- | --- |
+| Full README | [README.es.md](./README.es.md) |
+| Installation guide | [docs/plugin-installation.es.md](./docs/plugin-installation.es.md) |
+| SDD methodology (optional mode) | [docs/sdd-metodologia.es.md](./docs/sdd-metodologia.es.md) |
+
+Internal architecture and workflow references remain available in Spanish under [`docs/`](./docs/README.md).
+
+---
+
+> **A change is done when the evidence says so, not when the agent does.** `ospec-workflow` is an impact-driven development (IDD) harness for AI coding agents. Each code change goes through the `ospec` CLI: it derives the change's obligations from what the change touches, records evidence only from runs it observes, and closes the change when every obligation is satisfied. Spec-Driven Development (SDD) with OpenSpec remains available as an optional mode.
+
+It is based on [Gentle-ai by Gentleman Programming](https://github.com/Gentleman-Programming/gentle-ai).
+
+---
+
+## IDD: Obligations From Impact, Evidence From Runs
+
+A one-line fix and a schema migration do not need the same ceremony. IDD has no phases and no documents to write first; the impact of the change decides what it owes:
+
+1. **Impact decides the work**: `ospec signals` reads the files the change touches (and later the real diff) and raises signals; each signal adds one obligation.
+2. **Evidence over opinion**: an obligation is satisfied only by evidence the CLI records from a run it observes (`ospec run`, `ospec check`, `ospec review`). Saying that tests pass satisfies nothing.
+3. **Ask before deciding**: the agent stops only at seven gates, and an explicit answer from you is the only thing that resolves one.
+4. **The repository is the memory**: each change lives in `idd/<change>/state.yaml` (owned by the CLI) and is archived under `idd/archive/` when `ospec close` succeeds.
+
+| Signal | Raised when | Obligation |
+| --- | --- | --- |
+| `always` | Every change with a resolved intent | `checks-pass`: `ospec check` runs the checks declared in `idd/config.yaml` on the current tree; an `ospec run` of the only declared check counts as it |
+| `bug-fix` | The intent is a bug | `repro-test`: the reproduction test fails first, then passes |
+| `strict-tdd` | `strict_tdd: true` in `idd/config.yaml`, except for docs and refactor changes | `tdd-red-green`: a red → green pair per unit |
+| `untested-product` | The intent is a `feature` or a `bug`, and the diff changes product code with no test | `boundary-tests`: a test the diff adds, with a passing check on the current tree that reports more than zero tests (or no count); the suite that already passed is not evidence |
+| `public-contract` | The change touches API routes, OpenAPI, proto or GraphQL schemas, or what a non-private `package.json` publishes | `contract-spec-and-test`: the contract document and its test change in the diff |
+| `persistent-data` | The change touches migrations, SQL or ORM schemas | `migration-compat-and-test`: a migration test with a compatibility or rollback plan |
+| `security-boundary` | The change touches auth, security, permissions, secrets or credentials | `trust-review`: a bounded read-only trust review |
+| `multi-unit-or-decision` | Several work units or a recorded design decision | `living-doc`: `idd/<change>/change.md` keeps the plan and decisions current; the CLI writes them from `--path` and `--decision "<text>"` |
+| `adr-or-quality-attribute` | `ospec signals --adr <id>` or `--quality <id>` declares the ADRs or quality scenarios the change touches | `adr-impact-declaration`: `none`, `conforms`, `amends`, `supersedes` or `contradicts` for each; the last three stop at `adr-amend-or-contradict`, and an amendment brings a new ADR that passes the lint |
+
+The patterns adapt to the detected stack (Node, JVM, .NET, Python, Go) and extend under `impact:` in `idd/config.yaml`. The seven gates are `ambiguous-intent` (no acceptance can be stated yet), `kind-change` (a `bug` becomes a `feature`, which withdraws its reproduction test), `open-facts` (behaviors that neither the request nor the code settle, asked all at once before editing), `irreversible-operation`, `adr-amend-or-contradict`, `review-limit` (the trust reviews of the change are used up; your answer authorizes one more) and `checks-changed` (the checks or the ceremony settings `strict_tdd`, `impact` and `contracts` of `idd/config.yaml` differ from the change's base; your answer approves them). What the agent declares cannot lower the ceremony: `ospec check` refuses a `docs` change that touches product code and a `refactor` that removes a line of a contract until the intent is recorded again with a higher kind, a feature cite must settle the behavior in the documentation or in a file the change works on, and `boundary-tests` needs code the diff adds to a test, not a comment or a fixture. Nor can `idd/config.yaml` lower it unseen: a change to its checks or ceremony settings waits for your answer in `checks-changed`. Every open gate is asked before the work it decides. The agent declares who answered (`--source user`, or `user-unverified` for a relayed answer); the CLI refuses any other source but cannot verify that the answer was yours.
+
+The agent builds the smallest change that meets the acceptance and chooses tests by risk: business rules, validation, non-trivial transformations, algorithms and contracts, with their error and edge paths. Unit tests stay deterministic and offline; no coverage percentage replaces that choice.
+
+### Foundation: architecture before the first change
+
+A new project, or a request to define a system's architecture, starts with the `foundation` skill in any mode. In IDD, while the project has no source code and nothing under `docs/product/` or `docs/architecture/`, `ospec next` and `record intent` suggest it before the first change is built, without blocking. It asks rounds of at most four questions, each with a recommended answer, and works like an architect: quality drivers as measurable scenarios, the simplest structure that meets them (services only for a named driver), and decisions deferred until their last responsible moment. It records the product docs, one ADR per structural decision under `docs/architecture/decisions/` and, with your approval, the `idd/config.yaml` that IDD needs (checks, Strict TDD, impact paths, contract documents). A later change that departs from an ADR stops at `adr-amend-or-contradict`. It never writes application code.
+
+The repository's documentation comes from the `handbook` skill, also in any mode. It writes `handbook/`: a quickstart and one folder per group of pages, ordered by the `handbook/handbook.json` manifest (each group's label and audience). On request it also builds the Starlight website in `web-doc/` from it. The first run asks the language and whether you want the website; later runs update only the pages whose code changed.
+
+---
+
+## IDD vs gentle-ai: bench
+
+IDD is measured against gentle-ai (its ODD flow, installed with Engram) on fixed scenarios with real agents, on Claude Code (`claude-sonnet-5-5` and `claude-haiku-5-5`) and on the Antigravity CLI (`gemini-3.8-flash-high`), with a simulated user and hidden checks. In short:
+
+- **Quality: not demonstrated.** Regression ties in every bench and acceptance differs by one check at most; the escaped defects differ only in hidden-fact checks, with one to three repetitions and no significant difference (2 against 0 in E4.2 is p≈0.49). Every bench before E4.6 on Claude with Haiku ran Engram only in gentle-ai's arm; that one, with Engram in both arms, gives 9 escaped against 3 and a mutation score of 89.6 % against 98.4 %, with one repetition. OSP-011 on Claude repeats it with three repetitions and a reserved scenario: 4.67 escaped against 1.67 summed over means, not significant at scenario level (p≈0.13). #388 repeats it on agy with Gemini: 9 against 7, p≈0.25, because there IDD barely asks.
+- **Tokens:** with Claude and small tasks IDD spends 0.44× what gentle-ai spends with Sonnet and 2.61× with Haiku (2.34× with three repetitions in OSP-011); with Gemini it spends more (2.29× on the same six scenarios and 2.63× with three repetitions in #388), and more still on the complex one-page apps, where the IDD runs that spent more left fewer defects (a correlation over six runs, not proof).
+- **Caveats:** one to three repetitions per scenario, IDD versions that changed between benches, Engram in one arm only before E4.6 on Claude, a reserved scenario written in the same session that tuned IDD, and only seven scenarios in the three-repetition benches. Read them before quoting a number.
+
+Full tables, models, personas, who wins and why: [docs/benchs/bench-idd-vs-gentle-ai.md](docs/benchs/bench-idd-vs-gentle-ai.md) ([Español](docs/benchs/bench-idd-vs-gentle-ai.es.md)).
+
+---
+
+## Quick Start in 3 Steps
+
+### 1. Nothing to copy: the installer adds a small router
+Every installer adds a small router to the instructions your host loads on every request ([`rules/ospec-router.instructions.md`](rules/ospec-router.instructions.md)). It sends code changes through IDD by default, keeps questions and read-only work direct, keeps IDD inside a project (a git work tree whose top level is neither `$HOME` nor `/`, so a system fix elsewhere is done directly and a new project first gets `git init -b main`), and enters SDD **only** when you run a `/sdd-*` command or ask for spec-driven work. Claude Code gets it as a file of its own, `~/.claude/rules/ospec-workflow.md`, and Codex as a marked block in `AGENTS.md`, next to your own text; pass `--no-router` to leave it out or remove it. The Claude Code marketplace runs no installer, so there `! ospec router install` writes it ([Claude Code](#-claude-code-persistent-plugin-and-marketplace)).
+
+### 2. Install the Plugin in Your Tool
+Choose your target and run its automatic configurator:
+
+| Environment / Target | Quick Install Command | What does it do? |
+| :--- | :--- | :--- |
+| **VS Code** | `npm run setup:vscode` | Builds to `dist/vscode` and adds it to `chat.pluginLocations`. |
+| **Claude Code** | `npm run setup:claude` | Builds, validates strictly, and installs as a persistent plugin. |
+| **Copilot CLI** | `npm run setup:copilot` | Builds and installs globally on your machine (`~/.copilot/`). |
+| **opencode** | `npm run setup:opencode` | Builds and installs into the OpenCode folder (`~/.config/opencode/`). |
+| **Codex CLI** | `npm run setup:codex` | Builds `dist/codex`, registers the marketplace, adds only missing global MCPs and copies `.codex/agents/*.toml`. |
+| **Cursor** | `npm run setup:cursor` | Builds `dist/cursor`, syncs to `~/.cursor/`, configures MCPs and preserves hooks. |
+| **Antigravity** | `npm run setup:antigravity` | Builds `dist/antigravity` and installs into `~/.gemini/config/` with a transactional manifest. |
+| **Guided TUI** | `npm run setup:tui` | Opens the guided installer from this repository checkout. |
+
+### 3. Ask for a change
+Once the plugin is loaded in your chat agent, ask for the change in your own words ("make the session expire after 30 minutes of inactivity"). The router sends it through IDD:
+1. **Declare your checks once**: `ospec check` runs the commands listed under `checks:` in `idd/config.yaml`. Create it once at the project root:
+   ```yaml
+   checks:
+     test: npm test
+   ```
+2. **Answer the open facts**: the agent records the intent, lists the behaviors the request leaves open and asks them all at once before editing.
+3. **Let the CLI close it**: the agent follows the next step each `ospec` command prints (`ospec next` when it resumes) until `ospec close`, or `ospec check --close` once the check is ready, succeeds and archives the change under `idd/archive/`. `record intent` declares the plan in the same call. Branches, commits and PRs stay your decision.
+
+On Claude Code you can also enter IDD explicitly with `/ospec-workflow:idd <request>`. To turn IDD off in a project, declare `mode: sdd` in `idd/config.yaml`: the agent then works directly and enters SDD only on request. SDD changes already in flight finish in SDD.
+
+### Guided installer TUI
+
+From a repository checkout, use Node.js 22+ and Go 1.26+:
+
+```powershell
+npm run setup:tui
+```
+
+Choose a target, type the model of each tier (`premium`, `default`, `cheap`) as the host names it, review the summary, then activate **Install**. Use arrow keys to move between tiers, Enter to continue, Escape to go back, and Ctrl-C to cancel; on the model screen every printable key is part of the name. Back retains what you typed; canceling before Install does not write files. Install saves the models in your user configuration (`~/.config/ospec/models.yaml`, or `%APPDATA%\ospec\models.yaml` on Windows), the same as an installer's `--model <tier>=<model>`; an empty tier inherits the session model (Claude falls back to its aliases). Model availability and host authentication are outside this flow, and standalone binaries are outside the MVP.
+
+---
+
+## Detailed Setup per Target
+
+### 🛠️ VS Code (Agent Plugin from `dist/vscode`)
+VS Code loads the built tree, not the source: the source still carries placeholders that only the build renders. The SDD package is left out unless you pass `--with-sdd`.
+```powershell
+npm run setup:vscode
+```
+It builds `dist/vscode` and adds it to `chat.pluginLocations`. To update after pulling changes, run `npm run reload:vscode` and reload VS Code. `node scripts/ospec.js doctor --target vscode` reports a duplicated, missing or source-checkout entry.
+
+### 🤖 Claude Code (Persistent Plugin and Marketplace)
+- **For end users** (without cloning the repository):
+  ```powershell
+  claude plugin marketplace add https://github.com/snakeblack/ospec-workflow.git#release
+  claude plugin install ospec-workflow@ospec-tools
+  ```
+  The marketplace build is the default one: IDD without the SDD package. For SDD, install from a checkout with `npm run setup:claude -- --with-sdd`.
+- **The router** (the always-on instructions that make IDD the default flow): the marketplace runs no installer, so every session start shows a notice until you type `! ospec router install` in Claude Code. It writes `~/.claude/rules/ospec-workflow.md` (`CLAUDE_CONFIG_DIR` moves it), and later plugin updates refresh it at session start unless you edited it. `! ospec router off` takes it out and stops the notice, `! ospec router remove` takes it out before `claude plugin uninstall`, and `! ospec router status` shows where it stands. For a team, `ospec router install --scope project` writes `.claude/rules/ospec-workflow.md` and declares the marketplace and the plugin in `.claude/settings.json`: commit both; each teammate still installs the plugin. `npm run setup:claude` writes the router itself and moves the block of `~/.claude/CLAUDE.md` that earlier releases wrote.
+- **For plugin development** (idempotent local installation):
+  ```powershell
+  npm run setup:claude
+  ```
+  *(Inside the Claude Code session, type `/reload-plugins` to apply changes).*
+- **Engram session memory**: configured automatically when the `engram` binary is on PATH (`--no-engram` to skip); see [Engram session memory](#-engram-session-memory-every-target).
+- **Installer output**: every `npm run setup:<target>` prints the same phases (`✓ [n/N] phase (s)`) and a final summary, in Spanish; add `-- --verbose` to also see the validator, hook binary and host CLI output.
+- **Fast rebuild during development**:
+  ```powershell
+  npm run reload:claude
+  ```
+
+### 💻 GitHub Copilot CLI (Global Loading)
+- **Global Install (Recommended)**:
+  ```powershell
+  npm run setup:copilot
+  ```
+  *(This copies agents, instructions, and commands to `~/.copilot/` and merges the global `mcp-config.json` file).*
+- **Local Install (For a specific project only)**:
+  ```powershell
+  npm run install:copilot -- ../my-project
+  ```
+
+### 🧬 opencode
+- **Global Install (Recommended)**:
+  ```powershell
+  npm run setup:opencode
+  ```
+  *(The main agent is automatically renamed to `ospec-workflow` to make it easier to discover via autocomplete).*
+- **Local Install**:
+  ```powershell
+  npm run install:opencode -- ../my-project
+  ```
+
+### 🧠 Codex CLI
+- **Global Install (Recommended)**:
+  ```powershell
+  npm run setup:codex
+  ```
+  *(Builds `dist/codex`, writes the router as a block in `~/.codex/AGENTS.md`, syncs agents, skills and runtime into `~/.codex/`, merges native hooks into `~/.codex/hooks.json` and registers missing global MCPs.)*
+- **Per-repository Local Install**:
+  ```powershell
+  npm run install:codex -- ../my-project
+  ```
+  *(Copies `.codex/agents/*.toml`, writes the router block into the repo's `AGENTS.md` and the orchestrator skill into `.agents/skills/`, and does not modify `.codex/config.toml`.)*
+
+  By default the installer does not alter `.codex/config.toml`. If Codex rejects the exact legacy key `service_tier = "default"`, the repair is an explicit opt-in:
+  ```powershell
+  npm run setup:codex:repair
+  ```
+  The dedicated script is the recommended path on Windows PowerShell because it does not depend on npm flag forwarding. As a fallback you can run `node scripts/configure/install-codex.js --repair-config`; to preview without writing, use `node scripts/configure/install-codex.js --dry-run --repair-config`.
+
+  The repair removes only that top-level assignment, keeps a single byte-for-byte backup and restores the original if the write, rename, or validation with Codex fails. Other incompatible keys remain intact and produce a diagnostic. It does not touch `auth.json`, other keys, or MCP entries; per-repository local installation never repairs global configuration.
+
+### 🖱️ Cursor
+- **Global Install**:
+  ```powershell
+  npm run setup:cursor
+  ```
+  *(Builds `dist/cursor`, syncs to `~/.cursor/`, translates `.mcp.json` and preserves user hooks in `hooks.json`.)*
+
+### 🌌 Antigravity IDE
+- **Global Install**:
+  ```powershell
+  npm run setup:antigravity
+  ```
+  *(Builds `dist/antigravity` with profiles and validation, deploying adapted skills, agents and hooks into `~/.gemini/config/` with a transactional manifest.)*
+- **Fast rebuild during development**:
+  ```powershell
+  npm run reload:antigravity
+  ```
+
+See the [installation guide](docs/plugin-installation.md) for more details on native global installation and the hooks runtime.
+
+### 🧭 Optional SDD package (every target)
+The SDD mode (the `sdd-*` skills and agents with the orchestrator, the `/sdd-*` commands and the `sdd-*` rules) is not installed by default. Add `--with-sdd` to any installer to include it (`npm run setup:claude -- --with-sdd`, `node scripts/configure/install-codex.js --with-sdd`; in PowerShell use `npm run setup:<target>:sdd` or `:no-sdd`, see the installation guide); the guided TUI offers it as the «SDD mode» package. A reinstall without the flag keeps SDD when the previous install held it and says so; `--no-sdd` removes it. The `review-*` agents, `skills/_shared/` and the runtime stay in every install because IDD uses them.
+
+### 🧩 Optional extras package (every target)
+`issue-creation`, `comment-writer`, `gh-release-notes`, `judgment-day`, `caveman-compress` and `stack-webmcp` are not installed by default. Add `--with-extras` to any installer to include them (`npm run setup:claude -- --with-extras`, `node scripts/configure/install-codex.js --with-extras`). Installs remove what the new build no longer has, so re-running an installer without the flag uninstalls them.
+
+### 🧠 Engram session memory (every target)
+Every `npm run setup:<target>` (Claude, Codex, Antigravity, opencode, Cursor, VS Code, Copilot CLI) configures [Engram](https://github.com/Gentleman-Programming/engram) automatically when the `engram` binary is on PATH. It runs the upstream `engram setup <agent>` (`claude-code`, `codex`, `antigravity-cli`, `opencode`, `cursor`, `vscode-copilot`). Copilot CLI has no upstream setup, so the installer adds an `engram mcp` entry to `~/.copilot/mcp-config.json` instead. The step is idempotent and fail-open, and it never changes the install exit code. Pass `--no-engram` to skip it (`npm run setup:codex -- --no-engram`). Without the binary, the installer only prints install guidance.
+- **Claude Code in auto mode**: to bind the session, the upstream `PreToolUse` hook rewrites the input of the Engram write tools, and Claude Code's auto mode can deny such a call without a verdict ([#475](https://github.com/Snakeblack/ospec-workflow/issues/475)). On every platform, once Engram is configured, the installer adds `permissions.allow` rules for `mem_save`, `mem_update`, `mem_review`, `mem_save_prompt`, `mem_pin`, `mem_unpin`, `mem_session_summary`, `mem_session_start`, `mem_session_end`, `mem_capture_passive`, `mem_judge` and `mem_compare`, under the `mcp__engram__` and `mcp__plugin_engram_engram__` prefixes, to the `settings.json` of `CLAUDE_CONFIG_DIR` (default `~/.claude`). `mem_delete` and `mem_merge_projects` keep going through the classifier. A tool you list under `ask` or `deny` gets no rule, and `--no-engram` neither adds nor removes rules. `ospec doctor` warns when a rule is missing. Without the installer, add the rules by hand, for example `"mcp__engram__mem_save"`.
+- **Claude Code on Windows**: a short Git Bash fork probe decides whether the upstream hook's safe mode can be turned off (`ENGRAM_CLAUDE_WINDOWS_BASH_SAFE_MODE=0` in `~/.claude/settings.json`). The safe mode disables prompt capture and save reminders. A value you already set is never overwritten. The upstream hooks need bash, jq and curl. `.sh` hook commands, and those led by a bare `bash` or `sh`, in the installed plugin run in exec form with the absolute path of Git Bash (or of a `bash.exe` on `PATH` that is not the WSL launcher), even when Engram is already configured, so Windows neither opens them in the associated program nor runs them under WSL. With only the WSL bash, the hooks are left alone and a warning asks for Git Bash.
+- **Cursor**: when `~/.cursor/engram-memory-protocol.md` has content, the installer writes `~/.cursor/rules/engram-memory-protocol.mdc` with `alwaysApply: true` (Always Apply, global). Cursor loads that rule.
+- Every target ships the same host-neutral SDD memory addendum. Engram is non-authoritative: `idd/` and OpenSpec state on disk remain the source of truth.
+
+## What's included
+
+| Path | Purpose |
+| --- | --- |
+| `rules/ospec-router.instructions.md` | The always-on router: IDD by default for code changes, SDD only on request through the host's orchestrator. Installers add it to every target. |
+| `skills/idd/` | The IDD protocol the router loads for a code change. |
+| `scripts/ospec.js` | The `ospec` CLI (`status`, `next`, `record`, `signals`, `check`, `run`, `review`, `close`), shipped with the runtime. |
+| `bin/ospec`, `bin/ospec.cmd` | The shims that run that CLI as one word, in any shell; the IDD protocol names the one of its platform. |
+| `idd/` | IDD configuration (`config.yaml`), changes in flight and `archive/`, in each project. |
+| `.plugin.json` | **Canonical** manifest (VS Code/direct-load). Edit this one first. |
+| `.claude-plugin/plugin.json` | Compatibility copy for Claude distribution; also the source read by the generator (`scripts/configure/cli.js`). It must mirror the canonical one — `scripts/manifest-sync.test.js` verifies this in CI. |
+| `agents/` | The IDD review agents (`review-*`) and, for the optional SDD mode, the orchestrator and the `sdd-*` agents per phase. |
+| `commands/` | The `/sdd-*` commands of the optional SDD mode and their routing to the orchestrator. |
+| `skills/` | On-demand capabilities and shared contracts. |
+| `rules/` | The always-on router, Engram and attribution rules, and the `sdd-*` rules of the optional SDD mode (OpenSpec, Strict TDD). |
+| `hooks/` | Declarative definition of plugin lifecycle events. |
+| `scripts/hooks/` | Hooks runtime (Node.js) and its tests. |
+| `scripts/lib/` | Shared libraries: IDD and OpenSpec state, artifact-store and the generator core (`frontmatter`, `model-resolver`, `target-transform`, profiles). |
+| `scripts/configure/` | Multi-target generator CLI (`cli.js`), per-profile validators and golden fixtures. |
+| `models.yaml` | Agent→tier policy, Claude's aliases and Codex's effort per tier; no other model names. |
+| `profiles/models/` | Optional model-routing profiles (direct use in VS Code). |
+| `docs/` | Detailed architecture and usage documentation. |
+| `.mcp.json` | Canonical MCP source. Codex does not bundle it: `setup:codex` translates its entries to the native CLI and avoids duplicates. |
+| `openspec/` | Versionable source of truth for every SDD change (optional SDD mode). |
+
+## Optional SDD Mode
+
+SDD is an **optional mode**. IDD is the default flow and does not use these phases or files. SDD runs a change through planned phases (proposal, specs, design, tasks, apply, verify, archive) with OpenSpec artifacts, for when you want the contract written and approved before any code. It needs the package installed (`--with-sdd`) and enters only when you run a `/sdd-*` command or explicitly ask for spec-driven work ("do SDD for X"). The agent never offers or starts it on its own, an IDD change does not switch to SDD, and an SDD change in flight finishes in SDD. The rest of this section describes that mode.
+
+### SDD Commands
+
+| Command | Usage |
+| --- | --- |
+| `/sdd-init` | Detects the project and prepares OpenSpec, testing and the skill registry. |
+| `/sdd-baseline` | Seeds openspec/specs/ with baseline specs of existing behavior (brownfield repos, resumable batches). |
+| `/sdd-reconcile` | Folds already-shipped, undocumented code changes back into a domain's baseline spec as a retroactive delta. |
+| `/sdd-workspace` | Manages multi-repo federation: atlas (`init`), cross-repo state (`status`), contract-based impact (`impact`). |
+| `/sdd-new` | Starts a persisted change and selects the workflow. |
+| `/sdd-lite` | Runs the reduced flow for small, low-risk changes. |
+| `/sdd-ff` | Completes planning: proposal, specs, design and tasks. |
+| `/sdd-continue` | Restores state from OpenSpec and resumes the next available phase. |
+| `/sdd-explore` | Investigates an idea without implementing. |
+| `/sdd-clarify` | Re-runs or manually triggers the clarify phase of an existing change. |
+| `/sdd-propose` | Defines intent, scope, risks and approach of the change. |
+| `/sdd-spec` | Writes requirements and verifiable scenarios. |
+| `/sdd-design` | Defines architecture, data flow and testing strategy. |
+| `/sdd-tasks` | Breaks the change into implementable, reviewable units. |
+| `/sdd-apply` | Implements tasks in reviewable batches. |
+| `/sdd-verify` | Checks specs, design, tasks and test evidence. |
+| `/sdd-archive` | Consolidates and archives a verified change. |
+| `/sdd-onboard` | Walks through a real SDD cycle on the current repository. |
+
+In SDD, the `foundation` route delegates to the `foundation` agent when the project is empty, and a request to document the repository delegates to the `handbook` agent (there is no command for it). Phase agents must not be invoked as an uncoordinated team: the orchestrator preserves order and contracts.
+
+### SDD Flows
+
+The standard full cycle goes through every planning, implementation, and closing phase:
+
+```text
+propose → spec → design → tasks → apply → verify → archive
+```
+
+But not every change needs the full cycle. The orchestrator evaluates the routing table
+(`openspec/config.yaml`) top-down and activates the **first matching route**.
+
+#### Canonical routes
+
+| Route | Classification | When | Phases |
+| --- | --- | --- | --- |
+| **foundation** | normal, high-risk | Empty project, no stack or architecture | `foundation` |
+| **federated** | normal, high-risk | Multi-repo workspace (`workspace-federated`) | `sdd-workspace` → propose → spec → design → tasks → apply → verify → archive |
+| **bugfix** | small, normal | User states an explicit bugfix intent | `sdd-explore` → tasks → apply → verify → archive |
+| **brownfield** | normal, high-risk | There is code but `openspec/specs/` is empty | `sdd-baseline` (in batches per domain) |
+| **refactor** | small, normal | User states an explicit refactor intent | design → tasks → apply → verify → archive |
+| **hotfix** | trivial, small | Explicit emergency patch | apply → verify → archive |
+| **standard** | normal, high-risk | Active project (default route) | propose → spec → design → tasks → apply → verify → archive |
+| **lite** | trivial, small | Small, low-risk change | propose → tasks → apply → verify → archive |
+
+#### Entry shortcuts
+
+| Command | What it does |
+| --- | --- |
+| `/sdd-new` | Classifies the change, selects the route and starts the first phase. |
+| `/sdd-ff` | Planning fast-forward: runs propose → spec → design → tasks without implementing. |
+| `/sdd-lite` | Starts the lite route directly. |
+| `/sdd-continue` | Restores state from `state.yaml` and resumes the next pending phase. |
+
+#### Gates
+
+Some routes include gates that block progress until resolved:
+
+- **clarify** — the orchestrator detects ambiguity and requests clarifications before continuing.
+- **quality-review-gate** — after a successful `sdd-verify`, runs deterministic quality classification (Trust, Runtime, Evolution, Efficiency) and bounded review lineage. Legacy **`4r-review-gate`** applies only to in-flight `schema_version: 1` lineages.
+- **impact** — in federated routes, evaluates cross-repo impact before implementing.
+- **brownfield-advisory** — reports baseline status before executing.
+
+#### Batched implementation
+
+`/sdd-apply` works in reviewable batches (it merges `apply-progress.md`). When a change exceeds the
+~400-line budget, the orchestrator proposes chained PRs (`stacked-to-main` or
+`feature-branch-chain`) or requires a conscious `size:exception`.
+
+#### Execution modes
+
+| Mode | Behavior |
+| --- | --- |
+| **Interactive** (default) | Pauses between phases to review decisions. |
+| **Automatic** | Chains phases without pausing, but never bypasses risk, architecture, testing, or review-load gates. |
+
+Full detail in [docs/sdd-workflows.md](docs/sdd-workflows.md).
+
+## Runtime and continuity
+
+Hooks offload repetitive lifecycle-cycle tasks from the prompt and enforce security and control policies:
+
+| Event | Responsibility |
+| --- | --- |
+| `SessionStart` | Refreshes the compact skill cache, runs **AgentShield** security scans (alerts for exposed `.env` files or credentials in `.git/config`) and, when the project has OpenSpec, warns about spec drift (SDD mode). |
+| `PreToolUse` | Blocks or asks for confirmation for dangerous commands, evaluates **Token Budget Advisor** limits (limit of 50k tokens per request, 150k accumulated tokens only with an active SDD change) and implements **AgentShield** (blocking of SSH keys, `.npmrc`, `.git/config`, and interactive prompts for secrets). |
+| `PostToolUse` | Redacts secrets from tool output before the model sees it. |
+| `PreCompact` | Persists a recoverable summary before compacting context. |
+| `SubagentStop` | Records telemetry (tokens and duration) per agent and, for the `sdd-*` agents of the active SDD change, persists their result in its `state.yaml`. It warns when skill resolution degrades and never blocks the turn. |
+| `Stop` | Counts the end of the turn in `.ospec/turns`, which fences the answers to the IDD gates (E1.49), and records minimal session continuity. |
+
+### Bypass Environment Variables (Harness Gates)
+
+You can temporarily skip the various security checks, budgets, and validators using the following environment variables:
+
+- `DISABLE_AGENT_SHIELD=true`: Disables AgentShield scanning and blocking/prompting of sensitive files and credentials.
+- `DISABLE_TOKEN_ADVISOR=true`: Disables the estimated token-size check on file reads during the session (Token Budget Advisor).
+- `DISABLE_OSPEC_PRECOMMIT=true`: Disables local workspace-validation and Strict TDD enforcement in the Git pre-commit hook.
+- `DISABLE_SPEC_DRIFT_GUARD=true` (SDD mode): Turns off the OpenSpec spec-drift warning in SessionStart and PreToolUse.
+
+Hooks run native code (Node.js or optimized Go executables). `.ospec/cache` and `.ospec/session` are auxiliary; **`idd/` and OpenSpec state on disk remain the source of truth**.
+
+## Model routing
+
+ospec ships no model names besides Claude's aliases. Each agent belongs to a tier, you assign a model to each tier per host with `--model <tier>=<model>` or `npm run setup:tui`, and a tier without one inherits the session model. Local profiles remain for direct use in VS Code:
+
+- `default`: single-model fallback;
+- `cheap`: reduces cost during exploration and proposal;
+- `premium`: increases reasoning during design and verification.
+
+Tiers come from `models.yaml`, which assigns one to every agent, `review-*` included (`review-change` is premium, the other reviewers default). The profiles in `profiles/models/` route the SDD agents (optional SDD mode): the `sdd-*` agents and the `foundation` agent, which only `default.yaml` lists. See [model-routing.md](docs/model-routing.md).
+
+## Multi-target compatibility
+
+The canonical origin is in VS Code format and is loaded directly, without transformation.
+For other targets, a pure generator (`scripts/configure/cli.js`) produces a native, validated tree
+in `dist/<target>/` without touching the origin:
+
+| Target | Output |
+| --- | --- |
+| `vscode` | Canonical identity: VS Code loads the repository as-is, without generating `dist/`. |
+| `claude` | `.claude-plugin` tree: renames files, restructures manifest and hooks, substitutes tools (context-aware), rewrites command variables, incorporates `rules/` and emits the orchestrator as a **skill**. Gate: golden fixtures in CI; `claude plugin validate --strict` 0/0 locally when the Claude CLI is installed (not run by Validate Harness). |
+| `github-copilot` | `.github/` layout: agents to `.github/agents/*.agent.md` (`target: github-copilot`, `vscode/askQuestions`→`ask_user`), commands to `.github/prompts/*.prompt.md`, rules to `.github/instructions/*.instructions.md` (keeping the source `applyTo`; `agents/**` rules go into the orchestrator agent), hooks to `.github/hooks/hooks.json` (Copilot schema) and `.mcp.json` as-is. Validated by `scripts/configure/validate-github-copilot.js` inside the profile flow. |
+| `opencode` | `.opencode/` layout + `opencode.json`: agents to `.opencode/agents/*.md` (`mode: primary\|subagent`, `tools:` as a **map**, model `provider/model`), commands to `.opencode/commands/*.md` (keeps `agent:`, args `$1`/`$ARGUMENTS`), rules to `.opencode/instructions/*.md` referenced via `instructions` in `opencode.json`, MCP folded into `opencode.json` (`mcp` with `type: local\|remote`) and, since opencode has no shell hooks, the runtime is bridged with a JS plugin in `.opencode/plugins/ospec.js`. Validated by `scripts/configure/validate-opencode.js`. |
+| `codex` | `.codex-plugin/` layout + `.codex/agents/*.toml`, without `.mcp.json` in the bundle: the plugin and agents are installed separately; `setup:codex` registers missing global MCPs with valid IDs and deduplication by identity. The generator rejects `.codex/config.toml`, `.mcp.json` and `mcpServers` inside the payload. Validated by `scripts/configure/validate-codex.js`. |
+
+```powershell
+node scripts/configure/cli.js --target claude          --out dist/claude
+node scripts/configure/cli.js --target codex           --out dist/codex
+node scripts/configure/cli.js --target github-copilot  --out dist/github-copilot
+node scripts/configure/cli.js --target opencode        --out dist/opencode
+```
+
+The transform is pure and tested under Strict TDD; the CLI is the IO layer with a
+validation gate per target (golden fixtures in CI, `claude plugin validate --strict` for `claude` locally when that CLI is installed, and Node validators for GitHub Copilot and opencode). Validate Harness does not run the Claude CLI. Model selection is abstracted into tiers (`models.yaml`). Each generated tree is **self-contained**: the generator
+follows `require`s from the hooks and includes their runtime (`scripts/hooks/` + their dependencies from
+`scripts/lib/`), without tests or the generator itself. See [model-routing.md](docs/model-routing.md)
+and the [installation guide](docs/plugin-installation.md).
+
+## MCP
+
+The default configuration is kept deliberately small:
+
+- Context7 for up-to-date library documentation;
+- MarkItDown for document conversion.
+
+Additional servers must be activated explicitly. See [mcp-policy.md](docs/mcp-policy.md).
+
+## Workflow guarantees
+
+- **IDD:** a change is done only when `ospec close` succeeds; obligations are satisfied only by evidence from runs the CLI observes.
+- **SDD (optional):** phases and approvals are reported as done only when `openspec/changes/<change>/state.yaml` says so.
+- Strict TDD when the project enables it (`strict_tdd: true` in IDD, a compatible runner in SDD).
+- Change state recoverable from disk: `idd/<change>/` in IDD, `openspec/changes/{change-name}/` in SDD.
+- Gates and approvals persisted in `state.yaml`, resolved only by an explicit answer, never inferred from chat history.
+- **SDD:** dynamic delimited prompts to separate intent, artifacts, standards, and approval context for phase subagents.
+- **SDD:** skills resolved as compact rules to control the token budget when dispatching phase agents.
+- **Both:** changes organized into reviewable units. IDD uses the `work-unit-commits` and `chained-pr` skills when the diff exceeds the review budget; SDD proposes chained PRs above the ~400-line budget.
+
+## Documentation
+
+| Document | Content |
+| --- | --- |
+| [ospec-workflow.mretamozo.com](https://ospec-workflow.mretamozo.com) | Web documentation: start page and quick start. |
+| [A change from start to finish](https://ospec-workflow.mretamozo.com/empezar/primer-cambio/) | A real IDD example: what you ask, what it asks you and what you see at close (Spanish). |
+| [IDD guide](https://ospec-workflow.mretamozo.com/idd/flujo-idd/) | IDD, the default flow: obligations, evidence, gates and closing. |
+| [Foundation](https://ospec-workflow.mretamozo.com/idd/foundation/) | Architecture before the first change: the ADRs and how IDD works with each change's impact on them (Spanish). |
+| [Review in IDD](https://ospec-workflow.mretamozo.com/idd/revision/) | What IDD reviews, when, and what it does not (Spanish). |
+| [Delivery](https://ospec-workflow.mretamozo.com/idd/entrega/) | Changelog, versions, branches and the progress snapshot (Spanish). |
+| [SDD mode (optional)](https://ospec-workflow.mretamozo.com/sdd/modo-sdd/) | What SDD is, when it enters and how it differs from IDD. |
+| [docs/README.md](docs/README.md) | Index and recommended reading path. |
+| [openspec/specs/idd/spec.md](openspec/specs/idd/spec.md) | IDD contract: signals, obligations, gates and the `ospec` CLI. |
+| [docs/sdd-metodologia.md](docs/sdd-metodologia.md) | SDD mode (optional): principles and mental model. |
+| [docs/sdd-fases.md](docs/sdd-fases.md) | SDD mode (optional): contracts of each phase. |
+| [docs/sdd-workflows.md](docs/sdd-workflows.md) | SDD mode (optional): work lines: standard, lite, fast-forward, foundation, brownfield baseline, continuation, workspace and onboarding. |
+| [docs/openspec.md](docs/openspec.md) | SDD mode (optional): persistence, delta specs and archiving. |
+| [docs/tdd-y-revision.md](docs/tdd-y-revision.md) | Strict TDD and review budget. |
+| [docs/harness-runtime.md](docs/harness-runtime.md) | Hooks runtime architecture. |
+| [docs/model-routing.md](docs/model-routing.md) | Model tiers and format per target (`models.yaml`). |
+| [docs/mcp-policy.md](docs/mcp-policy.md) | MCP policy and server configuration. |
+| [docs/plugin-installation.md](docs/plugin-installation.md) | Installation, generation per target, trust and diagnostics. |
+| [docs/benchs/bench-idd-vs-gentle-ai.md](docs/benchs/bench-idd-vs-gentle-ai.md) | Bench of IDD against gentle-ai (ODD): models, personas, results and who wins. |
+
+Spanish versions of the main guides are listed in the language section at the top of this file.
+
+## Validation
+
+A single command covers local and CI verification of the hooks runtime, multi-target generator,
+profile validators and expected artifacts:
+
+```powershell
+node scripts/check.js
+```
+
+CI runs the same gate in `.github/workflows/validate-harness.yml` with Node 22 and a multi-OS matrix.
+
+Before publishing changes to the manifest, hooks, MCP, or the generator, explicitly review the new
+execution and trust surface.
+
+## License
+
+This project is licensed under the MIT License with the [Commons Clause](https://commonsclause.com/) restriction. See [LICENSE](LICENSE) for the full text.
+
+Free use, modification and redistribution, including by companies. Selling it or offering paid services whose value comes substantially from the software (hosting, consulting or support) is not allowed without permission ([hello@mretamozo.com](mailto:hello@mretamozo.com)). Versions published before this change were released under plain MIT.
+
+Uso, modificación y redistribución libres, también para empresas. No está permitido venderlo ni ofrecer servicios de pago cuyo valor proviene sustancialmente del software (alojamiento, consultoría o soporte) sin permiso ([hello@mretamozo.com](mailto:hello@mretamozo.com)). Las versiones publicadas antes de este cambio se distribuyeron bajo MIT sin Commons Clause.

@@ -1,0 +1,192 @@
+# opencode-glm-vistatus
+
+[English](./README.en.md) | 简体中文
+
+> OpenCode TUI 插件 — 在侧边栏实时显示 Z.AI / ZHIPU GLM Coding Plan 额度使用情况。
+
+---
+
+## 功能
+
+- 5 小时 Token 配额（百分比 + 进度条）
+- 周 Token 配额（百分比 + 进度条）
+- MCP 工具用量（百分比 + 进度条）
+- Token 已用 / 总量
+- 重置倒计时 + 本地时钟
+- 账户套餐等级（Pro / Lite 等）
+- 平台信息（Z.AI / ZHIPU）
+- 最后刷新时间 + 下次刷新预估
+- 每 5 分钟自动刷新（可自定义 1–1440 分钟），多 TUI session 经宿主 KV 共享额度记录去重，每个刷新窗口全局仅发起一次真实请求
+- 中 / 英文双语切换
+- Morandi 风格主题适配
+- 进度条颜色随使用率变化（绿 → 橙 → 红）
+
+## 安装
+
+### 方式一：OpenCode 命令面板安装（推荐，V1 / V2 通用）
+
+在 OpenCode 中按 **`Ctrl + P`** 打开命令面板，找到 **`plugin`**（Install Plugin），输入：
+
+```
+opencode-glm-vistatus
+```
+
+回车即可完成安装与配置。宿主会自动写入对应版本的配置文件（V2 → `cli.json`，V1 → `tui.jsonc`）并从 npm 拉取插件，无需手动编辑任何文件。
+
+### 方式二：手动配置（备用）
+
+仅当宿主没有内置安装命令时才需要。
+
+V2（opencode 2.x）在配置目录的 `cli.json` 中添加：
+
+```jsonc
+{
+  "plugins": [{ "package": "opencode-glm-vistatus" }],
+}
+```
+
+V1（opencode 1.x）在配置目录的 `tui.jsonc` 中添加：
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": ["opencode-glm-vistatus"],
+}
+```
+
+| 系统          | 配置目录              |
+| ------------- | --------------------- |
+| Windows       | `%APPDATA%\opencode\` |
+| macOS / Linux | `~/.config/opencode/` |
+
+### 重启 OpenCode
+
+进入任意 session，侧边栏即可看到 GLM 额度面板。
+
+## 卸载
+
+**1. 移除插件配置**
+
+从 `cli.json`（V2，`plugins` 数组）和/或 `tui.jsonc`（V1，`plugin` 数组）中删除 `"opencode-glm-vistatus"`：
+
+```jsonc
+// cli.json（V2）
+{
+  "plugins": [], // 删除 { "package": "opencode-glm-vistatus" } 这一项
+}
+```
+
+```jsonc
+// tui.jsonc（V1）
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "plugin": [], // 删除 "opencode-glm-vistatus" 这一项
+}
+```
+
+**2. 清除 OpenCode 插件缓存**
+
+由于 [OpenCode 已知问题 #6774](https://github.com/anomalyco/opencode/issues/6774)，插件会被缓存到本地，删除配置后建议一并清缓存：
+
+```powershell
+# Windows PowerShell
+Remove-Item -Recurse -Force "$env:USERPROFILE\.cache\opencode\packages\opencode-glm-vistatus"
+```
+
+```bash
+# macOS / Linux
+rm -rf ~/.cache/opencode/packages/opencode-glm-vistatus
+```
+
+**3. 重启 OpenCode**
+
+## 前置条件
+
+1. 通过 `/connect` 命令认证 Z.AI / ZHIPU 账户，或
+2. 设置环境变量 `ZAI_API_KEY` / `ZHIPU_API_KEY`
+
+凭证发现优先级：V2 凭证数据库 `~/.local/share/opencode/opencode.db`（支持 `OPENCODE_DB` / `XDG_DATA_HOME` 覆盖）→ XDG `~/.local/share/opencode/auth.json` → Windows `%LOCALAPPDATA%\opencode\auth.json` → 环境变量。
+
+## 斜杠命令
+
+| 命令              | 功能                                                  |
+| ----------------- | ----------------------------------------------------- |
+| `/glm-refresh`    | 立即刷新额度数据                                      |
+| `/glm-config`     | 插件设置：语言 / 边框 / 刷新间隔                      |
+| `/glm-mcp-manage` | 安装 / 卸载 GLM MCP 服务器（别名 `/glm-mcp-install`） |
+
+语言、边框与刷新间隔偏好会持久化保存（插件 KV），重启后保留。
+
+`/glm-config` 打开交互式设置菜单：显示语言、面板边框、刷新间隔。刷新间隔提供预设（1 / 2 / 5 / 10 / 30 / 60 分钟）与自定义输入（1–1440 分钟，非法输入会被拒绝），修改后立即生效并重新排期定时器。
+
+`/glm-mcp-manage`（别名 `/glm-mcp-install`）先选择范围（Local 项目 / Global 全局），随后读取该范围的配置文件（`opencode.json` / `opencode.jsonc` 均为合法文件，自动定位含 `mcp` 字段的文件），以勾选列表展示当前安装状态：勾选即安装、取消勾选即卸载，确认后仅对与进入时状态不同的服务器执行变更。可管理的服务器：
+
+| 服务器         | 类型   | 说明                          |
+| -------------- | ------ | ----------------------------- |
+| github-read    | Remote | GitHub 仓库知识与代码阅读     |
+| glm-web-reader | Remote | 网页内容提取与结构化数据获取  |
+| glm-web-search | Remote | 网络搜索与实时信息获取        |
+| glm-vision     | Local  | 图像分析与视频理解 (GLM-4.6V) |
+
+## 面板布局
+
+```
+▼ GLM 额度 v0.1.0         14:24
+───────────────────────────────
+平台:                     ZHIPU
+套餐:                       Pro
+5h Token
+[███████░░░░░░░░░░░░░░░░░░] 28%
+重置: 2h 30m (16:58)
+周配额
+[██░░░░░░░░░░░░░░░░░░░░░░░░] 7%
+重置: 4d 1h (Thu 16:03)
+MCP                     0/1,000
+[░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+```
+
+进度条颜色规则：
+
+| 使用率 | 颜色 | 含义     |
+| ------ | ---- | -------- |
+| < 70%  | 绿   | 余量充足 |
+| 70-90% | 橙   | 接近上限 |
+| >= 90% | 红   | 即将耗尽 |
+
+## 构建
+
+```bash
+npm install          # 安装开发依赖（运行时依赖由 OpenCode 宿主提供，发布包零依赖）
+npm run build        # tsc 产物 + esbuild 打包 → dist/tui.js
+npm run typecheck    # tsc --noEmit
+```
+
+构建产物：
+
+- `dist/tui.js` — 双格式 TUI 插件包（`{ id, tui, setup }`，即 `./tui` 导出目标）：
+  V1 宿主读 `tui` 字段，V2 宿主读 `setup` 字段
+
+## 技术架构
+
+| 维度        | 实现                                             |
+| ----------- | ------------------------------------------------ |
+| 插件类型    | TUI 插件（sidebar_content 插槽）                 |
+| 渲染方式    | SolidJS (@opentui/solid)                         |
+| 数据来源    | Z.AI / ZHIPU Monitor API（每平台 3 端点）        |
+| 凭证来源    | OpenCode V2 凭证数据库 / auth.json / 环境变量    |
+| HTTP 客户端 | `fetch()` + AbortController 10s 超时             |
+| 错误策略    | `Promise.allSettled` 优雅降级（部分失败也展示）  |
+| 刷新策略    | 挂载首次获取 + 定时轮询（默认 5 分钟，可自定义） |
+
+## 故障排查
+
+| 现象                  | 可能原因                                                           |
+| --------------------- | ------------------------------------------------------------------ |
+| 面板显示空白 / 无数据 | 未认证，或凭证数据库 / auth.json 路径未命中，或未设置环境变量      |
+| 数据部分缺失          | 某个 API 端点超时（10s），其余仍会展示                             |
+| 语言切换无效          | 可设置环境变量 `GLM_VISTATUS_LANG=zh\|en` 强制语言（绕过自动检测） |
+| 数据不更新            | 重启 OpenCode，或使用 `/glm-refresh` 立即刷新                      |
+
+## License
+
+MIT

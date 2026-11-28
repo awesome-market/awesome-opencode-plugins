@@ -1,0 +1,154 @@
+# OpenDucktor
+
+OpenDucktor is an Agentic Development Environment built around tasks, repositories, and local agent runtimes.
+
+It uses a workspace-scoped SQLite task store as the task source of truth, orchestrates Specification, Planner, Builder, and QA sessions, and keeps documents, approvals, and delivery state attached to each task instead of scattered across chat threads.
+
+Read the user documentation at [doc.openducktor.dev](https://doc.openducktor.dev/).
+
+![OpenDucktor Kanban board](docs/assets/screenshots/kanban-board.png)
+
+<details>
+<summary>More screenshots</summary>
+
+![Welcome step of the setup wizard](docs/assets/screenshots/onboarding-welcome.png)
+
+![Configure coding agents step of the setup wizard](docs/assets/screenshots/onboarding-coding-agents.png)
+
+![Start Spec session dialog with the runtime and model picker](docs/assets/screenshots/start-spec-session.png)
+
+![Spec session with the specification document panel](docs/assets/screenshots/agent-studio-spec.png)
+
+![Builder session with the branch changes panel and a diff](docs/assets/screenshots/agent-studio-builder.png)
+
+![Builder plan review with a question that needs an answer](docs/assets/screenshots/agent-studio-builder-question.png)
+
+![File preview beside the workspace file tree](docs/assets/screenshots/agent-studio-file-preview.png)
+
+![Builder session with pull request checks and comments](docs/assets/screenshots/agent-studio-pull-request.png)
+
+![A session that creates a task](docs/assets/screenshots/agent-chat-create-task.png)
+
+![Agent runtimes settings with sandbox mode](docs/assets/screenshots/settings-agent-runtimes.png)
+
+![Per-role default models for a repository](docs/assets/screenshots/settings-default-models.png)
+
+![Notification settings](docs/assets/screenshots/settings-notifications.png)
+
+</details>
+
+## Install OpenDucktor
+
+### Desktop app
+
+macOS arm64, macOS x64, or Linux x64:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Maxsky5/openducktor/main/install.sh | sh
+```
+
+Windows x64 (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/Maxsky5/openducktor/main/install.ps1 | iex
+```
+
+Homebrew on macOS:
+
+```sh
+brew install --cask Maxsky5/openducktor/openducktor
+```
+
+### Web runner
+
+The web runner opens OpenDucktor in your browser on macOS, Linux, or Windows. It needs Node.js 24.14 or later.
+
+```sh
+npx @openducktor/web
+```
+
+See [Install and update](https://doc.openducktor.dev/install-and-update/) for requirements, more install options, the browser runner, and update steps. See [Remote control](https://doc.openducktor.dev/remote-control/) to use OpenDucktor from a phone or another computer.
+
+## User Prerequisites
+
+OpenDucktor runs on macOS, Windows, and Linux.
+
+- `git` 2.41 or later
+- `opencode`, `codex`, or `claude`
+- `gh` plus `gh auth login` if you use GitHub and want OpenDucktor to open pull requests for you
+- No CLI for GitLab: sign in or add an access token in OpenDucktor. Self-managed GitLab needs version 17.4 or later.
+
+OpenDucktor supports local OpenCode, Codex, and Claude Code runtimes. OpenCode remains the default runtime. Runtime discovery checks configured overrides, common local install locations, and `PATH`.
+
+The OpenCode runtime requires OpenCode V2. Complete native migration before you open existing V1 sessions. See the [runtime integration guide](docs/runtime-integration-guide.md) for shared runtime contracts.
+
+Task data is stored in an OpenDucktor-managed SQLite database, so no external task-store CLI is required for normal app use.
+
+## Core Features
+
+- Task-first workflow with a Kanban board as the main operational view.
+- Role-specific agent sessions for Specification, Planner, Builder, and QA.
+- Autopilot rules that can automatically start the next workflow action when task transitions are observed.
+- Task-linked documents for specifications, implementation plans, and QA reports.
+- A canonical Git worktree for each task, shared by fresh Specification, Planner, Builder, and QA sessions while the runtime process remains repository-scoped.
+- Runtime-aware task workflows for OpenCode, Codex, and Claude Code, including model selection, history loading, permissions, questions, and workflow-tool routing through the runtime descriptor model.
+- Global and repository-level prompt customization for adapting agent behavior to your workflow.
+- A built-in OpenDucktor MCP server used internally by managed agent sessions and available externally through `@openducktor/mcp`.
+- A local web runner available through `@openducktor/web` for running the shared frontend with the TypeScript host in a browser.
+- Built-in terminal tabs to run commands and watch long-lived processes alongside a task.
+- A CI and pull-request review pane that shows checks, review outcomes, and GitHub comments for a task's pull request.
+
+## How It Works
+
+OpenDucktor is built around local tasks stored in the OpenDucktor task store, with the desktop app orchestrating the workflow around them.
+
+At a high level:
+
+1. Tasks and workflow state live in a workspace-scoped SQLite database.
+2. OpenDucktor starts role-specific sessions for Specification, Planner, Builder, and QA.
+3. Agent-authored outputs such as specs, plans, and QA reports are stored back on the task.
+4. The first fresh task session creates the task's canonical worktree; later fresh roles reuse it, and only Builder advances the task to `in_progress`.
+5. Reviews, approvals, and pull request delivery remain connected to that same task.
+
+Under the hood, OpenDucktor exposes its own MCP server, `openducktor`.
+
+Desktop-managed sessions use that MCP internally, and the same task surface is also available outside the app through `@openducktor/mcp`.
+
+That keeps the workflow task-centric and auditable: agents act through a controlled task interface, while OpenDucktor keeps task state, documents, approvals, and delivery history connected in one place.
+
+## Current Scope
+
+- Platform support today: macOS, Windows, and Linux desktop builds.
+- Supported runtimes today: OpenCode (`opencode`), Codex (`codex`), and Claude Code (`claude`)
+  - OpenCode remains the default runtime.
+  - More runtimes may be added through the runtime descriptor and adapter model.
+- The project is in active development and changes between versions
+
+## Troubleshooting Logs
+
+OpenDucktor keeps application lifecycle logs in `~/.openducktor/logs` by default, or in `$OPENDUCKTOR_CONFIG_DIR/logs` when the config directory is overridden.
+
+- Electron desktop logs: `openducktor-electron-YYYY-MM-DD.log`
+- Local web runner logs: `openducktor-web-YYYY-MM-DD.log`
+
+Files rotate on the host's local calendar day. OpenDucktor retains the current date and the preceding 29 dates.
+
+## Documentation
+
+User guides are at [doc.openducktor.dev](https://doc.openducktor.dev/). Their source is in [apps/docs-website](apps/docs-website/README.md).
+
+Developer documentation:
+
+- [docs/README.md](docs/README.md)
+- [docs/architecture-overview.md](docs/architecture-overview.md)
+- [docs/runtime-integration-guide.md](docs/runtime-integration-guide.md)
+- [docs/web-runner.md](docs/web-runner.md)
+- [docs/task-workflow-status-model.md](docs/task-workflow-status-model.md)
+
+## Contributing
+
+Contributor setup, local build instructions, packaging details, and verification commands live in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+This repository is licensed under the Apache License 2.0. See [LICENSE](LICENSE).

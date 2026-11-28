@@ -1,0 +1,216 @@
+# OKF Plan Browser
+
+> The official home of the **planning skill** and a web + desktop application for browsing, visualising, and searching `.wiki` markdown planning portfolios.
+
+![CI](https://github.com/jhwohlgemuth/okf-plan-browser/actions/workflows/ci.yml/badge.svg)
+![Pages](https://github.com/jhwohlgemuth/okf-plan-browser/actions/workflows/deploy-pages.yml/badge.svg)
+
+🌐 **Live demo:** `https://www.jasonwohlgemuth.com/okf-plan-browser/`
+
+## Planning skill
+
+This repository is the canonical home for the planning skill concept, instructions, references, and validator. The source of truth is [`.agents/skills/planning/`](.agents/skills/planning/SKILL.md). The site's [Planning Skill page](https://www.jasonwohlgemuth.com/okf-plan-browser/planning) provides copy-ready prompts and renders that source. The build also publishes a stable [raw `SKILL.md`](https://www.jasonwohlgemuth.com/okf-plan-browser/planning-skill/SKILL.md), repository-ready [`planning-skill.zip`](https://www.jasonwohlgemuth.com/okf-plan-browser/planning-skill.zip), and [OpenCode v2 catalog](https://www.jasonwohlgemuth.com/okf-plan-browser/opencode/skills/).
+
+| Workflow | Outcome |
+| --- | --- |
+| Plan and maintain | Ground `.wiki` plans in current repository evidence, divide work into phases of at most five active hours, check affected plans each session, and review the full active portfolio monthly to prune completed work. |
+| Implement and resume | Continue through eligible phases, validate each outcome, and save compact decisions, evidence, blockers, and the next action in `progress.md`. |
+| Draft and review | Read `sources/` and opened primary sources, save an outline and article, and check factual claims with an evidence reviewer. |
+| Continue writing | Inspect the draft and checks referenced by `progress.md`, reconcile stale state, and resume the next unfinished action. |
+
+### Use the skill in another repository
+
+Review the raw instructions before installing. Choose the route supported by your agent:
+
+| Agent | Installation |
+| --- | --- |
+| Codex | Run `codex plugin marketplace add jhwohlgemuth/okf-plan-browser --ref main`, then `codex plugin add planning@okf-plan-browser`. Start a new session and invoke `$planning`. The ZIP remains the manual fallback. |
+| OpenCode v2 | Add `"https://www.jasonwohlgemuth.com/okf-plan-browser/opencode/skills/"` to the `skills` array in `opencode.json`, restart OpenCode, then invoke `@planning`. The catalog version is derived from every runtime path and byte so content changes invalidate its cache. |
+| OpenCode 1 or another Agent Skills client | Download and extract the same ZIP at the repository root, or copy this repository's complete `.agents/skills/planning/` directory. |
+
+Keep the references, scripts, and agent metadata together. Downloaded instructions can execute tools and should be reviewed before installation. Use an agent that supports the `$planning` invocation:
+
+```text
+Use $planning to create or update a .wiki plan for: <goal>.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+
+Use $planning to review every .wiki plan for currency against current evidence, prune completed work, retire finished plans, and record the review in the root index.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+
+Use $planning to implement .wiki/<plan>.md or .wiki/<plan>/index.md through eligible phases within its scope. Validate each outcome and save checkpoints in progress.md.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+
+Use $planning to read the implementation section of progress.md, inspect the referenced plan and validation evidence, and continue the next unfinished action. Update progress.md.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+
+Use $planning to draft an article about <topic> from sources/ and verify its claims against opened primary sources.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+
+Use $planning to read progress.md and inspect the referenced draft and checks. Continue from the recorded next action and update the progress note.
+Official planning skill guide and download: https://www.jasonwohlgemuth.com/okf-plan-browser/planning
+```
+
+The [execution loop](.agents/skills/planning/references/execution-loop.md) preserves a compact handoff across sessions, reuses applicable evidence, and stops unproductive retries. It does not schedule future runs. The browser displays portfolios and distributes the skill; your agent performs the work.
+
+The [draft workflow](.agents/skills/planning/references/write-draft.md) saves `drafts/outline.md`, `drafts/article.md`, and `drafts/checks.md`. The [evidence reviewer](.agents/skills/planning/references/evidence-reviewer.md) reports **verified**, **incorrect**, or **unresolved** claims with source references and required corrections. Unresolved claims name the missing evidence. Writing artifacts remain available after completion; finished `.wiki` phases and plans are pruned after preserving durable evidence.
+
+![Portfolio](docs/screenshots/portfolio.png)
+
+| Phase Tracker | Dependency Graph |
+| --- | --- |
+| ![Phase Tracker](docs/screenshots/phases.png) | ![Dependency Graph](docs/screenshots/graph.png) |
+
+| Plan detail | Mobile |
+| --- | --- |
+| ![Plan detail](docs/screenshots/plan-detail.png) | <img src="docs/screenshots/mobile-portfolio.png" width="260" alt="Mobile portfolio" /> |
+
+*Screenshots are the visual regression baselines (demo data). Refresh with `npm run screenshots` after `npm run test:visual:update`.*
+
+---
+
+## Features
+
+| View | What it does |
+|---|---|
+| **Portfolio** | Sortable, filterable table of all plans — by status, priority, impact, difficulty, tags, packages, repo |
+| **Phase Tracker** | Kanban board for executable phases, with Epics in a separate overview |
+| **Dependency Graph** | D3 graph of plans and Epics; edges are `.md` links and phase cross-references |
+| **Search** | Full-text across titles, descriptions, section content, tags, packages, and phase titles |
+| **Planning Skill** | Official skill source and download, with prompts for portfolio maintenance, resumable implementation, drafting, and evidence review |
+| **Install** | Desktop release downloads and setup steps for the app and planning skill |
+
+- 🌙 **One Dark theme** with Light / System toggle (persisted across sessions)
+- 📂 **File System Access API** (`showDirectoryPicker`) + drag-and-drop fallback
+- 🌐 **Remote repos** — paste a GitHub `owner/repo` (optional token in Settings for private repos) or a public GitLab project URL, including a custom host
+- 🗂️ **Multiple repos** — "Add another .wiki" merges data with distinct repo colour labels
+- 🟣 **Epics** — zero-phase plans appear as coordination overviews across the portfolio; their linked plans carry executable phases and estimates
+- 🔄 **One-click refresh** — re-read a single wiki or all wikis from the sidebar. Remote wikis re-fetch from the forge. Chromium browsers remember a local folder (and may ask to re-allow access after a restart); in Firefox/Safari a local wiki's refresh button re-opens the folder picker and re-uploads into the same project
+- 🖱️ **Slide-in detail panel** — click a plan or Epic for its summary, sections, phases, and linked plans
+- 🎭 **Embedded demo data** — synthetic plans load instantly with no files required
+- 🧭 **Guided walkthrough** — select **Take a tour** on Home or About to explore the views with loaded plans or demo data
+- 🖥️ **Optional Tauri desktop app** — native window, no Electron overhead
+- ⚙️ **GitHub Actions** — CI, GitHub Pages deploy, multi-platform Tauri release, automated versioning
+
+---
+
+## Your `.wiki` format
+
+The app reads plain markdown files with YAML frontmatter:
+
+```markdown
+---
+type: Plan
+title: "My Plan Title"
+description: "What this is about"
+difficulty: medium          # easy | medium | hard
+impact: critical            # low | medium | high | critical
+package: [workspace, acorn-lib]
+tags: [feature, automation, os:linux]
+status: planned             # planned | ready | in-progress | blocked | waiting-on-validation
+priority: next              # next | high | medium | low
+execution: phased           # phased | coordination
+phase_budget_hours: 5
+---
+
+# Goal
+Narrative context...
+
+# Current evidence
+- Bullet log
+
+## PA-01 Phase title
+**Status:** planned
+Phase body with cross-references like PA-02, PA-03...
+
+# Dependencies and stop gates
+- [Other plan](../other-repo/.wiki/other-plan.md)
+```
+
+**Notes:**
+- Canonical `os:<name>` tags are rendered as colored platform labels with OS logos. Use them for
+  genuine platform conditions (for example `os:windows`, `os:macos`, `os:linux`, or `os:ubuntu`);
+  keep architecture and package formats as separate ordinary tags.
+- Status values are `planned | ready | in-progress | blocked | waiting-on-validation` — completed plans are **deleted** from `.wiki/`, not marked done.
+- Phase IDs follow the pattern `PA-01`, `PA-02`, etc. (or `1.`, `2.` numbered variants).
+- Dependency links use standard markdown: `[text](../relative/path.md)`.
+- Each repo has one `.wiki/` root folder. Plans can be `.md` files or folders with `index.md` as the Plan entrypoint and adjacent Markdown documents. Keep plan assets in the folder's `_assets/` and wiki-wide assets in `.wiki/_assets/`.
+
+---
+
+## Quick start
+
+```bash
+git clone https://github.com/jhwohlgemuth/okf-plan-browser.git
+cd okf-plan-browser
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173` in Chrome or Edge. Click **Open Folder** and pick any `.wiki/` directory, paste a GitHub `owner/repo` or GitLab URL, or click **Load Demo Data** to explore immediately.
+
+Select **Take a tour** on Home or About for a guided walkthrough. If no plans are loaded, the tour offers to load demo plans first.
+
+Plan details display images and Pikchr diagrams inline and let you open image, PDF, and `.pikchr` links. Fenced `pikchr` blocks render directly inside plans. The **Assets** tab on Search lists viewable assets from the entire `.wiki`, including shared files in `.wiki/_assets/`. Browser folder uploads cache these assets for viewing after reload.
+
+Private GitHub repositories should use an expiring fine-grained token limited to the selected repositories with **Contents: read**, saved under **Settings → GitHub**. GitLab tokens are stored per exact host; prefer an expiring project token or a personal token with only `read_repository`. Web tokens are session-only and are disabled on insecure HTTP. The desktop app stores credentials in the operating system credential store and performs authenticated requests outside the webview.
+
+GitLab development proxy hosts are allowlisted. `gitlab.com` and `code.ornl.gov` are always enabled; add any other custom hosts before starting Vite, for example:
+
+```powershell
+$env:OKF_GITLAB_HOSTS = 'gitlab.example.com'
+npm run dev
+```
+
+Production web builds use the same variable to generate their CSP allowlist. Custom-host GitLab also requires that host to permit browser CORS. In supported browsers, the hosted app reads a GitLab `.wiki` archive in one request; if archives are unavailable, it falls back to the file API. A GitLab token does not bypass a host's CORS or gateway restrictions.
+
+If `code.ornl.gov` reports that your IP address is restricted, ask your ORNL collaboration partner to request an exception for your network range. You can open an existing local checkout's `.wiki` folder in the meantime.
+
+### Deployment security
+
+The hosted web app must be served directly over HTTPS. Configure GitHub Pages and the custom-domain provider to redirect HTTP to HTTPS, then enable HSTS. The app attempts an HTTPS upgrade and refuses token storage in an insecure context, but client-side safeguards do not replace a server-side HTTPS redirect. Host the app on a dedicated origin so unrelated same-origin applications cannot access its browser storage.
+
+---
+
+## Contributing
+
+Development tasks, tests, deploying to GitHub Pages, desktop builds, releases and the project layout are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Tech stack
+
+| Layer | Library |
+|---|---|
+| UI framework | React 18 |
+| Build tool | Vite 6 |
+| Language | TypeScript 5.9 |
+| Routing | React Router 7 |
+| Styling | Tailwind CSS 3 + One Dark palette |
+| Components | shadcn/ui (Radix primitives + CVA) |
+| State | Zustand 5 (with persist middleware) |
+| Graph | D3 7 (force simulation) |
+| YAML | js-yaml 4 |
+| Icons | Lucide React |
+| Animation | CSS keyframes |
+| Desktop | Tauri 1.6 (optional) |
+
+---
+
+## Browser compatibility
+
+Chromium uses the **File System Access API** (`showDirectoryPicker`) to load `.wiki` folders. Other browsers use a directory-upload input or drag-and-drop fallback. Remote GitHub/GitLab loads use `fetch` and work in any modern browser. Folder picking is supported in:
+
+- ✅ Chrome 86+
+- ✅ Edge 86+
+- ❌ Firefox (drag-and-drop works via `getAsFileSystemHandle` where available)
+- ✅ Safari 11.1+ on macOS; Safari 18.4+ on iOS/iPadOS
+
+Older iOS/iPadOS Safari versions can use the picker to select multiple Markdown plan files instead of a folder.
+
+The demo data and all other features work in all modern browsers.
+
+---
+
+## License
+
+MIT

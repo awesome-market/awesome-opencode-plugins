@@ -1,0 +1,87 @@
+# @lunacode/opencode-plugin-intelligence
+
+OpenCode v2 plugin that annotates model display names with the Artificial Analysis Intelligence Index.
+
+![OpenCode model picker showing Artificial Analysis intelligence scores alongside model names](.github/preview.heic)
+
+## What it does
+
+Matched models appear as `Model Name (AIQ: 60)` in the `/models` picker. Scores retain up to two decimal places, for example `(AIQ: 53.97)`. AIQ is the Artificial Analysis Intelligence Index score, not a leaderboard rank or a human IQ score.
+
+The plugin uses OpenCode's native `model.transform` API. It discovers models across available providers, matches their names against the leaderboard, and changes only matched display names. Transforms also apply when OpenCode rebuilds its model catalog. Provider settings, model IDs, and request settings stay intact.
+
+It fetches the leaderboard once and writes a local cache file. It reuses that cache for 24 hours, then refetches on the next plugin load. Concurrent refreshes in the same process share one request. It does not write generated OpenCode config or restart the server.
+
+## Install
+
+This plugin is **OpenCode v2 only** and requires **v2.2.0 or newer v2** and **Node.js 26.13.0 or newer**. It is **not compatible with OpenCode v1**.
+
+Add the package to `opencode.json` or `opencode.jsonc`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["@lunacode/opencode-plugin-intelligence"]
+}
+```
+
+For a local checkout, use the absolute path to the plugin directory in `plugins`.
+
+If migrating from the old plugin, replace the v1 `plugin` configuration key with v2's `plugins`. Existing `[AAII …]` suffixes on matched catalog names are replaced at runtime. Old generated `~/.config/opencode/config.json` overrides are not needed by this version; remove those annotations manually if you retained them when migrating your config.
+
+## Cache behavior
+
+Default cache path (shared with the previous version):
+
+```text
+~/.config/opencode/cache/opencode-plugin-intelligence/leaderboard.json
+```
+
+Environment variables (set on the OpenCode server):
+
+- `OPENCODE_INTELLIGENCE_FORCE_REFRESH=1` forces a re-fetch instead of reading the cache when the plugin loads. If it fails, annotations are skipped; this mode does not fall back to stale scores.
+- `OPENCODE_INTELLIGENCE_CACHE_PATH=/path/to/leaderboard.json` overrides the cache location.
+
+Manual refresh from a local checkout (uses `OPENCODE_INTELLIGENCE_CACHE_PATH` if set):
+
+```bash
+npm run refresh-cache
+```
+
+Reload the plugin or restart OpenCode after manually refreshing to load the new scores. There is no background polling timer. An expired cache refreshes on the next load; if that refresh fails, the plugin warns and uses the stale cache. Separate OpenCode server processes may each issue a refresh; explicit refreshes bypass the 24-hour expiry. If no leaderboard can be loaded, the plugin warns and leaves model names unchanged. Malformed or unreadable cache files also skip annotations; they are not automatically replaced. Use a manual or forced refresh to replace them.
+
+Cache loading and refresh failures also show an error toast in the OpenCode TUI. The toast says whether saved scores are still in use or scores are unavailable. Console warnings remain available on headless servers.
+
+## Matching and limitations
+
+- Matching uses normalized model names, IDs, and leaderboard slugs, independently of provider identity. Version separators and trailing `preview-free` availability labels are normalized. The same model can be annotated on several hosts without provider-specific tables.
+- Explicit display-name variants take precedence over generic model IDs. A bare ID matching a leaderboard slug selects that entry (often the max-effort benchmark). A score does not guarantee the selected reasoning settings equal the benchmark settings.
+- Only matched models receive a score. Unknown models keep their names.
+- OpenCode v2 applies explicit `providers.<id>.models.<id>.name` config overrides after plugin transforms. These names take precedence over AIQ annotations. Remove an explicit name override to let the plugin annotate the catalog name.
+- The Artificial Analysis HTML/React Flight payload is not a public API and may change. Cached scores are a snapshot and may be stale while offline or during a long-running server session.
+
+## Verification
+
+```bash
+node --test
+```
+
+When changing leaderboard fetching or parsing, also run `npm run refresh-cache`.
+
+## Publishing
+
+GitHub Actions runs Biome and tests on branch pushes and pull requests. Pushing a `v<version>` tag runs the same checks and publishes to npm using trusted publishing. The tag must match `package.json`, for example `v0.1.0` for version `0.1.0`.
+
+Configure a GitHub Actions trusted publisher in the npm package's settings:
+
+- Organization or user: `SharkyRawr`
+- Repository: `opencode-plugin-intelligence`
+- Workflow filename: `publish.yml`
+- Environment name: leave blank
+- Allow direct publishing with `npm publish`
+
+No npm token secret is required. If the package does not exist yet, publish its first version manually before configuring the trusted publisher. Use a new version for the first tag-triggered publish; npm cannot overwrite an existing version. See [npm's trusted publishing documentation](https://docs.npmjs.com/trusted-publishers) for setup details.
+
+## License
+
+Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): attribution, noncommercial use, and share-alike are required. See [LICENSE](LICENSE) for the full terms.

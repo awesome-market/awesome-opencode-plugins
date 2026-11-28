@@ -1,0 +1,880 @@
+<div align="center">
+
+# Pitroom
+
+### A free pit crew for your expensive coding agent
+
+**Cheaper and faster: hand the reading, fixes, tests and reviews to workers that run in parallel. Keep the decisions.**
+
+Model-agnostic · Verified answers · Receipts, not vibes · OpenCode / Codex / Claude Code / Gemini CLI / Qwen Code / Kilo Code / Antigravity workers
+
+<br />
+
+[![Release](https://img.shields.io/github/v/release/ATASTECH/pitroom?label=release)](https://github.com/ATASTECH/pitroom/releases/latest)
+[![Downloads](https://img.shields.io/npm/dm/pitroom?label=npm%20downloads)](https://www.npmjs.com/package/pitroom)
+[![npm](https://img.shields.io/npm/v/pitroom?label=npm)](https://www.npmjs.com/package/pitroom)
+[![Stars](https://img.shields.io/github/stars/ATASTECH/pitroom?style=flat&label=stars)](https://github.com/ATASTECH/pitroom/stargazers)
+[![CI](https://github.com/ATASTECH/pitroom/actions/workflows/ci.yml/badge.svg)](https://github.com/ATASTECH/pitroom/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+<br />
+
+**[Quick start](#quick-start)** ·
+[Dashboard](#dashboard) ·
+[Benchmarks](#benchmarks) ·
+[Workflow](#workflow) ·
+[Skills](#skills) ·
+[Commands](#commands) ·
+[Workers](#workers) ·
+[Responsibility](#responsibility) ·
+[Write an adapter](docs/backends.md)
+
+<br />
+
+<img src="docs/pitroom-hero.png" alt="Pitroom — a free pit crew for your expensive coding agent. Orange Claw’d, a blue terminal-faced Codex pet and a purple-blue Gemini star work together at a coding terminal." width="94%" />
+
+<br />
+
+**Your agent decides · Cheap workers do the typing · A second model reviews**
+
+<br />
+
+<img src="docs/dash-demo.gif" alt="The Pitroom dashboard: running workers with their animated mascots, a finished run opening into its task, steps, result and diff, then the History and Stats tabs (sample data)" width="82%" />
+
+<sub>`pitroom dash`, with sample data</sub>
+
+</div>
+
+---
+
+## Why Pitroom?
+
+Claude Code, Codex and friends spend premium tokens *reading*: grepping, opening files, scanning code they'll never quote.
+
+Pitroom goes one step further:
+
+> **Your agent stays in the driver's seat. A pit crew of cheap workers does the legwork in parallel, while your agent keeps going, and hands back only the answer, the exact diff and a receipt.**
+
+<table>
+<tr>
+
+<td width="25%" valign="top">
+
+### Your model, not ours
+
+No model is hardcoded.
+
+Pitroom uses your worker CLI's default model: a free tier, a local MLX/Ollama model or a cheap paid one. Switch there and Pitroom follows.
+
+</td>
+
+<td width="25%" valign="top">
+
+### Any worker CLI
+
+OpenCode, Codex CLI, Claude Code, Gemini CLI, Qwen Code, Kilo Code, Antigravity CLI and Cursor CLI (the last two beta on Linux and Windows).
+
+One group can mix them, and a fallback chain can cross them ([how adapters work](docs/backends.md)).
+
+</td>
+
+<td width="25%" valign="top">
+
+### Verified answers
+
+Every `path:line` a worker cites is checked on disk. A cite without its directory (`ipc.ts:218`, `src/main/ipc.ts:218`) is found in the project, and a call such as `Schema.parse:432` is not mistaken for a file.
+
+Your agent trusts what checks out and skips re-reading it.
+
+</td>
+
+<td width="25%" valign="top">
+
+### Safe by construction
+
+No commit, push, reset or bulk delete. A git guard stops the tricks.
+
+In isolate mode nothing reaches your tree until you apply it.
+
+</td>
+
+</tr>
+</table>
+
+### And more
+
+<details>
+<summary>12 more features</summary>
+
+- **Receipts, not vibes.** Tokens the worker burned, tokens returned to your agent, compression ratio, and an estimate of what your primary model would have charged. `pitroom savings --card card.svg` makes a shareable card.
+- **Self-healing worker chain.** Free models get rate-limited or retired. List fallback workers once (`fallback`) and a run that hits "model not found", 429 or quota errors moves to the next model automatically, also when a plan's usage limit stops a worker part way (the next one finishes the task). Still no model hardcoded: the chain is yours.
+- **A crew, not just one worker.** `pitroom crew` starts several workers at once, `pitroom watch --json` streams one line per change so your agent follows them live, `pitroom wait -g` collects every answer, `pitroom apply -g` lands isolated patches in order. Up to 20 workers run at once by default (`maxParallel`, 30 at most), the rest queue, and the fallback chain absorbs free-tier rate limits; parallel writers are refused.
+- **Faster, not only cheaper.** Workers run in the background and side by side (up to 20 at once) while your agent keeps working, so slow reading and review stop blocking it. In the [benchmark](#benchmarks), 470 s of worker time finished in 156 s of wall clock, about 3× faster than one question after another, and your agent's own context stayed small.
+- **Free first, dearer only when needed.** Runs and plan tasks start on the `cheap` tier, OpenCode's free model; `standard` (Codex) and `capable` (Claude Code) are for tasks that need them, and an optional `review` tier names who reviews. Gemini CLI with a free Google AI Studio key is one more cheap worker (small daily quota per model). `pitroom models` shows what each worker offers, the effort levels (`low` … `xhigh`) each model accepts, what you say it costs (`costs`) and what it used; `--effort` sets the level per run. Details: [Models, costs and effort](#models-costs-and-effort).
+- **Exact changes, even in a dirty tree.** Pitroom snapshots the working tree with a throwaway git index (your index, branches and stash are never touched), so it reports *only the worker's* edits and can undo exactly those: `pitroom revert <id>`.
+- **Your agent sets the permissions.** It creates each worker with the permissions the task and your session allow (read-only, isolated copy, in-place edits, web), and a worker never widens its own. A fixed floor stays for every run: no git history changes, no `sudo`, no publishing, no secrets. A worker cannot land a deletion either: `pitroom apply` refuses a patch that deletes files unless your agent passes `--allow-delete`.
+- **Real isolation.** `--isolate` runs the worker in a private copy of your **current** state (its own repository, sharing your objects read-only), uncommitted and untracked files included, then hands you a patch: `pitroom apply <id>` (checked, refuses on conflict) or `pitroom discard <id>`.
+- **Zero repo pollution.** No `.pitroom/` folder, no `.gitignore` edits, no branches. Records live in `~/.local/state/pitroom`.
+- **Works with any agent.** Fourteen [Agent Skills](https://agentskills.io): the superpowers development workflow run by workers, plus delegation (`using-pitroom`, `pitroom-research`, `-crew`, `-implement`), a CLI, and a Claude Code / Codex plugin whose session-start hook loads the workflow. Claude Code, Codex, Gemini CLI, Cursor, or anything that can run a shell command.
+- **A live dashboard and a searchable history.** `pitroom dash` opens a local page of every run (the task, what the worker did step by step, its result and diff) with history and statistics, for the agent apps that show neither hooks nor a status line; `pitroom history` searches everything Pitroom ever ran. See [Dashboard](#dashboard).
+- **Small.** About 6,500 lines of TypeScript in the CLI, a ~210 KB CLI bundle (plus the ~1.9 MB of dashboard files it serves, with syntax highlighting for ten languages), zero runtime dependencies.
+
+</details>
+
+### How it stays safe
+
+Each run gets the worker's own safety mechanism set to the mode (for OpenCode, a permission profile injected through `OPENCODE_CONFIG_CONTENT`): no commit/push/reset/checkout/stash/clean/rebase, no bulk deletes, no `sudo`, a file-reading tool that refuses `.env` and key files (OpenCode and Claude Code workers), no web tools unless you pass `--web`, no subagents, no recursive delegation. Only `allow`/`deny` rules, so a headless run never stalls on a prompt. A **git guard** on the worker's PATH also stops `sh -c "git push"`, `env git reset`, aliases and scripts from committing, pushing, resetting, stashing or touching your index. Your `opencode.json` is never touched. These safeguards reduce risk; they are not a security boundary (see [Responsibility](#responsibility) and [SECURITY.md](SECURITY.md)).
+
+---
+
+## See it work
+
+A real run on a free OpenCode Zen model: your agent reads ~554 tokens instead of 163,000.
+
+```text
+$ pitroom run "Which function builds the read-only permission profile, and which bash commands does it allow?"
+pitroom ✔ done · read · 30s · run 20260930-003902-3270
+session ses_… · model opencode/muse-spark-1.3-contributor-free
+
+SUMMARY: The read-only permission profile is built by `readProfile()` in src/profiles.ts:89.
+Its bash allow-list is `READ_ONLY_BASH` in src/profiles.ts:29-46.
+DETAILS:
+- Allowed (src/profiles.ts:31-41): `git status*`:31, `git diff*`:32, … `rg *`:40, `wc *`:41.
+- Explicit sub-denies: `rg *--pre*`:43, `git *--output*`:44, `git *--ext-diff*`:45.
+FILES CHANGED: none
+
+── receipt: worker processed 163k tokens in 6 steps (7 tool calls) · worker cost $0.000
+   · returned ~554 tokens, 294× compression · est. saved $0.152 vs Claude Sonnet
+```
+
+Every run prints a receipt, and `pitroom savings` adds them up (`--card` writes this shareable card; the numbers here are sample data, and a real measurement follows in [Benchmarks](#benchmarks)):
+
+<p align="center"><img src="docs/card.svg" width="520" alt="Pitroom savings card"></p>
+
+---
+
+## Dashboard
+
+`pitroom dash --detach` prints the address of a live page on `127.0.0.1` (this machine only; it reads your runs and changes nothing but the two actions below). It is for the places where hook messages and status lines do not reach, such as the Claude Code and Codex apps: open it in a browser or in the app's own browser pane. The skills tell your agent to start it and give you the address when it runs workers in the background.
+
+The screenshots below show sample data (an imaginary `shop-api` project), not a real one.
+
+**Live.** What is running now, and the latest runs. Running cards show a timer, the worker's last words and its animated pixel mascot (a finished card shows the worker's logo); finished ones show the result and, for reviews, the findings.
+
+<p align="center"><img src="docs/dash-live.png" width="100%" alt="The Live tab: four running workers with timers and progress bars, then finished runs with approved and needs-fixes badges, step counts, tokens and savings"></p>
+
+<details>
+<summary>Cards, audits, history, Stats, and Stop/Discard</summary>
+
+**Click a card and it grows into a panel** with the task, what the worker did step by step (files read, searches, commands, edits, with times, failed ones marked), its result, the files and diff it changed, and the details (model, tokens, cost, fallbacks, reference check).
+
+<p align="center"><img src="docs/dash-card.png" width="100%" alt="An expanded run card: the task, a ten-step activity list, the result, five changed files with one opened to its highlighted diff, and the details"></p>
+
+**Audits and skipped workers show on the card.** A research answer that another worker re-checked ([Audits](#audits)) carries an `audited · agrees / partly agrees / disagrees` badge and, when it disagrees, the claims it disputes; a worker left out because its quota ran out is listed under the details ("Skipped … cooling down until 14:05", see `pitroom cooldown`).
+
+<p align="center"><img src="docs/dash-audit.png" width="100%" alt="An expanded research card whose answer was audited by another worker, which disagrees and lists two disputed claims with file:line, and a note that a worker was skipped because its daily quota was used up"></p>
+
+**History** searches everything Pitroom ever ran (the full text of tasks, answers and steps), with filters by state, model and period; each run opens as the same card as on Live. **Stats** shows runs, success rate, time, tokens and savings, per worker and model and per day.
+
+<p align="center"><img src="docs/dash-history.png" width="49%" alt="The History tab: a search box, filters and every past run as a card"> <img src="docs/dash-stats.png" width="49%" alt="The Stats tab: totals, runs per day, and per worker and model its logo, success rate and how many of its audited answers another worker confirmed"></p>
+
+**Stop and Discard.** A running card has a Stop button, and a finished `--isolate` card that is not applied yet has Discard (the same as `pitroom stop` and `pitroom discard`; the patch file stays). A crew's card has the same for all its runs at once (**Stop all**, **Discard all**), and when some of its runs failed, timed out or were stopped, **Retry command** shows the `pitroom run … --bg` commands that start them again in the same crew, to copy into a terminal or hand to your agent (quoted for PowerShell on Windows, for a POSIX shell elsewhere). Each action asks once more. Nothing else can be done from the page: it never starts a run and never applies a patch. A POST needs the secret the page was served with (it changes every time the dashboard starts) and the page's own origin, so a web page on another site cannot press them.
+
+The dashboard is a React app built once into `dist/ui` and served as two static files, so the CLI still has no runtime dependencies. It follows your system's light or dark theme (a button switches it).
+
+</details>
+
+---
+
+## Benchmarks
+
+Measured on a real, public repository: [PI-Desktop](https://github.com/vastsa/PI-Desktop) at commit `c2bfe35`, 2,349 tracked files and about 419,000 lines of TypeScript and Rust. Eight questions of the kind an agent asks before it changes code, run as one read-only crew (`pitroom crew`, at most four workers at a time) on OpenCode's free `muse-spark-1.3-contributor-free` model.
+
+In short: on that repository eight questions took 156 s of wall clock, and the workers read 5.5 million tokens and handed the agent 7,684 (715× less); a later audit found some of the answers incomplete. On React, Django and Kubernetes, four free models matched `gpt-6-sol` on nine bounded questions, and in a planted-bug review test almost every model found almost every bug. The tables, and what they do not show, are below.
+
+<details>
+<summary>PI-Desktop: eight questions, token savings, answer quality and an isolated change</summary>
+
+| Question | Worker time | Tokens processed | Returned to the agent | Compression | Refs verified |
+|---|---|---|---|---|---|
+| Where is the plugin runtime, and which functions activate and deactivate a plugin? | 37 s | 405,380 | 767 | 529× | 10/11 |
+| When does the agent runtime compact a conversation? (function and exact condition) | 90 s | 1,250,719 | 763 | 1,639× | 17/17 |
+| Where is session state persisted to disk in the Rust host? | 71 s | 854,969 | 1,426 | 600× | 29/45 ¹ |
+| Which IPC channels expose window management to the renderer? | 32 s | 165,180 | 716 | 231× | 3/28 ¹ |
+| How does a tool call travel from the agent runtime to the Rust host? | 119 s | 1,818,524 | 866 | 2,100× | 14/15 |
+| Which packages and apps depend on the i18n package? | 33 s | 271,297 | 656 | 414× | 15/16 |
+| Where is auto-update implemented, and what does the Windows portable target change? | 29 s | 215,693 | 743 | 290× | 20/21 |
+| Which tests cover the RPC layer? | 59 s | 511,209 | 1,747 | 293× | 6/7 |
+| **All eight** | **156 s** wall clock | **5,492,971** | **7,684** | **715×** | 114/160 |
+
+Workers read 5.5 million tokens of code and docs (96 steps, 179 tool calls) and handed the agent 7,684 tokens, about 960 per answer. The eight runs add up to 470 s of worker time but finished in 156 s of wall clock, because four ran at a time (the limit then; the default is now 20): about 3× faster than one after another. That compares the same workers with themselves, not with your agent doing the reading alone, which I did not measure. `pitroom savings` estimates $3.86 saved for these eight at Claude Sonnet list prices.
+
+**Were the answers right?** Checked by hand against the repository: 46 key claims across all eight answers (the cited line and what it says) were all correct, and two completeness checks held (exactly 6 invoke and 3 event window channels; no tests in `config_sync_rpc.rs`). The i18n answer lists the 12 source files that import the package and leaves out 11 test and fixture files that do too, which the question did not ask about. Pitroom's own checker marks fewer references as verified than that: ¹ those two answers cite bare file names (`transcripts.rs:651`) that it cannot resolve to a path, and it counts them as unverified although the lines are right.
+
+**An audit found more than the hand check did.** Each of the eight answers was later re-checked by a second free worker (`pitroom audit`, on `space-bunny`): 3 agreed and 5 were marked partly right. The disputes are about answers that are incomplete or slightly off, not about the lines they cite: lists that leave things out (session state: more places that write it; i18n: a second, deep-import style of consumer; RPC tests: 14 tests missing), counts that are off, and a few cited lines some lines away from the declaration. One was checked by hand and the auditor was right: the RPC `mod tests` block holds 59 tests, the answer said about 40. The others were not checked by hand, and an auditor is itself a free model that can be wrong. So treat a worker's list or count as a good first answer that your agent confirms when it matters, which is what `--audit` is for.
+
+**A change in an isolated copy:** "add a one-line comment above `resolveUpdateMode`" finished in 16 s and 4 steps (142,491 tokens). The patch was one file and one line, the comment matched the code, and your working tree is untouched until you apply.
+
+</details>
+
+<details>
+<summary>Free models against <code>gpt-6-sol</code> on React, Django and Kubernetes</summary>
+
+**Free models against `gpt-6-sol`, on three large repositories.** The same kind of work on React (7,252 files), Django (7,091) and Kubernetes (31,353 files), at pinned commits. Nine bounded questions, three per repository: the file and line that define a function, how many files contain a word, and which files contain it. Every answer is checked against `git grep`, not by opinion: an exact `path:line` (half a point for the right file on the wrong line), an exact count, and for the lists an F1 score that punishes both missed and invented files. Each worker ran the nine questions once, read-only, with no fallback, so a model that cannot do it fails instead of being swapped for another.
+
+| Worker and model | Score | Median time | Median tokens |
+|---|---|---|---|
+| Codex `gpt-6-sol` (effort medium) | **100%** | 16 s | 50k |
+| Codex `gpt-6-sol` (effort low) | **100%** | 20 s | 50k |
+| OpenCode `muse-spark-1.3-contributor-free` | **100%** | 23 s | 44k |
+| OpenCode `space-bunny-free` | **100%** | 35 s | 63k |
+| OpenCode `mimo-v2.6-flash-free` | **100%** | 37 s | 42k |
+| OpenCode `big-pickle` | **100%** | 42 s | 91k |
+| OpenRouter `nemotron-3-ultra-550b-a55b:free` | 89% | 27 s | 42k |
+| OpenCode `longcat-2.5-preview-free` | 89% | 29 s | 20k |
+| OpenCode `nemotron-3-ultra-free` | 89% | 35 s | 21k |
+| OpenRouter `inkling:free` | 83% | 14 s | 41k |
+| OpenCode `nemotron-3.5-lightning-free` | 72% | 377 s | 69k |
+| NVIDIA `gpt-oss-20b` (7 questions) | 57% | 24 s | 42k |
+
+Four free models matched `gpt-6-sol` on these questions. Every model found every definition; the misses are count questions (a wrong number) and, for two models, list questions, one of them by adding `docs/` files that are not under `django/`. `gpt-6-sol` was as fast as the quickest free models, and lowering its effort did not cost accuracy here. `nemotron-3.5-lightning-free` wrote an unrelated text for one list question and ran into the 10-minute limit on another. The scoring harness and every raw answer are in [`benchmarks/multi-repo`](benchmarks/multi-repo).
+
+Only workers that ran are in the table. Models that could not answer at all (a provider error, or the shared daily quota of OpenRouter's free tier) are left out, and so are the two `gpt-oss-20b` runs that ended in a provider error; a timeout is kept.
+
+</details>
+
+<details>
+<summary>Does a review find a planted bug, and leave a harmless change alone?</summary>
+
+**Does a review find a planted bug?** A bug was changed into real code (an inverted check, a swapped `&&`/`||`, a flipped `return`) in React, Django, Kubernetes and Pitroom itself, committed as a bare "tidy", and `pitroom review` was asked to review the commit. 29 packages (14 with the bug alone, 15 with the bug and three comment-only edits around it). A review counts as a find when a Critical or Important finding names the changed file and either cites a line within 5 or names the changed identifier or its function; "exact line" is the strict version (within 3).
+
+**Does it leave a harmless change alone?** 16 more packages look the same (a comparison changed on one or two lines, the same "tidy" message) but cannot change what the code does: the two sides of a comparison are swapped and the operator mirrored (`i < n` becomes `n > i`), only where that is the same expression. A Critical or Important finding on one of them is a false alarm.
+
+| Worker and model | Bug found | Exact line | False alarm | Reviews | Mean time | Slowest |
+|---|---|---|---|---|---|---|
+| OpenCode `nemotron-3-ultra-free` | 100% | 83% | 25% (4 of 16) | 29 + 16 | 1 min 30 s | 3 min 29 s |
+| OpenCode `space-bunny-free` | 100% | 100% | - | 29 | 2 min 19 s | 5 min 46 s |
+| Codex `gpt-6-sol` | 100% | 100% | - | 9 | 38 s | 52 s |
+| OpenCode `big-pickle` | 97% | 90% | **0% (0 of 16)** | 29 + 16 | 1 min 45 s | 6 min 16 s |
+| OpenCode `muse-spark-1.3-contributor-free` | 97% | 62% | - | 29 | 43 s | 2 min 0 s |
+| OpenCode `mimo-v2.6-flash-free` | 90% | 90% | 13% (2 of 16) | 29 + 16 (4 timed out) | 4 min 36 s | 8 min 1 s |
+| OpenCode `longcat-2.5-preview-free` | 86% | 86% | - | 29 (1 timed out) | 2 min 53 s | 8 min 0 s |
+
+Almost every model found almost every bug, so finding them does not separate the models; leaving the harmless change alone does. `big-pickle` never raised a false alarm. `nemotron-3-ultra` and `mimo-v2.6-flash` each said, in their own words, that the change altered nothing, and still filed it as Important ("a Yoda condition, inconsistent with the rest of the file"), where the review template puts style under Minor; an agent that acts on Important findings would have reverted a harmless commit. `muse-spark` described the right bug but often quoted a wrong line number (62% exact). The models with a dash were not available any more, or out of quota, when the harmless packages were added; Codex `gpt-6-sol` reached its plan's usage limit after 9 reviews, and the others' left-out reviews hit the free tier's limit, so they are not counted as misses. Every change is only 2 to 5 lines, which is easy; the harmless edits are all of one kind (a mirrored comparison); and React, Django and Kubernetes may be in a model's training data. The harness, the rule that keeps an edit harmless (and its test) and every raw review are in [`benchmarks/review-bugs`](benchmarks/review-bugs).
+
+</details>
+
+**What this does not show**
+- One run per question and model: there is no variance here. The questions are bounded lookups that `grep` can answer, so they do not show how a model handles design questions or large edits, and four free models and `gpt-6-sol` all scoring 100% says the test is easy at the top, not that they are equal.
+- An open-ended task ("find up to five spelling mistakes in `docs/`") did not finish: it was stopped after 19 minutes and 57 tool calls. Give workers bounded tasks.
+- "Tokens processed" is what the workers read and wrote. What your agent would have spent doing the same reading itself is an estimate, not a measurement: the savings figure assumes it would process about the same tokens. The $0 worker cost is because the model is free.
+- The hand check covered key claims, not every citation.
+
+To repeat it on your own repository: `pitroom crew -d <repo> -g bench "<question 1>" "<question 2>" …`, then `pitroom wait -g bench`, `pitroom show <run>` and `pitroom savings --models`.
+
+---
+
+## Platforms
+
+macOS and Linux are the main platforms. **Windows** runs the same test suite in CI (Windows Server, Node 22 and 24, with the fake workers; the worker CLIs themselves are not run there), with these differences:
+
+- **The git guard** is the same two layers as elsewhere, built on the `sh.exe` that Git for Windows ships: git's own config (a `reference-transaction` hook that refuses every ref update, and push URLs that go nowhere) is always on; the `git` shim adds friendly refusals and also blocks `add`, `restore`, `clean` and the rest. Its doors are `git.exe`, a small launcher Pitroom builds with the C# compiler that ships with Windows (.NET Framework 4), for every program that starts git, with a shell or without one; `git` for Git Bash; and `git.cmd` where no compiler is found. `git.exe` hands its command line to `sh.exe` unread, so arguments arrive as written (`HEAD^`, `%cd%`, an unquoted `&`). Through `git.cmd` alone, a program that starts git without a shell skips the shim and is left with the config layer, and the `cmd /c` line Windows starts a batch file with still acts on an unquoted `& | < >` (a `^` and a `%name%` are kept: the shim reads the raw line). Git installed with Scoop works too (its `shims\git.exe` is followed to the real one, and so to its `sh.exe`). `pitroom doctor` says which is in effect. It is verified in CI with Git for Windows, not yet with the worker CLIs on a real Windows machine.
+- **The launcher is `pitroom.cmd`** (`%USERPROFILE%\.local\bin`), started with the Node that ran `pitroom install` or the one in `PITROOM_NODE`; it does not search for another Node.
+- **Line endings.** Pitroom compares and applies patches byte for byte. Keep `core.autocrlf` off (or an `eol=lf` in `.gitattributes`, as this repository has); a checkout converted to CRLF has not been tested with `apply`.
+- A read snapshot's files are not made read-only (Windows has no POSIX modes), and a `--verify` command runs in `cmd.exe`, which reports a missing command as `is not recognized`.
+
+## Quick start
+
+You need Node.js 22.13+ and at least one worker CLI: [OpenCode](https://opencode.ai) v2+ (the default worker, with free models), [Codex CLI](https://github.com/openai/codex), [Claude Code](https://claude.com/claude-code) [Gemini CLI](https://github.com/google-gemini/gemini-cli) (beta; it needs an API key from [Google AI Studio](https://aistudio.google.com/apikey), a Google account sign-in no longer works for it) [Qwen Code](https://github.com/QwenLM/qwen-code) (beta; any OpenAI-compatible provider, a DashScope key, or a local model) [Kilo Code](https://kilo.ai)'s CLI (beta; `npm i -g @kilocode/cli`, its 500+ models and providers) or the [Antigravity CLI](https://antigravity.google) (`agy`, signed in with your Google account; beta on Linux and Windows).
+
+### 1. Install: pick your agent
+
+**Claude Code**
+
+```bash
+claude plugin marketplace add ATASTECH/pitroom
+claude plugin install pitroom@pitroom
+```
+
+<sub>Inside a session: `/plugin marketplace add ATASTECH/pitroom`, then `/plugin install pitroom@pitroom`.</sub>
+
+**Codex**
+
+```bash
+codex plugin marketplace add ATASTECH/pitroom
+codex plugin add pitroom@pitroom
+npm i -g pitroom
+```
+
+**Gemini CLI**
+
+```bash
+gemini extensions install https://github.com/ATASTECH/pitroom
+npm i -g pitroom
+```
+
+**Cursor**
+
+```bash
+npm i -g pitroom
+pitroom install --mcp --client cursor
+```
+
+<sub>This adds `pitroom mcp` to `~/.cursor/mcp.json` and leaves the other servers in that file alone; restart Cursor if it does not show up. Cursor gets the ten MCP tools described below. The skills are linked into `~/.agents/skills` and `~/.claude/skills` (`--no-skills` skips that), and [Cursor's documentation](https://cursor.com/docs/skills) lists both as places it loads skills from; we have not run that in a Cursor session, and a Cursor forum report says its CLI (`cursor-agent`) does not load `~/.agents/skills`. `pitroom install --mcp --dry-run` shows what it would change first.</sub>
+
+**Any agent that speaks MCP (Claude Desktop, and the ones above too)**
+
+Pitroom is also an [MCP](https://modelcontextprotocol.io) server on stdio: ten tools instead of shell commands and skills (`pitroom_run`, `pitroom_wait`, `pitroom_show`, `pitroom_info`, `pitroom_review`, `pitroom_audit`, `pitroom_apply`, `pitroom_discard`, `pitroom_revert`, `pitroom_stop`), the runs as resources, and four prompts. The tool definitions sit in the client's context for the whole session, so they are kept small: about 1.9k tokens. It is listed in the [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.ATASTECH/pitroom`, so clients that browse the registry can find it. After `npm i -g pitroom`, let Pitroom register itself in the clients it finds (Claude Code, Codex, Gemini CLI, Cursor, Claude Desktop):
+
+```bash
+pitroom install --mcp               # also links the skills; add --no-skills to skip that
+pitroom install --mcp --dry-run     # only say what it would do
+pitroom install --mcp --client cursor,claude-desktop
+```
+
+It registers the launcher by its full path (apps like Claude Desktop start without your `PATH`), changes Claude Code, Codex and Gemini CLI with their own `mcp add` command (user scope where it has one), merges the JSON of Cursor and Claude Desktop without touching their other servers (keeping a `.bak-pitroom` backup, and leaving a file that is not valid JSON alone), skips what is already registered, and `pitroom uninstall` removes it again. `pitroom doctor` shows where it is registered. Restart the client afterwards. Or do it by hand:
+
+```bash
+claude mcp add pitroom -- pitroom mcp
+codex mcp add pitroom -- pitroom mcp
+gemini mcp add pitroom pitroom mcp
+```
+
+or, for Cursor (`~/.cursor/mcp.json`), Claude Desktop (`claude_desktop_config.json`) and others:
+
+```json
+{ "mcpServers": { "pitroom": { "command": "pitroom", "args": ["mcp"] } } }
+```
+
+Each tool runs the matching `pitroom` command, so every rule of the CLI applies unchanged (permission profiles, git guard, isolation, read snapshots). A run is waited for up to `waitSeconds` (default 50), then comes back as "still running" with its id for `pitroom_wait`; keep it below your client's tool timeout. The server works in the directory it is started in: the client's for stdio, or the one `-d DIR` names (Claude Desktop starts it elsewhere, so give it `"args": ["mcp", "-d", "/path/to/project"]`); the tools' `dir` argument picks another per call.
+
+<details>
+<summary>More about the MCP server: progress, cancellation, resources, prompts, HTTP</summary>
+
+- **A live view.** A run that is still going after a few seconds starts the dashboard (if it is not already up) and the result carries its address: "Live view of every run: http://127.0.0.1:7878/". The server's instructions tell the agent to open it in its app's own browser pane (the Claude Code and Codex apps have one) or else give it to the user; the system browser is not opened. A run that finishes quickly starts nothing. `"mcpDash": false` in the config (or `PITROOM_MCP_DASH=0`) turns it off.
+- **Progress.** While a call waits for a run, a client that sent a progress token gets a `notifications/progress` every few seconds ("running · read · 12s · 3 steps, 2 tool calls · last: …"), and a client that resets its timeout when progress comes in (the protocol allows it; not every client does) does not give up on a long run. **Cancelling** a `pitroom_run`, `pitroom_review` or `pitroom_audit` call stops the run it started (a cancelled `pitroom_wait` only stops waiting).
+- **Resources.** The latest runs are listed as `pitroom://run/<id>` (the report) and, for runs that changed files, `pitroom://run/<id>/patch` (the exact diff), so a client can attach one to a conversation. A client can **subscribe** to a run (`resources/subscribe`) and is told when it changes state (`notifications/resources/updated`), and every client is told when the newest run changes (`notifications/resources/list_changed`), so it need not poll; over HTTP these arrive on the session's event stream (a GET).
+- **Prompts.** `research`, `implement`, `review` and `crew` say how to use Pitroom for that job (in Claude Code they appear as `/mcp__pitroom__research`, …), and every skill is a prompt of the same name (`using-pitroom`, `pitroom-research`, …), so a client without skills gets the same guidance. The server's instructions tell the agent to use the skills alongside the tools.
+- **More than runs:** `pitroom_run` takes `tasks` (independent tasks in parallel, one worker each) and `continue` (a follow-up in the same worker session); `pitroom_info` reports without changing anything, by `topic`: `runs`, `history` (find an earlier answer before asking again), `stats` and `models` (pick a worker), `savings`, `prices` (USD per 1M tokens of the primary and of each worker in use, or of the `worker` named), `cooldown`, `config`, `doctor`; `pitroom_stop` with `cooldowns` tries rate-limited models again.
+- **Over HTTP.** `pitroom mcp --http [--port N]` (default 7117) serves the same tools at `http://127.0.0.1:7117/mcp` for clients that connect to a URL, for example `claude mcp add --transport http pitroom http://127.0.0.1:7117/mcp --header "Authorization: Bearer $(cat ~/.local/state/pitroom/mcp-token)"` (the command is printed when it starts). It is a local service: it listens on 127.0.0.1 only, needs the bearer token (made on first start, kept at `<state dir>/mcp-token` with owner-only permissions, or set with `PITROOM_MCP_TOKEN`), and refuses a Host or Origin that is not local, so a web page cannot use it. Anyone who has the token can run workers as you, so keep it private. It works in the directory it was started in (printed when it starts; `-d DIR` for another). Each client has its own session; a call that asks for progress is answered as an event stream. Ending a session or stopping the server ends the waiting, not the runs: collect them with `pitroom_wait` or the CLI. `pitroom install --mcp` registers the stdio command, which needs no token and no running process.
+
+</details>
+
+**Any other agent (a plain shell) or just the CLI**
+
+```bash
+npm i -g pitroom
+pitroom install
+```
+
+| Path | You get |
+|---|---|
+| Claude Code plugin | The 14 skills, the session-start hook that introduces Pitroom, and a card after each `pitroom` command. |
+| Gemini CLI extension | The 14 skills and a short context file that introduces Pitroom (Gemini asks you to confirm the extension). Gemini CLI also works as a *worker*, which is separate: see [Workers](#workers). |
+| MCP server | The nine tools above, for any agent that can use MCP servers. No skills: the tools describe themselves, and the server tells the agent how to start. |
+| Codex plugin | The 14 skills, a session-start hook that introduces Pitroom (so it is known even when Codex drops skill descriptions because many are installed), and a card after each `pitroom` command. Codex asks you to trust the plugin's hooks once. The hooks call `pitroom`, which comes from npm (`npm i -g pitroom`). |
+| npm + `pitroom install` | The CLI, and the skills linked into `~/.agents/skills` and `~/.claude/skills`. |
+
+Pick one path, not several: `doctor` warns if the skills load twice. The plugins alone do not put `pitroom` on your PATH, so install it from npm too if you want to run it yourself (`watch`, `models`, `savings`, the status line).
+
+### 2. Check the setup
+
+```bash
+pitroom doctor --probe
+```
+
+It checks the worker CLIs, models, permissions and skills, and runs one live round trip.
+
+### 3. Use it
+
+Pitroom is a toolbox, not a procedure: your agent uses it when it helps, or you ask explicitly:
+
+> Use pitroom to map how sessions are created and invalidated, then propose a fix.
+> Split this into a pitroom crew: audit auth, billing and uploads for missing input validation.
+
+Or start a worker yourself and read its receipt:
+
+```bash
+pitroom "Which files read the session cookie? Cite file:line."
+pitroom -W gemini:gemini-3.8-flash "…"   # the same on another worker (see Workers below)
+pitroom savings          # what all your runs saved so far
+pitroom models           # what each worker offers, what it costs you, what it used
+```
+
+<details>
+<summary>Update and uninstall</summary>
+
+```bash
+# update
+claude plugin update pitroom@pitroom
+codex plugin marketplace upgrade pitroom
+npm i -g pitroom@latest
+
+# uninstall
+claude plugin uninstall pitroom@pitroom
+codex plugin remove pitroom@pitroom
+pitroom uninstall && npm rm -g pitroom
+```
+
+</details>
+
+---
+
+## Modes
+
+| | Flag | For | Your working tree |
+|---|---|---|---|
+| **read** | *(default)* | research, locating code, reviews | untouched; edit tools are denied |
+| **isolate** | `-i` | code changes you want to review first | untouched until `pitroom apply` |
+| **write** | `-w` | quick in-place edits | edited now; `pitroom revert` undoes exactly |
+
+**Read snapshots.** With secret-looking files in the directory, a read run reads a snapshot of your project's current state (uncommitted and untracked files included) without them and without git-ignored files, made from git objects, kept once per state and shared by every read run on it (twenty workers, one snapshot), and cleaned up after three days or by `pitroom clean`. Nothing is copied back: a read run has nothing to land. Its files are read-only, and the paths a worker cites are turned back into your project's. With no secret-looking files nothing changes: the worker runs in place. `--in-place` (or `"readIn": "project"` in the config) reads the directory itself, e.g. for a task that needs build output; `"readIn": "snapshot"` always uses one.
+
+**Answer cache.** Ask the same read question on the same code and you get the earlier answer back at once, with no worker run: `pitroom ⟲ cached answer · the same question on the same code as run … · no worker ran`. "The same code" is exact: the commit and every working file, uncommitted and untracked ones included (git-ignored files are not code), so any edit makes it a new question. Only answers that held up are reused (the run finished, every file:line reference checked out, no audit disputed it) and only for 7 days (`"cacheDays"` in the config, `0` turns it off, or `PITROOM_CACHE_DAYS`). Follow-ups, web runs, plan tasks, reviews, audits, `--verify` runs, parallel work (crews) and changes are never answered from the cache, and `--fresh` asks a worker anyway (its answer is the one reused from then on). Not part of "the same code": git-ignored files (build output, installed dependencies) and the worker or model that answered; when a question depends on them, use `--fresh`.
+
+```bash
+pitroom run "Find every place we build SQL strings by hand; file:line and risk"
+pitroom run -i --link node_modules --verify "npm test" "Fix the off-by-one in paginate() and add a test"
+pitroom run -w "Rename getUserById to findUserById in src/ and fix imports"
+pitroom run --continue last "Now handle the empty-page case too"
+```
+
+**A failed check goes back to the worker.** With `--verify CMD` on a change (`-i` or `-w`), a check that fails is not the end of the run: its output (the last 120 lines) goes back to the same worker, in its own session, to fix the cause, and the check runs again. One round by default, up to three (`verifyFix`, `--verify-fix N`; `0` turns it off), and the worker is told not to weaken or skip the check. The report says `✔ passed after 1 fix round` or `✘ failed, also after 1 fix round`; the answer keeps what each round did and the receipt counts every round. A check that could not run (exit 127) or was killed is not sent back, nor anything once the daily budget is spent; a round that ends badly (a rate limit, a timeout) leaves the work before it, and the check run on the files decides.
+
+**A map for the worker.** With `--map` (or `"repoMap": true`), a new run's prompt starts with a map of the project: the files git sees in the run's directory by folder, with the names each source file declares at its top level (exports in TypeScript and JavaScript, `def` and `class` in Python, `func` and `type` in Go, `pub` items in Rust, classes in Java, Kotlin, C#, Swift, Ruby and PHP). A free model otherwise spends its first steps listing folders and grepping for where things are. The map keeps to a budget however big the project (`repoMapTokens`, 1,500 tokens by default) and spends it where the task is: the files whose paths and names share the task's words, each word weighed by how rare it is in the project, keep their names and their folder's file list; the rest gives detail up, the least useful first (tests, docs and assets, then deep folders, then shallow ones), down to one line per subtree with its counts, and the folders off the task's path fold into a line of their own. With a task to focus on, what is not about it is cut to 60% of the budget even when it would fit. Every part of the project keeps at least a line, so an 8,000-file monorepo comes out as an overview with the task's corner in full, never a list cut short. Names are read once per file content and kept, so a big repository is read once (a few seconds) and later maps take well under a second. Secret-looking and git-ignored files are not in it, and follow-ups, audits and reviews never get one. `pitroom map --task "…"` shows the map a task would get.
+
+Long jobs: `--bg` returns immediately; `pitroom wait <id>` blocks for up to 9 minutes (made for agents with 10-minute tool limits; exit code 75 means "call wait again").
+
+---
+
+## Workflow
+
+Pitroom ships a full development methodology as skills, adapted from [superpowers](https://github.com/obra/superpowers) so that its subagents are cheap workers: your agent brainstorms and plans with you, then executes the plan task by task while workers do the typing and a second model does the reviewing.
+
+<details>
+<summary>The workflow, step by step</summary>
+
+<p align="center"><img src="docs/workflow.svg" width="100%" alt="Workflow: brainstorming, then a plan with a worker tier per task, then for every task a worker implements in an isolated copy, another model reviews, fix rounds repeat until approved, and your agent applies, tests and commits; then a whole-branch review and finishing."></p>
+
+| Step | Skill | Command |
+|---|---|---|
+| Design | `pitroom-brainstorming` | writes the spec to `docs/pitroom/specs/` |
+| Plan | `pitroom-writing-plans` | writes the plan to `docs/pitroom/plans/`, a worker tier on every task |
+| Implement | `pitroom-driven-development` | `pitroom run -i --plan PLAN --step N` |
+| Review | `pitroom-review` | `pitroom review <run>` (a read-only reviewer on another model) |
+| Fix | `pitroom-receiving-review` | `pitroom run --continue <run> "…"` (the re-review sees only the fix) |
+| Land | `pitroom-driven-development` | `pitroom apply <run>`, your tests, your commit |
+| Branch review | `pitroom-review` | `pitroom review --range main..HEAD --plan PLAN` |
+| Finish | `pitroom-finishing` | merge, pull request or keep: asked, never automatic |
+
+A review package holds the diff under review with 10 lines of context, and the reviewer's CLI sends it to that worker's model provider. Pitroom does not filter it: secrets committed in a reviewed range go along as they are.
+
+Tiers map plan tasks to workers: `"tiers": {"cheap": "opencode", "standard": "codex", "capable": "claude"}`. `pitroom plan status PLAN` rebuilds where a plan stands from the run records (it survives context compaction), and `pitroom plan note` keeps completions and rulings outside the repo.
+
+</details>
+
+---
+
+### On pull requests
+
+The repository is also a GitHub Action: on each push to a pull request a worker you choose reviews the new commits (`pitroom review --range base..head`, read-only), and the review goes to the job summary and to one comment, updated on every push. `fail-on: critical` makes it a required check. [The workflow and its inputs](docs/github-action.md).
+
+```yaml
+- uses: actions/checkout@v4
+  with: { fetch-depth: 0, persist-credentials: false }
+- run: npm install --global opencode-ai
+- uses: ATASTECH/pitroom@v0.29.0
+  with: { worker: "opencode:opencode/big-pickle", fail-on: critical }
+```
+
+## Audits
+
+Pitroom checks every `path:line` a worker cites, which proves a line exists, not that the claim about it is true. An **audit** asks a second worker to verify an answer's key claims against your project and to say `AGREE`, `PARTIAL` or `DISAGREE`, with the claims it disputes.
+
+```bash
+pitroom audit <run>            # now: re-check one read run (-W picks the auditor)
+pitroom run --audit "…"        # re-check this run's answer when it finishes (--no-audit skips it)
+```
+
+or set `"audit": 0.1` in the config (or `PITROOM_AUDIT=0.1`) to have about one read run in ten audited, in the background, without your agent asking. The same run is always in or out of the sample.
+
+<details>
+<summary>Cost, limits and where the verdict shows</summary>
+
+- **Cost:** off by default. An audit is a read run of the auditor, so about the rate times the worker's own tokens, on the `audit` tier (else `cheap`, i.e. a free model if that is your cheap tier). It never delays the run or fails it.
+- **Never itself:** the auditor is never the worker and model that gave the answer; with no other worker configured nothing is audited (`pitroom doctor` says so). Only read runs are audited: a change has `pitroom review`.
+- **Where it shows:** the answer's card and `pitroom show` carry the verdict and the disputed claims; the Stats tab counts, per worker, how many audited answers were confirmed. Audits are not counted as runs and save nothing.
+- **A sample, not a guarantee.** The auditor is a model too: it can share a blind spot, and a few audits say little about a worker. Treat `DISAGREE` as a reason to look, and `AGREE` as one more signal.
+
+</details>
+
+**Corrections** (`"auditFix": true`, or `PITROOM_AUDIT_FIX=1`; off by default). When an audit says `PARTIAL` or `DISAGREE` and names the claims it disputes, the answer goes back to the worker that gave it: a follow-up in its own session (which still holds what it read) with the disputed claims, to check against the files (the auditor can be wrong too) and to answer again in full, saying under OPEN ISSUES which claims it accepted. One round only: a correction is never sent back again. The audited run's card and `pitroom show` name the correction run (`── fix: …`). Every built-in worker can continue its session, which this needs.
+
+**A focused sample** (`"auditFocus": true`, or `PITROOM_AUDIT_FOCUS=1`; off by default). With an `audit` rate set, the sample leans to where audits find the most: the rate is doubled for a question that asks for all of something, a list or a count, doubled again for a worker whose audited answers were confirmed less than half the time (3 audits or more in 30 days), and halved for one whose last 5 or more were all confirmed. `--audit` and `--no-audit` are never changed; the run records the chance it got and why.
+
+## Evals
+
+Your own benchmark, on your own code: questions with known answers, put to the workers you want to compare, and scored.
+
+```bash
+pitroom eval questions.json -W opencode -W codex:gpt-6.1-sol    # every question to every worker, as one group
+pitroom eval questions.json --json                               # the same as JSON: truths, rows, a summary per worker
+```
+
+```json
+{
+  "questions": [
+    { "id": "def", "kind": "definition", "task": "Which file and line define `export function loadConfig(`? The SUMMARY line must be only path:line.", "truth": { "grep": "^export function loadConfig\\(", "regex": true, "dir": "src" } },
+    { "id": "count", "kind": "count", "task": "How many files under src/ contain the word effective? The SUMMARY line must be only the number.", "truth": { "grep": "effective", "word": true, "dir": "src" } },
+    { "id": "list", "kind": "set", "task": "List every file under src/ that mentions node:sqlite. The SUMMARY line must be only the paths, separated by commas.", "truth": ["src/cli/commands.ts", "src/core/history.ts"] }
+  ]
+}
+```
+
+A truth is written down (`"path:line"`, a number, a list of paths) or looked up when the eval starts with `git grep` (`grep`, and optionally `dir`, `word`, `regex`, `exclude`), so it stays right as the code changes. Scoring is that of [the multi-repo benchmark](benchmarks/multi-repo): a definition gets 1 for the exact `path:line` and 0.5 for the right file, a count only for the exact number, a list the F1 of the paths it names (from the SUMMARY, else the DETAILS). Each worker answers for itself: no fallback, no audit, no cached answer. The runs are an ordinary group, so `pitroom watch -g`, the dashboard and the history show them.
+
+## Crews
+
+A real crew over this repository, four questions at once on a free OpenCode Zen model:
+
+```bash
+pitroom crew -g v04-demo \
+  "Where does Pitroom enforce the maxParallel queue, and how does a waiting run react to pitroom stop? Cite file:line." \
+  "How does the git guard shim resolve git aliases? Cite file:line." \
+  "Which fields of OpenCode v2 events does the parser read for token usage, refused tool calls and errors? Cite file:line." \
+  "How does pitroom apply -g decide which patches to apply and in what order? Cite file:line."
+pitroom watch -g v04-demo --json   # what the primary agent follows, one line per change:
+```
+
+<details>
+<summary>What the crew prints: the stream your agent follows and the status table</summary>
+
+```text
+{"event":"started","run":"20260930-102812-a65d","mode":"read","task":"Where does Pitroom enforce the maxParallel queue, and how d…"}
+{"event":"progress","run":"20260930-102812-a65d","steps":3,"tools":4,"last":"grep SIGINT|SIGTERM|stop.*queued|stopped.*queued"}
+{"event":"done","run":"20260930-102812-a563","time":"21s","worker":"opencode (default model)","summary":"The shim resolves `alias.<sub>` via `real git config --get` in a loop …","refs":"5/5"}
+{"event":"all-done","runs":4,"ok":4,"failed":0}
+```
+
+```text
+$ pitroom status -g v04-demo
+RUN                   STATE  MODE  TIME  STEPS  WORKER                    NOW / RESULT
+20260930-102812-0c0d  done   read  30s   5      opencode (default model)  Parser `src/backends/opencode/events.ts` reads …
+20260930-102812-7642  done   read  27s   5      opencode (default model)  `pitroom apply -g NAME` applies finished isolat…
+20260930-102812-a563  done   read  21s   2      opencode (default model)  The shim resolves `alias.<sub>` via `real git c…
+20260930-102812-a65d  done   read  39s   7      opencode (default model)  maxParallel is enforced by file-based slots (`s…
+```
+
+</details>
+
+Humans get the same table live with `pitroom watch -g NAME`; `pitroom wait -g NAME --brief` prints one line per worker, `pitroom show <run>` the full answer.
+
+**One question, split by part.** `pitroom crew --over src/auth,src/billing,src/uploads "Find missing input validation in {scope}. file:line for each."` runs the task once per part (`{scope}` is filled in) and tells each worker that its part is the only one it reads, or in an `-i` crew the only one it changes. A pattern in the last part of a path makes one part per match, hidden ones left out (`--over "packages/*/"`: one per folder). Parts must exist and must not overlap (`src` with `src/auth` is refused): two workers that read the same files hand your agent two answers about the same code to reconcile, and when they disagree it opens the files itself.
+
+**One change, raced.** `pitroom run -i --race 3 --verify "npm test" "Fix the off-by-one in paginate()"` gives the same change to three workers at once (your worker and its fallbacks in turn, or `-W` three times: free models answer differently each time), each in an isolated copy of its own. When all have ended the best one wins: it ended well, its check passed, it changed something, its references held, then the smallest diff and the lowest cost. The others' copies are discarded (their patches stay: `pitroom show RUN --patch`, even `pitroom apply RUN`), and you get the places and the winner's report. Nothing reaches your tree until you apply the winner. `--bg` returns at once; `pitroom wait -g race-…` names the winner.
+
+For changes, `pitroom crew -i …` gives every worker its own isolated copy of your current state and `pitroom apply -g NAME` lands the patches in order, stopping at the first conflict. Up to `maxParallel` workers (default 20, at most 30) run at once, the rest queue; only one `--write` run per repository is allowed. `pitroom stop -g NAME` stops running and queued workers.
+
+---
+
+## Skills
+
+<details>
+<summary>The 14 skills</summary>
+
+| Skill | Your agent uses it to |
+|---|---|
+| `using-pitroom` | see what Pitroom offers and when it pays off (injected at session start by the plugin; optional) |
+| `pitroom-brainstorming` | turn an idea into an approved design before any code |
+| `pitroom-writing-plans` | write a task-by-task plan with a worker tier per task |
+| `pitroom-driven-development` | execute a plan: worker per task, review on another model, fix loop, apply, commit |
+| `pitroom-worktrees` | isolate its own branch for the work |
+| `pitroom-tdd` | test first, for itself and the workers it briefs |
+| `pitroom-debugging` | find root causes, with workers gathering the evidence |
+| `pitroom-verification` | run the checks before claiming anything is done |
+| `pitroom-review` | get a change, a fix round, a branch or a PR reviewed by another model |
+| `pitroom-receiving-review` | weigh review findings with technical rigor |
+| `pitroom-finishing` | merge, open a PR or keep the branch, as the user chooses |
+| `pitroom-research` | find, map or explain code through a read-only worker |
+| `pitroom-implement` | get a one-off change made in an isolated copy |
+| `pitroom-crew` | split independent work across parallel workers and merge the results |
+
+</details>
+
+---
+
+## Commands
+
+<details>
+<summary>All commands and exit codes</summary>
+
+```text
+pitroom run [-r|-w|-i] [-W WORKER] [-m MODEL] [-d DIR] [-f FILE]… [-t 30m] [--verify CMD [--verify-fix N]] [--max-cost USD] [--link a,b] [--bg] "task"
+pitroom run -i --race N [--verify CMD] "task"     N workers (2 to 5) make the same change; the best one wins
+pitroom map [-d DIR] [--task TEXT] [--tokens N] [--fresh]   the project map a run's prompt gets with --map
+pitroom run --continue <run|last> "follow-up"
+pitroom crew [-i] [-g NAME] "task 1" "task 2" …   (or --task-file with --- separators)
+pitroom crew [-i] [-g NAME] --over src/a,src/b "task about {scope}"   (one worker per part; "src/*/": one per folder)
+pitroom run -i --plan PLAN --step N [--tier T] ["notes"]
+pitroom review [run | --range A..B [--plan PLAN]] [--tier T | -W T] [--bg]
+pitroom audit RUN [-W worker]
+pitroom eval QUESTIONS.json [-W worker]… [--json]   your questions with known answers, scored per worker
+pitroom mcp [-d DIR] [--http [--port N]]   # serve Pitroom as MCP tools on stdio, or over HTTP on 127.0.0.1 (bearer token)
+pitroom cooldown [--clear]
+pitroom plan status PLAN [--json] · pitroom plan note PLAN "Task N: …"
+pitroom status|wait|watch [run… | -g NAME]        wait: --any --brief --timeout · watch: --json|--brief --interval
+pitroom dash [--detach] [--port N] [--open] [--stop]   a live page of the runs on 127.0.0.1
+pitroom history [TEXT] [--model M] [--state S] [--since 30d] [--limit N] [--json]   finished runs, searchable
+pitroom history stats [--since 30d] · pitroom history import   per worker and model · take in older runs
+pitroom show [run]                                --patch --events --full --json
+pitroom apply [run | -g NAME] · pitroom discard|revert [run] · pitroom stop [run | -g NAME]
+pitroom ls [--running] [-g NAME] · pitroom clean [--days 14] [--yes]
+pitroom savings [--since 7d|30d|all] [--models] [--card file.svg] [--badge]
+pitroom models [worker] [--all] [--json]      models, effort levels, your costs, your usage
+pitroom statusline [--then CMD] · pitroom hook-card
+pitroom doctor [--probe] · pitroom config · pitroom init [--model ID] [--fallback A,B] [--yes] [--force] · pitroom install [--copy] [--force] [--mcp [--client A,B] [--no-skills] [--dry-run]] · pitroom uninstall
+```
+
+Exit codes: `0` ok · `1` worker failed · `2` usage · `3` refused/setup · `4` timeout · `5` read-only violation · `6` verify failed · `75` still running.
+
+</details>
+
+### History
+
+<details>
+<summary>Searching the history</summary>
+
+Every finished run is also written to a SQLite database (`history.db` in Pitroom's state directory; Node's built-in `node:sqlite`, nothing to install). It keeps the task, worker and model, time, tokens, savings, the steps the worker took, its answer and the diff, and it is searchable:
+
+```bash
+pitroom history "login bug"            # full-text search over the task, the answer and the steps
+pitroom history --state problem --since 7d
+pitroom history stats --since 30d      # runs, success rate, average time and tokens per worker and model
+```
+
+While a run runs, its raw event stream is a plain file (the simplest thing that survives a crash). When it ends, the stream is compressed, and the stderr log is kept only for runs that did not succeed. `pitroom clean` removes old run directories but the history keeps them: `pitroom show <run>` still prints their report, steps, and patch. Runs from before the history existed are taken in by `pitroom history import` (it also runs on the first `pitroom history` and `pitroom dash`). The files remain the source: the database can be deleted and rebuilt with `history import` for the runs still on disk.
+
+</details>
+
+### Seeing Pitroom at work
+
+<details>
+<summary>The status line and hook cards (and what the apps show instead)</summary>
+
+Two settings make every delegation visible, whether or not the agent mentions it. A status line shows running workers and this week's savings (`--then` keeps your own status line first); a card appears after each `pitroom` command the agent runs, once per phase (started, finished with its result, applied). The plugin registers the card hook itself; with `pitroom install`, add both to `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": { "type": "command", "command": "pitroom statusline --then 'your-own-statusline'" },
+  "hooks": {
+    "PostToolUse": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "pitroom hook-card", "timeout": 10 }] }]
+  }
+}
+```
+
+The Claude Code and Codex **apps** show neither hook messages nor a status line. For them there are two things that need no setup:
+
+- `pitroom dash --detach` prints the address of a live dashboard with three tabs: **Live** (every running and recent run as an animated card; click one for the task, what the worker did step by step, its result, the diff and the details), **History** (search and filter everything Pitroom ever ran; every run opens as the same card) and **Stats** (success rate, time, tokens and savings per worker and model). It is read-only, listens on `127.0.0.1` only and stops itself after an hour without a request (`pitroom dash --stop` ends it sooner). Open it in a browser or in the app's own browser pane. The skills tell the agent to start it and give you the address when it runs workers in the background.
+- `pitroom watch -g NAME --brief` prints one card line when a worker starts and one when it ends. In Claude Code, the agent runs it through the Monitor tool and the lines appear in the app; in Codex the command's output block fills as it goes.
+
+</details>
+
+---
+
+## How it works
+
+<p align="center"><img src="docs/architecture.svg" width="100%" alt="How a run flows: the primary agent delegates to the Pitroom CLI, which starts a worker CLI in read, isolate or write mode; events, then the answer, an exact diff and a receipt come back."></p>
+
+<details>
+<summary>Headless problems Pitroom handles for every worker</summary>
+
+Handled for every worker: `opencode run` blocks forever on an open stdin pipe; `ask` permissions stall headless runs; default output carries ANSI and banners; and in OpenCode v2 a plain `run` attaches to the shared background service, where per-run permissions and the git guard would not apply. Pitroom closes stdin, uses allow/deny-only profiles, parses `--format json` and always runs a private `--standalone` server.
+
+</details>
+
+---
+
+## Workers
+
+A worker is named by a target: `backend[:model]`.
+
+```bash
+pitroom run "…"                                          # preferred worker (config "worker", default opencode)
+pitroom run -W opencode:opencode/space-bunny-free "…"    # a specific backend and model
+pitroom run -W 'codex:#low' "…"                          # the model from config "models" (not Codex's default), low reasoning effort
+pitroom run --effort high "…"                           # model#level (Codex, Claude Code, OpenCode; Gemini CLI has no effort option)
+pitroom run -W claude:haiku "…"                          # Claude Code on a cheap model
+pitroom run -W gemini:gemini-3.8-flash "…"               # Gemini CLI (beta; needs a Google AI Studio API key)
+pitroom run -W qwen:qwen3-coder-plus "…"                 # Qwen Code (beta; your provider from ~/.qwen/settings.json)
+pitroom run -W kilo:kilo/<model> "…"                      # Kilo Code's CLI (beta; any model from `kilo models`)
+pitroom run -i -W antigravity "…"                         # Antigravity CLI (your Google account, models from `agy models`; beta on Linux and Windows)
+pitroom run -W cursor:composer-2.5 "…"                    # Cursor CLI (your Cursor plan, models from `cursor-agent models`; beta on Linux and Windows)
+pitroom run -m nvidia/z-ai/glm-5.3 "…"                   # another model on the preferred worker
+```
+
+| Worker | Status | Read-only enforced by | Cost in receipts | Notes |
+|---|---|---|---|---|
+| OpenCode (v2+) | ✅ | per-run permission rules | reported | private `--standalone` server per run |
+| Codex CLI | ✅ | OS sandbox (`read-only` / `workspace-write`) | tokens only | `codex login`; your `~/.codex/config.toml` is ignored for workers (its MCP servers run outside the sandbox); models take `#effort` |
+| Claude Code | ✅ | tool allowlist (`--restricted --safe-mode`, `dontAsk`) | reported | `claude auth login`; its default is often Opus, so prefer `-W claude:haiku` |
+| Gemini CLI | beta | `--approval-mode plan` plus Pitroom's policy rules | tokens only | an API key from Google AI Studio (sign in with `gemini` or set `GEMINI_API_KEY`; Google account sign-in is refused by Google); workers run in a private Gemini home without your hooks, MCP servers and skills; secret-file rules are not enforced by Gemini 0.62, but a read run with secret-looking files reads a [clean snapshot](#modes) without them; pin a model, e.g. `-W gemini:gemini-3.8-flash`; `--continue` works (by session id; see [the notes](docs/backends.md#gemini-cli-notes)) |
+| Qwen Code | beta | `--approval-mode plan`; edits only inside the working directory, the rest declined | tokens only | checked against Qwen Code 0.25 with a scripted model, not yet with a real provider; uses your sign-in and model from `~/.qwen/settings.json` (any OpenAI-compatible provider, DashScope, a local model); `--safe-mode` keeps your QWEN.md, hooks, skills and MCP servers out and stops the CLI writing memories of the run; reads `.env` if asked, so a read run with secret-looking files reads a [clean snapshot](#modes); see [the notes](docs/backends.md#qwen-code-notes) |
+| Kilo Code | beta | per-run permission rules (OpenCode's profiles) | reported | the CLI of `@kilocode/cli` (an OpenCode fork): the same `pitroom-read`/`pitroom-write` profiles through `KILO_CONFIG_CONTENT`, your sign-in and providers as they are; workers use a private state folder so a running `kilo daemon` (which would ignore the profiles) is never attached to; checked against Kilo 7.8.8 with a scripted model, not yet with a real provider; see [the notes](docs/backends.md#kilo-code-notes) |
+| Antigravity CLI | macOS; beta on Linux and Windows | a read-only [snapshot](#modes) of its own for every read run (agy has no read-only mode for headless runs) | tokens only | checked against agy 1.4.7 on macOS (`scripts/check-worker.mjs`), not yet on Linux or Windows; use `-i` for changes, not `-w` (its deny rules are patterns, a layer on top of the git guard and the isolated copy); runs with a home of its own per workspace (agy reads its settings only from `~/.gemini`), so its commands do not see your dotfiles; an answerless run (a refused command can end its turn with no answer and exit 0) is a failure; your Google account sign-in (the one Gemini CLI now refuses); shell in agy's terminal sandbox (macOS, Linux); no web access for these workers; give it a fallback, its quota is per account; see [the notes](docs/backends.md#antigravity-cli-notes) |
+| Cursor CLI | macOS; beta on Linux and Windows | ask mode, in a read-only [snapshot](#modes) of its own; no shell in a read | tokens only | `cursor-agent login`; checked against Cursor CLI 2026.10.22 on macOS (`scripts/check-worker.mjs`: 8 of 8); changes run in its sandbox (writes only in the workspace and the temp folder; an edit elsewhere is refused; the network stays reachable) with Pitroom's deny rules; workers run in a home of their own per workspace, so your `~/.cursor` MCP servers, hooks and plugins are not loaded; your account's User Rules on cursor.com still apply (they can change the answer's language), and so do the project's own hooks (`.cursor/hooks.json`: Cursor has no switch to turn them off), so keep it to code whose hooks you would run yourself |
+
+### Models, costs and effort
+
+<details>
+<summary>Models, costs and effort levels</summary>
+
+`pitroom models` lists what each worker offers (Codex from its own model cache, Claude Code's aliases, OpenCode's `opencode models`, Gemini CLI's built-in names), the reasoning-effort levels each model accepts, what you say it costs and what your own runs used:
+
+```text
+worker  model        effort (* default)                 cost  runs  avg tokens  $/run   in use
+codex   gpt-6.1-sol  low*/medium/high/xhigh/max/ultra   2     20    174k        -       tier standard
+codex   gpt-6-sol    low/medium*/high/xhigh/max/ultra   1     1     24k         -       -
+claude  haiku        low/medium/high/xhigh/max          ?     -     -           -       -
+```
+
+Pitroom knows no vendor prices of its own and, unless you turn on `priceFeed` (see the config notes), fetches none, so a cost is what you enter: `"costs": {"codex:gpt-6-sol": 1, "codex:gpt-6.1-sol": 2}` in the config, in any unit (they are only compared; dollar prices for the receipts of Codex and Gemini go in `workerPrices`, see the config notes). `pitroom doctor` then prints the cost of the models in use and says when you priced a cheaper one of the same worker. A target that names only an effort (`codex:#low`) uses the model from `models`; a Codex or Claude Code worker with no pinned model gets a warning, because it would run the vendor's own default, which can change and cost more. `--effort LEVEL` sets the level for one run; your agent picks model and level from `pitroom models` (cheapest that fits: `low` for lookups, `medium` for ordinary changes, `high` for reviews).
+
+Fallbacks cross backends (e.g. `"fallback": ["codex:#low", "opencode"]`): a worker that is rate-limited, logged out or missing its model hands the task to the next. A limit can come part way, after the worker started (a Codex or Claude plan's usage limit, an Antigravity quota): the next worker then takes the task over instead of the run failing. An edit (`-i`, `-w`) carries on in the same tree, and the next worker is told which files the one before it already changed and to finish, not start over; a read starts over. What both used is the run's cost. An audit falls back to the other auditors (the audit and cheap tiers, the fallbacks, the worker), never to the worker it audits. Follow-ups (`--continue`) always stay on the worker that owns the session. Writing an adapter: [docs/backends.md](docs/backends.md). A model that says "rate limited" (a daily quota used up, an overloaded provider) is remembered for the time its message gives ("retry in 4h", "try again at 8:56 PM", "resets 7:40pm (Europe/Istanbul)"), or a guess (an overload 20 minutes, a used-up allowance an hour, a daily quota four hours): the next runs skip it while a fallback is left, so they do not each wait for it to fail. `pitroom cooldown` lists what is skipped and until when, `--clear` tries it again, and `doctor` shows it too.
+
+</details>
+
+---
+
+## Configuration
+
+<details>
+<summary>Environment variables</summary>
+
+| Env | Default | |
+|---|---|---|
+| `PITROOM_WORKER` | `opencode` | Preferred worker target: `backend[:model]` |
+| `PITROOM_MODEL` | the worker's default | Model for the preferred worker |
+| `PITROOM_FALLBACK` | none | Comma-separated targets to fail over to on model/provider errors |
+| `PITROOM_TIMEOUT` | `30m` | Per-run timeout |
+| `PITROOM_MAX_PARALLEL` | `20` | Workers running at once (at most 30); more queue |
+| `PITROOM_PRIMARY` | `sonnet` | Pricing preset for the savings estimate: `sonnet`, `opus`, `haiku`, `gpt-5` |
+| `PITROOM_PRICE` | | Custom primary price, USD per 1M tokens: `"in,out[,cachedIn]"` |
+| `PITROOM_HOME` | `~/.local/state/pitroom` | Where run records and the ledger live |
+| `PITROOM_NO_SECRET_WARNING` | | Set to `1` to stop the warning about `.env` files and private keys in the worker's directory |
+| `PITROOM_<WORKER>_BIN` | on PATH | Path to a worker CLI, e.g. `PITROOM_OPENCODE_BIN` |
+
+</details>
+
+Or put defaults in `~/.config/pitroom/config.json` (flags and env still win); `pitroom config` shows every effective value and where it came from. `pitroom init` proposes a starter config from the worker CLIs and OpenCode models you have (a fallback chain of your free models, tiers when more than one CLI is installed) and writes it only with `--yes`; it never picks your model for you. `models` gives each worker a default model for targets that name none (`-W codex`, a `"codex"` fallback); a model in the target or `-m` still wins. `tiers` names workers for `--tier` and for plan tasks' `**Worker:**` lines:
+
+<details>
+<summary>config.json: an example and what each setting does</summary>
+
+```json
+{
+  "worker": "opencode",
+  "fallback": ["opencode:opencode/space-bunny-free", "codex"],
+  "models": { "codex": "gpt-6.1-sol", "claude": "claude-sonnet-5-5" },
+  "costs": { "codex:gpt-6-sol": 1, "codex:gpt-6.1-sol": 2 },
+  "tiers": { "cheap": "opencode", "standard": "codex", "capable": "claude", "review": "opencode:opencode/space-bunny-free" },
+  "timeout": "20m",
+  "primary": "opus",
+  "link": ["node_modules"],
+  "maxParallel": 20,
+  "audit": 0.1
+}
+```
+
+- `worker` and `fallback`: who runs a task when you name no one, and who takes over when it fails; `models`: the model each worker uses when a target names none.
+- `tiers`: `cheap`, `standard` and `capable` name the workers for plan tasks and `--tier`; an optional `review` tier names who reviews a run (by default another worker than the implementer's, `standard` first).
+- `audit`: the chance (0 to 1, default 0 = off) that a finished read run is re-checked in the background, see [Audits](#audits). The `audit` tier (else `cheap`) names who does it.
+- `costs`: your relative cost per `worker:model`, only compared with each other; `maxParallel`: workers at once (default 20, at most 30).
+- `workerPrices`: USD per 1M tokens of a worker model, for the CLIs that report no cost (Codex, Gemini): `"workerPrices": {"codex:gpt-6.1-sol": "1.25,10,0.125"}` is "in,out[,cachedIn]", keyed `backend:model` (the model that ran, else the one you asked for) or `backend` alone. Without one the receipt says `worker cost n/a` and the run counts as free in the savings, which overstates them (`pitroom doctor` warns); with one the cost is estimated from the tokens, shown as `~$0.016 (estimated from your workerPrices)`, kept in the ledger, history and dashboard, and taken off the savings. Pitroom knows no vendor prices and does not fetch them, so this is your number.
+- `priceFeed`: keep a price catalog up to date (default `false`; `PITROOM_PRICE_FEED=1`). The catalog is the public [models.dev](https://models.dev) list OpenCode also reads (USD per 1M tokens of about 8,000 models): at most once a day (`priceFeedHours`, default 24), in a background process after a run, never while a run waits, Pitroom sends a plain `GET` for that one file (`priceFeedUrl` / `PITROOM_PRICE_FEED_URL` to use a mirror, `priceFeedHours` / `PITROOM_PRICE_FEED_HOURS` for the interval) and keeps a trimmed copy (about 400 KB) in its state directory; a failed refresh keeps the old copy and is not retried for an hour. It is only a fallback: your `workerPrices` come first, and the receipt says which was used (`estimated from models.dev prices`). With it, `"primary": "<model id>"` can name any model of the catalog for the savings comparison (`"primary": "claude-opus-5-5"`), where without it only the four presets exist. `pitroom prices` shows the feed, the catalog, the primary's price and the price each worker in use gets (`pitroom prices codex:gpt-6.1-sol` the price of the one named); `pitroom prices --refresh` fetches now. What it sends: [PRIVACY.md](PRIVACY.md). The listed prices are API list prices: a worker on a subscription (Codex with a ChatGPT account) does not pay them, so for such a worker the estimate is what the same tokens would cost on the API.
+- `notify`: a desktop notification when a run that went to the background (`--bg`, a crew, an MCP call) has ended, so a long job does not have to be watched (default `false`; `PITROOM_NOTIFY=1`). Runs that went well but took less than `notifyAfter` seconds (default 15; `PITROOM_NOTIFY_AFTER`) and audits are not announced (a failure always is), and a crew says so once, when its last run ends, judged as a whole. A worker process that is killed outright never gets to say so. The built-in notifier uses `osascript` on macOS and `notify-send` on Linux (none for Windows yet); `notifyCommand` runs a command of your own instead, in a shell, with the text in `PITROOM_NOTIFY_TITLE` and `PITROOM_NOTIFY_BODY` (and `PITROOM_NOTIFY_RUN`, `PITROOM_NOTIFY_STATE`): for example `"notifyCommand": "curl -s -d \"$PITROOM_NOTIFY_BODY\" ntfy.sh/my-topic"`.
+- `mcpDash`: whether a run that an MCP client starts, and that is still going after a few seconds, also starts the dashboard and returns its address (default `true`; `PITROOM_MCP_DASH=0` or `"mcpDash": false` turns it off), see [the MCP server](#1-install-pick-your-agent).
+- `auditFix` and `auditFocus`: send a disputed answer back to its worker for one correction, and lean the audit sample to list and count questions and to disputed workers (both default `false`; `PITROOM_AUDIT_FIX`, `PITROOM_AUDIT_FOCUS`), see [Audits](#audits).
+- `budgetDaily`: what the workers may cost per day, in USD (as their CLIs report it, or estimated from `workerPrices` and the price catalog; audits and corrections included). Past 80% a run warns; once it is spent only workers that cost nothing still run (a price of `0`, or a worker whose recent runs all cost exactly 0), a run with none in its chain is refused (exit 3), and audits and corrections do not start. A run that is still going counts with what it has used so far; runs started at the same moment count from their first finished step, so a crew can still end a day a little over. `0` allows only free workers. Default: no budget (`PITROOM_BUDGET_DAILY`).
+- `rankWorkers`: order the worker and its fallbacks by their record of the last 30 days on the same kind of work (a question, a change or a review: a model can answer well and still leave changes unfinished): the share of runs that ended well (rate limits left out), times the share of checked work that held up, with 3 checks or more (for an answer its audits, for a change the reviews of it that found the spec met and nothing to fix). Only workers with 5 runs or more of that kind move, among the places such workers hold, in steps of 10%; a worker you name (`-W`, `-m`, a tier) is never reordered, and the run says when the first worker changed (default `false`; `PITROOM_RANK_WORKERS=1`).
+- `autoFallback`: with no `fallback` of yours, fall back to the other workers your config already names (its `tiers`, its `models` and its `worker`), the ones installed here, cheapest first by `costs` (those without a cost after, in the order named), at most four; never the worker itself at another effort level (default `false`; `PITROOM_AUTO_FALLBACK=1`). Pitroom still picks no model you did not name: it only reuses your own choices. Your `fallback` list, when you have one, and `--no-fallback` win; `pitroom doctor` says when the chain came from it.
+- `countRateLimits`: whether runs that failed on a rate limit or quota count in `pitroom history stats` and the dashboard's Stats (default `false`: they are left out of the run counts, success rates, times and tokens and shown apart as rate-limited, since they say nothing about the worker's work; `true` counts them as not ok).
+- `verifyFix`: how many times a failed `--verify` check of a change goes back to its worker, with the check's output, to fix it (default `1`, at most `3`, `0` = off; `PITROOM_VERIFY_FIX`; `--verify-fix N` per run). See [Modes](#modes).
+- `maxCost`: what one run's workers may cost, in USD (as their CLIs report it, or estimated from `workerPrices` and the price catalog; a worker a limit stopped and fix rounds included). The cost is checked every second while the worker runs; at the cap the worker is stopped, no fallback takes over, and the run fails saying so, with what it changed until then in its changes. A worker whose cost cannot be told (no reported cost, no price) is not stopped, and the run says the cap could not be checked. `0` stops a worker at its first cost (a free one runs on). Default: none (`PITROOM_MAX_COST`; `--max-cost USD` per run).
+- `repoMap`: put a map of the project (files by folder, with the names each source file declares) in a new run's prompt, detailed where the run's task is (default `false`; `PITROOM_REPO_MAP=1`; `--map`, `--no-map` per run; `pitroom map --task "…"` shows it). `repoMapTokens`: its budget, 300 to 8000 (default 1500; `PITROOM_REPO_MAP_TOKENS`). See [Modes](#modes).
+
+</details>
+
+
+---
+
+## FAQ
+
+**Where does my code go?** To whichever provider your worker's model uses. For private code, point the worker at a local model. The file-reading tools of OpenCode and Claude Code workers refuse `.env` files and private keys; Codex workers are not restricted that way and a shell command can still read them, so keep secrets out of the folder you delegate in.
+
+**How is "saved" computed?** It assumes your primary agent would have processed about the same tokens the worker did, priced at your primary's list prices (`PITROOM_PRIMARY` / `PITROOM_PRICE`), minus the worker's cost and the cost of reading the report. It is an estimate and is labelled as one.
+
+**Can the worker break my repo?** It can't touch git history, refs or your index (permission profile + git guard), can't run bulk deletes, and write-mode edits are revertible with one command. The guard is not an OS sandbox: git called by absolute path from inside a script, or non-git tools, are outside its reach, which is why `--isolate` exists: nothing reaches your tree until you apply it.
+
+**Can the worker read my `.env`?** In a read run, no: when the directory holds secret-looking files (`.env`, `prod.env`, private keys and keystores, `.netrc`, `credentials.json`, `secrets.json`), the worker reads a **clean snapshot** of your project instead (see below), where they are simply not present, whatever the worker CLI would have allowed. Edits (`-i`, `-w`) and reviews are different: an isolated copy (`-i`) leaves out git-ignored files, so a git-ignored `.env` is not in it, but one that is not ignored would be copied, and Pitroom warns when it sees such files (`PITROOM_NO_SECRET_WARNING=1` silences the warning). A free model may be hosted by a third party: keep real secrets out of what you delegate.
+
+**What if the worker fails?** Pitroom exits non-zero with the real cause (for example a default model that no longer exists) and your agent simply continues on its own. `pitroom doctor` diagnoses setup problems.
+
+---
+
+## Responsibility
+
+Pitroom is provided as is, under the [MIT License](LICENSE), and is an independent project: it is not affiliated with or endorsed by OpenAI, Anthropic, OpenCode or the other tools it can drive.
+
+**You are responsible for how you use it.** You decide what you delegate and to which model provider, which permissions a worker gets, and what you apply to your projects. Workers are AI agents and can be wrong: review their changes and run your tests before you rely on them. Pitroom's permission profiles, git guard and isolated copies reduce risk, but they are not a security boundary against a determined attacker or a malicious repository. Keep secrets out of the folder you delegate in, prefer isolated mode for changes you have not reviewed, and follow the terms of the worker CLIs and model providers you connect. What reaches a provider is described in the [privacy policy](PRIVACY.md).
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md): setup, tests, the dist bundle and the commit style. Worker adapters are the easiest place to begin: [docs/backends.md](docs/backends.md).
+
+```bash
+npm install
+npm test          # end-to-end tests against a fake worker CLI + adapter contract tests on recorded real streams
+npm run typecheck
+```
+
+**Security:** please report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md), not in a public issue.
+
+**[Report an issue](https://github.com/ATASTECH/pitroom/issues/new)** ·
+[Open issues](https://github.com/ATASTECH/pitroom/issues) ·
+[Security policy](SECURITY.md) ·
+[Code of conduct](CODE_OF_CONDUCT.md)
+
+---
+
+## Credits
+
+The workflow skills (brainstorming, planning, worker-driven development, review, debugging, TDD, verification, worktrees, finishing) are adapted from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent, under the MIT License; the notice is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## License
+
+Pitroom is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+## Pitroom
+
+### A free pit crew for your expensive coding agent.
+
+**Your agent decides · Cheap workers do the typing · A second model reviews**
+
+<br />
+
+**[Quick start](#quick-start)** ·
+[Workflow](#workflow) ·
+[Skills](#skills) ·
+[Write an adapter](docs/backends.md)
+
+<br /><br />
+
+<sub>Model-agnostic · Verified answers · Receipts, not vibes</sub>
+
+</div>

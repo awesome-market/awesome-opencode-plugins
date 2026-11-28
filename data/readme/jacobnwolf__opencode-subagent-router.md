@@ -1,0 +1,122 @@
+# OpenCode Subagent Router
+
+Route simple OpenCode subagent tasks onto a faster, cheaper model. Hard work stays on the parent.
+
+## Why
+
+OpenCode is a fantastic tool, with one flaw: Subagents [inherit the calling agent's model](https://opencode.ai/docs/agents/#model) unless you pin one. This leads to unnecessarily expensive and slow sessions. Why does a frontier, high-reasoning model like Astra or Fable need to run a grep command or query a MCP for documentation? Pinning a cheap model on every subagent is too coarse: the same `@general` does both.
+
+This plugin classifies each **direct child** task with [TypeSafe Jev](https://openrouter.ai/typesafe/jev-1.13) and downgrades only when the work looks cheap **and** a fast target exists. Ambiguous, low-confidence, and high-reasoning tasks keep the parent.
+
+It never upgrades a model, never overrides a subagent that already has an explicit model or variant, and does not route nested subagents. Missing credentials, timeouts, and API errors fail open to the inherited parent model.
+
+## Install
+
+The same package runs on OpenCode V2 and V1. With Node.js 20 or newer:
+
+```bash
+npx @jacobwolf/opencode-subagent-router@latest install
+```
+
+The installer detects `opencode --version` and adds the package to `plugins` (V2) or `plugin` (V1).
+It uses `OPENCODE_CONFIG` when set, otherwise the global config under `$XDG_CONFIG_HOME/opencode`
+(default `~/.config/opencode`). Existing `opencode.jsonc` is preferred over `opencode.json`.
+Comments and unrelated settings are preserved, an existing file is backed up before changes,
+and re-running does not add duplicate entries. OpenCode downloads the plugin itself; nothing
+is linked to npx's temporary cache.
+
+```bash
+# Current project only
+npx @jacobwolf/opencode-subagent-router@latest install --project
+
+# Preview without changing files
+npx @jacobwolf/opencode-subagent-router@latest install --dry-run
+
+# Explicit config and version, if OpenCode is not on PATH
+npx @jacobwolf/opencode-subagent-router@latest install --config ./opencode.jsonc --opencode-version 2
+```
+
+On V2, configuration reloads automatically; use `/reload` if needed. On V1, restart OpenCode.
+
+Alternatively, add it to `opencode.json` manually:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": ["@jacobwolf/opencode-subagent-router"]
+}
+```
+
+On V1, use the `plugin` key instead of `plugins`.
+
+Jev runs on OpenRouter. The router reads `OPENROUTER_API_KEY`, then `$XDG_DATA_HOME/opencode/auth.json` (or `~/.local/share/opencode/auth.json`) for `openrouter.key`.
+
+Every outcome is logged under the `jev-router` service in the OpenCode server log. On V1, a keep-parent result also shows a warning toast.
+
+On V2, the router fills the `subagent` tool's `model` before the child session starts. It skips follow-ups to an existing subagent and tasks whose call or agent already sets a model.
+
+### Claude Agent
+
+OpenCode's Claude Agent provider (`claude-agent`), which uses a Claude subscription through the Agent SDK, works like any other provider. Its models (`opus`, `sonnet`, `haiku`, `fable`, and full IDs such as `claude-sonnet-5`) are matched to their Anthropic entries on Models.dev by ID or display name, and compared at Anthropic list prices because the subscription reports no cost. For example, `claude-agent/fable` routes cheap work to `claude-agent/haiku#low` or `claude-agent/opus#low`.
+
+## How a fast target is chosen
+
+The cheap model comes from OpenCode's enabled provider catalog, in this order:
+
+1. The last matching route override, if it changes the model or lowers effort.
+2. Every compatible, strictly cheaper model in the same inferred lab generation, cheapest first; models that can't be
+   ordered by price are skipped.
+3. The same model at `low` effort when the parent uses `high`, `xhigh`, or `max`.
+4. The cheapest eligible exact-family sibling.
+
+Cross-model selection stays on the same enabled OpenCode provider. It infers lab, lineage, and major version from Models.dev metadata rather than a table of model names. Input and output prices must be no higher at every compared context tier, with at least one price strictly lower, and the candidate must preserve the parent's agent-critical capabilities and output limit. Because a subagent starts with an empty context, its context window only needs to reach the parent's or 200k tokens, whichever is smaller. Same-price aliases of one model, such as `-fast` speed tiers, count as one candidate. OpenCode subscription or other non-list rates fall back to Models.dev list prices instead of disabling this step. Ambiguous identity or cost data disables only this step.
+
+A Models.dev network failure uses the package snapshot. If metadata is missing entirely, the router falls back to same-model `low` and the older exact-family rule.
+
+Jev is only called after a fast target exists. Higher reasoning scores pick a more capable rung, except read-only
+research, which starts at the cheapest rung. Search, mechanical
+edits, review, and bounded implementation can downgrade. Architecture, diagnosis, and anything that needs deep reasoning
+stay on the parent.
+
+Optional overrides remain the escape hatch when metadata is incomplete:
+
+```json
+{
+  "plugins": [
+    {
+      "package": "@jacobwolf/opencode-subagent-router",
+      "options": {
+        "timeoutMs": 2000,
+        "confidenceMin": 0.5,
+        "routes": [
+          {
+            "parent": {
+              "model": "anthropic/claude-fable-5.1",
+              "variant": ["high", "max"]
+            },
+            "fast": [{ "model": "anthropic/claude-haiku-5-5" }, { "model": "anthropic/claude-opus-5-5" }]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+On V1, pass the same options as `"plugin": [["@jacobwolf/opencode-subagent-router", { ... }]]`.
+
+Routes use `provider/model` identifiers. `fast` is one target, or a ladder ordered cheapest first; a single object still
+works. The last matching route wins. Omitting `parent.variant` matches every variant of that parent model.
+
+## Contributing
+
+Issues and PRs are welcome. CI runs these same checks:
+
+```bash
+bun install
+bun run fmt:check
+bun run lint
+bun run lint:ts
+bun run typecheck
+bun run test:coverage
+```

@@ -1,0 +1,677 @@
+# llm-redact
+
+[![CI](https://github.com/asanderson/llm-redact/actions/workflows/ci.yml/badge.svg)](https://github.com/asanderson/llm-redact/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/llm-redact-proxy)](https://pypi.org/project/llm-redact-proxy/)
+[![Container](https://img.shields.io/badge/ghcr.io-asanderson%2Fllm--redact-blue?logo=docker&logoColor=white)](https://github.com/asanderson/llm-redact/pkgs/container/llm-redact)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://github.com/asanderson/llm-redact/blob/main/pyproject.toml)
+[![License: AGPL v3](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](https://github.com/asanderson/llm-redact/blob/main/LICENSE)
+
+Large Language Model (LLM) information redactor that prevents private information from being sent to LLMs from agentic tools by substituting placeholders for private information on outgoing requests and then replaces the placeholders on the incoming responses seamlessly for the agentic tool users.
+
+![System data flow: an agentic tool with the llm-redact plugin and a separate optional Open WebUI group containing the chat browser, loopback Caddy frontend, WebUI backend and sensitive raw-history volume. Both clients send raw requests to the local proxy and receive restored responses; only the proxy connects to the LLM provider. The local vault and NER models stay on your machine, and the Hugging Face Hub is reached only by an opt-in startup model download. Purple dashed boxes mark Pro features; the teal dashed box marks optional third-party software](https://raw.githubusercontent.com/asanderson/llm-redact/main/docs/diagrams/architecture.png)
+
+*Animated version: [SVG](https://github.com/asanderson/llm-redact/blob/main/docs/diagrams/architecture.svg) · [GIF](https://github.com/asanderson/llm-redact/blob/main/docs/diagrams/architecture.gif) — the request and response flow moves.*
+
+Only placeholder tokens cross the trust boundary; the vault mapping never
+leaves your machine. The purple dashed boxes mark what is **Pro** — supplied by
+the proprietary `llm-redact-pro` package: the browser dashboard at
+`/__llm-redact/` (live status view, config editor, redaction preview —
+it stays on your machine and reads the same metadata-only APIs the core
+serves), the access gate (named users and client authentication), offline
+NER model bundles with their AI bill of materials and the `[models]`
+model-load policy (Team and above), and the audit subsystem (the audit
+log, its object-store sinks, and the audit-row flow into them). Vault at-rest encryption, the server
+RDBMS vault backends, and upstream routing are Pro too but not drawn;
+the teal dashed **Optional Open WebUI** group is separate third-party
+software: browser → loopback Caddy frontend → WebUI backend → proxy,
+with raw chat history kept in its local WebUI data volume. Its
+[deployment topology](https://github.com/asanderson/llm-redact/blob/main/docs/openwebui.md#deployment-topology)
+shows the container networks and ports. The agent plugins apply to the
+agentic tool; WebUI uses the proxy's HTTP API. Apart from those third-party
+components,
+everything else pictured is part of this repository's **FOSS core**
+(matrix in [docs/editions.md](https://github.com/asanderson/llm-redact/blob/main/docs/editions.md)). The full
+documentation set — quickstart, deployment, security, engineering
+record — is indexed in [docs/](https://github.com/asanderson/llm-redact/blob/main/docs/README.md).
+
+## Contents
+
+- [Why redact?](#why-redact)
+- [What it does](#what-it-does)
+- [What it does not protect](#what-it-does-not-protect)
+- [Plugins](#plugins) — detail: [command reference and screenshots](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md)
+- [Install](#install)
+- [Quickstart](#quickstart) — detail: [five-minute walkthrough](https://github.com/asanderson/llm-redact/blob/main/docs/quickstart.md), [provider setup and coverage](https://github.com/asanderson/llm-redact/blob/main/docs/providers.md)
+- [How it works](#how-it-works) — detail: [round trip, worked example, persistence, sessions](https://github.com/asanderson/llm-redact/blob/main/docs/how-it-works.md)
+- [Editions and licensing](#editions-and-licensing) — detail: [tiers, keys, and the open-core boundary](https://github.com/asanderson/llm-redact/blob/main/docs/editions.md)
+- [Containers (docker or podman)](#containers-docker-or-podman)
+- [Status, metrics, and audit log](#status-metrics-and-audit-log) — detail: [the local ops surface](https://github.com/asanderson/llm-redact/blob/main/docs/dashboard.md)
+- [Operations](#operations) — detail: [the deployment guide](https://github.com/asanderson/llm-redact/blob/main/docs/deployment.md)
+- [What gets detected](#what-gets-detected) — detail: [the detection reference](https://github.com/asanderson/llm-redact/blob/main/docs/detection.md)
+- [Benchmark and live validation](#benchmark-and-live-validation)
+- [Trying it without touching a real API](#trying-it-without-touching-a-real-api)
+- [Security](#security)
+- [Tech stack](#tech-stack) — detail: [software bill of materials](https://github.com/asanderson/llm-redact/blob/main/docs/SBOM.md), [what ships and why](https://github.com/asanderson/llm-redact/blob/main/docs/dependencies.md)
+- [Stability](#stability)
+- [Development](#development)
+
+## Why redact?
+
+Agentic tools are built to gather context, and they are thorough about
+it: to answer a prompt they read files, run commands, and paste the
+results into API requests — the `.env` beside the module you asked
+about, a customer's email address in a stack trace, the database DSN in
+a config file, an AWS key in your shell history. You review the tool's
+*answer*; you almost never review the *request*. Every one of those
+requests leaves your machine for a third-party LLM provider, and once
+it does:
+
+- **It cannot be recalled.** Prompts may be retained for abuse
+  monitoring or legal holds, sampled for human review, or — depending
+  on the provider, plan, and settings — used for training. A value
+  transmitted once has to be treated as disclosed.
+- **Leaked credentials are live.** An API key or token in a prompt is a
+  working credential sitting in someone else's infrastructure and logs;
+  a provider-side incident or over-broad logging turns it into a
+  breach. The only sound response to that kind of exposure is rotating
+  the key — every key, every time it happens.
+- **Personal data creates legal exposure.** Sending names, emails,
+  phone numbers, national identifiers, or health data to an LLM API is
+  a disclosure to a third-party processor. Privacy regimes such as
+  GDPR, CCPA, and HIPAA attach conditions to that disclosure — a legal
+  basis, data-processing agreements, purpose limits — and an unnoticed
+  leak through an agent's context window can be a reportable incident.
+- **Confidentiality obligations don't pause for tooling.** NDA-covered
+  material, customer records, and unreleased work product sit in
+  ordinary repositories, tickets, and logs, and an agent will forward
+  them upstream without malice or notice.
+
+llm-redact removes the trade-off between agentic productivity and
+keeping that data private: recognized PII and secrets never leave your
+machine — the provider sees only placeholder tokens, your tool sees
+only real values, and nothing about your workflow changes. The limits
+of that protection are spelled out in
+[What it does not protect](#what-it-does-not-protect) below.
+
+## What it does
+
+A local transparent proxy sits between your agentic tool (Claude Code, or anything speaking the Anthropic Messages or OpenAI Chat Completions API) and the provider. Outbound requests are scanned for emails, credentials, API keys, and other private values; each detected value is replaced with a collision-resistant token like `«EMAIL_001»` and the mapping is kept in a local vault that never leaves your machine. Responses — including streamed SSE responses, even when a token is split across chunks — have the tokens swapped back for the originals, so the tool sees exactly what it would have seen without the proxy.
+
+It also ships **agent plugins** that put the proxy's controls inside the
+tool itself: slash commands for live status and recent traffic, a
+redaction dry-run, and guarded config editing, for Claude Code, Codex,
+OpenCode, and Cursor ([Plugins](#plugins) below).
+
+## What it does not protect
+
+Redaction substitutes *recognized, value-shaped* secrets — an email
+address, an API key, a national identifier. Be equally clear about what
+that cannot cover:
+
+- **Ideas and proprietary content.** Your code's structure, business
+  logic, proprietary algorithms, product plans, and everything else the
+  prompt is *about* reach the provider in the clear — the model has to
+  read them to work on them, and no redactor can substitute a
+  placeholder for meaning. If the content itself is the secret, the
+  only protection is not sending it: scope what your agentic tool may
+  read, and keep that material out of its reach.
+- **Inference from context.** The provider never sees a redacted value,
+  but it can sometimes guess at one from the words around the
+  placeholder ("the CFO's personal address «EMAIL_004»"). Only omission
+  fixes that.
+- **Values with no reliable shape.** Bare-digit phone numbers and SSNs,
+  street addresses, dates of birth, usernames and passport/driver's-license
+  numbers are deliberately never matched by a rule (no grammar separates
+  them from ordinary words and numbers), and a secret format no rule knows
+  will not fire. You can extend coverage with
+  `[[detection.custom_rules]]`, deny strings, and the NER extras — a PII
+  model finds addresses, dates of birth, usernames and account numbers on a
+  best-effort basis, measured per model but never guaranteed
+  ([threat model](https://github.com/asanderson/llm-redact/blob/main/docs/threat-model.md#contextual-values-rules-and-models)) —
+  and `llm-redact preview` shows exactly what fires on a given text before
+  you rely on it.
+- **Media.** Base64 images, PDFs, and audio are never decoded and
+  scanned; on realtime voice connections, only the text modality is
+  redacted — what a user *says* reaches the provider as-is. File uploads
+  are read by content: text files are redacted, but a binary file (a PDF,
+  an image, an archive) sent with your own key is forwarded unscanned by
+  default — counted in `/status`; `[detection] binary_uploads = "refuse"`
+  refuses it instead. `[extraction]` ([docs/extraction.md](https://github.com/asanderson/llm-redact/blob/main/docs/extraction.md))
+  reads PDFs, Office documents and — through Tika, docling, unstructured or
+  a cloud OCR service — scans as text first: a value found refuses the
+  upload (or, opt-in, sends its redacted text instead of the file), a
+  complete clean reading sends the file.
+- **Client history.** Tools and the optional Open WebUI frontend see raw
+  prompts and restored answers. Their histories, exports and backups may
+  retain originals; provider-bound redaction does not sanitize them.
+- **Anything you opt out of.** Warn-mode rules observe and *forward*
+  the matched value; `[providers.NAME] detection = false`, MCP server
+  exemptions, and language scoping likewise forward what they exempt, and
+  so does an approved refusal override
+  ([docs/overrides.md](https://github.com/asanderson/llm-redact/blob/main/docs/overrides.md); off by default, opt in with
+  `[overrides] enabled = true`) for the value, body or file it lets through.
+  The paired `[detection]` options `encrypted_content_passthrough` and
+  `acknowledge_encrypted_content_risk` (both default `false`) also exempt
+  scalar `encrypted_content` fields in protocol JSON so opaque values can
+  survive replay. Plaintext under that name can bypass detection and scan
+  capture; the proxy does not authenticate its origin or verify encryption.
+  Known caller-data contexts stay scanned. Without this opt-in, detector
+  collisions may still affect ciphertext. See
+  [the exemption and its boundaries](https://github.com/asanderson/llm-redact/blob/main/docs/detection.md#encrypted-content-passthrough-opt-in).
+  Every such opt-out is surfaced in `/status`, `llm-redact status`, and
+  `doctor` — never silent.
+
+The precise boundary — assets, trust assumptions, and the full
+out-of-scope table — is written down in
+[docs/threat-model.md](https://github.com/asanderson/llm-redact/blob/main/docs/threat-model.md).
+
+## Plugins
+
+Twelve slash commands put the proxy's CLI workflows — status, preview,
+and a guarded config edit — inside Claude Code, Codex, OpenCode, and
+Cursor, so the proxy can be driven without leaving the tool:
+
+- `/llm-redact:status`, `/llm-redact:recent`, `/llm-redact:sessions` —
+  live coverage posture, the recent-request table, and the vault's
+  session list;
+- `/llm-redact:preview` — dry-run what the current config *would*
+  redact, warn on, or block, entirely locally;
+- `/llm-redact:config-show` and a guarded `/llm-redact:config-edit`
+  (effective-config read → TOML edit → `serve --check` gate → SIGHUP
+  reload → wait for it to apply → posture read-back);
+- `/llm-redact:routes` and `/llm-redact:spend` (pro routing layer) —
+  which rule and upstream a request would take (no upstream contacted),
+  and per-upstream spend against the monthly budgets;
+- `/llm-redact:doctor`, `/llm-redact:audit`, and `/llm-redact:guide`.
+
+Install with `llm-redact plugin install claude|codex|opencode|cursor`,
+or in Claude Code add this repo as a plugin marketplace:
+`/plugin marketplace add asanderson/llm-redact`. Every command opens
+with a proxy-presence guard — a missing `llm-redact` CLI stops the
+command and asks your approval before anything is installed — and
+`lookup` is deliberately not a command: an agent that read a secret
+value would send it upstream. The full command reference, per-tool
+install paths, and terminal screenshots are in
+[docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md).
+
+## Install
+
+Requires Python 3.11+ on Linux or macOS (both CI-tested; Windows is
+unsupported). The PyPI distribution is **`llm-redact-proxy`** (the
+bare name belongs to an unrelated project); the CLI it installs is
+`llm-redact`.
+
+```bash
+uvx --from llm-redact-proxy llm-redact serve   # zero-install run
+pip install llm-redact-proxy                   # or a normal install
+# Homebrew:
+brew tap asanderson/llm-redact https://github.com/asanderson/llm-redact
+brew install asanderson/llm-redact/llm-redact
+```
+
+Or skip Python entirely and pull the prebuilt multi-arch container
+image from GHCR with docker **or** podman — publish it **to loopback
+only** (a bare `-p 8787:8787` would expose the proxy, and the secrets
+it rehydrates, to your LAN):
+
+```bash
+docker pull ghcr.io/asanderson/llm-redact:latest      # or: podman pull …
+docker run -d --name llm-redact \
+  -p 127.0.0.1:8787:8787 -v llm-redact-data:/data \
+  ghcr.io/asanderson/llm-redact:latest                # or: podman run …
+```
+
+Config mounts, persistence, and health probes are covered in
+[Containers (docker or podman)](#containers-docker-or-podman) below.
+
+Undecided? [`scripts/install.sh`](https://github.com/asanderson/llm-redact/blob/main/scripts/install.sh) is an interactive
+installer: it detects what is available on your machine (uv, pipx, pip,
+Homebrew, docker, podman), asks which install you prefer, prints each
+command before running it, and does nothing else. Download it and read
+it before running — don't pipe curl into a shell:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/asanderson/llm-redact/main/scripts/install.sh
+bash install.sh                    # or non-interactive: bash install.sh --method podman
+```
+
+Then:
+
+- `llm-redact init` — writes a starter config interactively and prints
+  the env exports for your tools.
+  `init --encrypted-content-passthrough` warns and requires explicit
+  interactive risk acceptance; headless setup additionally requires
+  `--accept-encrypted-content-risk` (`--yes` alone cannot consent).
+- `llm-redact service install` — runs the proxy at login
+  (launchd/systemd user unit).
+- `llm-redact plugin install claude|codex|opencode|cursor` — the
+  status, preview, and config-edit workflows as **agent slash commands**
+  (Claude Code can instead add this repo as a plugin marketplace:
+  `/plugin marketplace add asanderson/llm-redact`); see
+  [docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md).
+- `llm-redact completions bash|zsh|fish` — shell completions.
+
+## Quickstart
+
+```bash
+pip install llm-redact-proxy                # or: uv sync, from a checkout
+llm-redact run -- claude -p "hello"         # env injected; ephemeral proxy if none running
+```
+
+Or run it long-lived (`llm-redact serve`, listens on `127.0.0.1:8787`)
+and point tools at it via their base-URL variables (`ANTHROPIC_BASE_URL`,
+`OPENAI_BASE_URL` — with `/v1`: `http://127.0.0.1:8787/v1` —,
+`GOOGLE_GEMINI_BASE_URL`, `OLLAMA_HOST`). From there:
+
+- **Five-minute walkthrough** — install, init, run, verify, preflight:
+  [docs/quickstart.md](https://github.com/asanderson/llm-redact/blob/main/docs/quickstart.md).
+- **Providers** — the point-a-tool matrix (Anthropic, OpenAI, Azure
+  OpenAI, Gemini, Vertex, Bedrock, Cohere, Ollama, custom
+  OpenAI-compatible upstreams), per-provider setup, batch APIs, and the
+  realtime WebSocket relay: [docs/providers.md](https://github.com/asanderson/llm-redact/blob/main/docs/providers.md);
+  endpoint-by-endpoint coverage:
+  [docs/api-coverage.md](https://github.com/asanderson/llm-redact/blob/main/docs/api-coverage.md). Several upstreams per
+  protocol, with fallback chains and monthly budgets, are the
+  llm-redact-pro routing layer (see [docs/editions.md](https://github.com/asanderson/llm-redact/blob/main/docs/editions.md)).
+- **Agent plugins** — drive the proxy without leaving Claude Code,
+  Codex, OpenCode, or Cursor: `/llm-redact:status`,
+  `/llm-redact:recent`, `/llm-redact:preview`, and a guarded
+  `/llm-redact:config-edit`, installed via `llm-redact plugin install`
+  (or the Claude Code plugin marketplace); see
+  [docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md).
+- **Preflight and diagnosis** — `llm-redact doctor` (read-only
+  PASS/WARN/FAIL report incl. a detector-build dry-run; `--json` for
+  machines) and `llm-redact serve --check` (the deploy/reload gate);
+  error-by-error fixes: [docs/troubleshooting.md](https://github.com/asanderson/llm-redact/blob/main/docs/troubleshooting.md).
+- **User guide** — the CLI, the plugin commands, and (with
+  llm-redact-pro) the dashboard and config editor, written for the
+  person *using* the proxy: served at
+  `/__llm-redact/guide` (also `llm-redact guide`, or packaged as
+  [src/llm_redact/user_guide.md](https://github.com/asanderson/llm-redact/blob/main/src/llm_redact/user_guide.md)). Full
+  doc index: [docs/README.md](https://github.com/asanderson/llm-redact/blob/main/docs/README.md).
+
+API keys pass through untouched (and are never logged); each request is
+logged as a one-line metadata summary, e.g.
+`POST /v1/messages -> 200 redacted: EMAIL×1`. Configuration is optional —
+[`config.example.toml`](https://github.com/asanderson/llm-redact/blob/main/config.example.toml) documents every setting;
+`LLM_REDACT_HOST`/`_PORT`/`_CONFIG` override it, and precedence is
+CLI flag > env var > config file.
+
+## How it works
+
+Outbound requests are scanned and each detected value is replaced with
+a vault-issued token; responses — streaming included, even when a token
+is split across chunk boundaries — are restored byte-for-byte.
+[docs/how-it-works.md](https://github.com/asanderson/llm-redact/blob/main/docs/how-it-works.md) covers the mechanism end
+to end:
+
+- the request round trip, with the non-streaming and streaming sequence
+  diagrams;
+- a worked example with the exact records one request leaves behind —
+  the placeholder body the provider sees, the injected system note, the
+  restored response, the vault rows, and the metadata-only audit row
+  (with the tamper-evident-versus-zero-loss audit distinction);
+- vault persistence, fuzzy restoration of mangled tokens, and the
+  request size limit;
+- session isolation (the static default and the Pro per-conversation
+  mode).
+
+Every step is observable from inside your agent: the slash-command
+plugins (`/llm-redact:status`, `/llm-redact:recent`,
+`/llm-redact:preview` — [docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md)) show live
+detections and restores without leaving the tool.
+
+## Editions and licensing
+
+This repository is **free and open-source software** under the
+[GNU AGPL-3.0](https://github.com/asanderson/llm-redact/blob/main/LICENSE): use it for anything, inspect every line, modify
+it, and redistribute it. The one obligation is share-alike — if you
+distribute a modified version, **or run one as a network service for
+others**, you must offer them your modified source under the same
+license. Unmodified self-hosted use (the normal case: your tools talking
+to your own proxy) carries no obligations at all. Contributions are
+accepted under a [contributor license agreement](https://github.com/asanderson/llm-redact/blob/main/docs/CLA.md).
+
+**Nothing in this repository is gated**: no license keys, no tiers, no
+seat caps — every detection rule, redaction mode, NER backend, provider
+adapter (including Bedrock/Azure/Vertex), the realtime relay,
+non-loopback (mTLS) serving, and Kubernetes deployment all work keyless,
+with no usage limits. Paid tiers (Pro / Team / Unlimited) exist only as
+the commercial packaging of the separately-installed, **proprietary**
+`llm-redact-pro` package (a per-seat subscription; not open source —
+**coming soon**, not yet generally available), which supplies additional
+operational subsystems — persistent server vaults and encryption at
+rest, the audit log and its off-machine sinks, OTel, per-conversation
+sessions, and named users with every client-authentication feature
+(this repository contains no authentication code) — and, on Team and
+above, a deployment kit for one shared mutual-TLS team server and offline
+NER model bundles with an AI bill of materials and a model-load policy.
+Configuring one of those without the package fails closed naming it —
+never a silent downgrade. The matrix and
+licensing model are in [docs/editions.md](https://github.com/asanderson/llm-redact/blob/main/docs/editions.md).
+
+## Containers (docker or podman)
+
+The same proxy runs as an OCI container; CI builds and smoke-tests both
+engines, and released GHCR images are multi-arch (amd64 + arm64 — native
+on Apple Silicon and Graviton). `LLM_REDACT_HOST=0.0.0.0` in the image binds only inside the
+container's network namespace — the host boundary is your publish spec.
+**Always publish to loopback**: a bare `-p 8787:8787` would expose the proxy
+(and the secrets it rehydrates) to your LAN.
+
+```bash
+docker pull ghcr.io/asanderson/llm-redact:latest   # prebuilt (or: podman pull …)
+docker build -t llm-redact .                       # or build from a checkout
+docker run -d -p 127.0.0.1:8787:8787 \
+  -v ./config.toml:/etc/llm-redact/config.toml:ro \
+  -v llm-redact-data:/data \
+  llm-redact
+# or: podman run ... (rootless works; use :U on bind mounts if needed)
+docker compose up   # demo stack: proxy + bundled fake upstream
+```
+
+For an optional local chat frontend, see [Open WebUI setup](https://github.com/asanderson/llm-redact/blob/main/docs/openwebui.md):
+a separate opt-in Compose profile, a no-key synthetic demo, and a real-provider
+recipe. A fixed loopback Caddy frontend serves the browser; WebUI's backend
+sends JSON/SSE chat through the proxy and is confined to an internal network.
+The [topology and verification guide](https://github.com/asanderson/llm-redact/blob/main/docs/openwebui.md#deployment-topology)
+covers browser/WebSocket checks, stale provider settings and fail-closed
+behavior. This is for one trusted local user; WebUI history/backups and
+the vault contain sensitive data. WebUI login does not isolate proxy users
+or chats, and the optional frontend is separate from the Pro ops dashboard.
+
+The sqlite vault and audit log live under `/data` — mount a volume to
+persist sessions across container restarts.
+
+The `-ner` image (`ghcr.io/asanderson/llm-redact:latest-ner`, or
+`<version>-ner`) adds the `hf` and `gliner` NER extras on a CPU-only torch.
+NER models are never downloaded by default: fetch them with `llm-redact
+models pull`, or carry them into a network with no internet route as
+portable, checksummed folders — [docs/air-gapped.md](https://github.com/asanderson/llm-redact/blob/main/docs/air-gapped.md)
+walks through it, image and Helm chart (`image.variant: ner`,
+`models.volume`) included.
+
+## Status, metrics, and audit log
+
+Reserved `/__llm-redact/*` paths are answered locally, never forwarded, and
+carry metadata only — never redacted values. The namespace is GET-only
+except the guarded session-prune and user invite/revoke POSTs, and
+every reply is hardened with a strict CSP and framing/sniffing headers.
+
+- **Scriptable surface** — `llm-redact status` (and the JSON
+  `GET /__llm-redact/status` behind it), Prometheus
+  `GET /__llm-redact/metrics` (always on), DB-free `healthz`/`readyz`
+  probes, the `/recent` request table and its `/events` server-sent-event
+  feed, and the `/sessions` vault list.
+- **Redaction preview** — `llm-redact preview` shows what the current
+  config *would* redact, warn on, or block — entirely locally, nothing
+  sent upstream, nothing written.
+- **Browser dashboard** (Pro) — the browser dashboard (config editor,
+  redaction preview) is part of llm-redact-pro; without it,
+  `/__llm-redact/` answers a local 404 pointing at the surfaces above.
+- **Agent slash commands** — the same workflows inside Claude Code,
+  Codex, OpenCode, and Cursor
+  (`/plugin marketplace add asanderson/llm-redact`, or
+  `llm-redact plugin install`; see [docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md)).
+- **Coverage posture, surfaced loudly** — every configured opt-out that
+  lets traffic through unredacted is reported by `/status`,
+  `llm-redact status`, and `doctor`; never silently.
+- **Audit log** (Pro) — with its tamper-evident chain and off-machine
+  object-store sinks; metadata only (types, counts, paths, durations —
+  never values).
+
+The full tour of every endpoint is
+[docs/dashboard.md](https://github.com/asanderson/llm-redact/blob/main/docs/dashboard.md).
+
+## Operations
+
+[docs/deployment.md](https://github.com/asanderson/llm-redact/blob/main/docs/deployment.md) is the end-to-end deployment
+guide — bind policy, containers and health probes, vault lifecycle
+(backup/verify/TTL), service management, log rotation, and
+observability wiring, all keyed to the mutual-TLS bind policy. The
+essentials:
+
+- **Config reload without a restart**: edit the config file, then send
+  SIGHUP — `kill -HUP $(pgrep -f 'llm-redact serve')`, or for containers
+  `docker kill --signal=HUP llm-redact`. Detection settings and upstream
+  URLs apply as soon as the reload has built them — off the event loop,
+  seconds when NER models load; `/__llm-redact/status` `config_reload`
+  says when it applied or failed — vault, audit, host, port, allowed_hosts,
+  allowed_origins, log, TLS, OTel, users, email, extraction, and overrides changes are kept as-is
+  with a "require restart"
+  warning, and so are sections a plugin adds (llm-redact-pro's `[auth]`) and,
+  inside `[detection]`, the `llm` backend's `[detection.ner.llm]` `url`,
+  `allow_remote` and `api_key_env` (where it sends scanned text, and its key) —
+  a reload starts that backend only at the values the proxy started with, also
+  on a proxy started without it (a `[detection.ner.llm]` table its startup file
+  held while the backend did not run — NER off, or `"llm"` not among
+  `[detection.ner] backends` —, or the defaults).
+  A broken config file is logged and ignored — the running config stays
+  active. An open realtime connection whose provider settings, upstream
+  identity or detection policy the reload changed is closed with code
+  1012, so the client reconnects under the new config
+  ([details](https://github.com/asanderson/llm-redact/blob/main/docs/deployment.md#reloads-and-open-realtime-connections)).
+- **Agent plugins**: the ops workflows ship as slash commands —
+  `/llm-redact:status`, `/llm-redact:recent`, `/llm-redact:doctor`, and
+  a guarded `/llm-redact:config-edit` that mirrors the reload flow
+  (effective-config read → TOML edit → `serve --check` gate → SIGHUP →
+  wait for the reload → posture read-back). Install with
+  `llm-redact plugin install claude|codex|opencode|cursor`; see
+  [docs/plugins.md](https://github.com/asanderson/llm-redact/blob/main/docs/plugins.md).
+- **Logs**: one metadata-only line per request to stderr — run under
+  systemd (journald owns retention) or cap the container log driver.
+  `[log] format = "json"` switches to one JSON object per line for log
+  shippers (same content; never values or headers).
+- **Data retention**: the audit log prunes itself (`[audit] max_rows`);
+  `llm-redact sessions list|prune --older-than 90d` and
+  `[vault] session_ttl_days` bound vault growth — whole idle sessions
+  only, since partial deletion could reuse a still-referenced token
+  number.
+- **Vault durability**: `llm-redact vault verify` (read-only integrity
+  sweep) and `vault backup` (WAL-safe online snapshot, created `0600`)
+  protect the one piece of state whose corruption would silently
+  rehydrate a wrong secret.
+- **Bind policy**: `serve` refuses to start on a non-loopback `host`
+  without the full mutual-TLS trio
+  (`[tls] certfile`/`keyfile`/`client_ca`) — a network client of the
+  proxy can read rehydrated secrets, so the default and recommended
+  bind is loopback. Vault encryption at rest and key rotation, and
+  OpenTelemetry export are Pro features of the `llm-redact-pro` package
+  (coming soon).
+- **FIPS 140-3 posture**: all cryptographic uses are FIPS-approved
+  algorithm selections — `llm-redact fips-check`,
+  [docs/fips.md](https://github.com/asanderson/llm-redact/blob/main/docs/fips.md).
+- **Event loop**: `pip install 'llm-redact-proxy[perf]'` adds uvloop;
+  uvicorn picks it up automatically — no configuration.
+
+Rule-based upstream routing, quota-aware fallback and monthly budgets
+are a Pro feature of llm-redact-pro; the core parses and validates
+`[upstreams]`/`[routing]`/`[prices]`, carries every surface
+(`routes`/`spend`, doctor/status lines, the `/status` block, two
+metrics), and refuses to start with `[routing] enabled = true` without
+the package (see [docs/editions.md](https://github.com/asanderson/llm-redact/blob/main/docs/editions.md)).
+
+## Benchmark and live validation
+
+- `uv run python -m llm_redact.bench --check` scores every detection rule
+  (precision/recall/F1) on a deterministic synthetic corpus AND scans the
+  vendored false-positive corpus (`bench/fp_corpus/` — real-world code,
+  RFC text, and prose) against exact per-file expected counts, so both a
+  recall regression and a precision regression fail CI; the report is
+  uploaded as an artifact.
+- Add `--latency` for the in-process overhead benchmark. Typical numbers on
+  a dev container (the prefiltered single-pass-per-anchor scan): ~1 ms
+  added per small (2 KB) request end to end, ~14 ms on a secret-dense
+  100 KB body, ~5-11 ms on 100 KB of ordinary prose, ~18 MB/s streaming
+  rehydration, and ~100 ms for a body of 20,000 short strings (short
+  strings are gated per string: only the rules that could match one run
+  on it — the same body cost ~2 s when every rule ran on every string).
+- NER models are measured by a separate, statistical bench:
+  `uv run python -m llm_redact.bench.ner --config my-ner.toml` scores the
+  whole detection pipeline on a generated corpus (or a published dataset),
+  and `--fp-corpus bench/fp_corpus` is its own run that counts the false
+  positives a model adds to the negatives corpus; `--check` compares a run
+  with recorded recall floors and leak ceilings, so it needs a baseline
+  recorded for your config first — see
+  [docs/ner-bench.md](https://github.com/asanderson/llm-redact/blob/main/docs/ner-bench.md#recording-a-baseline). The
+  deterministic gate above never changes for it.
+- `uv run python scripts/live_smoke.py` runs opt-in smoke tests against the
+  real provider APIs (needs API keys, spends credits, never runs in default
+  test or CI runs) — including an event-shape drift detector for the
+  `/v1/responses` adapter.
+- `LLM_REDACT_DOGFOOD=1 uv run python scripts/dogfood_claude.py` drives the
+  **real `claude` CLI** through a real proxy subprocess and asserts
+  redaction, round trip, the on-disk vault mapping, and the
+  history-compaction fail-safe with a per-run unique canary (needs a
+  logged-in CLI; costs well under a cent).
+
+## Trying it without touching a real API
+
+```bash
+uv run python scripts/fake_upstream.py --port 9999   # terminal 1: fake provider
+# terminal 2: proxy pointed at the fake
+cat > /tmp/llm-redact-demo.toml <<'EOF'
+[providers.anthropic]
+upstream_base_url = "http://127.0.0.1:9999"
+EOF
+uv run llm-redact serve --config /tmp/llm-redact-demo.toml
+# terminal 3: a request containing an email and an AWS key
+curl -sN http://127.0.0.1:8787/v1/messages \
+  -H 'content-type: application/json' -H 'x-api-key: test' \
+  -d '{"model":"claude-sonnet-4-5","stream":true,"max_tokens":100,
+       "messages":[{"role":"user","content":"mail jane@corp.example key AKIAIOSFODNN7EXAMPLE"}]}'
+```
+
+The fake upstream prints the request body it received (placeholders only), and
+the curl output shows the originals restored in the stream.
+
+## What gets detected
+
+- Emails, IP addresses, credit cards, and phone numbers — all validated
+  or checksummed; bare digit runs never fire.
+- Twenty-plus national identifiers (US SSN, Canadian SIN, UK NINO and
+  NHS, Indian Aadhaar, French NIR, Korean RRN, and more) — every one
+  matched in its grouped or signed display form **and**
+  checksum-validated.
+- IBANs and cryptocurrency wallet addresses (EIP-55 / base58check /
+  bech32) — all checksum-vetoed.
+- URL-embedded passwords; AWS keys and a wide vendor token family
+  (GitHub, GitLab, Anthropic, OpenAI, Slack, Databricks, and more).
+- PEM and PGP/GPG private-key blocks, plus a keyword-context + entropy
+  rule for generic secrets (`password = "..."` etc.).
+- Optional **NER models** (off by default) for what no rule can match:
+  person names, and with a PII-trained model street addresses, dates of
+  birth, usernames and account numbers — best effort, measured per model by
+  the NER bench, never a guarantee. Seven backends (spaCy, GLiNER, GLiNER2,
+  Presidio, Stanza, any Hugging Face token-classification model, and an
+  opt-in generative model on a server you run, which reads the text
+  unredacted and can only add redactions);
+  strings longer than a model's window are read in overlapping windows, and
+  every string a model did not read is counted in `/status` and `/metrics`.
+  Models load at a pinned commit for a catalogued model or when you pin
+  one (otherwise the newest cached revision, flagged by `doctor`), from local
+  files, without code from their repositories, and nothing is downloaded unless
+  you allow it at startup (`llm-redact models pull` fetches them yourself;
+  an air-gapped install carries checksummed folders —
+  [docs/air-gapped.md](https://github.com/asanderson/llm-redact/blob/main/docs/air-gapped.md)); detection runs on a worker
+  thread, off the proxy's event loop.
+
+The complete annotated reference is
+[docs/detection.md](https://github.com/asanderson/llm-redact/blob/main/docs/detection.md) — the full rule list, **deny
+strings** (values that must always be redacted, highest precedence,
+never subject to modes), **per-rule modes** (`redact`/`warn`/`block`),
+custom rules with checksum validators, global and per-type allowlists,
+and the optional **NER backends** (spaCy, GLiNER, GLiNER2, Presidio,
+Stanza, Hugging Face) with their model catalog. The current rule list also
+ships in [`config.example.toml`](https://github.com/asanderson/llm-redact/blob/main/config.example.toml).
+
+The NER backends are backed by a research survey and decision record,
+[docs/ner-landscape.md](https://github.com/asanderson/llm-redact/blob/main/docs/ner-landscape.md) — the engines evaluated
+and the bar each had to clear, the PII-specific open models the bench
+measured with a verdict for each, why LLM-based extractors and SaaS PII
+APIs are rejected as a class (the raw pre-redaction text must never
+leave your machine), and the commercial self-hosted engines that would
+qualify if demand materializes. [docs/ner-bench.md](https://github.com/asanderson/llm-redact/blob/main/docs/ner-bench.md)
+explains how models are measured.
+
+## Security
+
+- **Threat model**: what the proxy defends against — and deliberately
+  does not — is written down in
+  [docs/threat-model.md](https://github.com/asanderson/llm-redact/blob/main/docs/threat-model.md); the request-path gates,
+  with each policy decision and enforcement point mapped to code, are
+  diagrammed in
+  [docs/security-dataflows.md](https://github.com/asanderson/llm-redact/blob/main/docs/security-dataflows.md).
+- **Hardened local endpoints**: every reserved ops endpoint carries a
+  strict `Content-Security-Policy` plus
+  `X-Frame-Options`/`nosniff`/`Referrer-Policy` headers, on top of the
+  Host/Origin/CSRF gates on the mutating endpoints.
+- **Web pages cannot drive the proxy**: a request a browser page sent
+  from another origin or site, or through DNS rebinding, is refused
+  before any upstream contact — HTTP and WebSocket alike — so no page can
+  spend a credential the proxy holds or read the vault back through
+  rehydration ([threat model](https://github.com/asanderson/llm-redact/blob/main/docs/threat-model.md#requests-from-web-pages-the-operators-browser)).
+  A browser app you trust with those values is an explicit opt-in:
+  `allowed_origins` ([deployment.md](https://github.com/asanderson/llm-redact/blob/main/docs/deployment.md#browser-apps-on-other-origins-allowed_origins)).
+- **Reporting**: use GitHub private vulnerability reporting — see
+  [docs/SECURITY.md](https://github.com/asanderson/llm-redact/blob/main/docs/SECURITY.md).
+- **Supply chain**: release artifacts carry Sigstore provenance
+  (`gh attestation verify <file> --repo asanderson/llm-redact`) and are
+  byte-reproducible from source.
+- **Measured, not just tested**: mutation testing over the load-bearing
+  core gates CI on a kill-or-justify contract, and "never a wrong
+  value" is one falsifiable stateful property — method and results in
+  [docs/assurance.md](https://github.com/asanderson/llm-redact/blob/main/docs/assurance.md).
+
+## Tech stack
+
+The runtime is deliberately **three packages** — the entire audit
+surface a security tool asks you to trust:
+
+- **httpx** — the upstream HTTP client: async, streaming bodies, and a
+  transport seam that lets the whole integration suite run in-process
+  against fake upstreams.
+- **starlette** — the ASGI layer (routing, WebSockets, streaming
+  responses) *without* FastAPI's validation machinery: the proxy must
+  forward unknown JSON fields verbatim, never validate or reshape them,
+  which is why pydantic is banned from the request path.
+- **uvicorn** — the ASGI server; its `loop="auto"` and WebSocket
+  protocol auto-selection let the `perf` (uvloop) and `realtime`
+  (websockets) extras activate with zero serve-code changes.
+
+Everything else is stdlib or an opt-in extra: the NER backends (spaCy,
+GLiNER, GLiNER2, Presidio, Stanza, Hugging Face `transformers`), `cryptography`
+for vault encryption at rest, the RDBMS vault drivers (psycopg,
+PyMySQL, oracledb), `keyring`, `uvloop`, `websockets`, and the
+OpenTelemetry SDK. Configuration and CLI ride the standard library
+(`tomllib`, `argparse`, dataclasses); Prometheus metrics text and the
+S3/Azure audit-sink signers are hand-rolled on stdlib `hmac` so no
+cloud SDK ever enters the tree.
+
+The full inventory — every extra, the runtime closure, the dev
+toolchain, and how to verify the machine-readable CycloneDX SBOM
+attached to each release — is [docs/SBOM.md](https://github.com/asanderson/llm-redact/blob/main/docs/SBOM.md) (pinned to
+`pyproject.toml` by test); the why-chosen record per package is
+[docs/dependencies.md](https://github.com/asanderson/llm-redact/blob/main/docs/dependencies.md).
+
+## Stability
+
+llm-redact was developed privately before its public debut; v1.0.0 is
+the first public release and the public history starts there. As of
+1.0.0 the token format, config keys, CLI, local `/__llm-redact`
+API, proxying behavior contracts, and the three-runtime-dependency
+ceiling are stable surfaces under semantic versioning — the policy,
+including what MINOR releases may add and how deprecations work, is
+[docs/versioning.md](https://github.com/asanderson/llm-redact/blob/main/docs/versioning.md).
+
+## Development
+
+Contribution mechanics — the gates, the testing conventions, and how to
+add a detection rule — are in [docs/CONTRIBUTING.md](https://github.com/asanderson/llm-redact/blob/main/docs/CONTRIBUTING.md).
+
+```bash
+uv run pytest                                  # tests
+uv run pytest tests/test_rehydrate.py -x      # one file
+uv run ruff check . && uv run ruff format --check .
+uv run mypy
+```

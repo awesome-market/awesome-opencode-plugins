@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jiwangyihao/opencode-copilot-account-switcher · OpenCode Plugins</title>
+<meta name="description" content="jiwangyihao/opencode-copilot-account-switcher — OpenCode plugin: downloads trend, board ranks, verification">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="opencode-copilot-account-switcher, jiwangyihao, jiwangyihao/opencode-copilot-account-switcher, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/jiwangyihao__opencode-copilot-account-switcher">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="jiwangyihao/opencode-copilot-account-switcher · OpenCode Plugins">
+<meta property="og:description" content="jiwangyihao/opencode-copilot-account-switcher — OpenCode plugin: downloads trend, board ranks, verification">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/jiwangyihao__opencode-copilot-account-switcher">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=44286f76">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "jiwangyihao/opencode-copilot-account-switcher", "codeRepository": "https://www.npmjs.com/package/opencode-copilot-account-switcher", "url": "https://opencode-plugins.zhuikan.com/repos/jiwangyihao__opencode-copilot-account-switcher", "description": "jiwangyihao/opencode-copilot-account-switcher — OpenCode plugin: downloads trend, board ranks, verification", "author": {"@type": "Organization", "name": "jiwangyihao", "url": "https://www.npmjs.com/~jiwangyihao"}, "isAccessibleForFree": true, "dateCreated": "2026-02-16"}</script>
+</head>
+<body data-repo="jiwangyihao/opencode-copilot-account-switcher" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">jiwangyihao/opencode-copilot-account-switcher</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="jiwangyihao__opencode-copilot-account-switcher"><img class="rp-side-av" width="300" height="300" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgcng9IjE4IiBmaWxsPSIjMWY2ZmViIi8+PHRleHQgeD0iMTUwIiB5PSIxOTUiIGZvbnQtc2l6ZT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+TzwvdGV4dD48L3N2Zz4="></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">opencode-copilot-account-switcher</div>
+      <a class="rp-side-owner" href="https://www.npmjs.com/~jiwangyihao">jiwangyihao</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://www.npmjs.com/~jiwangyihao">jiwangyihao</a>
+        <span class="rp-sep">/</span><span class="rp-name">opencode-copilot-account-switcher</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc"></p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>72</b></span></div>
+    <div class="rp-topics"></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-unverified"><span class="i18n-zh">还没验</span><span class="i18n-en">Not verified yet</span></span><span class="rp-meta-bit">plugin</span><span class="rp-meta-bit">Created 2026-02-16</span></div>
+    <div class="rp-foot-row"><div class="rp-same"><div class="rp-same-label">同作者插件</div><div class="rp-same-row"><a class="rp-same-link" href="jiwangyihao__opencode-ntfs-glob-plugin"><img class="rp-same-av" src="" alt="" loading="lazy">opencode-ntfs-glob-plugin</a></div></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://www.npmjs.com/package/opencode-copilot-account-switcher">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">周增长</div></div><div class="rp-metric"><div class="rp-metric-num">72</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">1</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">121</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">4</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">opencode-copilot-account-switcher
+
+
+
+
+
+
+套件导航 / Suite: OpenCode J Super Suite
+
+ Latest in v1.0.0 | v1.0.0 最近更新
+
+ - Provides the stable Copilot-only account switcher for OpenCode | 提供稳定的 OpenCode Copilot-only 账号切换插件
+ - Keeps account switching, quota checks, routing, retry, and Copilot request enhancements together | 保留账号切换、quota、routing、重试和 Copilot 请求增强能力
+ - Leaves OpenAI / Codex, Loop Safety, wait, notify, and remote on-call features to standalone Suite plugins | OpenAI / Codex、Loop Safety、wait、notify 和远程值守能力由 Suite 独立插件承载
+
+中文 | English
+
+---
+
+
+
+ 中文
+
+opencode-copilot-account-switcher 是面向 OpenCode 的 GitHub Copilot 账号切换插件。它基于官方 github-copilot provider，补充多账号管理、配额查看、模型路由和 Copilot 请求增强能力，无需修改模型配置。
+
+它适合只需要 Copilot 账号能力，或希望把 Copilot、OpenAI / Codex、Loop Safety、wait、notify、远程值守能力拆成独立插件按需组合的用户。
+
+ 功能一览
+
+- Copilot 多账号管理 — 添加多个 GitHub Copilot 账号，随时切换或删除。
+- 配额查询 — 查看每个账号的 Copilot quota 和当前可用状态。
+- Auth 导入 — 从 OpenCode 认证存储导入 GitHub Copilot token。
+- 模型路由 — 支持 Copilot 账号与模型路由状态管理。
+- Copilot Network Retry — 默认关闭；把可重试的网络或 TLS 失败归一化给 OpenCode 原生重试链路。
+- Synthetic Agent Initiator — 默认关闭；实验性发送或覆盖 x-initiator=agent，存在平台计费、滥用判定和行为漂移风险。
+- /copilot-status — 默认开启；实验性 TUI-first slash command，会显示加载 toast 和 quota 结果 toast。
+
+---
+
+ 安装
+
+
+面向人类用户
+
+选项 A：让 LLM 帮你安装
+
+把下面这段话丢给任意 LLM（OpenCode / Claude Code / Cursor 等）：
+
+text
+请先查看 opencode-copilot-account-switcher 最新 GitHub Release 正文里的“升级方式”，然后严格执行其中带明确版本号的安装/升级命令。默认应使用带 -g/--global 的全局命令来更新你平时实际在用的 OpenCode 实例；只有你明确想改当前项目目录下的 .opencode 时，才省略 -g。不要手动编辑 OpenCode 配置，也不要使用裸包名或 latest。参考说明：https://github.com/jiwangyihao/opencode-copilot-account-switcher/releases/latest
+
+
+选项 B：手动安装
+
+1. 先查看最新 GitHub Release 的  升级方式 小节。
+
+2. 执行其中带明确版本号的全局命令。例如当前版本是：
+
+   bash
+   opencode plugin opencode-copilot-account-switcher@1.0.0 --force -g
+   
+
+3. 如果你是刻意只想改当前项目目录下的 .opencode，才使用不带 -g 的局部命令；否则默认不要省略 -g。
+
+4. 如果升级后看起来仍然没有变化，先清理 OpenCode 插件缓存，再重新执行同一条带版本号命令。
+
+   bash
+   rm -rf ~/.cache/opencode/packages/opencode-copilot-account-switcher@
+   
+
+5. 如果 OpenCode 已在运行，重启后再验证。
+
+
+
+
+面向 LLM 智能体
+
+ 步骤指引
+
+1. 读取本仓库最新 GitHub Release 正文，提取  升级方式 中带明确版本号的命令。
+
+2. 直接执行该命令。默认使用带 -g/--global 的全局命令；只有用户明确要改当前项目目录下的 .opencode 时，才省略 -g。例如当前版本：
+
+   bash
+   opencode plugin opencode-copilot-account-switcher@1.0.0 --force -g
+   
+
+3. 不要手动编辑 OpenCode 配置，也不要使用裸包名或 latest。
+
+4. 如果执行后版本看起来仍然没更新，先清理 OpenCode 插件缓存，再重新执行同一条带版本号命令：
+
+   bash
+   rm -rf ~/.cache/opencode/packages/opencode-copilot-account-switcher@
+   
+
+5. 如果 OpenCode 已在运行，重启后再验证。
+
+ 验证
+
+运行 GitHub Copilot provider 认证入口，应看到账号管理菜单：
+
+bash
+opencode auth login --provider github-copilot
+
+
+
+
+---
+
+ 使用方式
+
+包的 public entry 只导出 OpenCode 插件函数：
+
+typescript
+import { CopilotAccountSwitcher } from &quot;opencode-copilot-account-switcher&quot;
+
+export default CopilotAccountSwitcher
+
+
+在 Copilot 认证流程中运行：
+
+bash
+opencode auth login --provider github-copilot
+
+
+会出现交互式菜单（方向键 + 回车），用于添加账号、从 auth.json 导入、检查 quota、配置 Copilot 相关开关、切换账号、删除账号和清空账号。
+
+ 开关与实验能力
+
+Copilot Network Retry
+
+- 默认：关闭
+- 作用范围：仅影响 auth.loader 返回的官方 Copilot 请求 fetch 路径
+- 用途：有限处理 failed to fetch、ECONNRESET、unkn</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-19T10:57:23Z · Data license Apache-2.0 ·
+<a href="../data/repos/jiwangyihao__opencode-copilot-account-switcher.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=44286f76"></script>
+<script src="../assets/vendor/purify.min.js?v=44286f76"></script>
+<script src="../assets/vendor/qrcode.min.js?v=44286f76"></script>
+<script src="../assets/common.js?v=44286f76"></script>
+<script src="../assets/repo.js?v=44286f76"></script>
+</body>
+</html>

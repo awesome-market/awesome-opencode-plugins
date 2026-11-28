@@ -1,0 +1,339 @@
+# opencode-plugins
+
+A collection of self-contained [OpenCode](https://opencode.ai) plugins.
+Single files, no dependencies, everything configurable through environment
+variables, everything disable-able.
+
+| Plugin | What it does | Platform | Needs |
+|---|---|---|---|
+| [vision-guard](#vision-guard) | Inspects every image read through a LOCAL vision model before it can reach a remote API; sensitive images are blocked | macOS (works elsewhere with raw-bytes inspection) | Ollama + a vision model |
+| [image-shrink](#image-shrink) | Auto-downscales large images at send time so sessions stay small | macOS only (no-op elsewhere) | `sips` (built in) |
+| [caffeinate](#caffeinate) | Keeps the Mac awake (system + display) while AI is processing | macOS only (no-op elsewhere) | `caffeinate` (built in) |
+| [session-size](#session-size) | Tags every session title with its storage size: `428M · My Session` | Any (needs `sqlite3` CLI) | sqlite3 |
+| [error-root-cause](#error-root-cause) | Real root cause of provider errors as a toast + local JSONL archive | Any | - |
+| [session-guard](#session-guard) | Context-budget warnings + optional low-quality-window reminders | Any | - |
+| [godot-gate-guard](#godot-gate-guard) | Mechanically blocks AI agents from launching hanging headless Godot runs | Any (Godot projects) | your gate wrapper |
+| [gate](#gate) | Offload hub: shellcheck / tsc / class-sweep run automatically on files you touch, at idle. Silent when clean | macOS (partial elsewhere) | shellcheck optional |
+| [notify](#notify) | Provider peak-rate banners + opt-in permission auto-grant, OpenCode-attributed, never wakes you | macOS | - |
+| [Tools](#tools) | state-toggle, plugin-manager, notifier-config - small utilities behind the menu | - | - |
+| [janitor](#janitor) | Post-quit database maintenance: orphan sweep, compaction trim, stale payload strip, vacuum when due | macOS | sqlite3 |
+
+## Install
+
+Drop the files you want into a plugin directory and restart OpenCode:
+
+- Global (all projects): `~/.config/opencode/plugins/`
+- Per project: `.opencode/plugins/`
+
+```sh
+curl -fsSL -o ~/.config/opencode/plugins/vision-guard.ts \
+  https://raw.githubusercontent.com/Qiueyed/opencode-plugins/main/vision-guard.ts
+```
+
+(Repeat per file.) Read the file first - plugins run with your permissions,
+so know what you install. No npm packages yet; each file is meant to be
+readable in one sitting before you trust it.
+
+## Configuring (terminal AND desktop app)
+
+Every option is env-first, but **desktop-app users usually cannot export
+env vars before launch**. So every plugin ALSO reads a settings file:
+
+```
+~/.config/opencode/<plugin-name>.settings.json
+```
+
+e.g. `~/.config/opencode/vision-guard.settings.json`:
+
+```json
+{
+  "OPENCODE_VISION_GUARD_POLICY": "fail-open",
+  "OPENCODE_VISION_GUARD_MODEL": "qwen3-vl:8b"
+}
+```
+
+Precedence: environment variable > settings file > built-in default.
+vision-guard additionally re-reads its policy (and evaluates the bypass
+marker) on every image read, so flipping `fail-open` in the settings file
+works mid-session without a restart - exactly what you want when your local
+Ollama or vision model dies unexpectedly.
+
+## vision-guard
+
+**Experimental redact mode** (v2): instead of blocking, the judge can
+propose cropping away one sensitive EDGE strip (top/bottom/left/right, <=50%,
++5% safety margin) when the remaining image is still worth its tokens. If the
+judge calls the remainder low-utility, the image is skipped entirely. Implemented
+with python3+PIL (sips cannot express edge crops). Toggle: `Vision-guard:
+experimental redact` in the Plugins menu (`visionGuardRedact`) or env
+`OPENCODE_VISION_GUARD_MODE=redact`. Default remains block. Audit log lines
+read REDACT. 16-case hostile battery in tests.
+
+Every model read of an image file (`read` tool on image extensions) is
+routed through a local vision model via Ollama first. A `sensitive` verdict
+replaces the image with a notice file explaining the block, so the model can
+tell you instead of retrying. The image itself never reaches the model
+context and never leaves the machine.
+
+- **Fail-closed by default**: if the local inspector is down, image reads
+  are BLOCKED with a `guard-error` notice. This is intentional for a
+  privacy guard.
+- **No Ollama yet?** Every image read will be blocked. Either install
+  Ollama + a vision model (`ollama pull qwen3-vl:8b`), set
+  `OPENCODE_VISION_GUARD_POLICY=fail-open` (allow reads with a logged
+  warning when the inspector is unreachable), or
+  `OPENCODE_VISION_GUARD=allow` to disable the guard.
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_VISION_GUARD` | - | `allow` disables the guard |
+| `OPENCODE_VISION_GUARD_URL` | `http://127.0.0.1:11434` | Ollama base URL |
+| `OPENCODE_VISION_GUARD_MODEL` | `qwen3-vl:8b` | vision model tag |
+| `OPENCODE_VISION_GUARD_POLICY` | `fail-closed` | `fail-open` allows reads when the inspector is down |
+| `OPENCODE_VISION_GUARD_TIMEOUT_MS` | `90000` | inspection timeout |
+
+Every decision (allow, block, cache hit, bypass) is appended to
+`~/.local/share/opencode/vision-guard.log`. Verdicts are cached per
+(file, size, mtime) for 10 minutes.
+
+## image-shrink
+
+At send time, replaces image parts larger than ~300KB with a downscaled
+JPEG (max 1600px, quality 80). Never breaks a send: any failure keeps the
+original. Honest limit: this cannot help with the composer holding full-res
+base64 before you hit send - shrink huge batches before attaching.
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_IMAGE_SHRINK` | - | `off` disables |
+| `OPENCODE_IMAGE_SHRINK_MAXDIM` | `1600` | max dimension in px |
+| `OPENCODE_IMAGE_SHRINK_QUALITY` | `80` | JPEG quality |
+| `OPENCODE_IMAGE_SHRINK_MIN_KB` | `300` | minimum size to bother with |
+
+## caffeinate
+
+Holds a `caffeinate -d -i` assertion while any session is processing and
+releases it when all sessions go idle. Per-session tracking means one
+subagent finishing cannot release the assertion while others still work.
+Each assertion has a hard expiry as crash insurance, and the child is
+killed on OpenCode exit.
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_CAFFEINATE` | - | `off` disables |
+
+## session-size
+
+Prepends each session's storage size to its title, refreshed every 10
+minutes from a strictly read-only sqlite query (the plugin never writes to
+the database). Makes multi-hundred-MB sessions visible before they slow
+everything down.
+
+**This rewrites your session titles.** A hand-written title starting with
+something like `2G · ` would be re-tagged. Disable if that matters to you.
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_SESSION_SIZE` | - | `off` disables |
+| `OPENCODE_SESSION_SIZE_INTERVAL_MS` | `600000` | refresh interval |
+| `OPENCODE_SESSION_SIZE_DB` | auto | explicit db path |
+
+## error-root-cause
+
+Classifies provider errors (quota, auth, 429, context overflow, 5xx, TLS,
+network, nested JSON bodies...) and toasts the actual root cause with a
+hint, instead of a bare "server error". Every diagnosis is appended to
+`~/.config/opencode/error-diagnosis.jsonl` (local only).
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_ERROR_LOG` | `~/.config/opencode/error-diagnosis.jsonl` | archive path |
+
+## session-guard
+
+Warns once per session as context usage crosses soft (150k) and hard (200k)
+token lines, and can remind you about provider low-quality time windows.
+
+| Env | Default | Meaning |
+|---|---|---|
+| `OPENCODE_SESSION_GUARD` | - | `off` disables |
+| `OPENCODE_SESSION_GUARD_WARN` | `150000` | soft context limit |
+| `OPENCODE_SESSION_GUARD_CRIT` | `200000` | hard context limit |
+| `OPENCODE_SESSION_GUARD_WINDOWS` | none | UTC windows, e.g. `6-10,14-18` |
+| `OPENCODE_SESSION_GUARD_WINDOW_THROTTLE` | `1800000` | min ms between window toasts |
+
+## Compatibility
+
+**Every plugin file is complete on its own.** The only SDK import is
+type-only (erased when OpenCode loads the file), and everything else is
+Node built-ins - so a single downloaded `.ts`/`.js` file works with no
+npm install, no build step, and no other file from this repo.
+
+- **No plugin imports another plugin**, and no plugin requires the
+  desktop patch. The pairings are optional enhancements: desktop-patch
+  renders session-size tags in color, and its Plugins menu can control
+  plugins - but both sides work alone.
+- **Missing tools degrade, never break**: vision-guard without Ollama
+  blocks image reads (fail-closed; use the fail-open policy or kill
+  switch), caffeinate and image-shrink no-op off macOS, session-size
+  disables itself without the sqlite3 CLI or db file, godot-gate-guard is
+  inert outside projects with a gate wrapper, error-root-cause and
+  session-guard have zero external tools.
+- **Surfaces used**: the `tool.execute.before` / `chat.message` /
+  `event` hooks plus `client.app.log`, `client.tui.showToast`,
+  `client.session.list/update`. Toasts are caught and logged in headless
+  runs, so nothing crashes without a UI.
+- **Known quirk**: opencode auto-loads from BOTH `~/.config/opencode/plugin/` and `plugins/` (non-recursive) - keep your plugins in one folder only, or you get duplicate loads.
+- **Optional typechecking**: runtime never needs npm packages; to typecheck a plugin locally run `npm i -D @opencode-ai/plugin @types/node typescript` once.
+- **Tested on OpenCode 1.16.x** (desktop + TUI). The API surface used is
+  small and stable; if a future version changes hooks, a plugin failing
+  to load is logged by OpenCode and the rest keep working - plugins fail
+  individually, never together.
+
+## Safety notes
+
+- No telemetry, no network calls except vision-guard's localhost Ollama
+  requests. All archives/logs stay on your machine.
+- session-size accesses the OpenCode database strictly read-only and writes
+  titles only through the official SDK.
+- Every plugin catches its own errors and degrades to a no-op rather than
+  breaking your session; every one has an env kill-switch.
+- All of them were extracted from daily personal use; they are plain-reading
+  single files on purpose - read before you install.
+
+## Tools
+
+Small utilities that pair with the plugins (no runtime dependency - the plugins run without them):
+
+- **[tools/state-toggle](tools/state-toggle)** - atomic boolean toggle in `state/state.json`; the backend behind the vision-guard / peak-banner / auto-grant menu checkboxes.
+- **[tools/plugin-manager](tools/plugin-manager)** - enable/disable plugins without hand-moving files. OpenCode auto-loads everything in `plugins/` and has no native manager; this one moves local plugins to `plugins-disabled/` and comments npm entries out of `opencode.jsonc`. `plugin-manager list` to inspect.
+- **[tools/class-sweep.sh](tools/class-sweep.sh)** - automated bug-class sweeps distilled from a bug-hunting playbook. Default run sweeps the OpenCode config dir and this repo (stale state paths, version-pinned chunks, non-atomic writes, registry validity, marker pairing in the shipped bundle). `--project <dir>` runs universal checks on any managed project: `contracts.json` validation (including declarative **mustContain pattern contracts** and **installedTwin** userscript drift), `.bak` clutter, opt-in counter-drift ledger, scene integrity, plus **userscript projects** (`*.user.js` syntax, metadata, canary-proven quote scan, marker traps, duplicate top-level var, version sync vs the project WORKLOG), **PyObjC bridge scripts** (`.py` importing objc/AppKit/Foundation/Quartz: observer must be an NSObject subclass, selector names must map to existing methods - the SIGABRT-at-notification-time class, uncatchable in Python) and **delegation** - if the project ships its own `tools/class-sweep.sh`, its exit code folds in.
+
+  **Scope warning:** every check is structural. A script can pass all of them and still ship a dead feature - a real case from this repo's history: a toggle had its CSS and wiring in place but was never registered in the toggle list, so it silently never ran, and only executing the shipped bytes against a stubbed browser exposed it. Structural sweeps cannot catch that class. Pair the sweep with a runtime probe battery: stub the environment, execute the file, assert outcomes (grep this repo's history or write your own - the pattern is ~200 lines).
+- **[tools/untrack-pycache.sh](tools/untrack-pycache.sh)** - untrack stray __pycache__/.pyc from a repo and push; --all sweeps every repo.
+- **[tools/godot-cache-purge.sh](tools/godot-cache-purge.sh)** - strip archive paths from Godot editor caches after snapshot moves (.gdignore does not cover direct loads) and rebuild the class cache.
+- **[tools/gd-sweep.sh](tools/gd-sweep.sh)** - GDScript trap scanner for Godot projects: Godot-3 keywords, float literal equality, `randi() %` modulo bias, string `get_node` paths, `_process` vs `_physics_process`, unchecked `connect`, `get_texture().get_size()` capture normalization (macOS disagrees with `get_image()`), and load-time `OS.get_cmdline_user_args` reads (flags frozen before `--` args parse). Standalone by design; if the project also runs the outline_dump addon, sample findings are attributed to their enclosing symbol via the generated `outline.md` (optional enrichment, never a dependency). Born on a 53k-line game.
+- **[tools/notifier-config](tools/notifier-config)** - atomic editor for the [@mohak34/opencode-notifier](https://www.npmjs.com/package/@mohak34/opencode-notifier) config (`notifier-config volume quiet`, `notifier-config tone question alt`) - the backend for a Notifier menu. Its crash-safe `tmp + os.replace` write means a mid-write kill can never corrupt the notifier's config.
+
+Desktop-app update/patch tooling (pair with [desktop-patch/](desktop-patch/)).
+**Updating the app? Follow the [update runbook](docs/update-procedure.md) - phase-by-phase checklist: backup, apply, re-patch, verify, rollback rules.**
+
+- **[tools/oc-update-118](tools/oc-update-118)** - manual desktop-app updater for when the in-app "Restart now" silently fails on a patched bundle: `checkzip` (sha512 + bundled version against update-info.json), `apply` (staged swap, old bundle preserved via rename for instant rollback, refuses while any OpenCode process is alive), `rollback`, `verify` (post-update battery: versions, DB migrations, plugin errors in the log). Never quits or kills the app itself.
+- **[tools/oc-post-update](tools/oc-post-update)** - runs every desktop patcher fail-fast in one command after an app update (six as of the question-notify + background-throttle additions); stops at the first anchor drift so a bad port never ships half-applied.
+- **[tools/oc-clear-cache](tools/oc-clear-cache)** - wipes the app's regenerable renderer caches (Cache/Code Cache/GPUCache/DawnCache) for a fresh-asset launch; refuses to run while the app is up.
+- **[tools/badge-toggle](tools/badge-toggle)** - flip a model-row badge family (`ctx|img|cost`) in one call: writes `state.json` (the Plugins-menu checkbox backend) and re-runs the oc-ui badge patch. Runs under plain `/bin/sh` semantics (menu-safe), parses state output case-insensitively, invokes the zsh oc-ui explicitly.
+- **[tools/verify-integrity.mjs](tools/verify-integrity.mjs)** - post-patch integrity check for the app bundle (asar hash vs Info.plist, signature); takes an optional app-bundle path.
+- **[tools/oc-asar-read.mjs](tools/oc-asar-read.mjs)** - minimal read-only asar inspector (list by filter, extract one entry) for anchor re-derivation without a full extract.
+## gate
+
+[gate.ts](gate.ts) is the offload hub: everything mechanical runs here so the
+AI never spends turns on it. Files touched by edit/write calls are collected
+per turn; at idle the tiered gates fire - `shellcheck` on shell files,
+`tsc --strict` on touched plugins, and `class-sweep` (fast mode; full mode
+when a patcher was touched) over the config and repo. Silent when clean,
+toasts only findings. Kill switch: `Gate: disabled` in the Plugins menu
+(`state.json` `gateDisabled`).
+
+## notify
+
+[notify.ts](notify.ts) complements the community
+`@mohak34/opencode-notifier` (which owns event sounds/banners) with three
+things it does not do:
+
+- **Peak-rate windows**: one banner per day when a provider's time-based
+  pricing window opens (ships with the verified GLM coding-plan schedule;
+  add providers only with verified hours). Fires only if you actually have
+  the provider (auth.json match), survives the desktop app's multi-instance
+  plugin loading via an atomic claim file, and stays silent while you are
+  away (HID idle gate) without burning the day's banner.
+- **Permission auto-grant (opt-in, default OFF)**: approves every permission
+  ask so agent runs never block. Set `notifyAutogrant: true` in
+  `~/.config/opencode/state/state.json` to enable. Config-level denies still short-circuit before any ask.
+- **Attribution, refuted**: banners targeted at the OpenCode bundle were
+  supposed to show OpenCode's name instead of "Script Editor" - A/B testing
+  proved every script banner shows "Script Editor" (tell-target included,
+  exit 0). Alerts are therefore **sound-only** (`afplay`, identity-free) and
+  banners are left to the app's own notifications.
+
+Kill switches: `peakBannerDisabled: true` in `state/state.json` (alerts,
+live) and `notifyAutogrant: false` (permissions, at next restart).
+
+## janitor
+
+Post-quit database maintenance in [janitor/](janitor/): a plugin arms a
+watcher at startup; once every OpenCode process is gone it sweeps orphans,
+trims dead pre-compaction rows, strips stale image/read payloads, caps
+title-churn events, and vacuums only when 10%+ of pages are free. Policy:
+**vacuum only** - it never deletes a session, and every destructive step
+takes a rolling backup first. Manual trim/strip CLI included. See
+[janitor/README.md](janitor/README.md).
+
+## desktop-patch: control the desktop app itself
+
+[desktop-patch/](desktop-patch/) holds idempotent patchers for the
+OpenCode **desktop app** (macOS, verified on 1.19.3 - the 1.18.34 -> 1.19.3
+jump needed zero anchor ports; the patcher set has since grown to six):
+model-picker sizing
++ row info badges (now in both the model list and the picker menu),
+colored session titles (renders this repo's session-size tags in color),
+a native **Plugins** menu built from a JSON registry - the control
+surface for this whole plugin set - flat session-menu **Trim & clean**
+items that write the janitor's trim markers from the UI, and an
+**edit-candidates** patch that turns the edit tool's dead-end errors into
+line-numbered candidate hints. Signed with a stable identity so the
+keychain stops re-prompting, and CSS publishes content-hashed so the
+`oc://` cache can't serve stale styles. After any app update:
+[tools/oc-post-update](tools/oc-post-update) re-applies everything in one
+command. See
+[desktop-patch/README.md](desktop-patch/README.md).
+
+## Related work
+
+
+
+- [opencode-vibeguard](https://github.com/inkdust2021/opencode-vibeguard) - text
+  secret/PII redaction before LLM calls (complementary to vision-guard, which
+  handles images)
+- [opencode-vision-analyze](https://github.com/MwumLi/opencode-vision-analyze) - a
+  tool for models to analyze images via your vision model (different goal:
+  enabling, not gating)
+- [opencode-models-discovery](https://github.com/yuhp/opencode-models-discovery) -
+  auto-discovery of local Ollama/LM Studio models
+
+## godot-gate-guard
+
+For Godot projects developed with AI agents. Two classic hang classes,
+made mechanically impossible instead of documented-and-hoped:
+
+1. **Ungated headless runs**: a parse-dead script probe never reaches its
+   `quit()` and the process sits forever. The guard blocks any bare
+   `--headless` Godot launch, except standard one-shots
+   (`--check-only`, `--import`, `--version`, `--help`, `--export-*`).
+2. **Misplaced `--quit-after`**: engine args after Godot's ` -- ` separator
+   are user args and get ignored - the boot never quits. Blocked in both
+   headless and windowed runs.
+
+Blocked commands are neutered by rewriting them into an echo of the reason
+(the original never executes), so the agent reads WHY and reroutes through
+your gate wrapper - typically a `tools/gate` script that launches Godot with
+an instant kill on the first error line plus a wall-clock cap:
+
+```sh
+./tools/gate smoke-test 30 -- --headless --path . scenes/World.tscn
+```
+
+**Zero config**: any session started inside a project that contains
+`tools/gate` is guarded automatically. Everything else is inert. The plugin
+never fires outside guarded projects, and an explicit absolute `--path` to a
+different project opts the command out.
+
+| Env / settings key | Default | Meaning |
+|---|---|---|
+| `OPENCODE_GODOT_GATE` | - | `off` disables |
+| `OPENCODE_GODOT_GATE_TOKENS` | none | extra project name/path fragments to guard |
+| `OPENCODE_GODOT_GATE_WRAPPER` | `tools/gate` | command fragment treated as "gated" |
+| `OPENCODE_GODOT_GATE_EXEMPT` | none | extra regex of bare-headless exemptions |
+
+## License
+
+MIT. Not affiliated with the OpenCode project.

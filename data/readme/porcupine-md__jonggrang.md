@@ -1,0 +1,183 @@
+# Jonggrang
+
+> AI agents write code fast. Too fast. Jonggrang makes sure they don't make a mess while doing it.
+
+Jonggrang is a CLI tool that puts AI coding agents through a **Plan → Implement → Simplify → Test → Review** pipeline. It breaks features into atomic tasks, runs each one with a fresh agent, and refuses to let anything through until the quality gates are green.
+
+Works with four AI backends: [OpenCode](https://opencode.ai/), [Claude Code](https://claude.ai/code), [OpenAI Codex CLI](https://github.com/openai/codex), and **Jonggrang** (built on [Pi SDK](https://pi.dev/)). Pick your poison.
+
+---
+
+## What Makes It Different
+
+AI agents write code fast. Too fast. The bottleneck isn't speed — it's **knowing when to stop and clean up.**
+
+Jonggrang enforces a pipeline where every feature passes through the same gates: Plan → Implement → Simplify → Test → Review. Not because every step is always necessary, but because skipping steps is how complexity accumulates silently.
+
+**Fresh context per task.** Each task starts with a clean agent instance. No stale assumptions carrying forward. **Hooks police in real-time** — secrets blocked, context overload prevented, exit refused until quality gates pass. **Simplify phase** revisits every changed file to reduce complexity before the PR opens.
+
+Left unchecked, an AI agent will always take the shortest path — even if that path goes through a minefield. Jonggrang puts up the guardrails.
+
+→ [Read the full philosophy & architecture](docs/PHILOSOPHY.md)
+
+---
+
+## 🚀 I Just Want to Use It
+
+Five commands. That's all you need.
+
+```bash
+# In your project directory:
+jonggrang init
+jonggrang plan "what you want to build"    # AI writes a plan — you review it
+jonggrang approve                          # Decompose plan into tasks
+jonggrang work                             # Execute tasks one by one
+jonggrang review                           # Comprehensive code review
+```
+
+**One-shot shortcut:**
+```bash
+jonggrang work "REST API for todo management" --yes
+```
+
+**Interactive chat:**
+```bash
+jonggrang agent    # Full TUI chat with /plan, /work, /review, etc.
+```
+
+→ [Step-by-step guide for beginners](docs/QUICKSTART.md)
+
+---
+
+## 🔧 I Want to Hack on It
+
+Come on in. The water's fine.
+
+```bash
+git clone <repo-url> && cd jonggrang
+make install
+make build
+```
+
+Project entry points: CLI binary, Pi TUI extension, web dashboard server. Hooks live in `hooks/`, skills in `skills/`, orchestration engine reads `MANIFEST.yaml`.
+
+→ [Full development setup guide](docs/QUICKSETUP.md)
+
+---
+
+## Commands at a Glance
+
+| Command | What it does |
+|---------|-------------|
+| `jonggrang init` | Interactive wizard — sets up `.jonggrang/`, `AGENTS.md`, hooks, skills |
+| `jonggrang plan "desc"` | AI analyzes the goal, asks clarifying questions if anything is ambiguous, then writes a draft plan to `.jonggrang/.drafts/<session>/plan.md` — human reviews before code |
+| `jonggrang plan --append <id> "desc"` | Extend an **existing approved plan**: generate a delta draft for the additional scope only; on `approve` the new tasks are appended to that feature (numbering continues, completed tasks untouched) |
+| `jonggrang approve` | Decomposes the most-recent draft (or `--session <id>`) into `.jonggrang/.output/features/<id>/jonggrang-tasks.json`. With `--feature <id>` (or a draft carrying `append_to:`) it decomposes into an **existing** feature instead of minting a new one |
+| `jonggrang work` | Executes task queue with fresh context per task |
+| `jonggrang status` | Shows task board |
+| `jonggrang review` | Comprehensive code review → markdown report |
+| `jonggrang agent` | Full TUI chat session with `/plan`, `/work`, `/review` commands |
+| `jonggrang web` | Visual Kanban dashboard with real-time logs + parallel run (one worktree/branch per plan, review & push per branch) |
+| `jonggrang issues list` | List GitHub/GitLab issues from configured sources (or `--repo owner/repo`) |
+| `jonggrang issues pickup <p> <repo> <n>` | Generate a plan in this project from a GitHub/GitLab issue |
+| `jonggrang manifest` | Inspect output files tracked per phase (`list`, `show [id]`, `add`) |
+| `jonggrang design` | Global, reusable design templates + web studio (`list`, `new`, `promote`, `show`, `get`, `validate`) |
+| `jonggrang memory` | Read, recall, stage fragments, compact feature memory, and promote stable project lessons |
+| `jonggrang codemap` | Show/refresh deterministic codebase map (LLM-free, cached at `.jonggrang/codemap/codemap.json`) |
+| `jonggrang device` | Local-sandbox devices: `register` this machine on a jonggrang server, or `key` + `adopt` to pair with the dashboard instead of ssh; `list` / `remove` on the server (`provision` is what register runs there over ssh) |
+| `jonggrang tunnel` | The reverse SSH tunnel a registered device keeps open: `up`, `status`, `down` |
+
+```bash
+# Quick flags
+jonggrang init --force               # Re-init: refresh AGENTS.md, CLAUDE.md, skills and sub-agents
+jonggrang plan "feature" --yes       # Skip review, auto-approve
+jonggrang work "feature" --yes       # Full pipeline in one command
+jonggrang plan "feature" --src docs/brd.md  # Reference source document for the agent to read
+jonggrang plan "feature" --deep      # 3-phase deep analysis (risks, alternatives)
+jonggrang plan "feature" --base develop  # Cut the worktree from a chosen branch (fetched fresh from origin)
+jonggrang plan "feature" --baseline helo@1  # Style from a design template / baseline pack (skips the design question); web = the "design:" picker
+jonggrang plan "feature" --no-ask    # Skip the agent's clarifying-questions step
+jonggrang plan --append feat-abc123 "also add rate limiting"  # Extend an approved plan (tasks appended, numbering continues)
+jonggrang plan --append feat-abc123 "..." --deep  # Deep analysis on the added scope (Affected Areas / Risks)
+jonggrang approve --session draft-abc123  # Approve a specific pending draft
+jonggrang approve --feature feat-abc123    # Decompose the draft into an EXISTING feature (append)
+jonggrang work --mode autonomous     # Override autonomy mode
+jonggrang work --compact             # Stop after Implement, defer the quality gates (memory still written)
+jonggrang work --resume --full       # Run the gates a compact run deferred
+jonggrang work --task task-003       # Execute specific task only
+jonggrang work --feature feat-abc123 # Target a specific approved feature (multi-feature projects)
+```
+
+> When the request is ambiguous, `plan` first asks you a few clarifying questions
+> (pick an option — each carries its rationale — or type your own answer) so the
+> agent plans from real intent instead of guessing. The Q&A is saved with the plan
+> and reused on `plan --revise`. The web dashboard shows the same questions as a form.
+>
+> UI plans also audit the project's existing design system. They produce a tracked
+> `.jonggrang/UI.md`, a per-feature `UI_HANDOFF.md`, and bounded task context instead
+> of injecting a whole design guide into every agent. See [UI planning context](docs/UI_CONTEXT.md).
+
+---
+
+## Requirements
+
+- **Node.js** (latest LTS)
+- **An AI agent** — pick one:
+  - [OpenCode](https://opencode.ai/) → `curl -fsSL https://opencode.ai/install | bash`
+  - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) → `npm install -g @anthropic-ai/claude-code`
+  - [OpenAI Codex CLI](https://github.com/openai/codex) → `npm install -g @openai/codex`
+  - Jonggrang (Pi SDK) → `npm install -g @earendil-works/pi-coding-agent`
+- [jq](https://jqlang.github.io/jq/) → `brew install jq`
+- git
+- *(optional)* [anoa](https://github.com/porcupine-md/anoa-browser) → `curl -fsSL https://raw.githubusercontent.com/porcupine-md/anoa-browser/master/scripts/install-linux.sh | bash` — lets agents validate frontend design in a real headless browser. A single self-contained binary that carries its own browser, so there is no second download; preinstalled in the Jonggrang sandbox image.
+
+---
+
+## Configuration
+
+```jsonc
+// .jonggrang/jonggrang.json (after init)
+{
+  "tool": "opencode",          // opencode | claude | jonggrang | codex
+  "mode": { "autonomy": "balanced" },
+  "work": { "max_iterations": 0 }   // 0 = unlimited (run until all tasks complete)
+}
+```
+
+Two-layer config: `~/.jonggrang/settings.json` (your defaults) → `.jonggrang/jonggrang.json` (this project's quirks).
+
+→ [Full config reference](docs/CONFIG.md)
+
+---
+
+## 📚 More Reading
+
+| Doc | When you want to... |
+|-----|---------|
+| [QUICKSTART.md](docs/QUICKSTART.md) | Get building in 5 minutes |
+| [QUICKSETUP.md](docs/QUICKSETUP.md) | Set up your dev environment |
+| [PHILOSOPHY.md](docs/PHILOSOPHY.md) | Understand why this thing exists |
+| [JONGGRANG.md](docs/JONGGRANG.md) | Read the full blueprint |
+| [WORKFLOW.md](docs/WORKFLOW.md) | Grok the 16-phase pipeline |
+| [SKILLS.md](docs/SKILLS.md) | Teach the agents new tricks |
+| [CONFIG.md](docs/CONFIG.md) | Tweak every knob |
+| [UI_CONTEXT.md](docs/UI_CONTEXT.md) | Understand UI guides, baseline packs, and feature handoffs |
+| [UI_BASELINES.md](docs/UI_BASELINES.md) | Add or version a UI baseline pack |
+| [DESIGN.md](docs/DESIGN.md) | Global design templates + the web Design studio |
+| [COMMIT-CONVENTION.md](docs/COMMIT-CONVENTION.md) | Write agent-readable commit messages |
+
+---
+
+## Contributors
+
+- **[Eka Irawan (Ibnu)](https://github.com/anak10thn)** + **[Ahmad Anshorimuslim Syuhada (Ans)](https://github.com/ans-4175)**
+
+→ [Full credits & backstory](AUTHORS.md)
+
+---
+
+## License
+
+MIT © Porcupine Team
+
+See [LICENSE](LICENSE) for full text. TL;DR: **free to use for anything, including commercial, with no warranty. Contributors are protected from liability.**

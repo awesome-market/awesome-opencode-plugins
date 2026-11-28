@@ -1,0 +1,153 @@
+# Ai-speedometer
+
+A CLI tool for benchmarking AI models across multiple providers with parallel execution and performance metrics. fully opencode Compatible 
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/6S7HwCxbMy)
+
+Track OSS model speeds over time: [ai-speedometer.oliveowl.xyz](https://ai-speedometer.oliveowl.xyz/)
+
+![Ai-speedometer main menu](./pics/main.png)
+
+![Ai-speedometer benchmark](./pics/benchmark.png)
+
+## Packages
+
+The project is a monorepo split into three packages:
+
+| Package | Description | Runtime |
+|---|---|---|
+| `ai-speedometer` | Full TUI + headless benchmark CLI | Bun 1.0+ |
+| `ai-speedometer-headless` | Headless benchmark only, no TUI deps | Node.js 18+ or Bun |
+| `@ai-speedometer/core` | Shared benchmark engine (private) | — |
+
+## Install
+
+### Standard (TUI + Headless)
+Full interactive terminal UI and headless benchmark support. Requires [Bun](https://bun.sh).
+
+```bash
+bun install -g ai-speedometer
+```
+
+### Headless Only (Lightweight)
+No TUI dependencies — runs on **Node.js or Bun**. Ideal for CI/CD, Docker, and scripts.
+
+```bash
+npm install -g ai-speedometer-headless
+# or
+bun install -g ai-speedometer-headless
+```
+
+Or run directly from source:
+
+```bash
+bun run packages/ai-speedometer/src/index.ts
+```
+
+## What It Measures
+
+- **TTFT** (Time to First Token) - How fast the first response token arrives
+- **Total Time** - Complete request duration
+- **Tokens/Second** - Real-time throughput
+- **F1000** (First to 1000) - Time to complete 1000 agentic requests (~300 tokens each), shown in hours. Captures real-world coding assistant performance better than TPS or TTFT alone. Lower is better.
+- **Token Counts** - Input, output, and total tokens used
+
+## Usage
+
+### Interactive TUI (`ai-speedometer` only)
+```bash
+ai-speedometer
+# or short alias and just use ! auto configured via opencode dont have to re add provider here . 
+aispeed
+```
+
+### Headless Benchmark (both packages)
+
+```bash
+# Verified provider
+ai-speedometer --bench openai:gpt-4o
+ai-speedometer-headless --bench openai:gpt-4o
+
+# With explicit API key
+ai-speedometer-headless --bench openai:gpt-4o --api-key "sk-..."
+
+# Custom provider
+ai-speedometer-headless --bench-custom myprovider:mymodel \
+  --base-url https://api.example.com \
+  --api-key "..."
+
+# Pretty-print JSON output
+ai-speedometer-headless --bench openai:gpt-4o --formatted
+
+# Custom endpoint format
+ai-speedometer-headless --bench-custom myprovider:mymodel \
+  --base-url https://... --endpoint-format chat/completions
+
+# Reasoning effort (both flag names are accepted)
+ai-speedometer-headless --bench openai:gpt-5.6-sol --reasoning high
+ai-speedometer --bench openai:gpt-5.6-sol --thinking high
+
+# OpenAI Priority processing (Fast mode) on supported models
+ai-speedometer-headless --bench openai:gpt-5.6-sol --fast
+```
+
+## Features
+
+- **opencode config Compatible aka models / provider from opencode works out of the box in this cli no need to re add them**
+- **Monorepo Architecture** - Split into `core`, `ai-speedometer` (TUI), and `ai-speedometer-headless` (dedicated CLI)
+- **Interactive TUI** - Full terminal UI with theming support, menus, search, and live benchmark progress
+- **33 Themes** - Full theme system ported from opencode — dark themes (tokyonight, dracula, catppuccin, kanagawa, rosepine, nord, gruvbox, monokai, synthwave84, and more) and light themes (github, everforest, solarized, flexoki, vercel, mercury)
+- **Live Theme Switcher** - Press `T` anywhere in the app to open a searchable theme picker — changes apply instantly across the entire UI and persist to config
+- **Animated Progress Bar** - Smooth glow/dim sine wave animation during benchmarks, fully theme-aware
+- **F1000 Metric** - First to 1000: measures real-world agentic coding performance (1000 requests × ~300 tokens)
+- **FAQ/Learn Section** - In-app documentation explaining metrics, formulas, and resources
+- **Headless Mode** - Run benchmarks without interactive UI via CLI flags — outputs JSON, perfect for CI/CD
+- **Node.js Compatible Headless** - `ai-speedometer-headless` targets Node.js, no Bun required
+- **REST API Benchmarking** - Works with all OpenAI-compatible providers
+- **Parallel Execution** - Benchmark multiple models simultaneously
+- **Native Bordered Results Grid** - OpenTUI-backed result panels use a true Unicode grid with explicit row and column intersections; the winner is highlighted, then the table switches to bordered metric cards on narrow terminals without dropping measurements
+- **Cancelable Live Benchmarks** - Press **Q** during a live benchmark to abort its in-flight requests and return to model selection; narrow terminals show the results table only, avoiding overlapping ranking bars
+- **Provider Management** - Add verified, custom verified, and custom providers
+- **Thinking Variants** - Choose provider-supported reasoning effort in the TUI, or use `--reasoning <level>` / `--thinking <level>` in either headless CLI
+- **OpenAI Fast Mode** - Enable Priority processing for supported OpenAI models, including compatible provider routes, with the TUI **⚡ Fast** option or headless `--fast`; this uses `service_tier: "priority"` and premium pricing may apply
+- **Fetched Model Reasoning** - Fetch-mode custom providers keep their own `/models` access list while matching returned model IDs against models.dev to add supported thinking options
+
+## Development
+
+```bash
+# Run from source (monorepo)
+bun run packages/ai-speedometer/src/index.ts
+
+# Build all packages
+bun run build
+
+# Specific builds
+bun run build:tui        # -> packages/ai-speedometer/dist/
+bun run build:headless   # -> packages/ai-speedometer-headless/dist/
+
+# Run tests
+bun test
+
+# Typecheck
+bun run typecheck
+```
+
+## Configuration Files
+
+API keys and configuration are stored in:
+
+- **Verified + Custom Verified Providers**:
+  - Primary: `~/.local/share/opencode/auth.json`
+  - Backup: `~/.config/ai-speedometer/ai-benchmark-config.json` (verifiedProviders section)
+- **Custom Providers**: `~/.config/ai-speedometer/ai-benchmark-config.json` (customProviders section)
+- **Provider Definitions**: `./custom-verified-providers.json` (bundled at build time)
+- **Theme**: set `"theme"` in `ai-benchmark-config.json`, or press `T` inside the TUI to switch live
+  - Dark: `tokyonight` (default), `dracula`, `catppuccin`, `catppuccin-frappe`, `catppuccin-macchiato`, `kanagawa`, `rosepine`, `nord`, `gruvbox`, `monokai`, `one-dark`, `nightowl`, `aura`, `ayu`, `carbonfox`, `cobalt2`, `cursor`, `material`, `matrix`, `opencode`, `orng`, `lucent-orng`, `osaka-jade`, `palenight`, `synthwave84`, `vesper`, `zenburn`
+  - Light: `github`, `everforest`, `solarized`, `flexoki`, `mercury`, `vercel`
+
+## Requirements
+
+- **`ai-speedometer`**: Bun 1.0+ (install from [bun.sh](https://bun.sh))
+- **`ai-speedometer-headless`**: Node.js 18+ or Bun 1.0+
+- API keys for AI providers
+- Terminal with ANSI color support (TUI only)

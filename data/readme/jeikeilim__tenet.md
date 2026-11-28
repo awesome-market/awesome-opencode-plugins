@@ -1,0 +1,402 @@
+# Tenet
+
+![](docs/assets/tenet-logo.png)
+
+> **T**alk. **E**stablish. **N**onstop. **E**valuate. **T**enet.
+
+**The agent harness for long, reliable autonomous development.**
+
+AI coding agents are powerful but short-lived — they lose context, drift off-spec, skip tests, and can't hold a multi-hour session together. Tenet is the harness around them: it interviews you, writes the spec, plans the work as a dependency graph, **adapts that plan to your model's capability**, executes each job, and **judges every job with independent critics** before moving on. Runs loop for hours; the project's durable truth **keeps itself current** between them.
+
+*tenet* — a principle held to be true. Also a palindrome: it reads the same forward and backward, just like the process. Each cycle produces a tenet — a verified feature, and a truer project — that feeds the next.
+
+```
+You: "Add social features — reactions, badges, profiles, share cards"
+Tenet: interviews you, writes the spec, mocks up the UI,
+       decomposes into a DAG, implements each job with per-job commits,
+       and evaluates every job with independent critics until it passes —
+       then folds what it learned back into the project doctrine.
+```
+
+## Why Tenet?
+
+- **Plans that adapt to your model.** Declare `frontier` or `local` and Tenet reshapes the DAG to match — local models get a finer-grained plan with explicit per-job acceptance criteria; frontier models get a coarse, goal-oriented one. Every worker receives the spec inlined, so no one works blind. Run cheaper models without drifting off-spec.
+- **Independent, adversarial critics.** Every job faces critics with fresh context and no access to the author's reasoning. Grounded critics check conformance to the spec; ungrounded critics review free of it, catching issues the spec itself missed. The oracle problem — AI tests that verify implementation behavior rather than intent — is checked explicitly.
+- **Self-correcting project doctrine.** Durable project truth (architecture, testing, design) stays current on its own: jobs flag stale doctrine as drift, the run consolidates proposals, and an authorized job applies the accepted ones. Your `.tenet/project/` never silently rots.
+- **DAG-based orchestration.** Dependencies are explicit. Parallel jobs run in parallel; blocked jobs wait.
+- **Built for long runs.** 12+ hour autonomy, server-ID crash recovery, heartbeat stall detection, unlimited retry by default.
+- **Agent-agnostic.** Claude Code, OpenCode, and Codex. Switch agents mid-project without losing state.
+
+## Built With Tenet
+
+See [Built With Tenet](docs/built-with-tenet.md) for real projects produced while testing Tenet, including their `.tenet/` artifacts, critic feedback, retry trails, and validation notes.
+
+## Quick Start
+
+```bash
+# Install globally
+npm install -g @jeikeilim/tenet
+
+# Initialize a project
+cd your-project
+tenet init
+
+# That's it. Start your coding agent and invoke the tenet skill:
+# In Claude Code: /tenet "Add user authentication with OAuth"
+# In Codex: use the tenet skill
+```
+
+## How It Works
+
+Tenet runs an autonomous loop — **interview → spec → plan → execute → evaluate → fold learnings back into doctrine** — repeating until the feature passes every critic. Three things make that loop reliable.
+
+### The phases
+
+| Phase | What happens |
+|-------|-------------|
+| **0. Context Bootstrap** | Establishes durable project doctrine — live-scans existing code (brownfield) or defers to the interview (greenfield) |
+| **1. Interview** | Asks clarifying questions, researches technologies; captures `delivery_mode` and `model_tier` |
+| **2. Spec & Harness** | Writes a formal spec with scenarios + a quality contract |
+| **3. Visuals** | Generates architecture diagrams, UI mockups, DESIGN.md |
+| **4. Decomposition** | Breaks the spec into a dependency graph (DAG) of jobs — granularity follows `model_tier` |
+| **5. Execution Loop** | Implements each job (spec inlined), prompts per-job commits, evaluates, retries on failure |
+| **6. Evaluation** | Independent critics: code, tests, interaction-e2e (+ project-defined custom critics) |
+| **7. Agile Checkpoints** | Handles plan/use checkpoints and redirect loops in agile mode |
+
+### 1 · The plan adapts to the model
+
+In the interview you declare a `model_tier` — `frontier` (default, today's behavior) or `local`. Decomposition branches on it: `local` produces a finer-grained DAG of small, single-responsibility jobs each with explicit acceptance criteria and minimal implicit context; `frontier` produces fewer, larger, goal-oriented jobs. Either way, every dispatched worker receives the foundational run docs (spec, decomposition, harness) **inlined** into its context — it doesn't have to explore `.tenet/` blind. So a weaker executor gets a tighter plan and never starts a job short on context.
+
+### 2 · Every job is judged independently
+
+When a job completes, the configured critics run — each as a fresh-context eval job with no access to the author's reasoning:
+
+```
+Job Complete
+    |
+    +---> Code Critic      (spec alignment, security, edge cases)        grounded
+    +---> Test Critic       (oracle-problem detection, coverage)          grounded
+    +---> Interaction E2E   (agent-driven e2e on the public surface)      ungrounded
+    +---> [custom critics]  (repo-specific: security, a11y, contracts)    your choice
+    |
+    ALL pass  --> next job
+    ANY fails --> retry with failure context
+```
+
+Each critic can be **grounded** (`full_context: true` — the run docs are inlined, so it checks the work against the spec) or **ungrounded** (`full_context: false` — no spec inlined, so it reviews independently and can catch what the spec itself missed). Diversity of grounding is the point: not all-or-nothing.
+
+> **The Oracle Problem.** When one agent writes both the code and its tests, the tests tend to ratify the implementation rather than the intent — they encode the same assumptions the code did, so they pass even when the behavior is wrong. Tenet's test critic runs with fresh context (no access to the author's reasoning) and explicitly hunts for this leakage.
+
+### 3 · The project's truth self-corrects
+
+Durable doctrine in `.tenet/project/` (overview, architecture, product, testing, design) isn't write-once. As jobs run, they flag doctrine that no longer matches reality as drift notes. At run end, those notes consolidate into `doctrine-proposals.md`, and an authorized job applies the accepted ones — then the bootstrap gate re-runs to keep doctrine coherent. Your project's source of truth heals itself between runs instead of silently going stale.
+
+### Steer mid-run
+
+Redirect the agent without breaking the loop:
+
+```
+You: "Focus on the API first, skip the frontend for now"
+Tenet: classifies as directive, adjusts job priority, continues
+```
+
+Three classes: `context` (informational), `directive` (priority change), `emergency` (halt everything). User steers are returned in full and protected from being crowded out by agent-generated noise.
+
+## Configurable Critics
+
+The critic set is a project file: `.tenet/critics.json`, scaffolded by `tenet init` and read live on every eval — edit it, no restart. A missing or invalid file falls back to the 3 built-ins.
+
+```json
+{
+  "version": 1,
+  "critics": [
+    { "id": "code_critic",     "builtin": true,  "enabled": true, "full_context": true },
+    { "id": "test_critic",     "builtin": true,  "enabled": true, "full_context": true },
+    { "id": "interaction_e2e", "builtin": true,  "enabled": true, "full_context": false },
+    {
+      "id": "security", "builtin": false, "enabled": true, "full_context": true,
+      "stage": "security_critic", "job_type": "critic_eval",
+      "prompt_file": ".tenet/critics/security.md"
+    }
+  ]
+}
+```
+
+- **`full_context`** — `true` (default) grounds the critic: the run docs are inlined so it checks conformance. `false` reviews independently of the spec — adversarial, able to catch what the spec missed. The artifact paths still appear in its job scope, so an ungrounded critic can consult the spec on demand — independent, not blind. Built-ins honor it too: `code_critic`/`test_critic` default `true`; `interaction_e2e` defaults `false` (it acts like a user — explore, don't anchor to the declared spec).
+- **Built-ins** — flip `enabled: false` to drop any one. The interaction-e2e critic covers CLI/API/library surfaces too (agent-brain shell e2e), so keep it enabled for CLI-only projects — only disable it if you want no public-surface e2e at all.
+- **Custom critics** — write a prompt at `.tenet/critics/<id>.md`, then add an entry. The prompt must end by emitting the verdict Tenet parses —
+  `{"passed": true/false, "stage": "<stage>", "findings": [{"category": "product_bug", "detail": "..."}]}` —
+  where `category` is one of `product_bug | test_bug | harness_bug | evidence_mismatch | contention | scope_conflict` so findings route to the right fix.
+
+Prefer not to hand-write the prompt? In Claude Code, ask *"tenet, create a security critic for this repo"* and it authors both the prompt and the roster entry, then smoke-tests it. Full reference: `skills/tenet/critics.md`.
+
+## Architecture
+
+```
+                    +-----------------+
+                    |  Coding Agent   |  (Claude Code / OpenCode / Codex)
+                    |  + Tenet Skill  |
+                    +--------+--------+
+                             |
+                         MCP Protocol
+                             |
+                    +--------v--------+
+                    |   MCP Server    |  19 tools (start_job, eval, steer, ...)
+                    +--------+--------+
+                             |
+              +--------------+--------------+
+              |              |              |
+     +--------v---+  +------v------+  +----v--------+
+     | Job Manager|  | State Store |  | Adapters    |
+     | (DAG, retry|  | (SQLite+WAL)|  | (subprocess)|
+     | heartbeat) |  |             |  |             |
+     +------------+  +-------------+  +-------------+
+```
+
+Four layers: **Core** (DAG execution, heartbeat stall detection, retry, server-ID crash recovery) · **Adapters** (pluggable agent subprocess spawners, 120-min default timeout) · **MCP Server** (19 tools, Zod-validated) · **CLI** (`init`, `serve`, `status`, `config`, `db`).
+
+## CLI Reference
+
+```bash
+# Initialize project (interactive agent selection + optional Playwright MCP install)
+tenet init [path]
+tenet init --agent claude-code --skip-playwright-check
+tenet init --upgrade                    # Update DB, skills/configs; prompts before moving legacy docs (see note below)
+tenet init --upgrade --migrate-legacy   # Non-interactive: run the destructive legacy-doc move without prompting
+
+# Check project status
+tenet status
+tenet status --all  # Include completed/failed jobs
+
+# SQLite state maintenance
+tenet db check              # Read-only integrity/index diagnostics
+tenet db backup             # Verified SQLite-safe backup
+tenet db snapshot           # Git-safe portable snapshot to .tenet/state-snapshot/ (gzip by default; --no-compress for plain)
+tenet db restore-snapshot   # Restore live SQLite state from a portable snapshot (auto-detects gzip/plain)
+
+# Configure
+tenet config                          # View current config
+tenet config --agent claude-code      # Set default agent
+tenet config --max-retries unlimited  # Default: no fixed retry cap
+tenet config --max-retries 5          # Optional finite retry limit
+tenet config --timeout 120            # Set job timeout (minutes)
+```
+
+### Upgrading from ≤ 26.6.0
+
+Versions after 26.6.0 introduce the Tenet **document lifecycle**. Running
+`tenet init --upgrade` on an existing project offers a one-time, **breaking**
+migration of your `.tenet/` layout — and it asks first.
+
+- **Consent gate:** when legacy document directories are present, `tenet init --upgrade`
+  prompts Y/N (default **No**) before moving anything. In non-interactive contexts
+  (CI, agent-driven) it skips the move and prints the opt-in command:
+  `tenet init --upgrade --migrate-legacy`. `-y/--yes` does **not** auto-migrate —
+  the destructive move always has to name itself.
+- **Moves** legacy document directories — `spec/`, `interview/`,
+  `decomposition/`, `harness/`, `journal/`, `visuals/`, `bootstrap/`,
+  `steer/`, `knowledge/`, and `DESIGN.md` — into `.tenet/archive/legacy-v1/`.
+  Context bootstrap later curates durable facts from the archived `knowledge/`
+  back into a fresh top-level `.tenet/knowledge/`.
+
+This is one-way. **Do not upgrade while a Tenet run is in progress.** Jobs
+registered before the upgrade store exact paths to the old top-level
+locations, and moving those files breaks `tenet_compile_context` and
+`tenet_retry_job` for pre-upgrade jobs (their paths dangle). Finish or cancel
+active runs first. The migration runs once (subsequent upgrades skip it), and
+upgrades warn at runtime if pending/running jobs are present.
+
+### Support prompt
+
+On an interactive `tenet init` or `tenet init --upgrade`, Tenet asks whether
+you'd like to star [github.com/JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet)
+— and only if it can't already confirm you've starred it (via `gh`). It is
+skipped in non-interactive/`--yes` runs and never fires from the autonomous
+skill loop. Declining ("no") just defers to the next run; once you've actually
+starred — confirmed via `gh`, or you accept and the one-key star succeeds — it
+stops asking that project. The "starred" marker lives per-project in
+`.tenet/.state/config.json` under `star_nudge`. Set `TENET_NO_STAR_NUDGE=1` to
+suppress it entirely.
+
+## MCP Tools
+
+| Tool | Purpose |
+|------|---------|
+| `tenet_init` | Initialize a project from MCP |
+| `tenet_compile_context` | Gather spec, harness, status, and knowledge into a single context |
+| `tenet_validate_clarity` | Score the interview transcript before spec generation |
+| `tenet_validate_readiness` | Score implementation readiness before decomposition |
+| `tenet_register_jobs` | Load a job DAG with dependencies |
+| `tenet_start_job` | Execute a single job via agent adapter |
+| `tenet_continue` | Get the next actionable job from the DAG |
+| `tenet_job_wait` | Check or long-poll job status |
+| `tenet_job_result` | Retrieve job output and status |
+| `tenet_retry_job` | Re-run a failed/completed job (resets + dispatches immediately) |
+| `tenet_cancel_job` | Cancel a running or pending job |
+| `tenet_start_eval` | Dispatch the configured critics (3 built-in + custom) from `.tenet/critics.json` |
+| `tenet_report_blocking_finding` | Let report-only jobs pause and spawn a linked follow-up job |
+| `tenet_update_knowledge` | Write knowledge/journal entries |
+| `tenet_add_steer` | Submit a steer message (context/directive/emergency) |
+| `tenet_process_steer` | Acknowledge and act on steer messages |
+| `tenet_update_steer` | Retire resolved steers by id or sweep agent-context steers |
+| `tenet_health_check` | Verify system consistency |
+| `tenet_get_status` | Get current job counts and progress |
+
+## Project Structure
+
+After `tenet init`, your project gets:
+
+```
+your-project/
+  .tenet/
+    project/          # Durable doctrine: overview.md, architecture.md, product.md,
+                      #   testing.md, design.md (+ design-components/) — self-correcting via drift review
+    runs/<run-slug>/  # Per-run artifacts for YYYY-MM-DD-feature:
+                      #   interview.md, spec.md, harness.md, scenarios.md,
+                      #   decomposition.md, doctrine-proposals.md, research/, journal/, visuals/
+    archive/legacy-v1/  # One-time migration target for pre-lifecycle layouts (populated by `tenet init --upgrade`)
+    knowledge/        # Curated, reusable technical knowledge
+    critics.json      # Configurable critic roster (3 built-ins + custom critics) — see "Configurable Critics"
+    critics/          # Custom-critic prompt files (<id>.md); empty until you author one
+    status/           # status.md + job-queue.md are auto-generated from DB; backlog.md is a static scaffold
+    state-snapshot/   # Git-safe portable SQLite snapshots (`tenet db snapshot`)
+    .state/
+      tenet.db        # Versioned SQLite state (jobs, events, steer, config)
+      config.json     # Project configuration
+  .mcp.json           # Claude Code MCP server configuration (auto-generated)
+  .codex/config.toml  # Codex MCP server configuration and project trust
+  opencode.json       # OpenCode MCP server configuration and permissions
+  .claude/skills/tenet/  # Generated skill files for Claude Code, with Tenet version metadata
+  .agents/skills/tenet/  # Generated skill files for Codex, with Tenet version metadata
+```
+
+## Execution Modes
+
+Every mode still runs the full phase structure — interview, spec, decomposition, execution, evaluation — and the clarity + readiness gates. The modes differ in **interview depth and ceremony**, not in which phases they skip.
+
+| Mode | What runs | Use Case |
+|------|-----------|----------|
+| **Full** (default) | All 8 phases at full strength | New features, major refactors |
+| **Standard** | Compact interview (3–5 questions), then spec/harness/readiness → decomposition | Known architecture, moderate unknowns |
+| **Quick** | Minimum interview (confirm scope + acceptance), compact spec or a trivial single-job DAG | Small isolated bug/config/content tweak |
+
+## Delivery Modes
+
+Every run also picks a cadence in the interview — `delivery_mode: autonomous | agile`:
+
+| Mode | Cadence |
+|------|---------|
+| **autonomous** (default) | One end-to-end run, no mid-run checkpoints — fire and walk away |
+| **agile** | Sliced delivery: a plan-checkpoint after the upfront visuals, then per-slice decompose → build → eval → use-checkpoint. Each slice ships a runnable, eval-passing app. At every checkpoint you can `approve`, `redirect`, or `cancel` |
+
+Agile is for when you want to steer mid-run; autonomous is for when you want to fire-and-forget. Either way, every job and every slice still runs the full independent-critic / eval gate — agile changes cadence, not rigor.
+
+## Crash Recovery
+
+Tenet is built for long autonomous runs where crashes are expected:
+
+- **Server restart**: stale "running" jobs reset to "pending" only after their heartbeat exceeds the timeout
+- **Adapter timeout**: 120-minute default (configurable), prevents zombie subprocesses
+- **Heartbeat monitoring**: detects truly stuck jobs within a session
+- **MCP disconnect**: skill instructs agents to attempt a server restart, halt if unrecoverable
+- **Update checks**: health/status can surface newer npm versions with manual upgrade guidance; Tenet does not auto-update during an active run
+- **DB upgrades**: normal startup refuses old/newer DB schemas with guidance. Close the agent, run `tenet init --upgrade`, then restart; upgrade creates a verified SQLite-safe DB backup first
+
+## Diagnostics
+
+When things go wrong, use the `tenet:diagnose` skill, or inspect directly:
+
+```bash
+sqlite3 .tenet/.state/tenet.db "SELECT type, status, COUNT(*) FROM jobs GROUP BY type, status"
+sqlite3 .tenet/.state/tenet.db "SELECT * FROM jobs WHERE status='failed'"
+```
+
+The diagnose skill provides 10 diagnostic sections with ready-to-run queries for job status, event logs, config, git-DB desync detection, and more.
+
+## Agent Compatibility
+
+| Agent | Status | Notes |
+|-------|--------|-------|
+| Claude Code | Fully supported | Primary development target |
+| OpenCode | Supported | Skill and MCP discovery via opencode.json |
+| Codex | Supported | `--sandbox workspace-write` by default, `.codex/config.toml` for MCP |
+
+## Requirements
+
+- Node.js >= 20
+- At least one AI coding agent CLI installed (`claude`, `opencode`, or `codex`)
+- Optional: Playwright MCP for browser/visual e2e testing (`tenet init` offers to install it and writes each supported agent config)
+
+## Development
+
+```bash
+git clone https://github.com/JeiKeiLim/tenet
+cd tenet
+pnpm install
+pnpm run build
+pnpm run test
+pnpm run lint
+```
+
+### Doc/Code Consistency Review
+
+This repository includes a maintainer-only AI review script that checks current Markdown docs against code-derived facts such as MCP tool names, CLI options, adapter defaults, and runtime defaults. It is not shipped in the npm package and it does not apply fixes. When multiple reviewers are used, their raw findings are preserved and a final synthesizer groups duplicate or overlapping findings into merged issues.
+
+Run the normal review with Claude:
+
+```bash
+make docs-review
+```
+
+Pass custom review arguments through `DOCS_REVIEW_ARGS`:
+
+```bash
+# Use a different reviewer
+DOCS_REVIEW_ARGS="--agents codex" make docs-review
+DOCS_REVIEW_ARGS="--agents opencode" make docs-review
+
+# Use combinations
+DOCS_REVIEW_ARGS="--agents claude,codex" make docs-review
+DOCS_REVIEW_ARGS="--agents claude,codex,opencode" make docs-review
+
+# Control the final merge/synthesis pass
+DOCS_REVIEW_ARGS="--agents claude,codex --synthesizer claude" make docs-review
+DOCS_REVIEW_ARGS="--agents claude,codex --synthesizer none" make docs-review
+
+# Save cognition-alignment JSON and keep printing Markdown
+DOCS_REVIEW_ARGS="--json-out /tmp/tenet-doc-review.json" make docs-review
+
+# Save both outputs
+DOCS_REVIEW_ARGS="--json-out /tmp/tenet-doc-review.json --markdown-out /tmp/tenet-doc-review.md" make docs-review
+
+# Save Markdown without printing it
+DOCS_REVIEW_ARGS="--markdown-out /tmp/tenet-doc-review.md --no-print" make docs-review
+```
+
+Run the real-agent E2E smoke test with Claude + Codex by default:
+
+```bash
+make docs-review-e2e
+```
+
+Customize E2E reviewers and the final synthesizer:
+
+```bash
+DOCS_REVIEW_E2E_AGENTS=codex make docs-review-e2e
+DOCS_REVIEW_E2E_AGENTS=opencode make docs-review-e2e
+DOCS_REVIEW_E2E_AGENTS=claude,opencode make docs-review-e2e
+DOCS_REVIEW_E2E_AGENTS=claude,codex,opencode make docs-review-e2e
+DOCS_REVIEW_E2E_SYNTHESIZER=codex make docs-review-e2e
+DOCS_REVIEW_E2E_SYNTHESIZER=none make docs-review-e2e
+```
+
+The E2E always runs with `--fail-on never` and only verifies real subprocess plumbing, JSON shape, Markdown output, reviewer metadata, merged issue metadata, and that repo-tracked files did not change. It writes reports to a temp directory by default. To choose an output directory, use a path outside the repository:
+
+```bash
+DOCS_REVIEW_E2E_OUTPUT_DIR=/tmp/tenet-doc-review-e2e make docs-review-e2e
+DOCS_REVIEW_E2E_PRINT_MARKDOWN=1 make docs-review-e2e
+```
+
+## License
+
+MIT

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jihoon22-lee/agent-seminar · OpenCode Plugins</title>
+<meta name="description" content="AI 에이전트 확장하기 — 스킬 · MCP · 플러그인 (opencode 편) 세미나 자료와 예제">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="keywords" content="agent-seminar, jihoon22-lee, jihoon22-lee/agent-seminar, opencode plugin, plugin rankings, npm downloads, star growth, 插件榜单, 星标增长, tools">
+<meta name="author" content="awesome-market">
+<link rel="canonical" href="https://opencode-plugins.zhuikan.com/repos/jihoon22-lee__agent-seminar">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:title" content="jihoon22-lee/agent-seminar · OpenCode Plugins">
+<meta property="og:description" content="AI 에이전트 확장하기 — 스킬 · MCP · 플러그인 (opencode 편) 세미나 자료와 예제">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://opencode-plugins.zhuikan.com/repos/jihoon22-lee__agent-seminar">
+<meta property="og:image" content="https://opencode-plugins.zhuikan.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0e14" id="themeMeta">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
+<script>
+(() => {
+  const t = localStorage.getItem('theme') ||
+    (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = t;
+  document.getElementById('themeMeta').content = t === 'light' ? '#f6f8fa' : '#0a0e14';
+})();
+</script>
+<link rel="stylesheet" href="../assets/style.css?v=44286f76">
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?dd33260e5868eadddf0b42d47764d8cc";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "jihoon22-lee/agent-seminar", "codeRepository": "https://github.com/jihoon22-lee/agent-seminar", "url": "https://opencode-plugins.zhuikan.com/repos/jihoon22-lee__agent-seminar", "description": "AI 에이전트 확장하기 — 스킬 · MCP · 플러그인 (opencode 편) 세미나 자료와 예제", "author": {"@type": "Organization", "name": "jihoon22-lee", "url": "https://github.com/jihoon22-lee"}, "isAccessibleForFree": true, "additionalType": "OpenCode skill", "dateCreated": "2026-11-16", "license": "https://spdx.org/licenses/MIT.html", "keywords": "tools"}</script>
+</head>
+<body data-repo="jihoon22-lee/agent-seminar" data-base="../">
+
+<a class="skip-link" href="#content" data-i18n="skip">跳到内容</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" style="stop-color:var(--accent);stop-opacity:.28"/>
+      <stop offset="100%" style="stop-color:var(--accent);stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" style="stop-color:var(--text-dim)"/>
+      <stop offset="100%" style="stop-color:var(--accent)"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="hero" data-enter>
+  <div class="hero-inner">
+    <div class="hero-brand">
+      <a href="../" class="brand-home" aria-label="OpenCode Plugins">
+              <svg class="radar-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" rx="9" stroke="url(#sparkStroke)" stroke-width="2.5"/>
+        <polyline points="13,32 21,24 27,28 35,16" stroke="url(#sparkStroke)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="35" cy="16" r="3" style="fill:var(--accent)"/>
+      </svg>
+      </a>
+      <div>
+        <a href="../" class="brand-home"><h1>OpenCode <span class="grad-text">Plugins</span></h1></a>
+        <p class="hero-sub" id="repoCrumb"><a href="../" class="rp-back" data-i18n="rp.back">← 返回榜单</a></p>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <button id="langToggle" class="lang-btn" type="button" aria-label="Switch to English" data-i18n-aria="lang.aria" data-i18n-title="lang.aria">EN</button>
+      <button id="themeToggle" class="theme-btn" type="button" data-i18n-aria="theme.aria" data-i18n-title="theme.aria" aria-label="切换深浅色主题" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8ZM8 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8 0Zm0 12.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V13a.75.75 0 0 1 .75-.75ZM2.25 8a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h.75A.75.75 0 0 1 2.25 8Zm11.5 0a.75.75 0 0 1-.75.75h.75a.75.75 0 0 1 0 1.5h-.75a.75.75 0 0 1-.75-.75ZM3.757 3.757a.75.75 0 0 1 1.06 0l1.06 1.061a.75.75 0 1 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.061Zm7.426 7.426a.75.75 0 0 1 1.06 0l1.061 1.06a.75.75 0 0 1-1.061 1.061l-1.061-1.06a.75.75 0 0 1 0-1.061ZM3.757 12.243a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Zm7.426-7.426a.75.75 0 0 1 0-1.061l1.06 1.061a.75.75 0 0 1-1.06 0Z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M9.598 1.591a.75.75 0 0 1 .786-.093 7 7 0 1 1-9.033 9.881a.75.75 0 0 1 .854-.915A5.501 5.501 0 1 0 9.506 1.5c.028 0 .056.03.092.091ZM8.03 3.03a7.001 7.001 0 0 0-4.4 10.32 7 7 0 0 0 8.73-8.73A7.01 7.01 0 0 0 8.03 3.03Z"/></svg>
+      </button>
+      <a class="gh-link" href="https://github.com/awesome-market/awesome-opencode-plugins" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="content">
+  <div id="repoContent" class="repo-page">
+<nav class="rp-crumb"><a href="../">Boards</a><span class="rp-crumb-sep">/</span>
+<span class="rp-crumb-cur">jihoon22-lee/agent-seminar</span></nav>
+<div class="rp-top">
+  <aside class="rp-side">
+    <a href="jihoon22-lee__agent-seminar"><img class="rp-side-av" src="https://github.com/jihoon22-lee.png?s=300" width="300" height="300" alt="jihoon22-lee avatar"></a>
+    <div class="rp-side-body card">
+      <div class="rp-side-name">agent-seminar</div>
+      <a class="rp-side-owner" href="https://github.com/jihoon22-lee">jihoon22-lee</a>
+    </div>
+  </aside>
+  <div class="rp-main">
+    <div class="rp-main-head">
+      <h1 class="rp-htitle">
+        <a class="rp-owner" href="https://github.com/jihoon22-lee">jihoon22-lee</a>
+        <span class="rp-sep">/</span><span class="rp-name">agent-seminar</span>
+      </h1>
+      <div class="rp-head-chips"></div>
+    </div>
+    <p class="rp-desc">AI 에이전트 확장하기 — 스킬 · MCP · 플러그인 (opencode 편) 세미나 자료와 예제</p>
+    <div class="rp-statrow"><span class="rp-stat" title="stars">★ <b>0</b></span></div>
+    <div class="rp-topics"><a class="rp-topic" href="../tags/tools">tools</a></div>
+    <div class="rp-meta"><span class="rp-meta-bit rp-verif-verified"><span class="i18n-zh">已实测可装可用</span><span class="i18n-en">Tested: installs &amp; loads</span></span><span class="rp-meta-bit">skill</span><span class="rp-meta-bit">MIT</span><span class="rp-meta-bit">Created 2026-11-16</span></div>
+    <div class="rp-foot-row"><div class="rp-same"></div>
+      <div class="rp-actions"><a class="rp-btn" href="https://github.com/jihoon22-lee/agent-seminar">npm ↗</a></div></div>
+  </div>
+</div>
+<section class="rp-panel card"><div class="rp-metric-grid"><div class="rp-metric"><div class="rp-metric-num up">+0</div><div class="rp-metric-label">日增长</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">stars</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads30d</div></div><div class="rp-metric"><div class="rp-metric-num">–</div><div class="rp-metric-label">downloads_month</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">watchers</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">prs</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">issues</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">releases</div></div><div class="rp-metric"><div class="rp-metric-num">0</div><div class="rp-metric-label">forks</div></div></div>
+<h3 class="rp-ph">README</h3><pre class="rp-pre rp-readme">agent-seminar
+
+AI 에이전트 확장하기: 스킬, MCP, 플러그인 (opencode 편)
+
+코딩 에이전트 opencode에 팀의 지식과 시스템, 규칙을 붙이는 세 가지 방법을 다룬 60분 세미나 자료입니다.
+발표 슬라이드와 글로 읽는 가이드, 그리고 직접 실행해 볼 수 있는 예제 52개가 들어 있습니다.
+
+- 발표 자료: https://jihoon22-lee.github.io/agent-seminar/ (브라우저에서 바로 열립니다. ? 키로 단축키를 볼 수 있습니다)
+- 가이드: docs/guide
+- 예제 목록: examples/README.md
+
+모든 내용은 opencode 1.19.5에서 직접 실행해 확인했습니다. 모든 예제의 check.py를 Windows(PowerShell 5.1)와 Linux 양쪽에서 실행해 통과시켰습니다. 도구가 없어 건너뛴 부분과 확인하지 못한 부분은 각 README에 &quot;미검증&quot;으로 적었습니다.
+
+ 한 줄 요약
+
+| 확장 | 한 줄 설명 | 이럴 때 |
+|---|---|---|
+| 스킬 | 모델이 필요할 때 꺼내 읽는 업무 매뉴얼 (SKILL.md) | 모델이 알아야 할 절차나 지식: 커밋 규칙, 리뷰 기준, 분석 순서 |
+| MCP | 에이전트 바깥의 프로그램이 도구를 제공하는 표준 방식 | 에이전트 밖의 시스템에 닿아야 할 때: 티켓 DB, 위키, 모니터링 |
+| 플러그인 | 도구 실행 앞뒤에 끼어드는 코드 | 모델 판단과 상관없이 항상 일어나야 할 때: 차단, 감사 로그, 알림 |
+
+셋을 켜고 끄는 곳은 opencode.json입니다. 개념 설명은 가이드 0. 개념에서 시작하세요.
+
+ 준비물
+
+- opencode 1.19.5 (opencode --version으로 확인)
+- Python 3.10 이상: 예제 스크립트와 Python MCP 서버는 표준 라이브러리만 씁니다. M2 예제만 mcp 패키지를 설치합니다.
+- git 2.28 이상: 예제 준비 스크립트(prepare.py)가 git init -b를 씁니다.
+- Node/npm (선택): 플러그인 예제의 단위 테스트와 패키지 미러 지정(npm config)에 씁니다. npm이 없으면 %USERPROFILE%\.npmrc(Linux ~/.npmrc) 파일에 registry= 한 줄을 직접 써도 됩니다. M10(Node 서버)과 M11(npx로 파일 서버)은 Node 18 이상이 필요합니다. 없으면 두 예제의 해당 부분은 건너뜁니다(check.py가 경고만 냅니다).
+- uv (선택): M11(uvx로 시간 서버)과 M12(uvx 배포 경로)에 씁니다. 없으면 uvx를 쓰는 부분만 건너뜁니다. M12의 python -m 기본 경로는 uv가 필요 없습니다.
+- Rust(cargo) (선택): M14(실행 파일 하나로 된 서버)를 직접 빌드할 때만 씁니다. 없으면 M14의 빌드와 검사를 건너뜁니다.
+- 모델: 평소 쓰는 모델을 그대로 쓰면 됩니다. 설정된 모델이 없다면 무료 모델 opencode/big-pickle을 -m으로 지정할 수 있습니다.
+
+기본 경로의 예제는 인터넷 없이 돕니다. 다만 M10, M11, M12, M14의 설치 단계(npm install, npx, uvx, cargo build)는 패키지 레지스트리나 미러가 필요하고, 닿지 않으면 check.py는 그 검사를 경고와 함께 건너뜁니다.
+또한 .opencode/ 폴더가 있는 예제는 시작할 때 opencode가 npm 패키지 @opencode-ai/plugin을 설치하려고 합니다.
+인터넷이 막힌 환경이라면 먼저 npm 패키지 미러를 지정하세요. 레지스트리에 닿지 않으면 플러그인이 있는 예제(.opencode/plugins/)는 시작할 때마다 약 70초(새 환경의 첫 시작은 약 130초) 멈추고, 이 패키지를 쓰는 플러그인 도구(P6, X1-c)는 조용히 사라집니다. 스킬만 있는 예제는 설치를 시도하지만 눈에 띄게 멈추지는 않았습니다.
+
+powershell
+npm config set registry https:///      %USERPROFILE%\.npmrc 에 저장됩니다
+
+
+미러에 닿으면 첫 시작이 10초 안팎, 그다음부터는 1초 안팎입니다. 자세한 내용은 P6 README에 있습니다.
+
+ 시작하기
+
+PowerShell:
+
+powershell
+git clone https://github.com/jihoon22-lee/agent-seminar
+cd agent-seminar\examples\01-skills\s1a-commit-message
+python prepare.py       실습용 git 저장소 sandbox\ 를 만듭니다
+cd sandbox
+opencode
+
+
+Linux bash:
+
+bash
+git clone https://github.com/jihoon22-lee/agent-seminar
+cd agent-seminar/examples/01-skills/s1a-commit-message
+python3 prepare.py      실습용 git 저장소 sandbox/ 를 만듭니다
+cd sandbox
+opencode
+
+
+예제 폴더 하나하나가 독립된 opencode 프로젝트입니다. 폴더에 들어가서 opencode를 실행하면 그 예제의 설정, 스킬, 플러그인만 적용됩니다.
+prepare.py가 있는 예제는 먼저 실행하세요. git 저장소가 필요한 예제는 sandbox/에 실습용 저장소를 만들고, 그 안에서 opencode를 실행합니다.
+각 README는 같은 순서로 되어 있습니다: 무엇을 보여 주나, 실무에서는, 파일 구성, 따라 하기, 기대 결과, 동작 원리, 직접 바꿔 보기, 주의할 점.
+
+Linux에서 python 명령이 없으면 예제 설정과 명령의 python을 python3로 바꾸세요.
+
+ 예제
+
+| 폴더 | 내용 | 예제 |
+|---|---|---|
+| examples/00-config | opencode.json의 위치와 병합, 환경 변수, 설정 덧씌우기, 격리, 권한, 커스텀 명령, 모델 제공자 연결, 에이전트 정의 | C1–C8 |
+| examples/01-skills | SKILL.md 하</pre></section>
+
+<p class="rp-meta">Snapshot: 2026-11-28T11:10:23Z · Data license Apache-2.0 ·
+<a href="../data/repos/jihoon22-lee__agent-seminar.json">JSON</a></p></div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p id="footStats" class="foot-stats"></p>
+    <p data-i18n="foot.line1">数据来源：GitHub API 独立采集 · 榜单由快照差值计算 · 仅供参考，不构成投资建议</p>
+    <p class="footer-sub" data-i18n="foot.line2">新榜 / 总榜为本站跟踪仓库范围内排名 · 增速 = 增长量 ÷ 窗口起点 Star 基数</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/marked.min.js?v=44286f76"></script>
+<script src="../assets/vendor/purify.min.js?v=44286f76"></script>
+<script src="../assets/vendor/qrcode.min.js?v=44286f76"></script>
+<script src="../assets/common.js?v=44286f76"></script>
+<script src="../assets/repo.js?v=44286f76"></script>
+</body>
+</html>

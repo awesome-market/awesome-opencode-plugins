@@ -1,0 +1,188 @@
+# LifeBook Shufang Public-Domain Book Translation
+
+<table align="center">
+  <tr>
+    <td align="center"><h3><a href="./README.zh-CN.md">简体中文</a></h3></td>
+    <td align="center"><h3><a href="./readme/README.zh-TW.md">繁體中文</a></h3></td>
+    <td align="center"><h3><a href="./README.md">English</a></h3></td>
+    <td align="center"><h3><a href="./readme/README.ja.md">日本語</a></h3></td>
+  </tr>
+</table>
+
+LifeBook Shufang is a multilingual workflow for turning public-domain books into reviewed, readable EPUB editions. It is not a one-click raw AI translation repository. The workflow keeps source evidence, rights checks, translation drafts, review records, EPUB validation, random spot checks, and versioned release artifacts.
+
+Contributors can help without being programmers: propose a book, verify public-domain sources, read a chapter, compare source and translation, report awkward passages, test EPUB files, or improve templates and scripts.
+
+## Quick Start
+
+For a short user guide, see:
+
+- [English guide](./doc/public/how-to-use-prompts.en.md)
+- [简体中文说明](./doc/public/how-to-use-prompts.zh-CN.md)
+- [繁體中文說明](./doc/public/how-to-use-prompts.zh-TW.md)
+- [日本語ガイド](./doc/public/how-to-use-prompts.ja.md)
+
+Bilingual EPUB output: English-to-Simplified-Chinese projects default to both a target-only Simplified Chinese EPUB and an English-Chinese bilingual parallel EPUB. For any other language pair, add this sentence to the prompt: `请输出 edition_type: bilingual_parallel，同时生成目标语言版 EPUB 和源语言-目标语言双语对照版 EPUB。`
+
+Minimal prompt for an AI client:
+
+```text
+Book I want translated: {title, author optional, and source URL if known}
+Target language: {for example Spanish, English, Japanese, or Simplified Chinese}
+[Important proper-noun translation format for names, places, terms, rare names, and hard-to-read transliterations] setting = 3
+
+Automatically choose the correct translation prompt:
+- If the matching source-language template already exists, execute doc/public/user_prompt/book_translation_existing_template.md.
+- If the matching source-language template does not exist yet, execute doc/public/user_prompt/book_translation_new_template.md.
+
+Do not ask me to fill technical fields unless rights or source evidence cannot be confirmed. Automatically find a reliable public-domain source, create the book project, complete translation, review, EPUB build, stratified random spot-check, and release.
+During translation, run the per-chapter post-translation full check and fix gate for every chapter. If any issue is found, fix the chapter, but that round cannot PASS; append a new full-chapter recheck until the latest round is a zero-issue PASS.
+After the first EPUB, run stratified random spot-checking and defect-family closure. If any sample exposes a defect, do not fix only that sample. Classify the defect family in the same round, audit the whole book for similar cases, fix confirmed matches, document exceptions, and run a new-seed round. Translation-quality defect families must use `skills/translation-quality-defect-families/SKILL.md`.
+If LifeBook Digest is not explicitly requested, decide automatically: generate it after EPUB output for long novels, specialist books, and philosophy books; skip short stories, natural-science books, and other categories.
+When Digest should be generated, create `digest.config.json` in the book project root with `enabled=true` and `merge_into_epub=true`, then run from the repository root: `python -m digest.lifebook_digest --book-root books/{target}/{number}_{target_language_title}_{target_language_author}`. The output remains a standard EPUB.
+```
+
+The proper-noun format setting is optional; the default is `3`. Values: `1` translate directly into the target language; `2` keep the source form untranslated; `3` first body occurrence as `translation (source)`, then translation; `4` first body occurrence as `translation (source)`, then source form; `5` first body occurrence as `translation (source)` plus an approved note marker, then translation.
+
+If a first EPUB already exists and higher quality is needed, do not ask the AI to "just polish it." Use the two post-EPUB prompts in the how-to-use guide: **Prompt B: Full-chapter recheck and repair** when chapter quality closure is uncertain, then **Prompt C: Stratified random spot-check and defect-family closure** before release.
+
+For non-public-domain books or online HTML/wiki content, use private-use mode for personal translations. The user may provide a local file or identify a lawfully accessible source URL, plus a personal-use declaration. Create the project under ignored `books/private/{target}/{number}_{target_language_title}_{target_language_author}/`. Its content must not be published to GitHub. An owner-only LifeBook online bookshelf may hold the private edition when access control is available; public listing requires separate publication rights.
+
+## AI Clients
+
+This repository is model-neutral. Codex App, Claude Code, OpenCode, aider, Antigravity, or any local-file AI client may be used if it can read the repository, edit files, run commands, and follow `AGENTS.md`.
+
+For the easiest desktop setup, use **LifeBook Launcher**:
+
+- Windows users can currently double-click `tools\lifebook-launcher\LifeBook Launcher Setup.exe`.
+- Release users only need the **LifeBook Launcher** app or installer. The launcher prepares and updates the LifeBook project folder automatically; on Windows the default project folder is `D:\LifeBook`.
+- The source folder in this repository is `tools/lifebook-launcher/source/` for developers and packagers.
+- It keeps the LifeBook project updated automatically, checks/updates OpenCode Desktop, supports LifeBook Launcher self-update, and lets users configure startup launch.
+
+The launcher does not store API keys and does not include OpenCode binaries in this repository. For OpenCode client usage, see the [OpenCode client guide](./doc/project/ai-clients/opencode.zh-CN.md).
+
+## Important Folders For Users
+
+- `.\template\epub_pipeline`: check which source-language and source-to-target templates currently exist. Language-pair folders such as `English-to-Simplified-Chinese`, `Japanese-to-Simplified-Chinese`, and `Ancient-Greek-to-Simplified-Chinese` live here.
+- `.\tools\lifebook-launcher`: LifeBook Launcher client install and launch folder. Users need this path to use the LifeBook project and install OpenCode.
+- `.\doc\public\user_prompt`: public starter prompts. Read or adjust these when the prompt given to an AI client needs review or manual refinement.
+- `.\books\zh-Hans`: the most important output area for Simplified Chinese books. After translation succeeds, open the matching book folder and check `output\release\`; only release artifacts count as publishable results.
+- `.\books\private`: local private-use book projects based on a local file or identified online source. It is ignored by Git and must not be published to GitHub.
+
+## LifeBook Digest
+
+<table align="center">
+  <tr>
+    <td align="center"><h3><a href="./readme/digest/README.en.md">LifeBook Digest Guide</a></h3></td>
+    <td align="center"><h3><a href="./license/DIGEST_LICENSE.en.md">Digest License</a></h3></td>
+  </tr>
+</table>
+
+The LifeBook translation publishing system now includes LifeBook Digest. It helps make long books thinner: after EPUB output, LifeBook Digest can ask an AI agent to extract core content from long-form books. The result is not only a text digest; it also includes chapter topology and knowledge-structure signals so readers can see the book's shape more quickly and approach it from a different reading angle.
+
+LifeBook Digest is currently implemented as an independent LifeBook post-processing module. See the [LifeBook Digest guide](./readme/digest/README.en.md) and [Digest license notes](./license/DIGEST_LICENSE.en.md) for acknowledgements and third-party inspiration notes. License and reuse constraints are governed by the [Digest license notes](./license/DIGEST_LICENSE.en.md).
+
+## Repository Layout
+
+- `AGENTS.md`: mandatory rules for all AI agents.
+- `digest/`: reusable LifeBook Digest post-processing module; each book controls enablement and EPUB merge behavior through `digest.config.json`.
+- `template/epub_pipeline/`: authoritative workflow templates and policies.
+- `template/epub_pipeline/common/`: shared EPUB workflow, scripts, source evidence, rights checks, quality gates, random spot checks, and release rules.
+- `template/epub_pipeline/{language-pair-template}/`: language-pair rules, prompts, glossary guidance, and review rubrics.
+- `template/epub_pipeline/targets/{target}/`: target-language quality rules.
+- `template/epub_pipeline/profiles/{profile-target}/`: optional overlays for special book types.
+- `template/epub_pipeline/modes/private_use/`: private-use overlay copied only for non-public-domain personal-use projects. It contains private cover, frontmatter, artifact, and gate scripts.
+- `books/{target}/{number}_{target_language_title}_{target_language_author}/`: actual book projects. Use readable target-language title and author after the number. Book-specific files belong here.
+- `books/`: shared Node.js tooling; install dependencies once here.
+- `doc/public/`: public instructions, prompt guides, and candidate-book notes.
+- `doc/project/`: project engineering docs, AI-client notes, launcher design, and implementation plans.
+- `research/{language-pair-template}/`: language-pair-specific research artifacts.
+- `.opencode/` and `opencode.jsonc`: thin OpenCode adapter only, not workflow rules.
+- `tools/lifebook-launcher/`: LifeBook Launcher desktop entry; development source lives in `source/`.
+
+## Making A New Book
+
+Use the project creation script instead of copying folders manually:
+
+```powershell
+cd books
+npm run new:book -- "{target_language_title}_{target_language_author}" --source-target {language-pair-template}
+```
+
+The script creates:
+
+```text
+books/{target}/{number}_{target_language_title}_{target_language_author}/
+```
+
+It copies `template/epub_pipeline/common` first, then overlays the matching language-pair template. If a book needs a special profile, overlay the matching `profiles/{profile-target}/` after that. Private-use projects receive one more overlay: `template/epub_pipeline/modes/private_use/`.
+
+Private-use projects must be created explicitly:
+
+```powershell
+cd books
+npm run new:book -- "{target_language_title}_{target_language_author}" --source-target {language-pair-template} --mode private-use --source-url "{https_url_to_html_or_wiki}" --private-use-declaration "Personal use only."
+```
+
+Private mode keeps the translation and QA quality bar. Private covers omit public-domain source claims; private frontmatter uses `参考public-domain-books-translation 开源项目 个人自制` and states personal use and risk responsibility. Private artifacts are written under `output/private_artifacts/` and may be imported into an owner-only LifeBook online bookshelf when that access control is available.
+
+## Core Rules
+
+- Preserve source evidence and rights checks before translation; public projects require public-domain or licensed sources.
+- Non-public-domain personal-use projects must use `private_use` mode and stay under ignored `books/private/`.
+- Private-use projects must carry the `modes/private_use` overlay and must not reuse public-domain cover/frontmatter/release wording.
+- Do not use modern copyrighted translations, pirate sites, or unclear EPUB downloads.
+- Raw AI output is not publishable.
+- Every translated chapter must pass a full post-translation check and fix gate. A just-fixed round cannot PASS; the latest full-chapter recheck must be a zero-issue PASS.
+- Keep concrete book content out of `template/`.
+- Important human-facing template files must include the local language expected by contributors.
+- After the first EPUB, stratified random spot-checking must treat every finding as a possible defect family: audit similar cases across the whole book, fix confirmed matches, close the family, and rerun with a new seed.
+- Translation-quality defect families must be summarized in `skills/translation-quality-defect-families/SKILL.md`, merging reusable lessons instead of appending duplicate notes.
+- Run EPUB validation, reader-facing policy checks, stratified random spot checks, and versioned release gates before final delivery.
+
+## Book Tooling
+
+Install shared dependencies once:
+
+```powershell
+cd books
+npm install
+```
+
+Then run book-local scripts inside a concrete book project, for example:
+
+```powershell
+npm run build:epub
+npm run check:epub
+npm run review:random-samples
+npm run review:random-validate:pass
+npm run release:create
+```
+
+For a private-use project, use the private artifact command after the same build, EPUBCheck, and random spot-check gates:
+
+```powershell
+npm run build:private-epub
+npm run check:epub
+npm run review:random-samples
+npm run review:random-validate:pass
+npm run private:artifact:create
+```
+
+## Contributing
+
+Useful contributions include source research, rights review, translation review, terminology checks, EPUB testing, accessibility/layout feedback, and automation improvements. Small, traceable corrections are preferred over large unreviewable rewrites.
+
+## License And Rights
+
+Each source book requires its own rights check. Public-domain status may vary by country.
+
+Non-code book content produced in this project is released under `CC BY-NC-SA 4.0` by default unless a file says otherwise. Third-party commercial use requires separate permission from LifeBook Shufang and relevant rights holders.
+
+Private-use projects under `books/private/` are not public project content, are not covered by the default public release license, and must not be committed or published to GitHub. A private edition may be stored in an owner-only LifeBook online bookshelf when available. It is for the individual user's personal use; the user bears the risk. The public-domain-books-translation open-source project is for public-domain translation and publication and does not assume copyright risk or liability caused by another person's translation, storage, distribution, or use of non-public-domain content.
+
+See:
+
+- [LICENSE.en.md](./license/LICENSE.en.md)
+- [CONTRIBUTING.en.md](./license/CONTRIBUTING.en.md)
+- [COMMERCIAL_LICENSE.en.md](./license/COMMERCIAL_LICENSE.en.md)

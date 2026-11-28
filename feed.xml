@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
+  <title>OpenCode Plugins</title>
+  <link href="https://opencode-plugins.zhuikan.com/feed.xml" rel="self"/>
+  <link href="https://opencode-plugins.zhuikan.com/"/>
+  <id>https://opencode-plugins.zhuikan.com/feed.xml</id>
+  <updated>2026-11-28T11:10:23Z</updated>
+  <entry>
+    <title>[首登] atqamz/hand +4★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/atqamz__hand"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/atqamz__hand</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Things getting out of hand? You may need second `hand`.</summary>
+  </entry>
+  <entry>
+    <title>[首登] lichdotdev/lich +1★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/lichdotdev__lich"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/lichdotdev__lich</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>A terminal-first ADE for the coding agents you already use: real PTYs, git worktrees, diffs and pull requests in one window</summary>
+  </entry>
+  <entry>
+    <title>[首登] mpsuesser/effect-oxlint +1★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/mpsuesser__effect-oxlint"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/mpsuesser__effect-oxlint</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Write oxlint custom lint rules with Effect v4</summary>
+  </entry>
+  <entry>
+    <title>[首登] tempont/small-opencode-orchestrator +1★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/tempont__small-opencode-orchestrator"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/tempont__small-opencode-orchestrator</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>A lightweight implementation of an orchestrated multi-agent workflow, in which a central coordinator delegates tasks to specialized subagents to optimize token efficiency without compromising code generation quality. OpenCode V2 Compatible.</summary>
+  </entry>
+  <entry>
+    <title>[首登] clubmatto/vetrina</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/clubmatto__vetrina"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/clubmatto__vetrina</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>The AI configuration CLI from Club Matto</summary>
+  </entry>
+  <entry>
+    <title>[首登] @daoninc/opencode-file-explorer</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@daoninc__opencode-file-explorer"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@daoninc__opencode-file-explorer</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Searchable read-only file explorer and preview panel for OpenCode</summary>
+  </entry>
+  <entry>
+    <title>[首登] agync/agent-hub</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/agync__agent-hub"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/agync__agent-hub</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Agent Hub for OpenCode: registers the hub MCP server, binds a session, injects pending items and survives compaction.</summary>
+  </entry>
+  <entry>
+    <title>[首登] atlaso-labs/opencode</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/atlaso-labs__opencode"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/atlaso-labs__opencode</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Long-term memory for OpenCode. Recalls what you&#x27;ve decided and remembers what matters, across sessions, projects, and tools. A pure-TypeScript OpenCode plugin (no engine; HTTP to the Atlaso brain only).</summary>
+  </entry>
+  <entry>
+    <title>[首登] devenius/junamis-skills</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/devenius__junamis-skills"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/devenius__junamis-skills</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Install and manage Agent Skills (SKILL.md workflows) for any AI coding agent. Pins third-party skills by manifest and copies them into each agent&#x27;s global skills directory.</summary>
+  </entry>
+  <entry>
+    <title>[日增] vtemian/octto +530★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/vtemian__octto"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/vtemian__octto</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>OpenCode plugin that turns rough ideas into designs through branch-based exploration</summary>
+  </entry>
+  <entry>
+    <title>[日增] getpaseo/paseo +312★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/getpaseo__paseo</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Orchestrate multiple coding agents from desktop and mobile</summary>
+  </entry>
+  <entry>
+    <title>[日增] guillaumemeyer/watermarks-remover +134★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/guillaumemeyer__watermarks-remover"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/guillaumemeyer__watermarks-remover</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>A privacy-first app that strips AI watermarks from content you own.</summary>
+  </entry>
+  <entry>
+    <title>[日增] paradevai/paradev +122★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/paradevai__paradev"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/paradevai__paradev</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Paradev is an open-source Codex App and Conductor alternative. Orchestrate an army coding agents in parallel with your own subscriptions.</summary>
+  </entry>
+  <entry>
+    <title>[日增] agent-of-empires/agent-of-empires +88★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/agent-of-empires__agent-of-empires"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/agent-of-empires__agent-of-empires</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Manage multiple Claude Code, OpenCode agents from either TUI or Web for easy access on mobile. Also supports Mistral Vibe, Codex CLI, Gemini CLI, Pi.dev, Copilot CLI, Factory Droid Coding.</summary>
+  </entry>
+  <entry>
+    <title>[日增] @openviking/opencode-plugin +76★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@openviking__opencode-plugin"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@openviking__opencode-plugin</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Unified OpenCode plugin for OpenViking repository retrieval and long-term memory</summary>
+  </entry>
+  <entry>
+    <title>[日增] jazzenchen/agent-hud-open +53★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/jazzenchen__agent-hud-open</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>A HUD for Claude Code, Codex and 16 more coding agents. Know your quotas, tokens and sessions at a glance, answer requests and jump back in one click. On your screen, phone and watch.</summary>
+  </entry>
+  <entry>
+    <title>[日增] beppe2880/opencode-mobile +53★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/beppe2880__opencode-mobile"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/beppe2880__opencode-mobile</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Unofficial native Android client for OpenCode V2</summary>
+  </entry>
+  <entry>
+    <title>[日增] deusdata/codebase-memory-mcp +49★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/deusdata__codebase-memory-mcp</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Local code intelligence for developers and AI agents. Connect code, docs and infrastructure in a persistent graph, with CBM Lens, MCP tools, agent integrations and change-aware test selection.</summary>
+  </entry>
+  <entry>
+    <title>[日增] spacering-net/codeg +49★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/spacering-net__codeg"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/spacering-net__codeg</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Collaborative multi-agent AI coding workspace: aggregate sessions from Claude Code, Codex, OpenCode, Pi, Grok Build, etc. Desktop app, self-hosted server, or Docker.</summary>
+  </entry>
+  <entry>
+    <title>[日增] michael-denyer/pstack-claude +47★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/michael-denyer__pstack-claude"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/michael-denyer__pstack-claude</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Claude Code, Codex, Copilot, Pi, OpenCode, Muse, Gemini, and Prime Agent versions of Poteto&#x27;s pstack. Rigorous agent workflows with Cursor primitives translated for other harnesses.</summary>
+  </entry>
+  <entry>
+    <title>[日增] @rizal72/oc-tps-meter +42★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/@rizal72__oc-tps-meter"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/@rizal72__oc-tps-meter</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Tokens per second for every closed step of an OpenCode v2 session: a histogram in the desktop side panel, with the median, the peak, TTFT and the token totals</summary>
+  </entry>
+  <entry>
+    <title>[日增] awslabs/cli-agent-orchestrator +35★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/awslabs__cli-agent-orchestrator"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/awslabs__cli-agent-orchestrator</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Multi-agent orchestration for AI coding CLIs — Claude Code, Kiro, Codex, and more, coordinated in isolated tmux sessions</summary>
+  </entry>
+  <entry>
+    <title>[日增] tencentcloud/octop-memory +34★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/tencentcloud__octop-memory"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/tencentcloud__octop-memory</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Help your agent remember what matters. Keep preferences, carry context across sessions, and bring your memory to the next agent.</summary>
+  </entry>
+  <entry>
+    <title>[日增] 0xnyk/council-of-high-intelligence +33★</title>
+    <link href="https://opencode-plugins.zhuikan.com/repos/0xnyk__council-of-high-intelligence"/>
+    <id>https://opencode-plugins.zhuikan.com/repos/0xnyk__council-of-high-intelligence</id>
+    <updated>2026-11-28T11:10:23Z</updated>
+    <summary>Structured multi-perspective deliberation for hard decisions. Run full councils, focused triads, or duo debates across Claude Code, Codex, Gemini CLI, and OpenCode.</summary>
+  </entry>
+</feed>

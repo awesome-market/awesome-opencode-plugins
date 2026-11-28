@@ -1,0 +1,262 @@
+# Flow Plugin for OpenCode v2
+
+`opencode-plugin-flow` requires OpenCode 2.1.4. Later 2.x releases are supported
+after passing the compatibility check. OpenCode 1.x is unsupported.
+
+Flow gives OpenCode a durable workflow for coding work that
+benefits from an approved plan and an independent review:
+
+```text
+plan → approve → run one feature → validate → review → repeat or close
+```
+
+Flow keeps one durable active feature run. Its goal stays active until completed,
+deferred, or abandoned closure. Flow never silently resumes ordinary coding or
+adds a materially different request to that goal.
+
+State lives in `.flow/session.json`, so the workflow survives a restart, a
+context change, or a lost transcript.
+
+Flow is in preview. Its planning and review cost is worthwhile when a wrong
+change is expensive and you read the review.
+
+## When not to use Flow
+
+- **Small changes.** A one-file fix or a rename pays for a plan, a validation, a
+  review, and a close that it did not need.
+- **Exploration.** Approval locks the plan, and a materially different request will
+  not be folded into the active goal.
+- **Speed above all.** A serial lifecycle with an independent review is slower than
+  asking directly, deliberately.
+- **Trusting the verdict without reading it.** The review is a model judgment, not
+  a proof. [What Flow guarantees](docs/guarantees.md) separates the rules the
+  runtime enforces from the ones that are judgment.
+- **Parallel features, several repositories, or team orchestration.** Flow runs one
+  durable feature at a time in one project.
+
+[Positioning](docs/positioning.md) has the longer version.
+
+## Install
+
+Install OpenCode v2 and the exact Flow release:
+
+```sh
+npm install -g @opencode/cli@2.1.4
+opencode2 --version
+opencode2 plugin add opencode-plugin-flow@10.0.4
+```
+
+`opencode2 --version` must report `opencode v2.1.4` or a later tested 2.x version.
+Use `opencode2` to avoid an older `opencode` on PATH. The install is global;
+start inside a project:
+
+```sh
+cd /path/to/your/project
+opencode2
+```
+
+Flow keeps state in `<project>/.flow/` and refuses the home directory itself.
+Exact pins stay fixed. Flow uses HTTP transport for provider, model, and variant
+settings to observe continuation and validation.
+
+For project scope, add this entry to the project's `opencode.json`:
+
+```json
+{
+  "plugins": ["opencode-plugin-flow@10.0.4"]
+}
+```
+
+Install Flow once. Its server package loads the terminal picker automatically.
+`/flow-models` selects planning and review without a model call. Finish active
+work before saving. Project preferences take precedence over global choices.
+
+Planning defaults to the manager. A selected read-only specialist drafts advice.
+The manager checks and saves the plan, shows the model handoff, and owns approval
+and implementation. `/models` selects the coding model.
+
+Set plugin defaults:
+
+```json
+{
+  "plugins": [{
+    "package": "opencode-plugin-flow@10.0.4",
+    "options": {
+      "reviewer": { "model": "provider/model", "steps": 80 },
+      "typesafeApiKeyEnv": "MY_TYPESAFE_KEY"
+    }
+  }]
+}
+```
+
+Global picker choices override reviewer defaults. Project `modelPreferences`
+options override global choices. Choosing Use default restores the role's
+configured behavior. Otherwise reviewer options override
+`OPENCODE_FLOW_REVIEWER_MODEL`, `OPENCODE_FLOW_REVIEWER_STEPS`, and
+`OPENCODE_FLOW_REVIEWER_VARIANT`. `reviewer.variant` requires an explicit model.
+An explicit picker selection uses that model's default reasoning.
+`/flow-status` shows requested settings. Successful review confirms availability.
+
+[OpenCode v2](https://opencode.ai/v2/docs/plugins/) owns installation and
+configuration. Restart after manual changes. Remove the plugin entry to disable
+Flow. Duplicate copies fail closed until one remains.
+
+**Changing versions.** Finish or explicitly close any active session first, in
+either direction. Flow opens only Session v5 active state, and an older build
+cannot be trusted to read state a newer one has already written. Older archives
+remain inert history, and there is no migration or rollback layer.
+
+## Quick start
+
+For a clean installation and reviewer-configuration check, follow the
+[quickstart](docs/quickstart.md).
+
+```text
+/flow-auto add rate limiting to the public API
+```
+
+`/flow-auto` is the ordinary end-to-end driver. It inspects the worktree,
+proposes a feature plan, and asks for approval unless your request already
+authorized implementation. It then runs one feature at a time — implement,
+validate against the real workspace, obtain an independent review — and keeps
+going through every runnable feature without handing back between them, until it
+can close the session.
+
+Automatic continuation binds each assistant's tools to the inputs its model
+request consumed. Unattributed tools are refused. Interruption, source drift, or
+conflicting input stops the affected lease. A stale unmatched callback cannot
+stop a fresh invocation. Run `/flow-status` to inspect the pause,
+then use `/flow-run` manually or `/flow-auto` within the existing approved scope.
+
+Send `/flow-auto stop` or `/flow-auto cancel` in the same OpenCode session to
+revoke only the in-process continuation. That does not close, defer, abandon, or
+otherwise change the durable Flow session.
+
+Before any Flow mutation, Flow compares your request against the active goal. A
+continuation or a compatible narrowing proceeds. A materially new or expanded
+request does not start or mutate the active session: Flow offers to continue,
+defer, or abandon the active work first, and closes work that is already
+complete before starting something new.
+
+To plan without implementing:
+
+```text
+/flow-plan add rate limiting to the public API
+```
+
+Review the plan and approve it conversationally. `/flow-plan` never grants
+permission to implement, commit, push, or publish. After approval, `/flow-run`
+executes or recovers one approved feature. Repeating the same plan-only request
+reports the immutable plan and current progress instead of rewriting it.
+
+`/flow-status` reports durable state and the next action at any point. That next
+action is the default workflow direction, not permission to exceed the authority
+you granted.
+
+## How Flow works
+
+1. Approval locks a small feature DAG, the canonical gate, and any declared
+   pass or observe checks.
+2. One feature starts, chosen only from those whose dependencies are complete.
+3. Flow pins the feature's source before edits. The manager gathers evidence
+   and checks failure ordering, retries, interruptions, state transitions,
+   invariants, file modes, and platform risks.
+4. The manager implements the feature, serially or by integrating a bounded
+   worker wave.
+5. Flow binds each armed command to current source and its approved intent.
+   Required checks must pass; declared observations may fail but stay visible.
+   Before review, Flow prepares a bounded diff. Reviewers page through it
+   without shell access. New failures, source drift, or missing packets stop
+   assignment without counting a failed review.
+6. A passing review advances the plan. A failed feature needs an explicit retry
+   or independent-feature choice. Closure returns a short delivery summary
+   and the full versioned report in the same response. Both retain assurance
+   limits. Closure grants no PR, merge, publish, or release authority.
+
+Failed reviews retain finding ids; dropped live findings fail.
+`flow_plan_amend` records a same-goal reversible gate repair before review,
+without an amendment count limit. The plan stays fixed; passing evidence and
+review still apply.
+
+## Bounded parallelism
+
+Parallel work is optional and confined to one active feature. The manager may
+launch two or three `flow-worker` instances for exact, non-overlapping slices,
+then inspect and integrate the result, with at most one follow-up wave for a
+concrete gap. Once implementation is authorized, a qualifying wave needs no
+separate approval.
+
+Reserved roles are `flow-planner` for optional advice, `flow-worker` for
+implementation, and `flow-reviewer` for review. Planners and workers cannot
+approve work. The manager owns combined validation and review. No wave state
+is persisted. Small or integration-heavy features stay serial.
+
+## Commands
+
+| Command | Purpose |
+| --- | --- |
+| `/flow-auto <goal>` | Normal end-to-end driver. Stops after planning without implementation authority; otherwise loops through every runnable feature and closure. |
+| `/flow-plan <goal>` | Plan-only creation, revision, and approval. |
+| `/flow-run` | Advanced/recovery execution of one approved feature. |
+| `/flow-review` | Internal/recovery dispatch for a runtime-created reviewer assignment. |
+| `/flow-status` | Advanced/recovery inspection of the active session and next action. |
+
+Use `/flow-auto` for ordinary work. The rest expose plan-only, advanced,
+internal, or recovery controls.
+
+## Recovery
+
+Start with `/flow-status`. After a failed review, read detail once to see the
+findings a retry must fix, then pass the exact retry or independent-feature
+choice so that reset and the next run are one operation rather than relying on
+default selection.
+
+If an accepted close was interrupted, compact status supplies
+`archiveRetry.request`; replay it exactly once, before any other recovery read.
+Never close a replacement session, and never hand-edit `.flow/session.json` to
+get past a gate. For a validation, review, locking, fingerprinting, or archive
+failure, follow [troubleshooting](docs/troubleshooting.md).
+
+## Development
+
+Requirements: Git, Node.js 24 or newer, Bun 1.4.0, and the versions pinned in
+`package.json`.
+
+```bash
+bun install --frozen-lockfile
+bun run check
+```
+
+`bun run check` checks types, lint, builds, tests, and packages. Release CI tests
+that package in OpenCode.
+
+[Documentation](docs/index.md) includes [development](docs/development.md),
+[troubleshooting](docs/troubleshooting.md), [runtime contracts](docs/maintainer-contract.md),
+and [bounded waves](docs/adr/0006-bounded-intra-feature-waves.md).
+
+## Recovery advice development preview
+
+With a key, `/flow-auto` defaults to shadow advice, six attempts and $0.02.
+`options.typesafeApiKeyEnv` names the server variable (default `TYPESAFE_API_KEY`).
+Never put the key in options. Custom names never fall back. Missing/blank keys,
+invalid names and `--recovery=off` disable advice. Restart the server after
+environment changes if needed.
+
+```text
+/flow-auto --recovery=shadow --recovery-calls=6 --recovery-usd=0.02 <goal>
+```
+
+Shadow sends bounded goal, finding and remedy packets to TypeSafe. It grants no
+mutation authority. Bare `flow_status` never calls Jev. Retries count as attempts.
+`/flow-auto stop` cancels auto and advice. Advice expires after one hour; retry limits last
+until invocation ends. Neither survives restart.
+
+`recoveryStatus.last` exposes process-local timing, reservations, and decision
+checks. See [telemetry semantics](docs/maintainer-contract.md#opencode-surface).
+
+Delegation needs release qualification. Tests prove mechanics, not decision quality.
+See [ADR 0016](docs/adr/0016-delegated-recovery.md).
+
+## License
+
+MIT

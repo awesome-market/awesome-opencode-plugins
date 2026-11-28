@@ -1,0 +1,457 @@
+# unmark
+
+**[maxgfr.github.io/unmark](https://maxgfr.github.io/unmark/)** — find, decode and
+remove watermarks and provenance marks, in your browser or from your terminal.
+
+Invisible characters in text. Metadata in files. Watermarks drawn into images.
+Every mark is named, located and graded before anything is stripped, and what
+cannot be removed is stated on the screen that does the removing. Located
+literally: click a finding and the cursor lands on the character it found, in a
+view that draws the invisible ones so there is something to look at.
+
+```bash
+npx skills add maxgfr/unmark    # the same engine, as an agent skill and a CLI
+```
+
+## Why
+
+Several good open-source projects each solve part of this, and none runs in a
+browser: [`watermarks-remover`](https://github.com/guillaumemeyer/watermarks-remover)
+covers text Unicode hygiene and container metadata in Python,
+[`watermark-removal`](https://github.com/zuruoke/watermark-removal) covers visible
+image watermarks with TensorFlow and a GPU, and
+[`unslop`](https://github.com/theclaymethod/unslop) is the sharpest thing written
+on detecting generated prose — its three-layer split and its eval contract are
+both borrowed here, with credit. All of them ask you to install a toolchain
+before you can check whether a paragraph you were sent has a zero-width character
+in it.
+
+Every hosted alternative is a single **upload → magic → download** button that asks
+to be trusted with your file. unmark inverts that: nothing is uploaded, and nothing
+is removed before you have seen what it is.
+
+## What it does
+
+**Text.** Invisible Unicode carriers — zero-width characters, bidi overrides, tag
+characters, variation selectors, exotic spaces, homoglyphs — found, classified and
+stripped. And **decoded**: those carriers usually spell something, and deleting them
+without reading them throws away the only evidence of who marked the text.
+
+Six encoding schemes are read, covering the families named in the [Unicode
+watermarking survey](https://arxiv.org/html/2512.13325):
+
+| Scheme                  | How it hides                                                 | Named methods                 |
+| ----------------------- | ------------------------------------------------------------ | ----------------------------- |
+| zero-width              | ZWSP/ZWNJ/ZWJ/WJ as a binary or base-4 alphabet              | AITSteg, CovertSYS, StegCloak |
+| tag characters          | U+E0020–E007F, one per ASCII character                       | —                             |
+| variation selectors     | VS1–VS256, one byte each                                     | VariantMark                   |
+| **space choice**        | U+0020 against U+2004 or U+3000 — no extra characters at all | Innamark, UniSpaCh, WhiteMark |
+| **trailing whitespace** | tabs and spaces parked past each line end                    | SNOW, Shiu                    |
+| **confusable letters**  | Latin `a` against Cyrillic `а`                               | LookALikes, Rizzo             |
+
+The last three carry their payload in entirely ordinary characters, so a check that
+hunts for invisible codepoints walks straight past them. unmark also measures
+**periodicity** — "every third space is a three-per-em" is a pattern, not typing,
+and a periodic substitution is reported `confirmed` where a lone one is not.
+
+A deterministic stylometry report flags the habits of generated prose and never
+rewrites anything. Seventeen metrics in three layers, following unslop's split,
+because _which kind_ of tell fired is more useful than how many did:
+
+| Layer          | Reads                                                                                                                                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **phrase**     | marker vocabulary, business jargon, attribution with nobody behind it                                                                                                                          |
+| **structure**  | **dashes per paragraph**, sentence-length and paragraph-length spread, signpost density, rule of three, negative parallelism, staccato runs, false ranges, copula avoidance, aphorism formulas |
+| **silhouette** | a closing paragraph that recaps the ones above it, headings that would fit any subject, paragraphs built to one internal template                                                              |
+
+The silhouette layer is the one that survives a word-level rewrite, which is why
+it is worth more than another vocabulary list. Dashes are counted per paragraph
+as well as per document, because a rate across three thousand words hides the one
+paragraph with four of them in it.
+
+It cannot return a `confirmed` verdict, and it refuses to measure below 120 words,
+because one em dash in twelve words is eighty-three per thousand and that is a
+division, not a signal. Co-occurrence is counted over distinct _signals_ rather
+than metrics: three metrics reading the same em dashes are one habit, and letting
+each vote would manufacture a pattern out of a single character.
+
+### Authorship assessment
+
+`unmark detect`, and the **Authorship** section of the page, answer "does this
+read as AI-written?" for **French and English**, and point at every passage
+behind the answer: line, excerpt, pattern, reason, and what a writer would do
+instead. It is an assessment of habits, **never proof**, and every report says
+so on the same screen as its verdict.
+
+| Verdict                 | Says                                        | When                                                                                                                          |
+| ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `likely_ai`             | Likely AI-written                           | several independent habits agree, past the fitted threshold                                                                   |
+| `uncertain`             | Uncertain: not enough to call it either way | mixed signals, or one strong habit alone; "No AI-writing signal found" when a guard holds back a text where nothing was found |
+| `likely_human`          | Few AI-writing signals found                | never "written by a person" — absence of tells is not a signature                                                             |
+| `insufficient_evidence` | Not enough text to assess                   | under 150 words of prose, or mostly another language                                                                          |
+
+What it reads, one habit per signal so nothing votes twice: tiered French and
+English catalogues (a tier-2 phrase like _notamment_ counts only when a second
+one shares its paragraph, because formal French is full of them), sentence
+structure (_que vous soyez X ou Y_, _it's not just X, it's Y_), **word
+variation** — generated prose cycles synonyms where people repeat their own
+word — document shape, chat residue (_J'espère que cela vous aide_,
+`[Your Name]`), and the technical marks above. Code, quotations and
+blockquotes are left out: quoting a chatbot is not writing like one.
+
+**Measured, not promised.** Weights and thresholds were fitted on a train split
+and measured on a held-out test split of 420 real documents, split by subject
+so a generated twin is never tested on what its original taught the fit: a
+committed corpus of dated human text (service-public, HAL, Wikipedia,
+Wikinews, Wikisource, Federal Register, Gutenberg — all before November 2022)
+with a generated twin of each from four Claude models, plus the
+[binoculars-eu](https://github.com/linagora/binoculars-eu) French corpus with
+GPT-4o, Luciole and Claude outputs.
+
+| Test split                                         | Result                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Ranking: AUROC, human vs generated                 | **0.76** (95 % CI 0.71–0.81)                                                               |
+| Ranking: generated texts above 1 % false positives | 39 % (95 % CI 27–46 %)                                                                     |
+| Verdict: human texts called `likely_ai`            | **0 of 142** (French administrative and academic: 0 of 3 each — too few to certify a rate) |
+| Verdict: generated texts called `likely_ai`        | 3 of 220 — 170 were too short to judge, 47 `uncertain`                                     |
+| Verdict: human texts called "few signals"          | 0 of 142 — see below                                                                       |
+| Humanizer-tool output                              | AUROC 0.51 — **not detected**                                                              |
+
+Full numbers, per stratum and with the fitted weights:
+[`docs/authorship-eval-2026-09-30.md`](docs/authorship-eval-2026-09-30.md).
+Reproduce with `node scripts/fetch-authorship-corpus.mjs` then
+`node --experimental-strip-types scripts/eval-authorship.mjs`.
+
+Read those numbers for what they are. The ranking separates real human from
+generated text better than chance, and the verdict is built never to accuse:
+it said `likely_ai` about no human text, and about almost no generated one
+either. More than 5 % of generated texts carry no tell at all, and the
+threshold rule refuses to call "few signals" anything a generated text could
+also score — so on this calibration the honest answer for nearly everything is
+`uncertain`, with the passages located. Most short generated texts get
+`insufficient_evidence`; a humanizer defeats it outright. A model-based signal
+is the next step, and the verdict already takes one in (`external`). Topic,
+formal register, a second-language writer's phrasing and clean spelling are
+not evidence, and the report lists them. It is a reading aid for your own
+draft or for an editor deciding where to look — not grounds for a sanction.
+
+**Making text read less like a machine wrote it** is a separate, opt-in pass,
+following [Wikipedia's _Signs of AI writing_](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing).
+That catalogue splits in two, and the split is the whole design:
+
+- **One right answer → fixed.** Em and en dashes, curly quotes and ellipses to
+  ASCII. Filler (`in order to` → `to`, `has the ability to` → `can`), stacked
+  hedges, chat pleasantries, signposting, cutoff disclaimers, decorative emoji on
+  headings and bullets.
+- **Needs a rewrite → reported, never guessed at.** Rule-of-three cadence,
+  promotional tone, passive voice, the word _delve_. There is no correct
+  substitution for _delve_; rewriting the sentence is the fix, and that takes a
+  writer. A tool that guessed would produce mangled prose and call it humanised.
+
+French guillemets and the apostrophe in _l'été_ are left alone — straightening
+those damages real text for nothing.
+
+Neither pass removes a statistical watermark. Both are off by default in the
+core and CLI. The page includes them in Clean text, with Advanced options to
+disable either pass. Inspection reports proposed changes without editing the source.
+
+**Files.** Provenance metadata across seventeen formats: PNG, JPEG, WebP, GIF,
+HEIC, AVIF, MP4/MOV, SVG, PDF, DOCX, PPTX, XLSX, ODT, EPUB, HTML, Markdown and
+plain text. C2PA manifests, EXIF, XMP, IPTC,
+document properties, generator tags. Removal only — dropping a PNG chunk leaves
+every other chunk's CRC valid, and JPEG's scan is copied verbatim, so the pixels
+of two real camera JPEGs come out byte-identical after their EXIF and XMP are
+stripped.
+
+Including the places the format specs make easy to miss:
+
+| Where                                            | Why it matters                                                                                                                                                                       |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| JPEG **APP2 = MPF**                              | Either an ICC profile or an MPF block, told apart only by an identifier. MPF can hold **an entire second photograph**.                                                               |
+| **ICC profile**                                  | Kept, since removing it changes rendering — but reported: it survives an EXIF strip and names the software. Facebook stamps its own with `Copyright: FB`.                            |
+| DOCX **tracked changes, comments, `people.xml`** | Author names and timestamps on every edit, and a list of everyone who ever opened it. Accepting all changes removes none of it.                                                      |
+| DOCX **`docProps/thumbnail.jpeg`**               | A rendered picture of the first page. No text-level clean touches it.                                                                                                                |
+| DOCX **RSIDs**                                   | Revision save ids that fingerprint editing sessions and link documents to one machine.                                                                                               |
+| PDF **incremental saves**                        | Every earlier draft is still in the file, including text under a black rectangle someone called a redaction. **Removed** — the rebuild writes only the live object graph.            |
+| DOCX **`word/media/*`**                          | A photograph pasted into a document keeps its own EXIF, GPS included. Every XML-reading pass walks straight past it, so the file could be reported clean while carrying coordinates. |
+| MOV **`©xyz`, and the `keys` table**             | The location atom, plus the metadata iPhones actually write — tags named by index into a table rather than by four-character code, which a handler that only knows 4ccs never sees.  |
+
+**Images.** A corner scan finds flat semi-transparent overlays and snaps to their
+real edges, then **unblends** them: a composited badge is an invertible transform of
+the picture, not a hole in it, so the original pixels come back exactly rather than
+being guessed at. Where that does not apply there is Telea inpainting, and an
+opt-in MI-GAN pass for content a boundary cannot imply. Plus signal disruption —
+low-bit scrub, Lanczos resample, micro-crop, JPEG requantise, noise — for marks
+encoded in the exact pixel values.
+
+**Looking outside the corners.** _Scan the whole image_ adds bands across the
+frame, marks in the middle, and shaped glyphs as well as flat rectangles, then
+removes every region you tick as one operation and one undo step. It is a button
+rather than part of opening a file, and the panel says why: over the full frame
+this measurement cannot tell an overlay from a genuinely smooth part of the
+picture. A patch of sky reads as a strongly opaque region — measurably more
+confidently than some real marks do. The corner pass stays automatic precisely
+because searching only where badges actually are is what lets it find nothing at
+all in a photograph that carries nothing. `src/image/detect/scan.test.ts` holds
+both numbers.
+
+**Downloads.** The image tab offers the original file with its metadata stripped
+and nothing else touched — no re-encode, same pixels byte for byte — for as long
+as the pixels are untouched, which is the whole of the commonest job. Once they
+are not, you choose PNG, JPEG or WebP with a quality slider, and the size shown
+is the size of a blob that was actually encoded, with the lossless figure beside
+it for comparison. It used to re-encode to PNG whatever went in, which turns a
+3 MB photograph into 20 MB. Formats are probed rather than assumed: `convertToBlob`
+answers a request it cannot satisfy with a PNG rather than an error, so WebKit is
+offered PNG and JPEG only instead of handing back a PNG named `.webp`.
+
+## What leaves your device
+
+Nothing. Not "nothing important" — nothing.
+
+The page is static, all processing happens in your browser, and the
+Content-Security-Policy pins `connect-src` to `'self'` and nothing else. Every
+asset is served from this site, down to the 28 MB inpainting model and the 13 MB
+WebAssembly runtime, so the browser will refuse a request to any other origin —
+including one made by a dependency that decides to phone home.
+
+`pnpm check:network` turns that into a build gate. It walks the built bundle and
+fails on any external origin, any runtime network API, and any drift between the
+shipped CSP and the policy [`scripts/csp.mjs`](scripts/csp.mjs) declares. CI and
+the deploy workflow both run it, so a regression breaks the build instead of
+shipping.
+
+The text tab has one primary action: **Clean text**. It removes supported marks
+and applies the typography and wording passes, leaving the original unchanged.
+**Advanced options** controls those passes; **Inspection details** keeps the full
+report available without making it the first thing a visitor must read.
+
+**Deep clean** adds an optional local rewrite with WebLLM and Qwen3.5 0.8B (4-bit/f16).
+The first use downloads about 443 MB of model files plus the worker runtime,
+all from this site. The files are cached; inference uses WebGPU with shader-f16 in a worker.
+**Advanced options → Local AI model** shows the model, its download size and file
+count, the runtime, whether this device can run it, what is downloaded and what
+is in memory, and lets you download it ahead of time, release it from memory or
+delete the cached files.
+Unsupported browsers, cancelled jobs and rejected rewrites retain the basic
+cleaning result. No model is downloaded for basic cleaning.
+The page uses a concise prompt tailored to the small model, while sharing the
+content checks with the terminal. Rejected candidates now name the failed checks.
+Language checks reject detected translations while excluding protected quotes and code.
+Short or ambiguous text may not provide enough evidence to detect a language change.
+A document longer than about 180 words is cut into sections at its paragraph
+boundaries, rewritten one section at a time and joined back together — the
+model stops returning a whole passage past roughly 250 words, and one long
+document used to fail entirely where each of its paragraphs would have
+succeeded. A section that fails keeps its own text, so one stubborn paragraph
+costs that paragraph rather than the document.
+Between four and twelve words, a rewrite must also keep at least half of the source's
+words, with case and accents folded so a repaired accent still counts as the same
+word. A short line the detector misreads would otherwise let a translation through:
+read as the same wrong language on both sides, it passed the language gate.
+This 0.8B model is a lightweight local option, with limited rewriting quality;
+passing the checks does not guarantee that the meaning is unchanged.
+See the [model choice, memory measurements and regression results](docs/model-selection.md).
+
+Choose **Ultra** under **Advanced options → Cleaning mode** for the automatic
+preset: supported-mark removal, typography and wording simplification, a local
+rewrite with up to three attempts, and another cleanup before each candidate's
+content checks. Failed checks keep the cleaned source. Ultra keeps destructive
+joiner removal and multilingual lookalike conversion off, and restores your
+custom settings when you switch back. It uses the same model and short-passage
+limits as Deep; review the meaning before sharing.
+
+To check Ultra against a real WebGPU device, run
+`UNMARK_HEADED=1 UNMARK_MODE=ultra node scripts/smoke-text-model.mjs` after fetching
+assets and building. This verifies cold, cached and offline runs, including the
+short French regression `bonjour c cool`.
+
+`pnpm check:imports` follows the import graph from the page's entry point and
+fails if it can reach `src/cli`, so the boundary is a build gate rather than a
+convention one careless import away from being untrue.
+
+## What it does not remove
+
+Stated here and in the interface, not buried:
+
+- **Robust pixel watermarks** — SynthID, Tree-Ring, StableSignature, StegaStamp.
+  They are designed to survive re-encoding, resizing, cropping and inpainting.
+  Nothing here removes them.
+- **Statistical text watermarks** — the SynthID-Text family lives in word choice,
+  not in characters. A clean report does not mean unwatermarked text. Neither
+  cleaning nor rewriting guarantees removal. No Claude or Gemini detector is
+  used; the optional lab measures a public test key only.
+- **Encrypted PDFs.** Nothing is read, so nothing is reported. This used to be
+  the most dangerous bug in the project: encrypted strings do not match the byte
+  pass's patterns, so an encrypted PDF came out reported **clean**.
+- **Signed PDFs**, unless you force it. Any edit voids the signature, and the
+  tool says so rather than quietly breaking one.
+
+It is not certified to defeat any vendor's detector, and it never claims to be.
+
+## From the terminal
+
+```bash
+npx skills add maxgfr/unmark
+
+unmark inspect suspicious.txt     # report every mark, change nothing
+unmark decode  suspicious.txt     # recover what the invisible characters spell
+unmark clean   suspicious.txt --in-place
+unmark audit   ./docs             # walk a tree, list what is marked
+unmark detect  essay.md           # does it read as AI-written, and where — not proof
+unmark detect  thesis.docx --pages thesis.pdf   # body text only, passages by page and section
+unmark sweep   thesis.docx --pages thesis.pdf --format md   # every sentence with a habit: current text → replace with
+
+# The opt-in style passes
+unmark clean draft.md --typography   # em dashes, curly quotes, ellipses → ASCII
+unmark clean draft.md --humanise     # filler, pleasantries, signposting, decorative emoji
+unmark clean draft.md --plain        # both at once
+```
+
+Zero dependencies — one file, no install step. Exit codes compose: `inspect`
+returns 1 when something `confirmed` is present, `audit` returns 1 when a tree is
+dirty, `detect` returns 1 on `likely_ai`, 3 when it abstains and 2 on a bad
+flag or a file with no prose (`--format text|md|json`, `--lang fr|en|auto`,
+`--min-score 0..1`, `--pages <pdf>`, `--source <docx|pdf>`, `--top <n>`,
+`--register academic`). `sweep` lists every sentence carrying a habit, however
+isolated, quoted and checked against the source, with a rewrite that must keep
+its numbers and reference calls (`--print-prompt` / `--apply` for an agent's
+rewrites, `--rewrite` for the local model). The skill bundle is attached to
+every release as `unmark.mjs`. The CLI and the page run the **same core**, built twice from one source, so
+they cannot disagree about the same character.
+
+## Crossing the deterministic ceiling
+
+Everything above is a regex, and a regex cannot reach word choice or the shape of
+an argument. That takes a model — and the dangerous version of "use a model" is
+to hand it the document, ask for something more human, and ship what comes back.
+That trades one machine's prose for another's, quietly drops a figure, and
+reports success.
+
+So the model is bracketed rather than trusted:
+
+```bash
+unmark brief   draft.md                     # what to fix, and what must survive
+unmark verify  new.md --against draft.md    # did it clear the gates, or only read better
+unmark rewrite draft.md                     # the loop, driven for you
+```
+
+`verify` re-runs all three detection layers on the rewrite and **rejects** it when
+a phrase pattern persists or a structural metric worsens, when an extracted
+number, date, link or quotation is added or lost, or when protected code changes.
+Signed numbers and repeated blocks are checked. Name extraction is heuristic.
+These checks cannot establish complete semantic equivalence. Each failure is named, so the next attempt is aimed rather
+than another roll of the dice. Exit 1, so it composes.
+
+**Where rewriting happens:**
+
+| Surface   | Where the model runs                                                        |
+| --------- | --------------------------------------------------------------------------- |
+| the page  | WebLLM on your device, opt-in; all assets remain same-origin                |
+| the skill | you are the model — no key, no request from our code                        |
+| the CLI   | `127.0.0.1` by default. `--model <id>` for a provider, priced first, opt-in |
+
+`--print-prompt` emits the prompt and contacts nothing at all. On the remote path,
+[`llm-models`](https://github.com/maxgfr/llm-models) resolves the model, checks
+the document fits its context, and prints the cost **before** it is spent — but
+it is spawned as a process, never imported, so "one file, no install step" still
+holds and it degrades to a note when it is absent.
+
+## Small SynthID lab
+
+```bash
+uv run --locked scripts/synthid-lab/run.py
+# Optional quick smoke: add --samples 1
+```
+
+Requires uv and Node 22.18+ (the bridge reads the same TypeScript core as the app).
+The script pins Python dependencies, a public Qwen2.5 0.5B model revision and test
+keys. Ten paired generations compare unmarked text, marked text, a wrong key,
+basic cleaning, style cleaning and attempted rewrites. It runs on CPU and writes
+`.cache/synthid-report/report.md` and `report.json`. The initial model download is
+about 1 GB. Subsequent runs reuse the local model cache.
+
+Scores are mean g-values, not calibrated probabilities. Rejected or truncated
+rewrites are recorded as failures, even when their watermark score falls. This
+small experiment is not evidence about Claude, Gemini, or the quantised WebLLM
+model. See [Anthropic's explanation](https://www.anthropic.com/news/claude-text-watermark)
+and [the SynthID reference](https://github.com/google-deepmind/synthid-text).
+The [first recorded run](docs/synthid-lab-2026-09-10.md) reports all ten rejected
+rewrites alongside the measured scores; it does not count score reduction as success.
+
+## Careful by default
+
+The tool refuses to corrupt real text. A zero-width joiner between two emoji is
+what makes 👨‍👩‍👧 one family instead of three people; a zero-width non-joiner inside a
+Persian word is orthography, and so is the no-break space French puts before
+`; : ! ? »` and after `«`. Those are reported as `likely_false_positive` and
+kept, with the reason attached. `--paranoid` strips them anyway and says that it
+will damage legitimate text.
+
+A file whose format is not recognised is reported as `unknown` and handed back
+byte for byte. That is not a smaller promise than cleaning it — it is a
+different one: the text path decodes UTF-8 and encodes it back, which is
+lossless for text and destructive for everything else, so an unrecognised file
+that fell into it came out with every invalid byte replaced and a report saying
+nothing was found.
+
+| Verdict                 | Means                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `confirmed`             | Structurally certain — a C2PA manifest, a tag-char run that decodes to ASCII |
+| `probable`              | Consistent with a mark, but a human could have produced it                   |
+| `informational`         | Present, not evidence of anything — EXIF from a camera                       |
+| `likely_false_positive` | Matched, but context says it is legitimate; kept by default                  |
+
+And a finding says what it proposes as well as how sure it is — `becomes "-"`,
+`delete it`, with a button that rewrites that one span and nothing else. Where
+there is no correct substitution it says so instead: there is no right word to
+put in place of _delve_, and a tool that offered one would be guessing in the
+one place it has always refused to.
+
+## Develop
+
+```bash
+pnpm install
+pnpm assets    # fetch pinned MI-GAN and text-model assets (checksummed)
+pnpm dev
+pnpm verify    # typecheck · lint · format · test · import gate · skill · build · privacy gate
+pnpm e2e       # Chromium, Firefox and WebKit, plus two phones with a real touchscreen
+pnpm shoot     # screenshot and drive the built page in a real browser
+```
+
+`src/core` is written without a single `node:` or DOM import, and typechecks in a
+project that has neither available — which is what makes "one implementation, two
+deliveries" a compile error rather than a convention.
+
+### Checking local text inference
+
+After `pnpm assets && pnpm build`, run
+`UNMARK_HEADED=1 node scripts/smoke-text-model.mjs` on a machine with WebGPU.
+It checks a real rewrite, a cached reload, and same-origin GET requests. The
+ordinary browser suite uses an isolated worker for cancellation and error cases.
+The model asset manifest pins every weight shard, tokenizer and runtime binary
+by immutable revision and SHA-256 hash.
+
+## Intended use
+
+Provenance and metadata hygiene on your own files, stripping tracking marks from
+text you were sent, and inspecting what is hidden inside a document you received.
+
+Not a tool for removing authorship marks from work that is not yours.
+
+## License
+
+MIT. MI-GAN is MIT ([Picsart AI Research](https://github.com/Picsart-AI-Research/MI-GAN));
+IBM Plex Sans and JetBrains Mono are OFL. Qwen3.5 and WebLLM are Apache-2.0.
+
+## Skill invocation on request
+
+The `unmark` skill is model-invocable, but its description restricts it to explicit requests: the agent calls it when you ask for it, not on its own. Ask for it in plain words, or use `$unmark` in Codex or `/unmark` in Claude Code and OpenCode.
+
+You keep the switch in the frontmatter of the installed `SKILL.md`:
+
+| Host                  | Shipped, on request                         | Explicit-only                        |
+| --------------------- | ------------------------------------------- | ------------------------------------ |
+| Claude Code, OpenCode | no `disable-model-invocation` in `SKILL.md` | add `disable-model-invocation: true` |
+
+Claude Code can do it without touching the file: `"skillOverrides": { "unmark": "user-invocable-only" }` in `settings.json` leaves `/unmark` working while hiding the skill from the model. Updating or reinstalling restores the shipped default, so reapply the change afterwards.

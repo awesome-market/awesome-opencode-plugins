@@ -1,0 +1,135 @@
+ckanr
+=====
+
+
+
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![R-check](https://github.com/ropensci/ckanr/actions/workflows/R-check.yaml/badge.svg)](https://github.com/ropensci/ckanr/actions/workflows/R-check.yaml)
+[![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/ckanr?color=FAB657)](https://github.com/r-hub/cranlogs.app)
+[![cran version](https://www.r-pkg.org/badges/version/ckanr)](https://cran.r-project.org/package=ckanr)
+[![codecov](https://codecov.io/gh/ropensci/ckanr/branch/main/graph/badge.svg?token=96K7ZIOmCB)](https://codecov.io/gh/ropensci/ckanr)
+
+`ckanr` is an R client package for the [CKAN API](https://ckan.org/).
+R users use it with CKAN data portals to read, write, and manage datasets.
+The package wraps the entire CKAN REST API in R functions by resource type
+(packages, resources, organizations, groups, users, tags).
+
+## Description
+
+CKAN is an open-source DMS (data management system) for data hubs and data portals.
+Users publish, share and use data with CKAN. It powers hundreds of data portals worldwide.
+
+`ckanr` works with those CKAN websites. Users create, modify, and manage
+datasets. Users search and download existing data. Users then analyze the data in
+R (stats/plotting/etc.). It works with any CKAN instance.
+
+`ckanr` works for and is tested against
+- the [CKAN v2.12 API](https://docs.ckan.org/en/2.12/api/),
+- the [CKAN v2.11 API](https://docs.ckan.org/en/2.11/api/),
+- the [CKAN v2.10 API](https://docs.ckan.org/en/2.10/api/), and
+- the [CKAN v2.9 API](https://docs.ckan.org/en/2.9/api/).
+
+`ckanr` can work with older and newer CKAN versions.
+
+Get started: <https://docs.ropensci.org/ckanr/>
+
+## Installation
+
+Stable CRAN version
+
+
+``` r
+install.packages("ckanr")
+```
+
+Development version
+
+
+``` r
+# From source
+install.packages("remotes")
+remotes::install_github("ropensci/ckanr")
+# Binary via the rOpenSci universe
+options(
+  repos = c(
+    ropensci = "https://ropensci.r-universe.dev",
+    CRAN = "https://cloud.r-project.org"
+  )
+)
+install.packages("ckanr")
+```
+
+
+``` r
+library("ckanr")
+```
+
+The default base CKAN URL is <https://demo.ckan.org/>
+Functions that write to CKAN also require a privileged
+CKAN API key.
+To change the URL or key, use `ckanr_setup()`, or change the URL with the `url`
+parameter in each function call.
+To set one or both, run:
+
+
+``` r
+ckanr_setup() # restores default CKAN url to https://demo.ckan.org/
+ckanr_setup(url = "https://demo.ckan.org/")
+ckanr_setup(url = "https://demo.ckan.org/", key = "my-ckan-api-key")
+```
+
+## ckanr package API
+
+Each CKAN thing (package, resource, etc.) has a set of
+functions in this package. For each CKAN thing, most functions return an S3 class,
+and most other functions accept it. This helps piping. The following list shows the function groups for certain CKAN
+things, with the prefix for the functions for that thing, and the name of the S3 class:
+
++ Packages (aka packages) - `package_*()` - `ckan_package`
++ Resources - `resource_*()` - `ckan_resource`
++ Related - `related_*()` - `ckan_related`
++ Users - `user_*()` - `ckan_user`
++ Groups - `group_*()` - `ckan_group`
++ Tags - `tag_*()` - `ckan_tag`
++ Organizations - `organization_*()` - `ckan_organization`
+
+The S3 class objects all look very similar. For example:
+
+```r
+<CKAN Resource> 8abc92ad-7379-4fb8-bba0-549f38a26ddb
+  Name: Data From Digital Portal
+  Description:
+  Creator/Modified: 2015-08-18T19:20:59.732601 / 2015-08-18T19:20:59.657943
+  Size:
+  Format: CSV
+```
+
+All classes state the type of object. They show the ID to the right of the type. They then show
+a set of key-value fields. This printed object is a summary
+of an R list, so you can index to specific values (for example, `result$description`).
+If printed summaries miss important fields, let us know.
+
+> note: This file keeps examples brief
+
+## Contributors
+
+(alphabetical)
+
+* Florian Mayer
+* Francisco Alves
+* Hanna Böhner
+* Imanuel Costigan
+* Scott Chamberlain (original creator)
+* Sharla Gelfand
+* Wush Wu
+
+## Meta
+
+* [Report any issues or bugs](https://github.com/ropensci/ckanr/issues).
+* License: MIT
+* Get citation information for `ckanr` in R with `citation(package = 'ckanr')`
+* This package follows a
+  [Contributor Code of Conduct](https://ropensci.org/code-of-conduct/).
+  By contributing to this project, you agree to abide by its terms.
+* If you want to contribute to package development, see the
+  [contributing guide](https://docs.ropensci.org/ckanr/CONTRIBUTING.html).

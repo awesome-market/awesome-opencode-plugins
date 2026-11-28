@@ -1,0 +1,336 @@
+# opencode-deep-memory
+
+> Persistent cross-session memory for [OpenCode](https://github.com/anomalyco/opencode) — zero runtime dependencies.
+
+V5.1 architecture: three-layer optimization — deterministic noise reduction, intelligent context compression (main-agent-triggered + subagent-executed), and increment-based memory consolidation. Built on research from 7 production coding agents, 30+ memory systems, and 5 academic papers.
+
+## opencode v2 support
+
+opencode v2 is a **separate release line under a different npm scope** (`@opencode/*`;
+the v1 line is `@opencode-ai/*`). The plugin ships a **dual-form entry**, so a host
+on either contract loads it from the same package.
+
+| Host | Entry | Behavior |
+|---|---|---|
+| opencode 1.18.x+ (v1 `plugin` key) | default export | Full hook set: system.transform, messages.transform, compacting, event, chat.message, tools |
+| opencode 2.x (`plugins` key) | `{ id, setup }` | `setup` registers the same hooks on the v2 faces and returns a disposer |
+
+The adapter is verified against a real **opencode 2.0.32** engine by `npm run e2e:v2`,
+which CI runs on every push. The 2.0.27 findings 0.15.0 was built on are superseded —
+see [docs/research/v2-032-respike.md](docs/research/v2-032-respike.md) for the
+per-field evidence.
+
+v2 differences worth knowing:
+
+- **Injection channel**: the byte-stable memory block rides an appended **system
+  part**. v2 awaits `context` handlers before assembling the request and appended
+  system parts settle, so the block joins the cached prefix rather than paying a
+  boundary miss on every turn. Measured on the lab engine: prefix reuse **0.996** in
+  steady state, and a `memory_store` write costs exactly **one** re-prefill. No
+  explicit cache hint is set — appending already lands the automatic breakpoint right
+  after the block, and manual hints spend one of the same four slots.
+- **Event names differ.** v2 emits no `session.idle` and no `session.compacted`; the
+  adapter maps `session.execution.succeeded` → `session.idle` and
+  `session.compaction.started` → `session.compacted`, so idle consolidation, pressure
+  calibration, the compaction audit log and `session.deleted` cleanup all work.
+- **Tools** reach the agent only through `ctx.tool.transform(...)` with a required
+  `options.namespace`. The adapter splits each v1 tool key on its first underscore
+  (`memory_search` → namespace `memory` + name `search`), so the model still sees the
+  bare names the frozen TOOL_HINT refers to.
+- **Compaction** is bridged via `ctx.session.hook("compaction")`. v2 hands over the
+  full message list, so checkpoint capture needs no client fetch, and the v1
+  `{context}` output is appended to `event.system`.
+- **Registration**: add it to the v2 `plugins` array pointing at a **directory** (the
+  host resolves `<dir>/index.js` and ignores `package.json` main). A v2 engine also
+  still reads the v1 `plugin` key, but `plugins` is the supported one.
+- **Diagnostics**: `DEEP_MEMORY_DEBUG=1` logs every registration, injection and
+  event mapping.
+
+## Install
+
+```bash
+npm i @bd7pil/opencode-deep-memory
+```
+
+Current package version: **0.16.5**. Requirements: Node.js >= 20; OpenCode 1.18.x
+(v1 `plugin` key) or OpenCode 2.x (v2 `plugins` key).
+
+For opencode v1 (the legacy `plugin` key):
+
+```jsonc
+// opencode.json
+{
+  "plugin": ["@bd7pil/opencode-deep-memory"]
+}
+```
+
+Memory lives at `.deep-memory/` in your project root.
+
+For opencode 2.x use the `plugins` array. A package name resolves through
+`main`; a directory resolves through `index.js`, which this package ships, so an
+air-gapped host can be given the unpacked tree:
+
+```jsonc
+// opencode.json (v2)
+{
+  "plugins": [
+    "@bd7pil/opencode-deep-memory", // package → main → dist/index.js
+    "/opt/deep-memory"              // directory → index.js → dist/index.js
+  ]
+}
+```
+
+`provision.json` at the package root states both forms and the post-install
+checks. The package has no peer plugin dependency (`requiresPeer: []`), so a
+provisioner can install it without knowing anything about it.
+
+Project links: [CHANGELOG.md](CHANGELOG.md) · [CONTRIBUTING.md](CONTRIBUTING.md) ·
+[SECURITY.md](SECURITY.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) ·
+[LICENSE](LICENSE) · [THIRD-PARTY.md](THIRD-PARTY.md).
+
+## What it does
+
+| Capability | How |
+|---|---|---|
+| **Remember** decisions, constraints, gotchas, facts | `memory_store` → BM25-indexed `MEMORY.md` (200 line cap) |
+| **Retrieve** across sessions | `memory_search` — BM25 + CJK bigram |
+| **Forget** stale entries | `memory_forget` — by query + confirmation |
+| **Recover** compressed content | `deep_expand` / `memory_expand` — SHA-256 CCR, 30min cache |
+| **Compress** on demand (summary) | `context_compress(summary)` — main agent writes summary |
+| **Compress** on demand (subagent) | `context_compress()` — main agent selects range, subagent generates summary |
+| **Consolidate** memory quality | LLM subagent (increment-triggered on idle: +20 lines or +8 calls), mtime race-safe |
+| **Notifications** | Subagent spawn/complete/discard via TUI Toast (zero LLM context pollution) |
+| **Commands** | `/checkpoint` — manual memory capture + dedup |
+
+## V5 changes from V4
+
+| Change | Detail |
+|---|---|
+| P0: LLM memory consolidation | compaction triggers `client.session.create` + `promptAsync` (subagent), runs Mem0-style ADD/UPDATE/DELETE on MEMORY.md. Mtime race detection prevents overwriting concurrent `memory_store` writes. Pending state persisted to `<project>/.pending-consolidation.json` (project root, not the `.deep-memory/` directory), restored on startup. |
+| P1: Content-aware compress | `context_compress` accepts `summary` parameter (LLM-written). Tool outputs classified as transient/bash, stale/read-of-edited-file, summarize/other, preserve/protected. Summary block injected as assistant message (not user message, avoids breaking "never touch user messages" rule). |
+| P2: Keep-pattern tightening | `compressAssistantText` removed bullet points (`-`/`*`) from retained lines. Savings ratio 0.6→0.7. V4 benchmark: 25% trigger rate → V5: ~40%. |
+| P3: Event-driven nudges | Three nudge types: threshold (≥50K tokens, once per session), emergency (≥120K), PostCompact (after compaction). Injected into last tool result, not per-message. Cooldown prevents obsessive loops (DCP Issue #439). |
+
+## V5.1 changes from V5
+
+| Change | Detail |
+|---|---|
+| **Trigger: consolidation** | Changed from compaction-only to idle-triggered (session.idle) when MEMORY.md grows ≥20 lines or ≥8 memory_store calls since last consolidation. Compaction remains as fallback. |
+| **Trigger: intelligent compression** | `context_compress()` without `summary` spawns a general-agent subsession to generate the summary, then applies it via messages.transform on the next turn. Main agent selects the range (by `keep_recent`), subagent does the summarization work — zero main-agent context consumption. |
+| **Toast notifications** | Subagent spawn/complete/discard → `client.tui.showToast` (DCP-style `▣` prefix, DCP-style 5s duration). Memory consolidation and context compression subagents both notify. |
+| **Legacy notifications removed** | Per-turn compression stats (`strip_thinking`, `truncate_error`) and system injection stats no longer produce toasts. Only subagent operations produce notifications. |
+| **`memory_store` counter** | Every `memory_store` call increments a counter used by the idle consolidation trigger. When the counter reaches 8, the next idle consolidates. |
+
+### V5.1 trigger architecture
+
+```
+Layer 1 (every turn):   messages.transform → deterministic strip/throttle/compress
+Layer 2 (main agent):   context_compress()  → optional subagent → summary injected via transform
+Layer 3 (session.idle): check MEMORY.md growth → spawn consolidation subagent → apply on next idle
+```
+
+The three layers are independent: Layer 1 runs every turn unchanged, Layer 2 fires when the main agent decides to compress, Layer 3 fires when enough memory changes accumulate.
+
+## 6-Layer architecture
+
+All six layers are backed by production evidence — not theory.
+
+### Layer 1: Capture-time tool output limiting
+
+Tool outputs are capped once at capture time, not post-hoc mid-conversation.
+
+| Tool | Default cap | Strategy |
+|---|---|---|
+| `bash` | 48K chars | Head + error lines + tail 200 + recovery hint |
+| `read` | 50K chars | Head + tail + key lines + re-read hint |
+| `grep`/`search` | 20 files × 5 matches | Group by file, top matches |
+| `task`/`background_output` | 30K chars | Headers + code fences + key lines |
+| `webfetch` | 20K chars | Head + headings + tail |
+
+Recovery hint tells the LLM how to get more detail (re-read with offset, grep with pattern), not a dead-end marker.
+
+**Evidence**: Cline source (`output-limits.ts`: bash 48K, read 50K).
+
+### Layer 2: Stale-read rewriting
+
+When the same tool is called multiple times with identical input+output, older copies are marked `[OUTDATED — superseded by newer identical call]`. The LLM sees a useful signal instead of a meaningless placeholder it might mimic in output.
+
+### Layer 3: Static memory file (byte-stable system prompt)
+
+The system prompt is frozen across turns — TOOL_HINT + MEMORY.md content are injected once and only change when `memory_store` writes to MEMORY.md (mtime cache). No volatile BM25 results, no per-turn search, no repomap in the system prompt.
+
+When MEMORY.md hasn't changed: 100% byte-stable system prompt across turns.
+
+### Layer 4: Hybrid retrieval (one-time auto-search per session)
+
+On first turn: quiet `memory_search(userQuery)` runs. If top-1 BM25 score ≥ 2.0, a ≤30-token whisper is appended. Turns 2+: byte-stable. Zero whisper overhead.
+
+### Layer 5: Increment-based memory consolidation
+
+Synchronous SimHash dedup runs on every compaction. When `memory_store` counter reaches 8 calls or MEMORY.md has grown ≥20 lines since last consolidation, an LLM subagent (created via `client.session.create` + `promptAsync`) processes it with Mem0-style ADD/UPDATE/DELETE logic. Triggered on `session.idle` — no compaction dependency. Results are applied on the next idle after mtime verification. Compaction hook preserved as fallback. No background processes, no `setInterval`, no fire-and-forget.
+
+Toast notification on: spawn (`▣ consolidation spawned`), applied (`▣ memory consolidated: N lines`), discarded (`▣ consolidation discarded (mtime race)`).
+
+### Layer 6: Agent-initiated compression with optional subagent summarization
+
+When the LLM calls `context_compress(summary, keep_recent)`, the next `messages.transform` pass:
+- Classifies tool outputs by content type (transient/stale/summarize/preserve)
+- Truncates transient outputs (bash, grep, glob) with head+tail
+- Marks stale reads of recently-edited files as `[OUTDATED]`
+- Injects LLM-written summary block as assistant message
+- Stores all originals in CCR for `deep_expand` recovery
+
+When the LLM calls `context_compress(keep_recent)` **without** summary, a background general-agent subsession is spawned with the compressible message range. The subsession generates a structured summary (goal/decisions/constraints/progress/errors), which `messages.transform` applies on the next turn. Zero main-agent context consumed for summarization.
+
+Toast on: spawn, applied, timeout (5min).
+
+## Tools
+
+| Tool | Purpose |
+|---|---|
+| `memory_search` | BM25 + CJK bigram search across project and global memory |
+| `memory_store` | Store one entry (decision/constraint/gotcha/fact/note) with 200-line cap |
+| `memory_forget` | Find matching entries and remove them |
+| `memory_expand` | Restore original content from compressed conversation messages |
+| `deep_expand` | Restore original content from CCR-compressed tool output |
+| `context_compress` | Content-aware compression with optional subagent summarization. With `summary`: existing path (main agent writes). Without `summary`: background subagent generates summary. |
+
+## Commands
+
+- `/checkpoint` — manually capture session state + consolidate MEMORY.md (SIMHash dedup + trigger LLM subagent if MEMORY.md > 50 lines)
+
+## Compaction (fallback) + idle consolidation (primary)
+
+Memory consolidation triggers on `session.idle` (not compaction) when MEMORY.md has sufficient changes. Compaction hook is preserved as fallback:
+
+On session.idle (primary):
+1. Check MEMORY.md growth: ≥20 lines or ≥8 memory_store calls since last consolidation
+2. If no pending subagent result, spawn LLM subagent for ADD/UPDATE/DELETE consolidation
+3. On next idle: check subagent result, apply (mtime-verified), toast
+
+On session.compacted (fallback):
+1. Capture raw messages → `checkpoint.md` via 5 heuristic extractors
+2. SIMHash dedup of MEMORY.md (acquired via file lock, zero race conditions)
+3. Check pending LLM subagent consolidation result (mtime-verified, safe against concurrent `memory_store`)
+4. If MEMORY.md > 50 lines and no pending task, spawn LLM subagent for ADD/UPDATE/DELETE consolidation
+5. Signal PostCompact nudge for next `messages.transform`
+
+No background LLM sessions, no `client.session.promptAsync` fire-and-forget, no dream/distill.
+
+## Storage
+
+```
+<project>/
+├── .deep-memory/
+│   ├── MEMORY.md              persistent memory (200 line cap, user curated)
+│   ├── MEMORY-archive.md      overflow when cap is reached
+│   ├── MEMORY.bak.md          backup before LLM consolidation overwrite
+│   ├── checkpoint.md          last compaction extraction
+│   ├── checkpoint.raw.json    raw message dump (memory_expand reads this)
+│   ├── .compaction-log.jsonl  compaction audit trail
+│   ├── .index-state.json      BM25 index mtime tracker
+│   └── .tool-outputs/         captured tool outputs (offline noise reduction)
+└── .pending-consolidation.json   LLM subagent state (survives restarts)
+```
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DEEP_MEMORY_DEBUG` | off | `1` = debug log, `trace` = +hook I/O |
+| `DEEP_MEMORY_PROJECT_SUBDIR` | `.deep-memory` | Memory directory name |
+| `DEEP_MEMORY_GLOBAL_ROOT` | `~/.local/share/opencode/deep-memory` | Cross-project memory |
+
+## Nudge thresholds
+
+| Nudge | Threshold | Cooldown |
+|---|---|---|
+| Threshold | ≥50K tokens | Once per session |
+| Emergency | ≥120K tokens | Always fires |
+| PostCompact | After compaction | Once per compaction |
+
+Absolute token thresholds (not ratio-based) — Context Rot (Chroma 2025) confirms LLMs degrade at ~200K tokens regardless of context window size.
+
+## Development
+
+```bash
+npm install
+npm run lint      # Biome, lint-only (formatting is not enforced)
+npm run verify    # lint + typecheck + build + test + smoke + e2e
+npm run test:coverage   # coverage with a hard floor (vitest.config.ts thresholds, only ratchets up)
+npm run e2e:v2    # real opencode v2 engine against a stub LLM (38 checks)
+```
+
+The published tarball bundles zod; its license text ships in
+[THIRD-PARTY.md](THIRD-PARTY.md).
+
+## What V5 removed (V4 regression)
+
+| Feature | Why |
+|---|---|
+| Volatile BM25 injection in system prompt | Per-turn mutation degrades quality (Context Rot, 18 models) |
+| Dream/distill auto-generation | `promptAsync` fire-and-forget never worked (3 independent failure layers) |
+| Post-hoc tool output compression | Middle content lost mid-conversation; replaced by capture-time caps |
+| `[superseded by duplicate call]` | LLM mimics placeholder in output; replaced by `[OUTDATED]` signal |
+| `[context-stripped]` orphan repair | Same; removed entirely |
+| `[ccr:<hash>]` dead-end markers | Stored but unretrievable; replaced by actionable hint + working deep_expand |
+| Memory nudge / pressure nudge XML | Contradicts pull-based model; replaced by event-driven threshold nudges |
+| Tier-based memory rendering (P1-P5) | Unnecessary complexity with static injection |
+
+## Evidence base
+
+V4+V5 designed through 4 rounds of research against production systems and academic literature.
+
+### Production coding agents (7)
+
+| Agent | Key insight borrowed |
+|---|---|
+| **Claude Code** | CLAUDE.md verbatim injection, user-curated; 200-line/25KB hard cap; microCompact reactive compaction |
+| **Cline** | Capture-time tool output caps (bash 48K, read 50K); stale-read rewriting; 90% deterministic compaction |
+| **Aider** | No post-hoc tool compression; background recursive summarization |
+| **Cursor** | Same-model self-summarization preserves quality |
+| **Cody** | No compression at all — pure retrieval |
+| **Copilot** | 4 cache-control breakpoints → 94% cache hit rate |
+| **Continue** | Context-aware truncation direction |
+
+### Memory systems surveyed (30+)
+
+- **Mem0** — pull-based ADD/UPDATE/DELETE pattern used in P0 consolidation prompt
+- **Letta** — fixed-size memory blocks, agent-managed content mutation
+- **Magic Context** — cache-stable deferred mutation; zero per-turn change
+- **A-Mem** — proactive dedup/update prevents stale context accumulation
+- **Cognee** — injects memory in user message, not system prompt (keeps prefix stable)
+
+### Compression projects
+
+- **DCP** — LLM-initiated compress tool; nudge necessity confirmed (Issue #449); obsessive loop risk flagged (Issue #439)
+- **Headroom** — CCR store with lossless recovery; confirmed V4 deep_expand wiring
+- **Focus Agent** — agent-initiated `consolidate_learning`; 22.7% token reduction, no accuracy loss
+- **Contextomizer** — evaluated: content-type heuristics worth borrowing, character-level truncation avoided
+- **LLMLingua** — token-level perplexity compression avoided (too aggressive for code)
+
+### Academic papers
+
+- [Lost in the Middle (Liu et al., TACL 2024)](https://arxiv.org/abs/2307.03172) — 20%+ accuracy drop for mid-prompt content
+- [Context Rot (Chroma, 2025)](https://www.trychroma.com/research/context-rot) — all 18 tested models degrade with prompt length
+- [When2Tool (arxiv 2605.09252)](https://arxiv.org/abs/2605.09252) — LLMs know when to retrieve (AUROC 0.89-0.96) but fail to act; nudges are essential
+- [Self-RAG (arxiv 2310.11511)](https://arxiv.org/abs/2310.11511) — adaptive retrieval requires fine-tuning
+- [Focus Agent (arxiv 2601.07190)](https://arxiv.org/html/2601.07190v1) — 22.7% token reduction, no accuracy loss
+- [When Attention Closes (arxiv 2605.12922)](https://arxiv.org/html/2605.12922) — system prompt tokens lose attention share over time; mid-conversation injections have better persistence
+
+### Design decisions (stored in project memory)
+
+- V4 prohibits background/fire-and-forget patterns (dream/distill failure post-mortem)
+- P0 uses subagent (client.session.create + promptAsync) not async fire-and-forget
+- P3 nudge thresholds are absolute tokens (Context Rot: LLM quality degrades at ~200K regardless of window)
+- Nudges cannot be removed (DCP Issue #449, When2Tool paper)
+- Message IDs not injected (keep_recent summary covers 90% of scenarios; DCP Issue #573 feedback loop)
+- Nudges injected into tool result (When Attention Closes: mid-conversation > system prompt persistence)
+- Consolidation trigger: increment-based not pressure-based (compaction is too late — quality already degraded; idle + deltas is proactive)
+- Subagent compression: main agent selects range, subagent generates summary (hybrid — task understanding from main agent, context isolation from subagent)
+- Toast only for subagent operations (DCP `▣` format, 5s duration, zero LLM context pollution)
+
+## License
+
+MIT. See [LICENSE](LICENSE) and [THIRD-PARTY.md](THIRD-PARTY.md) (the bundled
+zod 4.1.8 notice).

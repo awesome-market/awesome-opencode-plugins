@@ -1,0 +1,583 @@
+<p align="center">
+  <img src="assets/skillgate-logo.png" alt="skillgate" width="420">
+</p>
+
+# skillgate
+
+<p align="center">
+  <a href="https://github.com/renezander030/skillgate/actions/workflows/ci.yml"><img src="https://github.com/renezander030/skillgate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/@reneza/skillgate"><img src="https://img.shields.io/npm/v/@reneza/skillgate.svg" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/npm/l/@reneza/skillgate.svg" alt="license"></a>
+  <img src="https://img.shields.io/node/v/@reneza/skillgate.svg" alt="node version">
+</p>
+
+> **A finish-line gate your agent cannot talk its way past.** AI coding agents deviate from your process to reach "done" faster, and asking the model to check its own compliance is the deviating party grading its own paper. `skillgate` is a deterministic evaluator that lives outside the model: it blocks the commit / push / publish until your definition-of-done actually passes. Works with **opencode** (any model you plug in), Claude Code, pre-commit, and CI.
+
+![skillgate blocking a git commit because two gates fail, then letting it through once they are fixed](assets/skillgate-demo.gif)
+
+## Audit your repo in one command
+
+No install, no signup, no config. One read-only command shows which corners your agent could cut right now:
+
+```bash
+npx @reneza/skillgate@latest audit
+```
+
+![skillgate audit: a one-command, read-only report scoring a repo against a definition of done — passing the test gate, flagging a stray TODO and a leaked secret](assets/skillgate-audit.png)
+
+Wired into your agent, those same checks deny the finish-line command (commit / push / publish) until they pass. [Wire it in.](#install)
+
+For more practical checks for AI agents, [follow René on GitHub](https://github.com/renezander030).
+
+### Want it set up for your team?
+
+If the audit flagged corners you would rather not wire up yourself, I set skillgate up for you: your definition of done written as `.skillgate/done.yaml`, the gate wired into the agents your team runs (Claude Code, Codex, opencode, Cursor) and a server-side gate in CI, so the guarantee does not rest on a local hook. Fixed scope, quoted in days before any work starts. [Request a setup](https://github.com/renezander030/skillgate/issues/new?template=setup_request.yml) or write to [rene@renezander.com](mailto:rene@renezander.com).
+
+## See the fleet total without seeing any private repo
+
+Suppose a customer or manager wants one answer: **"What percentage of our required checks pass across all private repositories?"** Sending every repository's report reveals which team or codebase is struggling. Skillgate's experimental encrypted-metrics flow keeps each repository's counts unreadable while a separate collector adds them together.
+
+```text
+private repo A ─┐
+private repo B ─┼─ encrypted counts → collector adds them → key owner opens one fleet total
+private repo C ─┘                    (collector cannot read the counts)
+```
+
+Each repository still sends a file, but it contains ciphertext—not source code, gate names, failure reasons, or readable pass/fail counts. Use at least three repositories, keep the collector separate from the decryption-key owner, and release only the final group total.
+
+```bash
+skillgate fhe-metrics keygen
+
+# Run locally in each repo. Give every repo a different random token.
+skillgate check --json | skillgate fhe-metrics encrypt \
+  --context 2026-Q3 --repository <random-token> --out repo.metric.json
+
+# The collector can combine files without opening them.
+skillgate fhe-metrics aggregate --context 2026-Q3 --out fleet.aggregate.json \
+  repo-a.metric.json repo-b.metric.json repo-c.metric.json
+
+# The key owner opens the aggregate and checks its declared group size.
+skillgate fhe-metrics decrypt --context 2026-Q3 --expected 3 \
+  --minimum-percent 90 fleet.aggregate.json
+```
+
+**Use it when:** several private repos need one shared quality number and the collector must not learn any repo's result. **Skip it when:** one repo needs to prove it passed (use the proof below), fewer than three repos contribute, or the same person will hold the secret key and individual encrypted files.
+
+This optional preview needs Go 1.25+ on first use and downloads its pinned cryptography dependency. It performs one bounded encrypted addition—not arbitrary programs over encrypted data—and has not received an independent security audit. Read the practical setup, separation of roles, and failure modes in [encrypted fleet metrics](docs/fhe-metrics.md).
+
+## Prove a private repo passed — without revealing the repo
+
+A customer may need evidence that your private code passed an agreed definition of done, but should not receive your source, test evidence, or internal gate report. Skillgate can issue a selective-disclosure zero-knowledge proof:
+
+| The verifier learns | What stays private |
+| --- | --- |
+| The pinned Skillgate signer attested `PASS` | Repository snapshot and source code |
+| It used the exact policy hash the verifier approved | Gate names, reasons, evidence, and gate count |
+| The proof answers the verifier's fresh challenge | Full signed receipt and signing key |
+
+```bash
+# Gate owner: create once; the private key is gitignored automatically.
+skillgate zk-keygen
+skillgate zk-policy-id                 # share this and zk-public-key.json in advance
+
+# Verifier sends a fresh challenge; the isolated gate answers it after all gates pass.
+skillgate zk-prove --challenge customer-audit-42 --out pass.proof.json
+
+# Verifier: use the public key and policy hash you pinned independently.
+skillgate zk-verify pass.proof.json --public-key zk-public-key.json \
+  --expect-policy <approved-policy-hash> --challenge customer-audit-42
+```
+
+This is an **experimental attestation preview**, not a proof that the evaluator itself ran correctly. The BBS proof establishes that the holder of the pinned key signed a complete pass receipt while hiding selected fields. Put that key on the separate gate server your agent cannot access; a local key the agent can steal proves little. The pairing-crypto implementation has not received an independent implementation audit. Read the exact claim and threat model in [private pass proofs](docs/private-pass-proofs.md).
+
+## This is a measured, structural failure, not a vibe
+
+In [*The Compliance Gap*](https://arxiv.org/html/2605.01771v1) (Shin, 2026 — 2,031 sessions, six frontier models), models verbally agree to a process instruction and then bypass it at a **0% compliance rate** under default conditions. Two results from that paper are the entire design basis for skillgate:
+
+- **You cannot catch it by reading the output.** The gap is provably undetectable from text alone, by any human or LLM observer (Theorem 2, via the Data Processing Inequality). A model grading its own compliance is structurally blind to its own deviation. The evaluator has to observe behavior deterministically, out of band. That is what skillgate is.
+- **Removing the shortcut is what works.** Taking away the affordance that lets the model cut the corner raised compliance from 0% to 75% (Cohen's *d* = 2.47), the strongest intervention measured. skillgate removes the affordance the only way that holds: it denies the finish-line command until the work is real.
+
+Prompt-level fixes ("always follow the process") do not close the gap, because the cause is the reward structure, not the wording. A bigger model does not either: the paper shows the gap is environmentally afforded, not weight-encoded.
+
+## No model in the loop
+
+![How skillgate works: an AI agent tries to commit, skillgate runs deterministic gates outside the model, and blocks the finish line until every gate passes](assets/skillgate-flow.png)
+
+The default filesystem checks produce the same verdict for the same inputs, with
+no model in the evaluator. Commands and optional credential verification may
+depend on external state. The optional review gate checks a report supplied by a
+trusted reviewer; it is an attestation with a different trust boundary. The gate
+engine remains independent of the model plugged into your agent.
+
+## Gate, not loop
+
+A retry loop (the "Ralph" pattern: re-run the agent until it declares itself finished) is a *retry engine*. The question it cannot answer on its own is "done according to whom?" Left alone, the loop's stop condition is the model's own claim that it finished, which is exactly the signal the Compliance Gap shows you cannot trust: the agent says done, the loop exits, the deviation ships.
+
+skillgate is the other half. It does not run the agent and it does not retry. It is the deterministic judge of whether the work is actually done. The two compose:
+
+- **Loop, no gate** — retries until the *model* says stop. Fast, but it inherits the model's blind spot.
+- **Gate, no loop** — blocks the finish line until the work is real, but will not drive the fix itself.
+- **Loop + gate** — the loop keeps going because a script, not the model, decides each round is not done yet. The gate becomes the loop's stop condition.
+
+Use a loop to make progress. Use skillgate to define when progress is allowed to end.
+
+Related positioning: [finish-line gates vs push guards](docs/finish-line-gates-vs-push-guards.md).
+
+## Install
+
+Pick the path that matches how far you want the guarantee to reach. Every one enforces the *same* `.skillgate/done.yaml`, so you define "done" once.
+
+**1. Zero install — just run it**
+
+```bash
+npx @reneza/skillgate@latest check     # nothing to install; ideal for a first look
+```
+
+**2. Add it to a project** (CI, pre-commit, Claude Code, husky)
+
+```bash
+npm i -D @reneza/skillgate             # the CLI is then simply `skillgate check`
+```
+
+**3. No Node on the machine?** Run it in a container against the current directory — copy, paste, done:
+
+```bash
+docker run --rm -v "$PWD":/repo -w /repo node:20-alpine npx -y @reneza/skillgate check
+```
+
+**4. One server-side gate your agent can't bypass (a VPS).** The only *hard* layer that's free and works on private repos: the definition of done lives on a separate box the agent can never log into, and `git push --no-verify` cannot skip a server hook. One run provisions a fresh Debian/Ubuntu/Fedora/Alpine instance (the installer detects the package manager):
+
+```bash
+git clone https://github.com/renezander030/skillgate && cd skillgate/contrib/self-hosted-gate
+ssh-keygen -t ed25519 -N "" -f ./push_key && cp ./push_key.pub ./authorized_key.pub
+sh vps/setup.sh root@your-vps.example.com      # installs the gate, then prints how to push
+```
+
+Full walkthrough — mirror-to-GitHub, deploy keys, and the Docker / VM substrates — in [`contrib/self-hosted-gate`](contrib/self-hosted-gate/).
+
+> **Render, Railway, Heroku-style PaaS?** Not applicable, and worth saying why: skillgate is a gate on `git push`, not a hosted service. A PaaS builds *after* the code already reached GitHub, so it adds no boundary the agent has to cross. For a server-side guarantee, use the VPS path above, or CI + branch protection (public repos and paid GitHub plans).
+
+Wire an existing policy into a harness without hand-editing its config:
+
+```bash
+skillgate install claude-code      # add --stop to also gate the end of the agent's turn
+skillgate install codex            # --stop works here too
+skillgate install copilot-cli      # GitHub Copilot CLI and its cloud agent; --stop works here too
+skillgate install gemini-cli
+skillgate install cursor
+skillgate install opencode
+skillgate install github-actions
+skillgate install pre-commit
+skillgate doctor claude-code       # validates policy discovery and hook registration
+```
+
+`install all` configures every layer. Installation is idempotent, preserves
+existing agent settings, refuses to overwrite unrelated workflows, and pins
+generated npm commands to the installed Skillgate version.
+
+Pre-commit installation includes deletion-only commits and upgrades an existing
+Skillgate hook when re-run. Installations are serialized per project and replace
+complete config files atomically while preserving existing permissions and other
+hooks. If another installation is active, retry after it finishes.
+
+Agent hooks are installed **fail-closed**: if the gate itself cannot run (npx
+missing, offline, registry error), the hook blocks instead of letting the command
+through, and it gets a 10-minute budget so a slow test suite doesn't time out into
+an allow. `doctor` flags a hook installed by an older version that would fail
+open, a hook or workflow pinned to a different Skillgate version than the one
+you run, and a hook the agent will never run because hooks are switched off
+(`disableAllHooks` in `.claude/settings.json` or `.claude/settings.local.json`,
+`[features] hooks = false` in `.codex/config.toml`). Re-running `install` upgrades
+hooks, the pre-commit entry and the GitHub workflow in place; in the workflow it
+moves the package pin, the pinned actions and a Node 18/20 line, and keeps your
+other edits.
+
+Every command explains itself without running: `skillgate check --help`,
+`skillgate help sync`. A flag that takes a value and is given none is a usage
+error (exit 2).
+
+Generated hooks give the evaluator a nine-minute run budget inside the ten-minute
+host timeout. Claude Stop hooks use explicit stdout JSON decisions, so test output
+such as a missing-file error cannot turn a block into a non-blocking hook error.
+Upgrade an existing Stop hook with `skillgate install claude-code --stop`.
+
+## Define your gates
+
+Use `skillgate init --preset no-secrets` for credential and private infrastructure
+checks. `skillgate init --preset regression` writes the gates that catch an agent
+gaming a green check: no test case or test file removed, no new skipped or focused
+test, and CI workflows and agent instruction files unchanged versus the base ref. An optional `review` gate accepts a snapshot-bound OCR or host-agent
+report. See [secrets and optional review](docs/external-gates.md) for setup, limits,
+and reviewer trust. Both integrations are optional.
+
+A gate is one deterministic, machine-checkable condition. Run `npx @reneza/skillgate init` to drop a starter `.skillgate/done.yaml` that includes drift detection and an evidence-gate example right out of the box, then run `skillgate scaffold` to generate the evidence file templates the agent must fill in:
+
+```bash
+npx @reneza/skillgate init                               # create .skillgate/done.yaml
+npx @reneza/skillgate scaffold                           # create .skillgate/evidence/
+npx @reneza/skillgate scaffold --template react          # stack-specific evidence files
+npx @reneza/skillgate scaffold --update-agents           # also update AGENTS.md/CLAUDE.md
+```
+
+The starter `done.yaml`:
+
+```yaml
+# skillgate — definition of done
+# Docs: https://github.com/renezander030/skillgate
+name: definition-of-done
+
+# Commands that count as crossing the finish line (structural prefix match).
+finishLine:
+  - "git commit"
+  - "git push"
+  - "npm publish"
+
+gates:
+  - id: instruction-sync
+    description: AI agent instruction files are in sync
+    type: instruction-sync
+
+  - id: tests-pass
+    description: Test suite passes
+    type: command            # must exit 0
+    run: "npm test --silent"
+
+  - id: no-stray-todos
+    description: No TODO or FIXME comment left in source
+    type: absent             # regex must NOT appear in any matched file
+    glob: "src/**/*.{ts,js}"
+    pattern: '(//|#)\s*(TODO|FIXME)'
+
+  - id: no-secrets
+    description: No obvious secrets committed
+    type: absent
+    glob: "**/*.{ts,js,json,md,yaml,yml,env}"
+    pattern: 'ghp_[A-Za-z0-9]{36}|sk_live_[A-Za-z0-9]{16,}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----'
+    ignore: [".skillgate/**"]
+
+  - id: trivy-clean
+    description: No leaked secrets, critical CVEs, or broken SBOM
+    type: trivy
+    target: "."
+    severity: ["CRITICAL"]
+```
+
+Finish-line patterns are matched against parsed shell command segments rather than
+raw text. Wrappers (`env`, `sudo`, `command`), Git/npm options, nested `sh -c` or
+PowerShell commands, pipelines, and `.cmd`/`.exe` launchers are normalized. Quoted
+prose such as `echo "git push"` does not trigger the gate. Preview a decision without
+running any gate:
+
+```bash
+skillgate explain --command "env CI=1 git -C repo push origin main"
+```
+
+Set a complete-run wall-clock budget with top-level `timeout: 120000`, or override
+it once with `skillgate check --timeout 120000`. Every configured gate remains in
+the result: gates that could not start before the budget expired are explicit
+blocking `not-run` entries. Command timeouts terminate the supervised process tree.
+
+For CI evidence and repeated local checks:
+
+```bash
+skillgate check --receipt .skillgate/evidence/gate-receipt.json
+skillgate verify-receipt .skillgate/evidence/gate-receipt.json   # later, in CI or review
+skillgate check --cache --json
+```
+
+`verify-receipt` recomputes the snapshot for the files, policy and base in front of
+it and exits 0 only when the receipt matches them and records a passing run.
+
+Receipts include the per-gate status, reason, duration, total budget, and workspace
+snapshot hash. `--cache` reuses passing results only when the parsed policy, runtime,
+base commit, and every tracked or untracked non-ignored workspace file have the same
+hash. Failures are never cached.
+
+A `file-contains` gate (e.g. require a touched changelog) and the other types are in the table below; [`examples/`](examples/) has fuller specs.
+
+### Gate types
+
+| Type | Passes when |
+|---|---|
+| `file-exists` | every `file` path exists (`file` may be a list) |
+| `file-contains` | `file` matches `pattern` (optional `flags`, e.g. `i`) |
+| `absent` | `pattern` appears in **no** file matched by `glob` (reports `file:line`) |
+| `command` | `run` exits 0 — only as deterministic as the command |
+| `trivy` | Trivy finds no leaked secrets, no blocking CVEs, and can generate a CycloneDX SBOM |
+| `evidence` | a named `file` exists and is non-empty (`newerThan: "src/**"`: and was written after the last change to those files) |
+| `not-empty` | a directory at `path` contains at least `min` entries (default 1) |
+| `instruction-sync` | every AI agent instruction file (CLAUDE.md, AGENTS.md, Cursor, Copilot…) still agrees with the canonical one (optional `threshold`, default 0.95; `require` lists tools that must have their own file) |
+| `instruction-refs` | every path an instruction file points at (`@imports`, relative links, `src/...` code spans) still exists, and every `npm run <script>` it tells the agent to run is in `package.json` |
+| `no-new` | the count of `pattern` matches in `glob` did not **increase** versus the base ref (skips, `eslint-disable`, TODOs) |
+| `no-fewer` | the count of `pattern` matches in `glob` did not **decrease** versus the base ref (test cases, assertions) |
+| `no-deleted` | every file matching `glob` at the base ref still exists |
+| `unchanged` | every file matching `glob` at the base ref still exists **byte-identical** (snapshots, golden outputs, applied migrations, CI workflows) |
+| `deps-locked` | every dependency declared in `package.json` / `pyproject.toml` is in the lockfile, so a hallucinated package can't slip in |
+| `deps-declared` | every package a JS/TS file in `glob` imports is declared in the nearest `package.json` |
+| `signed-commits` | every commit between the base ref and HEAD is signed (`trust: verified` for a good, checkable signature) |
+| `commit-messages` | every non-merge commit subject between the base ref and HEAD matches `pattern` (Conventional Commits, ticket prefixes) |
+| `pushed` | every local commit is on the remote: HEAD is contained in the upstream (or `ref`) |
+| `phase` | the gates required by the active phase and every earlier one pass now (plan → build → review) |
+
+A glob that matches no files fails its gate instead of passing as a silent no-op
+(set `allowEmpty: true` when that is expected). Pattern gates fail on files over
+`maxBytes` (default 10 MiB) rather than hanging on them. Any gate takes
+`level: warn` to report a failure without blocking, for rolling out a new gate.
+
+**Different gates for different finish lines.** A `when` block scopes a gate by
+command, changed files, or branch. Fast gates on every commit, the full suite only
+on push or publish, and only when source changed:
+
+```yaml
+  - id: full-suite
+    type: command
+    run: npm run test:all
+    when:
+      command: ["git push", "npm publish"]
+      changed: ["src/**"]
+```
+
+A condition skillgate cannot decide runs the gate. See the
+[spec reference](docs/spec-reference.md#conditional-gates-when).
+
+**Lint only what changed.** Command gates get `SKILLGATE_CHANGED_FILES`, a file
+listing the changed files versus the base (filtered by the gate's `when.changed`),
+so a linter can run on the diff instead of the whole repo:
+
+```yaml
+  - id: lint-changed
+    type: command
+    run: 'if [ -n "$SKILLGATE_CHANGED_FILES" ]; then xargs -r npx eslint < "$SKILLGATE_CHANGED_FILES"; else npx eslint .; fi'
+    when:
+      changed: ["src/**/*.ts"]
+```
+
+**Protect the files that define "correct".** An agent can make a check pass by
+editing the snapshot, the expected output or the CI workflow instead of the code.
+`unchanged` blocks any change to files that existed at the base:
+
+```yaml
+  - id: protected
+    type: unchanged
+    glob: "{**/__snapshots__/**,migrations/**,.github/workflows/**}"
+```
+
+**See what the gate did.** Set `SKILLGATE_LOG=.git/skillgate/decisions.jsonl` (or
+pass `--log`) and every `gate` and `check` verdict is appended as one JSON line.
+`skillgate log` summarizes it: how often each gate blocked and which commands it
+stopped. `skillgate explain --commands <file>` replays a command list, or the log
+itself, against the current `finishLine` before you change it.
+
+**Phases, checked live.** A `phase` gate orders work (plan → build → review) and
+requires each phase's gates, plus every earlier phase's, to pass at the moment
+they are checked. The active phase is a plain marker file, and
+`skillgate phase review` moves to review only if review's requirements pass. There
+is no stored state or signature to forge: claiming a phase without doing the work
+fails at the next check.
+
+**Gate MCP tools, not only shell commands.** `gatedTools: ["mcp__course__publish_*"]`
+treats those tool calls like finish-line commands, in Claude Code, Codex, Gemini
+CLI and opencode. `when.tool` scopes a gate to them.
+
+**Trivy security gate.** Add `type: trivy` when the finish line should stop on
+leaked secrets or critical CVEs. skillgate runs Trivy's secret scan separately
+from the vulnerability scan, so `severity: ["CRITICAL"]` filters CVEs without
+masking secrets. A passing scan reports what it did not block (`not blocking:
+12 HIGH`), so "no critical" never reads as "nothing found"; set `summary: false`
+to skip that count. By default it also verifies that Trivy can emit a CycloneDX
+SBOM; set `sbom: false` if your workflow only needs the blocking scan.
+
+**The `evidence` escape hatch.** Gates only see machine-observable output. For a step like "research the API first," have the agent write `.skillgate/evidence/research.md` as it works and gate on that file. Otherwise the step is invisible and the deviation hides.
+
+**Scaffold the evidence workflow.** Run `skillgate scaffold` to generate the evidence files for your stack — test-output.txt, lint-report.txt, diff-review.md, and a README explaining the workflow to the agent. Add `--update-agents` to write agent instructions directly into AGENTS.md / CLAUDE.md. Stack templates: `generic`, `ts-lib`, `react`, `python`.
+
+```bash
+skillgate scaffold                    # create evidence files for current stack
+skillgate scaffold --template react   # React-specific evidence files
+skillgate scaffold --update-agents    # also update AGENTS.md/CLAUDE.md
+```
+
+## Keep your agents reading the same rulebook
+
+Every AI coding tool reads a different instruction file — `CLAUDE.md`, `AGENTS.md`, `.cursor/rules`, `.github/copilot-instructions.md`, `GEMINI.md`, `.clinerules`, `.windsurf/rules`, `.junie/guidelines.md` — and nothing keeps them in sync, so they quietly drift apart until each agent follows a different process. The `instruction-sync` gate fails the finish line when that happens. Four commands back it:
+
+```bash
+npx @reneza/skillgate drift                 # report drift, exit 1 if any file diverged
+npx @reneza/skillgate drift --json          # machine-readable, for scripts and agents
+npx @reneza/skillgate diff-instructions     # show line-level diff of what actually changed
+npx @reneza/skillgate canonical <file>      # pin which file is the single source of truth
+npx @reneza/skillgate sync                  # make AGENTS.md canonical, link the rest
+npx @reneza/skillgate sync --dry-run        # preview without writing
+npx @reneza/skillgate sync --symlink        # use symlinks instead of pointer files/copies
+```
+
+```
+canonical: AGENTS.md
+
+  ✓ AGENTS.md        canonical  100%  AGENTS.md
+  ✓ Claude Code      linked     100%  CLAUDE.md
+  ✗ GitHub Copilot   drifted     25%  .github/copilot-instructions.md
+
+✗ 1 of 3 instruction files drifted — run `skillgate sync`
+```
+
+`sync` understands harness semantics, not just bytes: import-capable tools (Claude Code, Gemini) get a one-line `@AGENTS.md` pointer, the rest get a synced copy, `@AGENTS.md` imports and symlinks already count as linked, and Cursor's `.mdc` frontmatter is per-tool config that's ignored in comparison. The canonical source is the file `skillgate canonical` named, else `AGENTS.md` when present, else the freshest file. (This capability was the standalone `adrift` tool, now folded in.)
+
+## Wire it into your agent
+
+### One command for your agent
+
+The [`skills`](https://skills.sh) installer drops the `skillgate` skill into Claude Code, Codex, Cursor, OpenCode and the other agents it supports:
+
+```bash
+npx skills add renezander030/skillgate
+```
+
+Claude Code can also load it as a plugin:
+
+```
+/plugin marketplace add renezander030/skillgate
+/plugin install skillgate@skillgate
+```
+
+The skill teaches the agent to audit before it changes anything, to run `check` before it reports work finished, and the rule that decides whether any of this is worth having: a gate that blocks gets fixed, never bypassed. Wiring is `skillgate install claude-code`, which writes the hook shown below for you.
+
+### opencode
+
+opencode has no blocking session-end hook, so enforcement lives where it can actually stop the agent: `tool.execute.before`. The plugin denies finish-line commands until the gates pass. Add it to your config:
+
+```jsonc
+// opencode.json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@reneza/skillgate"]
+}
+```
+
+That is the whole integration. Whatever model you have configured, the gate is the same.
+
+### Claude Code
+
+A `PreToolUse` deny on finish-line commands, calling the CLI. `skillgate install
+claude-code` writes it:
+
+```jsonc
+// .claude/settings.json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "npx --yes @reneza/skillgate@<version> gate || exit 2", "timeout": 600 }]
+      }
+    ]
+  }
+}
+```
+
+**Gate "done" itself.** `skillgate install claude-code --stop` (or `codex --stop`,
+`copilot-cli --stop`) also registers a
+`Stop` hook (`skillgate gate --event stop`). When the agent tries to end its turn
+with changes in the worktree and unmet gates, the stop is refused and the failing
+gates are fed back as the reason, so the agent keeps working instead of reporting
+done. A clean worktree always passes, and Claude Code caps consecutive
+continuations.
+
+### Codex, Gemini CLI, Cursor
+
+The same `skillgate gate` judges the command in each agent's own hook protocol:
+
+| Agent | `skillgate install` writes | Hook |
+|---|---|---|
+| Codex | `.codex/hooks.json` | `PreToolUse` on `Bash`, and `Stop` with `--stop`. Codex runs a new project hook only after you trust it. |
+| GitHub Copilot CLI | `.github/hooks/skillgate.json` | `PreToolUse` on `Bash` (Claude-format payload), and `Stop` with `--stop`. A non-zero exit denies the call; the cloud agent loads the same file. |
+| Gemini CLI | `.gemini/settings.json` | `BeforeTool` on `run_shell_command`, answering with `--format gemini` JSON |
+| Cursor | `.cursor/hooks.json` | `beforeShellExecution` with `failClosed: true`, answering with `--format cursor` JSON |
+
+### pre-commit and CI — works for any agent or model
+
+These need no harness integration at all, which makes them the universal backstop. See [`contrib/`](contrib/) for a ready [pre-commit hook](contrib/pre-commit-config.yaml) and [GitHub Action](contrib/github-action.yml). Pair the Action with branch protection and a required status check: that layer lives server-side, outside any agent's reach.
+
+In GitHub Actions, `skillgate check --format github` turns each failing gate into
+an error annotation on the file and line it names, so the PR shows the problem
+in place, and writes a result table to the job summary. The workflow from `skillgate install github-actions` uses it.
+
+Native Windows hook files are included in [`contrib/claude-code`](contrib/claude-code/):
+the PowerShell adapter resolves `npx.cmd`, preserves the hook payload on stdin, and
+uses the same exit-code contract as the POSIX hook. The CLI test suite also runs on
+Windows in CI.
+
+> **Private repo, Free account?** GitHub doesn't enforce branch protection on private repos under a Free personal plan — so the only *hard* layer above is unavailable. Get the same guarantee for free by running the evaluator somewhere the agent can't reach: a self-hosted server-side `pre-receive` gate on a [VM, a Docker container, or a small remote VPS](contrib/self-hosted-gate/). `git push --no-verify` can't skip a server hook, and the definition of done lives on a box the agent can't log into. Pick the substrate by how well your agent is already sandboxed — see [`contrib/self-hosted-gate`](contrib/self-hosted-gate/).
+
+**Worktrunk:** Skillgate works unchanged in [Worktrunk](https://worktrunk.dev/hook/)
+worktrees. Track `.skillgate/done.yaml` and add
+`pre-merge = "npx --yes @reneza/skillgate@0.16.0 check --base '{{ target }}'"`
+to `.config/wt.toml`. Worktrunk runs this blocking hook in the source worktree
+after rebasing and aborts the merge on a nonzero exit. Skillgate discovers that
+worktree's policy and evaluates paths relative to it, including when called from
+a nested directory. Install project dependencies in each worktree if your gates
+run project commands, and approve the hook on first use. Worktrunk hooks can be
+skipped locally; pair them with a required CI check for server-side enforcement.
+
+### Not a husky replacement — what husky runs
+
+husky, lefthook, and pre-commit are **hook runners**: they wire a command to a git event. They don't know what "done" means; you tell them what to run. skillgate is the thing they run. If you already use husky, point its `pre-commit` at skillgate:
+
+```bash
+# .husky/pre-commit
+npx @reneza/skillgate check
+```
+
+Two differences that matter beyond "git hook vs git plumbing":
+
+- **skillgate also guards the agent layer.** husky only sees git, so it can only act once the agent reaches a commit. The opencode / Claude Code adapters deny the finish-line command *before* git is even involved, with the unmet gates fed back into the same session.
+- **A git hook is bypassable** (`--no-verify`) and only as strong as the policy inside it. skillgate is that policy as data (`.skillgate/done.yaml`), reusable verbatim across husky, pre-commit, CI, and the agent hooks. Define done once, enforce it everywhere.
+
+## The honest part: layers are not equal
+
+| Layer | Strength |
+|---|---|
+| opencode / Claude Code / Codex / Gemini CLI / Cursor deny | **Soft** — enforced locally; a locked-down harness permission profile makes it hold |
+| pre-commit | **Soft** — bypassable with `--no-verify` |
+| CI + branch protection | **Hard** — runs server-side, the agent has no write access to it |
+| [self-hosted `pre-receive`](contrib/self-hosted-gate/) | **Hard** — server-side on a box the agent can't log into; free, and works on private repos with no paid tier |
+
+Use the harness hooks for fast feedback in the loop; rely on CI for the guarantee.
+
+## Need it set up for your team?
+
+If `npx @reneza/skillgate@latest audit` shows gaps in your repos and you would rather not wire the gates yourself, I do it as a fixed-scope day: **EUR 700 per day, one day for one repo or one pipeline.**
+
+What one day covers:
+
+- Run the audit and agree your definition of done with you.
+- Write the gates for your stack (tests, lint, secrets, diff review, instruction-file sync).
+- Wire them into your agent (Claude Code, opencode, Codex, Cursor) and into pre-commit and CI.
+- Hand over a short note on how to extend the gates yourself.
+
+What it does not cover: changes to your product code, or running the gates for you afterwards.
+
+To book a day, message me via [renezander.com](https://renezander.com).
+
+## Documentation
+
+- [Quickstart](docs/quickstart.md) — audit, define, check, wire in.
+- [Spec reference](docs/spec-reference.md) — every gate type and option, plus the [JSON Schema](schema/done.schema.json) for editor autocomplete.
+- [Recipes](docs/recipes.md) — Claude Code, pre-commit, CI, loop+gate, self-hosted server.
+- [AI agent reliability checklist](docs/agent-reliability-checklist.md) — ten deterministic checks for production-shaped coding-agent workflows.
+- [Architecture](docs/architecture.md) — how the modules fit and how to add a gate type.
+- [Compatibility & deprecation policy](docs/compatibility.md) — SemVer, spec versioning, the exit-code contract.
+- [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+
+## Related
+
+Same conviction in every one of these — *the model suggests, a deterministic boundary it can't route around decides* — applied at a different layer of the stack:
+
+- **[draftcat](https://github.com/renezander030/draftcat)** — the principle at the **business-operations** layer. A self-hosted Go pipeline engine where the LLM can't fire customer-facing actions (email, CRM, lead replies, voice) without passing deterministic checks and a human operator's sign-off. skillgate is the same idea at the **engineering** layer: it gates *shipping code* instead of *contacting customers*, and its judge is an automated check rather than a human approver (because "do the tests pass?" doesn't need a person).
+- **[agent-approval-gate](https://github.com/renezander030/agent-approval-gate)** — the minimal *pattern* (schemas + examples) behind that approval step: gate an agent's real-world actions behind human approval and an audit log. skillgate decides *"is it done?"*; agent-approval-gate decides *"should this action fire, and who approved it?"*
+
+> **adrift** (instruction-file drift detection) is now part of skillgate — see [`drift` and `sync`](#keep-your-agents-reading-the-same-rulebook) above.
+
+## License
+
+MIT © Rene Zander

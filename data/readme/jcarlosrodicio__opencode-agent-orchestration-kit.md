@@ -1,0 +1,1082 @@
+# OpenCode Agent Orchestration Kit
+
+<p align="center">
+  <a href="https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit/actions/workflows/check.yml"><img src="https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit/actions/workflows/check.yml/badge.svg" alt="Check"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/jcarlosrodicio/opencode-agent-orchestration-kit" alt="License"></a>
+  <a href="https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit/releases"><img src="https://img.shields.io/github/v/release/jcarlosrodicio/opencode-agent-orchestration-kit" alt="Latest release"></a>
+  <a href="https://github.com/sponsors/jcarlosrodicio"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub"></a>
+</p>
+
+**An open-source multi-agent orchestration harness for OpenCode.**
+
+OpenCode Agent Orchestration Kit (OAK) turns OpenCode into a structured
+software-engineering team of specialized agents for research, design,
+specification, implementation, review, and validation. It keeps OpenCode agent
+orchestration local, inspectable, version-controlled, and reproducible.
+
+Unlike systems designed primarily around large parallel worker pools, OAK
+focuses on bounded engineering workflows with durable state, explicit
+handoffs, independent review, validation evidence, and optional human approval
+gates. It is model-agnostic within OpenCode: each role can use the default
+model or an explicit provider/model available in the user's OpenCode setup.
+
+**Apache-2.0 · Local-first · OpenCode-native · Model-agnostic**
+
+> [!NOTE]
+> This software-engineering agent harness is not a hosted platform, a fully
+> autonomous software factory, or a replacement for engineering judgment.
+
+## Why this exists
+
+A basic coding-agent setup often starts simple:
+
+- One general-purpose agent.
+- A few custom prompts.
+- Some copied skills.
+- Ad hoc instructions.
+- Manual review and validation.
+
+Over time, that setup becomes harder to maintain:
+
+- Agents overlap or contradict each other.
+- Planning, research, implementation, and review blur together.
+- Workflows become prompt-dependent and difficult to reproduce.
+- Configuration changes become risky.
+- Documentation and validation drift away from the actual setup.
+
+This kit provides a documented OpenCode harness with:
+
+- Specialized agents with explicit responsibilities.
+- Predictable handoffs between research, design, specification, implementation, and review.
+- Slash commands for common product-development workflows.
+- Local process skills and reusable engineering checklists.
+- Safe installation and uninstall scripts.
+- Local validation for configuration and harness contracts.
+- Optional integrations for Open Design, Impeccable, and observability.
+
+The goal is not to force every request through a heavy process. Small, clear, low-risk changes can go directly to implementation. Larger or ambiguous work can follow a structured flow with research, planning, review, and evidence.
+
+## What you get
+
+| Capability | What it gives you |
+|---|---|
+| Role-based agents | Dedicated agents for routing, research, design, specification, implementation, review, and optional harness evolution |
+| Product-development workflows | Structured flows for features, plans, scoped research, bounded engineering loops, MVP specs, testing, simplification, and review |
+| Bounded routing | A default `lead` agent that routes simple requests directly and escalates only when needed |
+| Local skills | Practical checklists for testing, debugging, security, performance, documentation, APIs, code review, and more |
+| Process skills | OAK's own skills for each phase: task enrichment, adversarial review, runtime verification, documentation updates, and commits. No external plugin is required |
+| Task runs and delivery | `oak run` links the sessions of one change; `oak deliver` is the only path that pushes a branch and opens a pull request |
+| OpenCode 1 and 2 | One installation loads on OpenCode 1 (supported) and OpenCode 2 (experimental) |
+| Safe installation | Backup-aware install and uninstall scripts, plus a project-local test mode |
+| Validation | Mechanical checks for JSON configuration, agent contracts, command contracts, and harness consistency |
+| Adversarial safety | Portable fixtures for injection, unsafe paths, wrapper/network permissions, approval integrity, supply-chain pins, and corrupt events |
+| Optional design workflow | Open Design integration for editable UI workspaces and design-oriented flows |
+| Optional token visibility | TUI plugin for lead and subagent token usage when OpenCode exposes session trees |
+| Versioned documentation | Agent, command, evidence, and validation contracts stored alongside the configuration |
+
+### Bounded autonomous execution
+
+OAK supports explicitly requested autonomous local work without turning it
+into unlimited or unattended execution:
+
+- `/loop` requires an approved task contract before writes, allows at most
+  three iterations per invocation within a task-specific one-to-six iteration
+  budget, and can resume from durable state. Worktrees are explicit opt-in.
+- `/autonomous` works on a feature branch, uses a task-specific one-to-six
+  iteration budget, runs deterministic validation in every iteration, stops
+  iterating as soon as an independent `reviewer` approves the result, and
+  ends at an open pull request through `oak deliver`.
+- Both workflows use a schema-versioned JSON snapshot, append-only JSONL
+  history, an exclusive lock, contract hashing, idempotent action IDs, and
+  explicit recovery for interrupted writes.
+
+The `/autonomous` contract ends at an open pull request through `oak deliver`;
+it never merges, deploys, releases or publishes, and it prohibits worktrees,
+parallel execution, scheduling, write-enabled connectors, pushes to the default
+branch, and force-pushes. Its seven stop reasons, including sensitive or
+expanded scope, stop for human review. See the [`/loop`](opencode/commands/loop.md) and
+[`/autonomous`](opencode/commands/autonomous.md) contracts for the exact
+boundaries.
+
+## Built around
+
+This kit builds on and integrates with the following projects:
+
+- [OpenCode](https://opencode.ai/) — the coding-agent runtime and configuration surface.
+- [Open Design](https://github.com/nexu-io/open-design) — optional local-first design workspace integration.
+- [Impeccable](https://github.com/pbakaus/impeccable) — optional design guidance for AI-generated frontend work.
+
+Each integration is optional. The core workflow can be used with OpenCode alone.
+
+## Who this is for
+
+This kit is a good fit if you:
+
+- Use OpenCode and want a repeatable development workflow instead of isolated prompts.
+- Want specialized agent roles without building the whole system from zero.
+- Want to separate research, planning, implementation, review, and validation.
+- Prefer local configuration that can be inspected, customized, committed, and evolved.
+- Work alone or in a small technical team.
+- Want a practical starting point rather than a black-box orchestration platform.
+
+## Who this is not for
+
+This kit may not be the right fit if you:
+
+- Only need one small custom prompt or agent.
+- Do not use OpenCode.
+- Want a hosted multi-agent platform with queues, dashboards, billing, and team administration.
+- Need autonomous parallel execution across many repositories or worktrees.
+- Expect every request to be fully automated without human oversight.
+
+## How OAK compares
+
+OpenCode orchestration projects optimize for different operating models. This
+summary describes their documented emphasis; it is not a universal ranking.
+
+| Approach | Documented emphasis | Consider it when |
+|---|---|---|
+| **OAK** | Versioned software-engineering workflows, specialized phase roles, durable bounded loops, independent review, and local safety contracts | You want research → specification → implementation → review with explicit scope and evidence |
+| [`opencode-orchestrator`](https://github.com/agnusdei1207/opencode-orchestrator) | A persisted mission runtime with Commander, Planner, Worker, and Reviewer roles, local memory, and configurable agent concurrency | You want runtime-governed mission execution and a larger concurrent worker pool |
+| [`oh-my-openagent`](https://github.com/code-yeongyu/oh-my-openagent) | A broad multi-model agent harness with specialized agents, integrated tools, background agents, and opt-in parallel Team Mode | You want an extensive agent/tool ecosystem and optional parallel teams |
+| [`opencode-agent-tree`](https://github.com/beremaran/opencode-agent-tree) | A plugin that makes an orchestrator decompose and delegate every request, with hands-on tools blocked and configurable delegation depth | You want enforced delegation trees and parallel fan-out of independent subtasks |
+
+### Choose OAK when
+
+- You want OpenCode to behave like a structured engineering team.
+- You want research, specification, implementation, validation, and independent review to remain distinct.
+- You need durable, resumable workflows with explicit scope and acceptance criteria.
+- You prefer bounded autonomy and inspectable local contracts over unconstrained agent loops.
+
+### Consider another orchestration approach when
+
+- Your primary goal is maximizing parallel worker throughput.
+- You need autonomous execution across many worktrees or repositories.
+- You need a hosted orchestration or control-plane product.
+- You want an unattended software factory rather than bounded engineering workflows.
+
+See [OpenCode Agent Orchestration Approaches](docs/comparison.md) for the
+comparison method, architectural distinctions, limitations, and source links.
+
+## Engineering quality
+
+OAK's reproducibility and safety claims are backed by checked repository
+artifacts rather than a maturity label:
+
+- 1,000+ automated unit and script tests across the package and shipped harness.
+- Mechanical validation of agent, command, workflow, evidence, and routing contracts.
+- Type checking plus dependency vulnerability, integrity, and signature audits.
+- Isolated installation and exact-package smoke tests for the `oak` and `oc-switch` CLIs.
+- Compatibility checks across the declared OpenCode and Node.js boundaries.
+- Durable-state recovery, corruption, idempotency, and adversarial fixtures.
+- Public/private configuration boundary checks and release-provenance validation.
+
+The [Validation](#validation) section explains the normal and release-grade
+checks and their limits.
+
+## How it works
+
+Free-form requests start with the `lead` agent.
+
+`lead` acts as a bounded router:
+
+- Simple and low-risk implementation work goes directly to `developer`.
+- Technical uncertainty goes to `researcher`.
+- Visual or interaction work goes to `designer`.
+- Planning gaps go to `specifier`.
+- Larger feature work follows a structured orchestration flow.
+
+```text
+Simple change
+lead
+  └── developer
+        └── validation
+
+Feature work
+lead
+  ├── designer            when visual or interaction design is needed
+  ├── researcher          when technical uncertainty must be resolved
+  ├── specifier           creates tasks, acceptance criteria, and validation plan
+  ├── developer           implements approved work
+  └── reviewer            checks the final diff against the agreed scope
+
+Plan-only work
+lead
+  └── researcher
+        └── specifier
+              └── reviewer
+
+Bounded engineering loop
+lead
+  └── human approval gate
+        └── developer
+              └── reviewer
+                    └── developer state sync
+
+Scoped research and specification
+scoper
+  └── researcher
+        └── scoper synthesis
+              └── specifier
+
+Optional harness evolution
+evaluator
+  └── debugger
+        └── evolver
+              └── lead approval
+                    └── developer
+                          └── evaluator
+                                └── debugger
+                                      └── reviewer
+```
+
+The normal workflow is intentionally not a fixed ceremony for every task.
+
+Use the smallest useful flow:
+
+- Direct implementation for a small change.
+- `/plan` when you want an implementation-ready plan but no code changes.
+- `/scope` when you need research and an MVP-oriented specification.
+- `/feature` when the work deserves full orchestration.
+- `/loop` when you want an approved, resumable implementation-review cycle with
+  crash-recoverable structured state and a three-iteration cap.
+- `/autonomous` for one explicitly requested task with a task-specific
+  one-to-six-iteration budget, a hard ceiling of six, durable state, and
+  reviewer-only closure. Final approval stops the cycle, and the run ends at an
+  open pull request.
+
+### Small-gate fast path
+
+A declared `small` change of at most two files may skip final review when it
+does not touch protected surfaces (auth, secrets, public API, migrations, CI,
+or the harness itself), is not destructive, and does not require new tests.
+`lead` then records `review_skipped_reason: small_gate_pass`. Medium and large
+work, and any sensitive surface, still get a full `reviewer` verdict. The
+unique gate definition lives in `opencode/docs/ai/harness/agents.md`.
+
+## Included agents
+
+| Agent | Responsibility |
+|---|---|
+| `lead` | Default router, feature orchestrator, and phase-barrier owner |
+| `scoper` | Lightweight research-to-spec orchestration |
+| `designer` | Product and interaction design using project context, optional Impeccable, and Open Design |
+| `researcher` | Code, documentation, API, alternative, and risk investigation |
+| `specifier` | Specs, tasks, acceptance criteria, scope boundaries, and validation plans |
+| `developer` | Implementation, direct-mode changes, and focused validation |
+| `reviewer` | Final, read-only review against scope, real diff, original evidence, and contextual architecture |
+| `evaluator` | Optional benchmark and smoke-test evidence collection |
+| `debugger` | Optional root-cause analysis from failures and traces |
+| `evolver` | Optional evidence-driven harness improvement proposals |
+
+The `evaluator`, `debugger`, and `evolver` agents are optional harness-evolution sidecars. They are not part of the normal feature-development path.
+
+## Included commands
+
+| Command | Use it when you want to... |
+|---|---|
+| `/feature` | Run the full feature workflow |
+| `/plan` | Research and create an implementation-ready plan without implementing |
+| `/scope` | Research a topic and produce a scoped MVP specification |
+| `/loop` | Design and run a bounded, resumable engineering loop |
+| `/mvp-spec` | Create a strict MVP spec with small tasks and explicit out-of-scope items |
+| `/design` | Create or evolve a design through project context and Open Design |
+| `/research` | Run a direct research task |
+| `/spec` | Run a direct specification task |
+| `/implement` | Implement approved work directly |
+| `/test` | Reproduce a bug or run focused validation |
+| `/code-simplify` | Simplify code without changing behavior |
+| `/review` | Run the final read-only review of the current diff |
+| `/evolve` | Run the optional harness-evolution workflow |
+| `/init` | Initialize project-oriented context for the workflow |
+
+Examples:
+
+```text
+/feature Create onboarding with plan selection and welcome screen
+
+/plan Add a dry-run flag to the harness check without implementing it yet
+
+/scope Research Stripe Checkout integration and generate an MVP spec
+
+/loop Add request retries with focused tests and independent review
+
+/loop resume request-retries
+
+/mvp-spec Email notifications when an agent finishes a task
+
+/design Read PRODUCT.md and DESIGN.md, create an editable Open Design project, and generate a first version
+
+/test Reproduce the checkout regression with a focused test
+
+/code-simplify Simplify the parser branch without changing behavior
+
+/review
+```
+
+`/loop` stores its approved human-readable contract in Markdown and uses a
+schema-versioned JSON snapshot, append-only JSONL history, and exclusive lock
+for execution state. Contract hashing rejects stale approvals, action IDs make
+retries idempotent, and explicit repair recovers interrupted writes without
+turning the loop into unattended automation.
+
+A small request can also be written directly:
+
+```text
+Change the Settings heading to Account settings and run the smallest relevant validation.
+```
+
+### One review policy across stacks
+
+All review entry points use the same language- and framework-neutral policy.
+The reviewer checks correctness, security, contracts, architecture,
+maintainability, tests, and evidence—not only whether tests pass.
+
+Generic backend and frontend profiles adapt those checks to the changed
+surface. Strict Clean Architecture, DDD, hexagonal, CQRS, or layered profiles
+activate only when the task or repository explicitly declares that
+architecture; folder names alone do not activate them.
+
+Only problems introduced or materially worsened by the current task can block
+it. Relevant pre-existing debt is reported separately as a non-blocking
+observation. `/review-preflight` remains deterministic, and focused
+`/review-orchestrated` modes remain partial; only the general `/review` agent
+emits a final verdict.
+
+For this kind of request, `lead` should choose the direct path and delegate to `developer` without invoking the full feature workflow.
+
+## Quick start: test it safely first
+
+The safest way to try the kit is to load it from the repository directory without changing your global OpenCode configuration.
+
+### Requirements
+
+- Git
+- Bash
+- OpenCode installed and available on your `PATH`
+- Node.js `^22.9.0 || ^24.0.0` and npm
+- An OpenCode-compatible model provider configured through `opencode auth login`
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit.git
+cd opencode-agent-orchestration-kit
+```
+
+### 2. Configure models
+
+```bash
+cp env.example .env
+source .env
+```
+
+`env.example` provides a shared default model plus optional per-role overrides.
+
+```bash
+export OPENCODE_MODEL="openai/gpt-5.5"
+
+export OPENCODE_SMALL_MODEL="$OPENCODE_MODEL"
+export OPENCODE_LEAD_MODEL="$OPENCODE_MODEL"
+export OPENCODE_SCOPER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_DESIGNER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_RESEARCHER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_SPECIFIER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_DEVELOPER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_REVIEWER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_EVALUATOR_MODEL="$OPENCODE_MODEL"
+export OPENCODE_DEBUGGER_MODEL="$OPENCODE_MODEL"
+export OPENCODE_EVOLVER_MODEL="$OPENCODE_MODEL"
+```
+
+You can use one model for every role or assign different models depending on cost, speed, and task complexity.
+
+### Interactive OpenCode model switching
+
+The repository also includes `oc-switch`, a standalone TUI for changing the
+OpenCode default model, small/title model, and per-agent overrides. It builds
+its provider list from OpenCode itself and reads the local model catalog from
+`opencode models --pure`, so it only shows providers configured in your
+OpenCode installation. Startup is cache-first; press `r` when you want an
+explicit remote catalog refresh through `--refresh`. It does not share a
+catalog with Pi.
+
+From this checkout, run:
+
+```bash
+npm run oc-switch
+```
+
+To install the command globally from the published npm package:
+
+```bash
+npm install --global opencode-agent-orchestration-kit
+oc-switch
+```
+
+To install the current cloned checkout instead:
+
+```bash
+npm install --global .
+oc-switch
+```
+
+After a tagged release is published, you can install the same CLI directly
+from GitHub without keeping a checkout:
+
+```bash
+npm install --global "git+https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit.git#v1.2.0"
+oc-switch
+```
+
+The package exposes `oc-switch` through its npm `bin` entry; no separate
+wrapper or shell alias is required. Keep `~/.npm-global/bin` (or your npm
+global bin directory) on `PATH` if npm is configured with a user prefix.
+
+#### `oc-switch` quick guide
+
+- `↑`/`↓` moves through `Default`, `Small/title`, and the agent rows.
+- `Enter` or `/` opens the model picker for the focused row.
+- Type to filter the current OpenCode catalog; `q`, `r`, and `s` are search
+  characters while the picker is open. `Backspace` deletes one character.
+- `Enter` applies the highlighted model. `Space` marks several agent rows so
+  one selection can be applied to all of them.
+- `s` saves. `q` saves and exits. `Esc` returns to the assignment list, and
+  `r` explicitly refreshes OpenCode's catalog.
+
+The selected values are persisted in the OpenCode model-switcher state and in
+the managed model block of `.zshrc` or `.bashrc`.
+
+Pi has its own independent `pi-switch`; its catalog comes only from Pi's
+`pi --list-models` command.
+
+### 3. Install local plugin dependencies
+
+```bash
+(cd opencode && npm ci --ignore-scripts)
+```
+
+### 4. Load the kit without global installation
+
+```bash
+export OPENCODE_CONFIG_DIR="$PWD/opencode"
+opencode auth login
+opencode
+```
+
+OpenCode now loads the configuration from this repository instead of your default global config.
+
+Try one of these commands:
+
+```text
+/scope Research whether this repository should use Stripe Checkout or Payment Element and produce an MVP spec
+```
+
+```text
+/plan Add a dry-run flag to the harness check without implementing it yet
+```
+
+```text
+/feature Add a small settings page with a saved theme preference
+```
+
+## Install from npm or a checkout
+
+The published package can be installed directly from npm:
+
+```bash
+npm install --global opencode-agent-orchestration-kit
+oak version
+oak install --dry-run
+oak install
+```
+
+The npm install only places the `oak` and `oc-switch` commands on `PATH`. It
+has no install lifecycle script and does not modify OpenCode configuration
+until `oak install` is explicitly run. Previewing first preserves the same
+ownership, collision, and rollback rules as the shell wrappers.
+
+From a cloned checkout, preview and install the harness into your OpenCode
+configuration directory:
+
+```bash
+./install.sh --dry-run
+./install.sh
+```
+
+The default target is:
+
+```text
+${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}
+```
+
+Use a custom target when needed:
+
+```bash
+./install.sh --target "$HOME/.config/opencode"
+```
+
+An explicit `--target` wins over a non-empty `OPENCODE_CONFIG_DIR`, which wins over `$HOME/.config/opencode`. Argument values are literal; `~` is not expanded.
+
+The installer inventories the payload, computes a complete plan, and tracks ownership in `TARGET/.oak/manifest.json`. A dry run performs no writes. A real operation recomputes the plan under an exclusive lock and commits through a durable journal with one rollback generation.
+
+Release packages also record a safe `release_provenance` block in that manifest:
+the source projection commit, public commit, canonical kit version, packaged
+payload digest, and a passed-checks marker. Existing manifests without that
+optional block remain readable; the release package smoke requires it for new
+release evidence and never stores paths, provider settings, or credentials.
+
+The root `package.json` is the canonical kit-version source. Display the same
+identity through the manager or any lifecycle wrapper:
+
+```bash
+node scripts/version.mjs
+./install.sh --version
+./upgrade.sh --version
+./doctor.sh --version
+./uninstall.sh --version
+./rollback.sh --version
+```
+
+### Safe defaults
+
+Initial install preserves differing `AGENTS.md`, `opencode.json`, `tui.json`, `package.json`, and `package-lock.json` as user-owned files. Exact existing matches may be adopted without rewriting. Any other collision blocks the whole operation. A legacy installation without a manifest follows these same initial-install rules.
+
+Use `--force` only on initial install to authorize replacement of colliding regular files after their bytes and modes are durably backed up:
+
+```bash
+./install.sh --force
+```
+
+It never authorizes directory or symlink replacement, unsafe paths, state repair, upgrade conflicts, or deletion of user-modified files.
+
+After global installation, install the OpenCode config dependencies:
+
+```bash
+(cd "${OPENCODE_CONFIG_DIR:-$HOME/.config/opencode}" && npm ci --ignore-scripts)
+```
+
+Use that frozen command only when the installed `package.json` and
+`package-lock.json` still match the shipped manifests. If installation
+preserved differing manifests, review and merge the required dependencies
+first, then choose the install command for that user-owned dependency graph.
+
+## Upgrade, diagnose, uninstall, and rollback
+
+The package also exposes the dependency-free `oak` CLI as a thin frontend over
+the same tested engines:
+
+```bash
+oak --help
+oak doctor
+oak check
+oak replay
+oak state inspect --root /path/to/project --slug task-slug
+```
+
+The shell wrappers remain supported. `oak check` validates the installed target
+without executing a target-provided checker, while `oak replay` defaults to the
+packaged static corpus and synthetic fixtures. See the [`oak` CLI
+guide](docs/cli.md) for commands, target precedence, exit codes, and explicit
+exclusions.
+
+`oak state` runs the packaged durable loop-state runtime against an explicit
+project root; it is intended for bounded local workflows that need a journal,
+lock, and recovery without copying harness scripts into the project.
+Its completion gate requires a durable `reviewer` subagent `APPROVE`
+attestation; see the CLI guide for the exact command.
+
+Preview an ownership-safe upgrade, then apply it:
+
+```bash
+./upgrade.sh --dry-run
+./upgrade.sh
+```
+
+Upgrade aborts before writing if an owned file is missing or modified, an obsolete owned file changed, or an unowned collision exists. Preserved files remain user-owned. When a shipped protected file changes, `doctor` reports whether the source, user copy, or both changed:
+
+```bash
+./doctor.sh
+```
+
+Upgrade also compares the local source version with `kit_version` in the active
+manifest. A newer source may upgrade; equal version and payload is a no-op;
+equal version with a different payload is blocked as an identity contradiction;
+and an older source is blocked to prevent downgrade. `doctor` reports
+`not-installed`, `current`, `upgrade-available`, `source-older`,
+`same-version-different-payload`, or `invalid-version-state` without consulting
+the network.
+
+Doctor prints twelve ordered findings for OpenCode and Node compatibility,
+installed dependencies, managed files and drift, required configuration,
+optional plugins, permissions, executable scripts, the generated skill
+registry, aggregate compatibility, and legacy residue. Each finding is
+classified as `pass`, `info`, `action-required`, or `not-applicable`, followed
+by a deterministic summary. It does not print configuration contents,
+subprocess stderr, environment values, credentials, or rollback bytes.
+
+Doctor returns `0` when no finding requires action, `1` for safely actionable
+state, and `2` for invalid invocation, corrupt/unsafe state, or an unrecoverable
+filesystem error. Suggested actions are never applied automatically, and
+preserved custom configuration remains user-owned. See the
+[installation lifecycle guide](docs/installation.md) for the full diagnostic
+contract. To acknowledge a completed manual merge, run:
+
+```bash
+./doctor.sh --accept-preserved opencode.json
+```
+
+The command prints a full `ACK-PRESERVED` line containing the exact target/source hashes and modes. Paste that line back byte-for-byte; `yes`, a path alone, truncated values, or a stale tuple do not authorize mutation.
+
+Uninstall previews first and removes only unchanged files owned by the manifest. Modified, missing, preserved, and unrelated user files are never deleted:
+
+```bash
+./uninstall.sh --dry-run
+./uninstall.sh
+./uninstall.sh --yes
+```
+
+The most recent committed install, upgrade, acknowledgement, or uninstall can be reversed once:
+
+```bash
+./rollback.sh --dry-run
+./rollback.sh
+```
+
+If an operation was interrupted, `rollback.sh` uses the active journal to restore the pre-operation state instead. Do not delete or edit `.oak` manually: it contains ownership metadata, recovery state, and potentially sensitive exact backup bytes. See [the installation lifecycle guide](docs/installation.md) for command syntax, conflict handling, and recovery details.
+
+## Skills
+
+The kit includes local skills that agents use as practical checklists rather than mandatory process overhead.
+
+Included skills cover:
+
+- API and interface design
+- Autonomous loops
+- Code review and quality
+- Code simplification
+- Context engineering
+- Debugging and error recovery
+- Documentation and ADRs
+- Doubt-driven development
+- Iterative retrieval
+- Open Design
+- Performance optimization
+- Security and hardening
+- Source-driven development
+- Test-driven development
+- Verification loops
+- Using agent skills effectively
+
+These skills are available under:
+
+```text
+opencode/skills/
+```
+
+### Process skills
+
+OAK ships its own process skills, and each belongs to the agent that owns the
+phase. The harness does not depend on any external plugin for its process.
+
+| Skill | Agent | When |
+|---|---|---|
+| `oak-enrich-task` | `lead`, `scoper`, `specifier` | A vague request at intake becomes a specification with its open questions sorted |
+| `oak-adversarial-review` | `reviewer` | Every final review, with a per-file coverage line |
+| `oak-runtime-verification` | `developer` | Before the final review of a change with a runtime surface |
+| `oak-update-docs` | `developer` | Before closeout, when the change made documentation stale |
+| `oak-commit` | `developer` | Only when the human asks, or at `/autonomous` delivery |
+
+Pushing and pull requests go through `oak deliver` only. See
+[workflows](docs/workflows.md) and the [CLI reference](docs/cli.md).
+
+They are designed to help agents make better engineering decisions without forcing every task through every checklist.
+
+## Optional integrations
+
+The integrations below are optional extensions. They are not required for the core agent workflow.
+
+| Integration | What it adds | Setup |
+|---|---|---|
+| [Open Design](https://github.com/nexu-io/open-design) | Editable, local-first design workspace workflows | [Open Design guide](docs/open-design.md) |
+| [Impeccable](https://github.com/pbakaus/impeccable) | Design guidance and deterministic frontend-quality checks | [Impeccable guide](docs/impeccable.md) |
+
+### [Open Design](https://github.com/nexu-io/open-design)
+
+Open Design is included as an optional local integration for design-oriented workflows.
+
+The `designer` agent can use:
+
+- Project context from `PRODUCT.md` and `DESIGN.md`.
+- Optional Impeccable design context.
+- Open Design tools through `OPEN_DESIGN_URL`.
+
+Set `OPEN_DESIGN_URL` to the base URL of your Open Design workbench:
+
+```bash
+export OPEN_DESIGN_URL="https://open-design.example.com"
+```
+
+A local or LAN URL is also valid:
+
+```bash
+export OPEN_DESIGN_URL="http://192.168.1.50:7456"
+```
+
+Do not use a project page or file URL:
+
+```bash
+# Invalid
+export OPEN_DESIGN_URL="https://open-design.example.com/projects/my-project"
+export OPEN_DESIGN_URL="https://open-design.example.com/projects/my-project/files/index.html"
+```
+
+Open Design is optional. You can use the rest of the kit without it.
+
+### Run Open Design with Docker
+
+A Docker setup is included:
+
+```bash
+cd docker/open-design
+cp .env.example .env
+docker compose up -d --build
+```
+
+If Open Design should use OpenCode as a design engine, authenticate inside the container:
+
+```bash
+docker exec -it open-design bash
+opencode auth login
+opencode models openai --refresh
+exit
+```
+
+Then configure the Open Design base URL:
+
+```bash
+export OPEN_DESIGN_URL="http://192.168.1.50:7456"
+```
+
+### [Impeccable](https://github.com/pbakaus/impeccable)
+
+Impeccable is optional and is not included in this repository.
+
+Install it from its upstream source when you want the `designer` agent to use it as additional design context, particularly when project-specific `PRODUCT.md` or `DESIGN.md` files are missing.
+
+### Token usage plugin
+
+The bundled TUI plugin can show:
+
+- Lead-agent token usage.
+- Total token usage across child and subagent sessions.
+
+This depends on OpenCode exposing the session tree through its TUI plugin API.
+
+If your existing `tui.json` was preserved during installation, add the bundled plugin manually:
+
+```json
+{
+  "plugin": [
+    "./plugins/token-tree-usage.tsx"
+  ]
+}
+```
+
+## Validation
+
+Normal harness use requires Node.js, npm, and a supported OpenCode version; it
+does not require a system SQLite client.
+
+Full validation and development additionally require the external `sqlite3`
+binary because the session-evidence tests create real SQLite fixtures. On
+Ubuntu or Debian, install it with:
+
+```bash
+sudo apt-get install -y sqlite3
+```
+
+Run the normal local check with:
+
+```bash
+npm run check
+```
+
+The bundled routing corpus can also be replayed deterministically without
+calling a model:
+
+```bash
+node opencode/scripts/replay-routing.mjs \
+  --corpus opencode/docs/ai/evolution/benchmarks/router-scenarios.jsonl \
+  --fixtures opencode/docs/ai/evolution/benchmarks/replay-fixtures.jsonl
+```
+
+Aggregate one or more sanitized replay reports into deterministic routing
+metrics without calling a model or rereading raw evidence:
+
+```bash
+node opencode/scripts/summarize-routing-metrics.mjs \
+  --corpus opencode/docs/ai/evolution/benchmarks/router-scenarios.jsonl \
+  --report /path/to/routing-replay-report.json
+```
+
+Inconclusive observations are excluded from metric denominators. Token cost is
+reported as unavailable until the replay report schema carries token evidence.
+
+An isolated live replay is available only through explicit opt-in. It may
+consume model tokens, is intentionally excluded from normal checks and CI, and
+does not persist model/provider configuration or raw output by default.
+
+This runs the fast contract checker and every bundled `node:test` suite. For a
+fast structural check while editing documentation or contracts, use
+`npm run check:quick`. Before a release, use `npm run check:release`; it performs
+a frozen dependency install and also runs typechecking, dependency integrity,
+audit/signature checks, installation smoke, and the exact package smoke. The
+package smoke extracts the tarball, recomputes the packaged OpenCode payload
+digest, uses an isolated `OPENCODE_CONFIG_DIR`, preserves a user configuration,
+and exercises `doctor` plus rollback before reporting release provenance.
+Publication remains separately authorized; follow the reviewed artifact and
+checksum procedure in [the supply-chain policy](docs/supply-chain.md).
+
+Validate only the canonical identity and current release note with:
+
+```bash
+npm run check:version
+node scripts/version.mjs --check-tag v1.2.0
+```
+
+Tag validation compares an explicitly supplied tag with the package identity.
+It does not create or push a tag, publish npm content, or create a hosted
+release. Those remain separate manual, explicitly approved steps.
+
+The contract checker validates the shipped harness, including:
+
+- Configuration JSON.
+- Agent and command frontmatter.
+- Default `lead` routing contract.
+- `/feature` sidecar boundaries.
+- `/plan` behavior.
+- Agent-readable documentation under `opencode/docs/ai/harness/`.
+
+The core harness validator is located at:
+
+```text
+opencode/scripts/check-harness.mjs
+```
+
+After global installation, you can also run it from the installed OpenCode configuration directory:
+
+```bash
+node scripts/check-harness.mjs
+```
+
+## Project structure
+
+```text
+.
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── workflows/
+│   ├── CODEOWNERS
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docker/
+│   └── open-design/
+├── docs/
+│   ├── releases/
+│   ├── agents.md
+│   ├── commands.md
+│   ├── configuration.md
+│   ├── docker-open-design.md
+│   ├── impeccable.md
+│   ├── installation.md
+│   ├── models.md
+│   ├── open-design.md
+│   ├── quickstart.md
+│   ├── security.md
+│   ├── troubleshooting.md
+│   └── workflows.md
+├── opencode/
+│   ├── agents/
+│   ├── commands/
+│   ├── docs/ai/
+│   ├── plugins/
+│   ├── references/
+│   ├── scripts/
+│   ├── skills/
+│   ├── tools/
+│   ├── AGENTS.md
+│   ├── opencode.json
+│   └── tui.json
+├── scripts/
+│   ├── check.sh
+│   ├── install-smoke.sh
+│   ├── manage-installation.mjs
+│   └── manage-installation.test.mjs
+├── doctor.sh
+├── install.sh
+├── rollback.sh
+├── uninstall.sh
+├── upgrade.sh
+└── env.example
+```
+
+The shipped OpenCode configuration contains:
+
+| Path | Purpose |
+|---|---|
+| `AGENTS.md` | Global behavior rules and agent index |
+| `opencode.json` | Models, permissions, plugins, and default agent |
+| `tui.json` | TUI plugin registration |
+| `agents/` | Specialized agent prompts |
+| `commands/` | Slash-command workflows |
+| `skills/` | Local process skills |
+| `tools/` | Custom TypeScript tools |
+| `plugins/` | Bundled OpenCode/TUI plugins |
+| `references/` | Reusable checklists referenced by skills |
+| `docs/ai/harness/` | Agent, command, evidence, and validation contracts |
+| `docs/ai/evolution/` | Harness-evolution benchmark and evidence records |
+| `scripts/check-harness.mjs` | Mechanical harness validation |
+
+## Permissions and safety
+
+The default OpenCode permissions are conservative:
+
+- Reads are allowed.
+- Edits ask by default.
+- Bash commands ask by default.
+- External directories are denied.
+
+Security recommendations:
+
+- Do not commit `.env`, authentication files, sessions, logs, or provider credentials.
+- Do not commit private `PRODUCT.md` or `DESIGN.md` files unless intended.
+- Treat Open Design as a privileged local tool because it can run local agent CLIs and write files inside project workspaces.
+- Do not expose Open Design directly to the Internet without authentication.
+- Prefer localhost, LAN, VPN, Tailscale, WireGuard, or authenticated HTTPS through a reverse proxy.
+
+## Troubleshooting
+
+### `OPEN_DESIGN_URL is not set`
+
+Set the base URL only:
+
+```bash
+export OPEN_DESIGN_URL="http://192.168.1.50:7456"
+```
+
+Do not use a project-specific path.
+
+### `/api/health` fails
+
+Check that Open Design is running and reachable from the machine or container where OpenCode runs.
+
+### OpenCode does not appear in Open Design agents
+
+Run:
+
+```bash
+opencode auth login
+```
+
+Also verify that `opencode` is available on `PATH`.
+
+### Token usage does not appear in the TUI
+
+Verify:
+
+1. `tui.json` contains the bundled plugin entry.
+2. `npm ci --ignore-scripts` was run in the OpenCode config directory while
+   its shipped manifests were intact (or preserved manifests were reviewed and
+   merged before selecting another install command).
+3. OpenCode was restarted.
+4. The current OpenCode TUI exposes child-session information to plugins.
+
+### Designer cannot access Open Design
+
+Verify:
+
+- `OPEN_DESIGN_URL`.
+- Tool registration.
+- `opencode/tools/open_design.ts`.
+- Network reachability between OpenCode and Open Design.
+
+### `crypto.randomUUID` fails over HTTP on a LAN URL
+
+Use HTTPS, or apply the optional upstream frontend patch described in the documentation.
+
+## Documentation
+
+Detailed guides are available in [`docs/`](docs/):
+
+- [Quickstart](docs/quickstart.md)
+- [Installation](docs/installation.md)
+- [Configuration](docs/configuration.md)
+- [Agents](docs/agents.md)
+- [Commands](docs/commands.md)
+- [Workflows](docs/workflows.md)
+- [Comparison with other OpenCode orchestration approaches](docs/comparison.md)
+- [Models](docs/models.md)
+- [Open Design](docs/open-design.md)
+- [Docker Open Design](docs/docker-open-design.md)
+- [Impeccable](docs/impeccable.md)
+- [Security](docs/security.md)
+- [Threat model](docs/threat-model.md)
+- [Reproducible use cases](docs/use-cases/README.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Awesome OpenCode submission draft](docs/distribution/awesome-opencode-submission.md)
+
+## Compatibility and scope
+
+- Node.js 22 and 24 are supported; the exact engine is `^22.9.0 || ^24.0.0`.
+- OpenCode `>=1.14.41 <2.0.0` is supported through tested boundary versions.
+- OpenCode 2 (`>=2.0.18 <3.0.0`) is supported experimentally; see [docs/opencode-v2.md](docs/opencode-v2.md).
+- WSL2 is experimental. Native Windows remains unsupported for lifecycle wrappers, which require Bash; direct `oak` commands are best-effort and do not provide POSIX-equivalent directory-entry fsync durability.
+- Open Design, Impeccable, Docker, and token-usage plugins remain optional.
+
+See the [complete compatibility matrix](docs/compatibility.md) for status
+definitions, exact pins, evidence, and scope.
+
+## Contributing
+
+Contributions are welcome.
+
+Found a bug or have an idea? [Open an issue](https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit/issues/new/choose) · [Browse existing issues](https://github.com/jcarlosrodicio/opencode-agent-orchestration-kit/issues)
+
+Good contributions include:
+
+- Clearer documentation.
+- Safer installation or uninstall behavior.
+- Improved troubleshooting.
+- Tighter agent or command prompts.
+- Better Docker and Open Design setup.
+- Validation improvements.
+- Reusable process skills.
+- Focused workflow enhancements that remain portable and safe for public reuse.
+
+Before opening a pull request:
+
+```bash
+npm run check
+```
+
+Use `npm run check:release` for release readiness.
+
+If Docker files changed:
+
+```bash
+docker compose -f docker/open-design/docker-compose.yml config
+```
+
+Please avoid committing credentials, authentication files, sessions, logs, private product documents, or machine-specific paths.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
+
+See [NOTICE.md](NOTICE.md) for attribution notices.
+
+## Disclaimer
+
+This repository is not affiliated with OpenCode, Open Design, or Impeccable.
